@@ -8,7 +8,7 @@ from onyx.access.models import ExternalAccess
 from onyx.connectors.github.models import SerializedRepository
 from onyx.utils.logger import setup_logger
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 logger = setup_logger()
 
@@ -21,7 +21,7 @@ def get_external_access_permission(
     This functionality requires Enterprise Edition.
     """
     # Check if EE is enabled
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         # For the MIT version, return an empty ExternalAccess (private document)
         return ExternalAccess.empty()
 

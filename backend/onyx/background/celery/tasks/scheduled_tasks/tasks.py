@@ -87,7 +87,7 @@ STUCK_RUNNING_OLDER_THAN = timedelta(seconds=DEFAULT_EXECUTOR_BUDGET_SECONDS + 1
     ignore_result=True,
     bind=True,
 )
-def dispatch_due_scheduled_tasks(self: Task, *, tenant_id: str) -> int:
+def dispatch_due_scheduled_tasks(self: Task, *, tenant_id: str = "public") -> int:
     """Claim due ``ScheduledTask`` rows and dispatch executor tasks.
 
     Returns the number of run rows inserted (QUEUED + SKIPPED) — useful
@@ -196,7 +196,7 @@ def dispatch_due_scheduled_tasks(self: Task, *, tenant_id: str) -> int:
     bind=True,
     track_started=True,
 )
-def run_scheduled_task(self: Task, *, run_id: str, tenant_id: str) -> None:
+def run_scheduled_task(self: Task, *, run_id: str, tenant_id: str = "public") -> None:
     """Thin Celery wrapper around :func:`run_scheduled_task_logic`.
 
     ``tenant_id`` is consumed by ``TenantAwareTask`` before this body
@@ -226,7 +226,7 @@ def run_scheduled_task(self: Task, *, run_id: str, tenant_id: str) -> None:
     ignore_result=True,
     bind=True,
 )
-def cleanup_stuck_scheduled_runs(self: Task, *, tenant_id: str) -> int:
+def cleanup_stuck_scheduled_runs(self: Task, *, tenant_id: str = "public") -> int:
     """Mark abandoned runs as ``FAILED (stuck)``.
 
     A run is "stuck" when either:

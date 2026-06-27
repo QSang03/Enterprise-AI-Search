@@ -11,14 +11,14 @@ from typing import cast
 from onyx.access.models import ExternalAccess
 from onyx.connectors.canvas.client import CanvasApiClient
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 
 def get_course_permissions(
     canvas_client: CanvasApiClient,
     course_id: int,
 ) -> ExternalAccess | None:
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         return None
 
     ee_get_course_permissions = cast(

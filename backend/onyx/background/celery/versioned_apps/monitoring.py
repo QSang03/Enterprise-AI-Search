@@ -3,9 +3,9 @@
 from celery import Celery
 
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import set_is_ee_based_on_env_variable
+from onyx.utils.variable_functionality import set_edition_from_env
 
-set_is_ee_based_on_env_variable()
+set_edition_from_env()
 app: Celery = fetch_versioned_implementation(
     "onyx.background.celery.apps.monitoring",
     "celery_app",

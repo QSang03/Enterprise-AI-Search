@@ -52,7 +52,7 @@ def is_sandbox_idle(sandbox: Sandbox, now: datetime.datetime) -> bool:
     bind=True,
     ignore_result=True,
 )
-def cleanup_idle_sandboxes_task(self: Task, *, tenant_id: str) -> None:  # noqa: ARG001
+def cleanup_idle_sandboxes_task(self: Task, *, tenant_id: str = "public") -> None:  # noqa: ARG001
     """Sweep RUNNING sandboxes: background-snapshot sessions, sleep idle ones.
 
     Background snapshots bound data loss from ungraceful pod death (kubelet

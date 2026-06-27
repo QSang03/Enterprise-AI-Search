@@ -22,7 +22,6 @@ from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 from onyx.configs.constants import SSL_CERT_FILE
 from shared_configs.configs import (
-    MULTI_TENANT,
     POSTGRES_DEFAULT_SCHEMA,
     TENANT_ID_PREFIX,
 )
@@ -185,12 +184,7 @@ def get_schema_options() -> tuple[
     if range_filtering:
         upgrade_all_tenants = True
 
-    # Validate multi-tenant requirements
-    if MULTI_TENANT and not upgrade_all_tenants and not specific_filtering:
-        raise ValueError(
-            "In multi-tenant mode, you must specify either upgrade_all_tenants=true "
-            "or provide schemas. Cannot run default migration."
-        )
+
 
     return (
         create_schema,
@@ -262,7 +256,7 @@ async def run_async_migrations() -> None:
         schemas,
     ) = get_schema_options()
 
-    if not schemas and not MULTI_TENANT:
+    if not schemas:
         schemas = [POSTGRES_DEFAULT_SCHEMA]
 
     # without init_engine, subsequent engine calls fail hard intentionally

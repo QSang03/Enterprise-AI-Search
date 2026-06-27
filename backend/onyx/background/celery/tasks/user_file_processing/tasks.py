@@ -150,7 +150,7 @@ def enqueue_user_file_project_sync_task(
     bind=True,
     ignore_result=True,
 )
-def check_user_file_processing(self: Task, *, tenant_id: str) -> None:
+def check_user_file_processing(self: Task, *, tenant_id: str = "public") -> None:
     """Scan for user files with PROCESSING status and enqueue per-file tasks.
 
     Three mechanisms prevent queue runaway:
@@ -508,7 +508,7 @@ def process_single_user_file(
     self: Task,  # noqa: ARG001
     *,
     user_file_id: str,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     process_user_file_impl(
         user_file_id=user_file_id, tenant_id=tenant_id, redis_locking=True
@@ -521,7 +521,7 @@ def process_single_user_file(
     bind=True,
     ignore_result=True,
 )
-def check_for_user_file_delete(self: Task, *, tenant_id: str) -> None:
+def check_for_user_file_delete(self: Task, *, tenant_id: str = "public") -> None:
     """Scan for user files with DELETING status and enqueue per-file tasks.
 
     Three mechanisms prevent queue runaway (mirrors check_user_file_processing):
@@ -730,7 +730,7 @@ def process_single_user_file_delete(
     self: Task,  # noqa: ARG001
     *,
     user_file_id: str,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     delete_user_file_impl(
         user_file_id=user_file_id, tenant_id=tenant_id, redis_locking=True
@@ -743,7 +743,7 @@ def process_single_user_file_delete(
     bind=True,
     ignore_result=True,
 )
-def check_for_user_file_project_sync(self: Task, *, tenant_id: str) -> None:
+def check_for_user_file_project_sync(self: Task, *, tenant_id: str = "public") -> None:
     """Scan for user files needing project sync and enqueue per-file tasks."""
     task_logger.info("Starting")
 
@@ -853,7 +853,7 @@ def project_sync_user_file_impl(
             user_files = fetch_user_files_with_access_relationships(
                 [user_file_id],
                 db_session,
-                eager_load_groups=global_version.is_ee_version(),
+                eager_load_groups=core_version.is_premium_version(),
             )
             user_file = user_files[0] if user_files else None
             if not user_file:
@@ -929,7 +929,7 @@ def process_single_user_file_project_sync(
     self: Task,  # noqa: ARG001
     *,
     user_file_id: str,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     project_sync_user_file_impl(
         user_file_id=user_file_id, tenant_id=tenant_id, redis_locking=True

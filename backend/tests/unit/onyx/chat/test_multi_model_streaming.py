@@ -28,21 +28,21 @@ from onyx.server.query_and_chat.streaming_models import ChatHeartbeat
 from onyx.server.query_and_chat.streaming_models import OverallStop
 from onyx.server.query_and_chat.streaming_models import Packet
 from onyx.server.query_and_chat.streaming_models import ReasoningStart
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 
 @pytest.fixture(autouse=True)
 def _restore_ee_version() -> Generator[None, None, None]:
     """Reset EE global state after each test.
 
-    Importing onyx.chat.process_message triggers set_is_ee_based_on_env_variable()
+    Importing onyx.chat.process_message triggers set_edition_from_env()
     (via the celery client import chain).  Without this fixture, the EE flag stays
     True for the rest of the session and breaks unrelated tests that mock Confluence
     or other connectors and assume EE is disabled.
     """
-    original = global_version._is_ee
+    original = core_version._is_ee
     yield
-    global_version._is_ee = original
+    core_version._is_ee = original
 
 
 # ---------------------------------------------------------------------------

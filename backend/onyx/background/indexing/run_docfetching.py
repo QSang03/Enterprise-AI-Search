@@ -79,7 +79,7 @@ from onyx.redis.redis_pool import get_redis_client
 from onyx.utils.logger import setup_logger
 from onyx.utils.postgres_sanitization import sanitize_document_for_postgres
 from onyx.utils.postgres_sanitization import sanitize_hierarchy_nodes_for_postgres
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 from shared_configs.configs import MULTI_TENANT
 from shared_configs.contextvars import INDEX_ATTEMPT_INFO_CONTEXTVAR
 
@@ -313,7 +313,7 @@ def run_docfetching_entrypoint(
     """Don't swallow exceptions here ... propagate them up."""
 
     if is_ee:
-        global_version.set_ee()
+        core_version.set_ee()
 
     # set the indexing attempt ID so that all log messages from this process
     # will have it added as a prefix

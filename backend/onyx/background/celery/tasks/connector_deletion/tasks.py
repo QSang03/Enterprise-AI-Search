@@ -137,7 +137,7 @@ def revoke_tasks_blocking_deletion(
     trail=False,
     bind=True,
 )
-def check_for_connector_deletion_task(self: Task, *, tenant_id: str) -> bool | None:
+def check_for_connector_deletion_task(self: Task, *, tenant_id: str = "public") -> bool | None:
     r = get_redis_client()
     r_replica = get_redis_replica_client()
 

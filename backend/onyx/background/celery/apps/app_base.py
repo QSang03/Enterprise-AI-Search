@@ -164,12 +164,12 @@ def on_task_postrun(
         # this is a cloud / all tenant task ... no postrun is needed
         return
 
-    # Get tenant_id directly from kwargs- each celery task has a tenant_id kwarg
-    if not kwargs:
-        logger.error("Task %s (ID: %s) is missing kwargs", task.name, task_id)
-        tenant_id = POSTGRES_DEFAULT_SCHEMA
-    else:
-        tenant_id = cast(str, kwargs.get("tenant_id", POSTGRES_DEFAULT_SCHEMA))
+    # Single-tenant fallback: always default to POSTGRES_DEFAULT_SCHEMA
+    tenant_id = (
+        cast(str, kwargs.get("tenant_id", POSTGRES_DEFAULT_SCHEMA))
+        if kwargs
+        else POSTGRES_DEFAULT_SCHEMA
+    )
 
     task_logger.debug(
         "Task %s (ID: %s) completed with state: %s %s",

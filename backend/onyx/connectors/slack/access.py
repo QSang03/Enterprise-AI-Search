@@ -7,7 +7,7 @@ from onyx.access.models import ExternalAccess
 from onyx.connectors.models import BasicExpertInfo
 from onyx.connectors.slack.models import ChannelType
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 
 def get_channel_access(
@@ -22,7 +22,7 @@ def get_channel_access(
     are scoped to the union of the workspaces they're shared into instead of
     being marked org-public.
     """
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         return None
 
     ee_get_channel_access = cast(

@@ -154,7 +154,6 @@ from onyx.utils.telemetry import RecordType
 from onyx.utils.timing import log_function_time
 from onyx.utils.url import add_url_params
 from onyx.utils.variable_functionality import fetch_ee_implementation_or_noop
-from shared_configs.configs import async_return_default_schema
 from shared_configs.configs import MULTI_TENANT
 from shared_configs.configs import POSTGRES_DEFAULT_SCHEMA
 from shared_configs.contextvars import CURRENT_TENANT_ID_CONTEXTVAR
@@ -458,17 +457,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     user_db: SQLAlchemyUserDatabase[User, uuid.UUID]
 
     async def get_by_email(self, user_email: str) -> User:
-        tenant_id = fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.user_mapping", "get_tenant_id_for_email", None
-        )(user_email)
-        async with get_async_session_context_manager(tenant_id) as db_session:
-            if MULTI_TENANT:
-                tenant_user_db = SQLAlchemyUserAdminDB[User, uuid.UUID](
-                    db_session, User, OAuthAccount
-                )
-                user = await tenant_user_db.get_by_email(user_email)
-            else:
-                user = await self.user_db.get_by_email(user_email)
+        user = await self.user_db.get_by_email(user_email)
 
         if not user:
             raise exceptions.UserNotExists()
@@ -500,43 +489,25 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         except KeyError:
             raise exceptions.InvalidVerifyToken()
 
-        try:
-            tenant_id = fetch_ee_implementation_or_noop(
-                "onyx.server.tenants.user_mapping",
-                "get_tenant_id_for_email",
-                None,
-            )(email)
-        except exceptions.UserNotExists:
+        user = await self.user_db.get_by_email(email)
+        if user is None:
             raise exceptions.InvalidVerifyToken()
 
-        contextvar_token = CURRENT_TENANT_ID_CONTEXTVAR.set(tenant_id)
         try:
-            async with get_async_session_context_manager(tenant_id) as db_session:
-                tenant_user_db = SQLAlchemyUserAdminDB[User, uuid.UUID](
-                    db_session, User, OAuthAccount
-                )
+            parsed_id = self.parse_id(user_id)
+        except exceptions.InvalidID:
+            raise exceptions.InvalidVerifyToken()
 
-                user = await tenant_user_db.get_by_email(email)
-                if user is None:
-                    raise exceptions.InvalidVerifyToken()
+        if parsed_id != user.id:
+            raise exceptions.InvalidVerifyToken()
 
-                try:
-                    parsed_id = self.parse_id(user_id)
-                except exceptions.InvalidID:
-                    raise exceptions.InvalidVerifyToken()
+        if user.is_verified:
+            raise exceptions.UserAlreadyVerified()
 
-                if parsed_id != user.id:
-                    raise exceptions.InvalidVerifyToken()
+        verified_user = await self.user_db.update(user, {"is_verified": True})
 
-                if user.is_verified:
-                    raise exceptions.UserAlreadyVerified()
-
-                verified_user = await tenant_user_db.update(user, {"is_verified": True})
-
-                await self.on_after_verify(verified_user, request)
-                return verified_user
-        finally:
-            CURRENT_TENANT_ID_CONTEXTVAR.reset(contextvar_token)
+        await self.on_after_verify(verified_user, request)
+        return verified_user
 
     async def create(
         self,
@@ -604,15 +575,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             else None
         )
 
-        tenant_id = await fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.provisioning",
-            "get_or_provision_tenant",
-            async_return_default_schema,
-        )(
-            email=user_create.email,
-            referral_source=referral_source,
-            request=request,
-        )
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
         user: User
 
         token = CURRENT_TENANT_ID_CONTEXTVAR.set(tenant_id)
@@ -864,15 +827,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             getattr(request.state, "referral_source", None) if request else None
         )
 
-        tenant_id = await fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.provisioning",
-            "get_or_provision_tenant",
-            async_return_default_schema,
-        )(
-            email=account_email,
-            referral_source=referral_source,
-            request=request,
-        )
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
 
         if not tenant_id:
             raise HTTPException(status_code=401, detail="User not found")
@@ -1074,14 +1029,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_register(
         self, user: User, request: Optional[Request] = None
     ) -> None:
-        tenant_id = await fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.provisioning",
-            "get_or_provision_tenant",
-            async_return_default_schema,
-        )(
-            email=user.email,
-            request=request,
-        )
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
 
         user_count = None
         token = CURRENT_TENANT_ID_CONTEXTVAR.set(tenant_id)
@@ -1205,11 +1153,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
                 status.HTTP_500_INTERNAL_SERVER_ERROR,
                 "Your admin has not enabled this feature.",
             )
-        tenant_id = await fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.provisioning",
-            "get_or_provision_tenant",
-            async_return_default_schema,
-        )(email=user.email)
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
 
         send_forgot_password_email(user.email, tenant_id=tenant_id, token=token)
 
@@ -1271,18 +1215,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             )
 
         tenant_id: str | None = None
-        try:
-            tenant_id = fetch_ee_implementation_or_noop(
-                "onyx.server.tenants.provisioning",
-                "get_tenant_id_for_email",
-                POSTGRES_DEFAULT_SCHEMA,
-            )(
-                email=email,
-            )
-        except Exception as e:
-            logger.warning(
-                "User attempted to login with invalid credentials: %s", str(e)
-            )
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
 
         if not tenant_id:
             # User not found in mapping
@@ -1418,11 +1351,7 @@ class TenantAwareRedisStrategy(RedisStrategy[User, uuid.UUID]):
     async def write_token(self, user: User) -> str:
         redis = await get_async_redis_connection()
 
-        tenant_id = await fetch_ee_implementation_or_noop(
-            "onyx.server.tenants.provisioning",
-            "get_or_provision_tenant",
-            async_return_default_schema,
-        )(email=user.email)
+        tenant_id = POSTGRES_DEFAULT_SCHEMA
 
         token_data = {
             "sub": str(user.id),
@@ -2616,12 +2545,7 @@ def get_oauth_router(
 
             next_url = state_data.get("next_url", "/")
             referral_source = state_data.get("referral_source", None)
-            try:
-                tenant_id = fetch_ee_implementation_or_noop(
-                    "onyx.server.tenants.user_mapping", "get_tenant_id_for_email", None
-                )(account_email)
-            except exceptions.UserNotExists:
-                tenant_id = None
+            tenant_id = POSTGRES_DEFAULT_SCHEMA
 
             request.state.referral_source = referral_source
 

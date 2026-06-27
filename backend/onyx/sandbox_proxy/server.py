@@ -33,7 +33,7 @@ from onyx.server.features.build.configs import SANDBOX_NAMESPACE
 from onyx.server.features.build.configs import SANDBOX_PROXY_HEALTHZ_PORT
 from onyx.server.features.build.configs import SANDBOX_PROXY_LISTEN_PORT
 from onyx.utils.logger import setup_logger
-from onyx.utils.variable_functionality import set_is_ee_based_on_env_variable
+from onyx.utils.variable_functionality import set_edition_from_env
 
 _DB_POOL_SIZE = 4
 _DB_MAX_OVERFLOW = 4
@@ -198,7 +198,7 @@ def _install_signal_handlers(
 
 
 def main() -> int:
-    set_is_ee_based_on_env_variable()
+    set_edition_from_env()
 
     logger.info(
         "Starting sandbox proxy listen=%d healthz=%d namespace=%s",

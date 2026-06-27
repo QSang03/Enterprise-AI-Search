@@ -15,7 +15,7 @@ from onyx.configs.constants import OnyxRedisConstants
 from onyx.redis.redis_object_helper import RedisObjectHelper
 from onyx.redis.tenant_redis_client import TenantRedisClient
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 
 class RedisUserGroup(RedisObjectHelper):
@@ -68,7 +68,7 @@ class RedisUserGroup(RedisObjectHelper):
         last_lock_time = time.monotonic()
         num_tasks_sent = 0
 
-        if not global_version.is_ee_version():
+        if not core_version.is_premium_version():
             return 0, 0
 
         try:

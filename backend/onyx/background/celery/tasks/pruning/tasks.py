@@ -204,7 +204,7 @@ def _is_pruning_due(cc_pair: ConnectorCredentialPair) -> bool:
     soft_time_limit=JOB_TIMEOUT,
     bind=True,
 )
-def check_for_pruning(self: Task, *, tenant_id: str) -> bool | None:
+def check_for_pruning(self: Task, *, tenant_id: str = "public") -> bool | None:
     r = get_redis_client()
     r_replica = get_redis_replica_client()
 
@@ -467,7 +467,7 @@ def connector_pruning_generator_task(
     cc_pair_id: int,
     connector_id: int,
     credential_id: int,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     """connector pruning task. For a cc pair, this task pulls all document IDs from the source
     and compares those IDs to locally stored documents and deletes all locally stored IDs missing

@@ -31,7 +31,7 @@ from onyx.db.models import InternetSearchProvider
 from onyx.db.rotate_encryption_key import _discover_encrypted_columns
 from onyx.db.rotate_encryption_key import rotate_encryption_key
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 EE_MODULE = "ee.onyx.utils.encryption"
 ROTATE_MODULE = "onyx.db.rotate_encryption_key"
@@ -42,11 +42,11 @@ NEW_KEY = "n" * 16
 
 @pytest.fixture(autouse=True)
 def _enable_ee() -> Generator[None, None, None]:
-    prev = global_version._is_ee
-    global_version.set_ee()
+    prev = core_version._is_ee
+    core_version.set_ee()
     fetch_versioned_implementation.cache_clear()
     yield
-    global_version._is_ee = prev
+    core_version._is_ee = prev
     fetch_versioned_implementation.cache_clear()
 
 

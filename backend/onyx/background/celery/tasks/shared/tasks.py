@@ -77,7 +77,7 @@ def document_by_cc_pair_cleanup_task(
     document_id: str,
     connector_id: int,
     credential_id: int,
-    tenant_id: str,  # noqa: ARG001 — kept on the celery task signature
+    tenant_id: str = "public",  # noqa: ARG001 — kept on the celery task signature
 ) -> bool:
     """A lightweight subtask used to clean up document to cc pair relationships.
     Created by connection deletion and connector pruning parent tasks."""
@@ -290,7 +290,7 @@ def document_by_cc_pair_cleanup_task(
 
 
 @shared_task(name=OnyxCeleryTask.CELERY_BEAT_HEARTBEAT, ignore_result=True, bind=True)
-def celery_beat_heartbeat(self: Task, *, tenant_id: str) -> None:  # noqa: ARG001
+def celery_beat_heartbeat(self: Task, *, tenant_id: str = "public") -> None:  # noqa: ARG001
     """When this task runs, it writes a key to Redis with a TTL.
 
     An external observer can check this key to figure out if the celery beat is still running.

@@ -5,7 +5,7 @@ from typing import cast
 from onyx.access.models import ExternalAccess
 from onyx.connectors.confluence.onyx_confluence import OnyxConfluence
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 
 def get_page_restrictions(
@@ -26,7 +26,7 @@ def get_page_restrictions(
     Returns ExternalAccess for the page, or None if EE is not enabled or no
     restrictions are found.
     """
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         return None
 
     ee_get_all_page_restrictions = cast(
@@ -55,7 +55,7 @@ def get_page_restrictions_with_per_ancestor_fetch(
     """CONFCLOUD-77618 variant of `get_page_restrictions`. Ancestors
     arrive without inline restrictions; each is fetched via
     `restriction/byOperation` with 403/404 swallowed for drafts. EE-only."""
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         return None
 
     ee_get_per_ancestor = cast(
@@ -102,7 +102,7 @@ def get_all_space_permissions(
     Returns a mapping of space key to ExternalAccess. Empty dict if EE is not
     enabled.
     """
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         return {}
 
     ee_get_all_space_permissions = cast(

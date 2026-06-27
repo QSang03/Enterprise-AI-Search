@@ -42,7 +42,7 @@ from onyx.utils.platform_utils import is_running_in_container
 from onyx.utils.variable_functionality import (
     fetch_versioned_implementation_with_fallback,
 )
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 from shared_configs.configs import MULTI_TENANT
 
 logger = setup_logger()
@@ -66,7 +66,7 @@ def admin_put_settings(
             f"File upload size limit cannot exceed {MAX_ALLOWED_UPLOAD_SIZE_MB} MB",
         )
 
-    if global_version.is_ee_version():
+    if core_version.is_premium_version():
         from ee.onyx.utils.tier import get_tier
 
         current_tier = get_tier()

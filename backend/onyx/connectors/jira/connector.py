@@ -1086,11 +1086,11 @@ def make_checkpoint_callback(
 if __name__ == "__main__":
     import os
 
-    from onyx.utils.variable_functionality import global_version
+    from onyx.utils.variable_functionality import core_version
     from tests.daily.connectors.utils import load_all_from_connector
 
     # For connector permission testing, set EE to true.
-    global_version.set_ee()
+    core_version.set_ee()
 
     connector = JiraConnector(
         jira_base_url=os.environ["JIRA_BASE_URL"],

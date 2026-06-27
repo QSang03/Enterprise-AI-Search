@@ -62,7 +62,7 @@ from onyx.utils.variable_functionality import fetch_versioned_implementation
 from onyx.utils.variable_functionality import (
     fetch_versioned_implementation_with_fallback,
 )
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 from onyx.utils.variable_functionality import noop_fallback
 
 logger = setup_logger()
@@ -79,7 +79,7 @@ logger = setup_logger()
     trail=False,
     bind=True,
 )
-def check_for_vespa_sync_task(self: Task, *, tenant_id: str) -> bool | None:
+def check_for_vespa_sync_task(self: Task, *, tenant_id: str = "public") -> bool | None:
     """Runs periodically to check if any document needs syncing.
     Generates sets of tasks for Celery if syncing is needed."""
 
@@ -130,7 +130,7 @@ def check_for_vespa_sync_task(self: Task, *, tenant_id: str) -> bool | None:
 
         # check if any user groups are not synced
         lock_beat.reacquire()
-        if global_version.is_ee_version():
+        if core_version.is_premium_version():
             try:
                 fetch_user_groups = fetch_versioned_implementation(
                     "onyx.db.user_group", "fetch_user_groups"
@@ -461,7 +461,7 @@ def document_index_metadata_sync_task(
     self: Task,
     document_id: str,
     *,
-    tenant_id: str,  # noqa: ARG001 — kept on the celery task signature
+    tenant_id: str = "public",  # noqa: ARG001 — kept on the celery task signature
 ) -> bool:
     start = time.monotonic()
 

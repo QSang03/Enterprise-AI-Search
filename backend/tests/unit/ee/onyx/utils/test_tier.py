@@ -103,7 +103,7 @@ class TestSelfHostedTierLegacyBypass:
     """
 
     @patch("ee.onyx.utils.tier.LICENSE_ENFORCEMENT_ENABLED", False)
-    @patch("ee.onyx.utils.tier.global_version")
+    @patch("ee.onyx.utils.tier.core_version")
     @patch("ee.onyx.utils.tier.get_cached_license_metadata")
     def test_ee_loaded_returns_enterprise_without_license_lookup(
         self,
@@ -112,13 +112,13 @@ class TestSelfHostedTierLegacyBypass:
     ) -> None:
         from ee.onyx.utils.tier import get_tier
 
-        mock_global_version.is_ee_version.return_value = True
+        mock_core_version.is_premium_version.return_value = True
 
         assert get_tier() == Tier.ENTERPRISE
         mock_get_cached.assert_not_called()
 
     @patch("ee.onyx.utils.tier.LICENSE_ENFORCEMENT_ENABLED", False)
-    @patch("ee.onyx.utils.tier.global_version")
+    @patch("ee.onyx.utils.tier.core_version")
     @patch("ee.onyx.utils.tier.get_cached_license_metadata")
     def test_ee_not_loaded_returns_community(
         self,
@@ -128,7 +128,7 @@ class TestSelfHostedTierLegacyBypass:
         """Without EE code paths loaded there's nothing to upgrade to."""
         from ee.onyx.utils.tier import get_tier
 
-        mock_global_version.is_ee_version.return_value = False
+        mock_core_version.is_premium_version.return_value = False
 
         assert get_tier() == Tier.COMMUNITY
         mock_get_cached.assert_not_called()

@@ -47,7 +47,7 @@ from onyx.db.models import CloudEmbeddingProvider  # noqa: E402
 from onyx.db.models import LLMProvider  # noqa: E402
 from onyx.db.models import VoiceProvider  # noqa: E402
 from onyx.utils.variable_functionality import (  # noqa: E402
-    set_is_ee_based_on_env_variable,
+    set_edition_from_env,
 )
 
 PROVIDER_ALIASES: dict[str, set[str]] = {
@@ -204,7 +204,7 @@ def main() -> None:
     for p in args.provider:
         provider_names |= PROVIDER_ALIASES[p]
 
-    set_is_ee_based_on_env_variable()
+    set_edition_from_env()
     SqlEngine.init_engine(pool_size=5, max_overflow=2)
 
     if args.dry_run:

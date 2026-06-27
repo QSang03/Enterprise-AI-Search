@@ -23,7 +23,7 @@ from onyx.db.models import EncryptedJson
 from onyx.db.models import EncryptedString
 from onyx.utils.encryption import decrypt_bytes_to_string
 from onyx.utils.logger import setup_logger
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 
 logger = setup_logger()
 
@@ -84,7 +84,7 @@ def rotate_encryption_key(
     is preserved on crash. Already-rotated rows are detected and skipped,
     making the operation safe to re-run.
     """
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         raise RuntimeError("EE mode is not enabled — rotation requires EE encryption.")
 
     if not ENCRYPTION_KEY_SECRET:

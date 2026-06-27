@@ -9,7 +9,7 @@ from onyx.configs.app_configs import AUTO_LLM_UPDATE_INTERVAL_SECONDS
 from onyx.configs.app_configs import DISABLE_OPENSEARCH_MIGRATION_TASK
 from onyx.configs.app_configs import DISABLE_VECTOR_DB
 from onyx.configs.app_configs import ENABLE_OPENSEARCH_INDEXING_FOR_ONYX
-from onyx.configs.app_configs import ENTERPRISE_EDITION_ENABLED
+from onyx.configs.app_configs import PREMIUM_EDITION_ENABLED
 from onyx.configs.app_configs import ONYX_DISABLE_VESPA
 from onyx.configs.app_configs import SCHEDULED_EVAL_DATASET_NAMES
 from onyx.configs.constants import OnyxCeleryPriority
@@ -192,7 +192,7 @@ beat_tasks: list[dict] = [
 ]
 
 # EE features — doc permissions sync and external group sync
-if ENTERPRISE_EDITION_ENABLED or _LICENSE_ENFORCEMENT_ENABLED:
+if PREMIUM_EDITION_ENABLED or _LICENSE_ENFORCEMENT_ENABLED:
     beat_tasks.extend(
         [
             {

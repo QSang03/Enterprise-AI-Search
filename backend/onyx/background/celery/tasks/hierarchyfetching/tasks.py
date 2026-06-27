@@ -169,7 +169,7 @@ def _try_creating_hierarchy_fetching_task(
     soft_time_limit=300,
     bind=True,
 )
-def check_for_hierarchy_fetching(self: Task, *, tenant_id: str) -> int | None:
+def check_for_hierarchy_fetching(self: Task, *, tenant_id: str = "public") -> int | None:
     """Check for connectors that need hierarchy fetching and spawn tasks.
 
     This task runs periodically (once per day) and checks all active connectors
@@ -356,7 +356,7 @@ def connector_hierarchy_fetching_task(
     self: Task,  # noqa: ARG001
     *,
     cc_pair_id: int,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     """Fetch hierarchy information from a connector.
 

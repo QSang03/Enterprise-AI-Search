@@ -85,7 +85,7 @@ def is_continuation_token_done_for_all_slices(
 def migrate_chunks_from_vespa_to_opensearch_task(
     self: Task,  # noqa: ARG001
     *,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> bool | None:
     """
     Periodic task to migrate chunks from Vespa to OpenSearch via the Visit API.

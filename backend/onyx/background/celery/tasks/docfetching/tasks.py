@@ -39,7 +39,7 @@ from onyx.db.indexing_coordination import IndexingCoordination
 from onyx.redis.redis_connector import RedisConnector
 from onyx.server.metrics.connector_health_metrics import on_index_attempt_status_change
 from onyx.utils.logger import setup_logger
-from onyx.utils.variable_functionality import global_version
+from onyx.utils.variable_functionality import core_version
 from shared_configs.configs import SENTRY_CELERY_TRACES_SAMPLE_RATE
 from shared_configs.configs import SENTRY_DSN
 
@@ -318,7 +318,7 @@ def docfetching_proxy_task(
     index_attempt_id: int,
     cc_pair_id: int,
     search_settings_id: int,
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     """
     This task is the entrypoint for the full indexing pipeline, which is composed of two tasks:
@@ -417,7 +417,7 @@ def docfetching_proxy_task(
         index_attempt_id,
         cc_pair_id,
         search_settings_id,
-        global_version.is_ee_version(),
+        core_version.is_premium_version(),
         tenant_id,
     )
 

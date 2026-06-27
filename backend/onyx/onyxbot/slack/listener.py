@@ -91,7 +91,7 @@ from onyx.server.manage.models import SlackBotTokens
 from onyx.tracing.setup import setup_tracing
 from onyx.utils.logger import setup_logger
 from onyx.utils.variable_functionality import fetch_ee_implementation_or_noop
-from onyx.utils.variable_functionality import set_is_ee_based_on_env_variable
+from onyx.utils.variable_functionality import set_edition_from_env
 from shared_configs.configs import DISALLOWED_SLACK_BOT_TENANT_LIST
 from shared_configs.configs import MODEL_SERVER_HOST
 from shared_configs.configs import MODEL_SERVER_PORT
@@ -1317,7 +1317,7 @@ if __name__ == "__main__":
     logger.info("Starting SlackbotHandler")
     tenant_handler = SlackbotHandler()
 
-    set_is_ee_based_on_env_variable()
+    set_edition_from_env()
     setup_tracing()
 
     try:

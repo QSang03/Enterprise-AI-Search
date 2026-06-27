@@ -681,7 +681,7 @@ def build_job_id(
     queue=OnyxCeleryQueues.MONITORING,
     bind=True,
 )
-def monitor_background_processes(self: Task, *, tenant_id: str) -> None:
+def monitor_background_processes(self: Task, *, tenant_id: str = "public") -> None:
     """Collect and emit metrics about background processes.
     This task runs periodically to gather metrics about:
     - Queue lengths for different Celery queues
@@ -895,7 +895,7 @@ def cloud_monitor_celery_queues(
 
 
 @shared_task(name=OnyxCeleryTask.MONITOR_CELERY_QUEUES, ignore_result=True, bind=True)
-def monitor_celery_queues(self: Task, *, tenant_id: str) -> None:  # noqa: ARG001
+def monitor_celery_queues(self: Task, *, tenant_id: str = "public") -> None:  # noqa: ARG001
     return monitor_celery_queues_helper(self)
 
 
@@ -1004,7 +1004,7 @@ def _get_cmdline_for_process(process: psutil.Process) -> str | None:
     queue=OnyxCeleryQueues.MONITORING,
     bind=True,
 )
-def monitor_process_memory(self: Task, *, tenant_id: str) -> None:  # noqa: ARG001
+def monitor_process_memory(self: Task, *, tenant_id: str = "public") -> None:  # noqa: ARG001
     """
     Task to monitor memory usage of supervisor-managed processes.
     This periodically checks the memory usage of processes and logs information

@@ -844,7 +844,7 @@ def _kickoff_indexing_tasks(
     soft_time_limit=300,
     bind=True,
 )
-def check_for_indexing(self: Task, *, tenant_id: str) -> int | None:
+def check_for_indexing(self: Task, *, tenant_id: str = "public") -> int | None:
     """a lightweight task used to kick off the pipeline of indexing tasks.
     Occcasionally does some validation of existing state to clear up error conditions.
 
@@ -1214,7 +1214,7 @@ def check_for_indexing(self: Task, *, tenant_id: str) -> int | None:
     soft_time_limit=300,
     bind=True,
 )
-def check_for_checkpoint_cleanup(self: Task, *, tenant_id: str) -> None:
+def check_for_checkpoint_cleanup(self: Task, *, tenant_id: str = "public") -> None:
     """Clean up old checkpoints that are older than 7 days."""
     locked = False
     redis_client = get_redis_client(tenant_id=tenant_id)
@@ -1266,7 +1266,7 @@ def cleanup_checkpoint_task(
     self: Task,  # noqa: ARG001
     *,
     index_attempt_id: int,
-    tenant_id: str | None,
+    tenant_id: str | None = "public",
 ) -> None:
     """Clean up a checkpoint for a given index attempt"""
 
@@ -1289,7 +1289,7 @@ def cleanup_checkpoint_task(
     soft_time_limit=300,
     bind=True,
 )
-def check_for_index_attempt_cleanup(self: Task, *, tenant_id: str) -> None:
+def check_for_index_attempt_cleanup(self: Task, *, tenant_id: str = "public") -> None:
     """Clean up old index attempts that are older than 7 days."""
     locked = False
     redis_client = get_redis_client(tenant_id=tenant_id)
@@ -1355,7 +1355,7 @@ def cleanup_index_attempt_task(
     self: Task,  # noqa: ARG001
     *,
     index_attempt_ids: list[int],
-    tenant_id: str,
+    tenant_id: str = "public",
 ) -> None:
     """Clean up an index attempt"""
     start = time.monotonic()

@@ -170,8 +170,8 @@ from onyx.utils.telemetry import optional_telemetry
 from onyx.utils.telemetry import RecordType
 from onyx.utils.variable_functionality import fetch_ee_implementation_or_noop
 from onyx.utils.variable_functionality import fetch_versioned_implementation
-from onyx.utils.variable_functionality import global_version
-from onyx.utils.variable_functionality import set_is_ee_based_on_env_variable
+from onyx.utils.variable_functionality import core_version
+from onyx.utils.variable_functionality import set_edition_from_env
 from shared_configs.configs import CORS_ALLOW_CREDENTIALS
 from shared_configs.configs import CORS_ALLOWED_ORIGIN
 from shared_configs.configs import MULTI_TENANT
@@ -782,7 +782,7 @@ def get_application(lifespan_override: Lifespan | None = None) -> FastAPI:
 
 # NOTE: needs to be outside of the `if __name__ == "__main__"` block so that the
 # app is exportable
-set_is_ee_based_on_env_variable()
+set_edition_from_env()
 app = fetch_versioned_implementation(module="onyx.main", attribute="get_application")
 
 
@@ -794,7 +794,7 @@ if __name__ == "__main__":
         str(APP_PORT),
     )
 
-    if global_version.is_ee_version():
+    if core_version.is_premium_version():
         logger.notice("Running Enterprise Edition")
 
     uvicorn.run(app, host=APP_HOST, port=APP_PORT)
