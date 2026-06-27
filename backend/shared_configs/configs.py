@@ -222,3 +222,15 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT") or "not_explicitly_set"
 
 # Usage limits are a cloud/SaaS feature and are always disabled for self-hosted.
 USAGE_LIMITS_ENABLED = False
+
+# Usage limit configuration fallbacks (kept for backend compatibility)
+USAGE_LIMIT_WINDOW_SECONDS = int(os.environ.get("USAGE_LIMIT_WINDOW_SECONDS", "604800"))
+USAGE_LIMIT_LLM_COST_CENTS_TRIAL = int(os.environ.get("USAGE_LIMIT_LLM_COST_CENTS_TRIAL", "3200"))
+USAGE_LIMIT_LLM_COST_CENTS_PAID = int(os.environ.get("USAGE_LIMIT_LLM_COST_CENTS_PAID", "6400"))
+USAGE_LIMIT_CHUNKS_INDEXED_TRIAL = int(os.environ.get("USAGE_LIMIT_CHUNKS_INDEXED_TRIAL", "400000"))
+USAGE_LIMIT_CHUNKS_INDEXED_PAID = int(os.environ.get("USAGE_LIMIT_CHUNKS_INDEXED_PAID", "4000000"))
+USAGE_LIMIT_API_CALLS_TRIAL = int(os.environ.get("USAGE_LIMIT_API_CALLS_TRIAL", "0"))
+USAGE_LIMIT_API_CALLS_PAID = int(os.environ.get("USAGE_LIMIT_API_CALLS_PAID", "40000"))
+USAGE_LIMIT_NON_STREAMING_CALLS_TRIAL = int(os.environ.get("USAGE_LIMIT_NON_STREAMING_CALLS_TRIAL", "0"))
+USAGE_LIMIT_NON_STREAMING_CALLS_PAID = int(os.environ.get("USAGE_LIMIT_NON_STREAMING_CALLS_PAID", "160"))
+

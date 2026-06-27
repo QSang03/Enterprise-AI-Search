@@ -1566,6 +1566,8 @@ AUTO_LLM_UPDATE_INTERVAL_SECONDS = int(
 PREMIUM_EDITION_ENABLED = (
     os.environ.get("ENABLE_PREMIUM_EDITION_FEATURES", "").lower() == "true"
 )
+# Backward compatibility alias
+ENTERPRISE_EDITION_ENABLED = PREMIUM_EDITION_ENABLED
 
 #####
 # Image Generation Configuration (DEPRECATED)

@@ -44,21 +44,6 @@ export default function AdminChrome({ children }: AdminChromeProps) {
 
   return (
     <RootLayout.Root>
-      {settings.application_status === ApplicationStatus.PAYMENT_REMINDER && (
-        <div className="fixed top-2 left-1/2 -translate-x-1/2 bg-status-warning-01 p-4 rounded-lg shadow-lg z-50 max-w-md text-center">
-          <Text font="main-ui-body" color="text-05">
-            {markdown(
-              "**Warning:** Your trial ends in less than 5 days and no payment method has been added."
-            )}
-          </Text>
-          <div className="mt-2">
-            <Button width="full" href="/admin/billing">
-              Update Billing Information
-            </Button>
-          </div>
-        </div>
-      )}
-
       {!hasCustomSidebar && <AdminSidebar />}
 
       <RootLayout.App data-main-container>

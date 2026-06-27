@@ -96,10 +96,6 @@ export default function AccessRestricted() {
             <Link className={linkClassName} href="/admin/users">
               User Management
             </Link>{" "}
-            page or upgrade your license on the{" "}
-            <Link className={linkClassName} href="/admin/billing">
-              Admin Billing
-            </Link>{" "}
             page.
           </Text>
 
@@ -153,16 +149,7 @@ export default function AccessRestricted() {
           </Text>
 
           <Text text03>
-            If you are the administrator, please visit the{" "}
-            <Link className={linkClassName} href="/admin/billing">
-              Admin Billing
-            </Link>{" "}
-            page to {hadPreviousLicense ? "renew" : "activate"} your license,
-            sign up through Stripe or reach out to{" "}
-            <a className={linkClassName} href="mailto:support@onyx.app">
-              support@onyx.app
-            </a>{" "}
-            for billing assistance.
+            If you are the administrator, please apply a valid license key to activate your workspace, or contact system support.
           </Text>
 
           <div className="flex flex-row gap-2">

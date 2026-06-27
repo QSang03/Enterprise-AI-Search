@@ -71,18 +71,6 @@ export function AnnouncementBanner() {
                     Update here
                   </Link>
                 </p>
-              ) : notification.notif_type == "two_day_trial_ending" ? (
-                <p className="text-center">
-                  Your Enterprise trial is ending soon - submit your billing
-                  information to keep these features, or your workspace will
-                  revert to the Business plan.{" "}
-                  <Link
-                    href={"/admin/billing" as Route}
-                    className="ml-2 underline cursor-pointer"
-                  >
-                    Update here
-                  </Link>
-                </p>
               ) : null}
               <button
                 onClick={() => handleDismiss(notification.id)}

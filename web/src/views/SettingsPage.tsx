@@ -1685,7 +1685,7 @@ function AccountsAccessSettings() {
               variant="section"
               width="full"
             />
-            {canCreateTokens ? (
+            {canCreateTokens && (
               <Card padding={0.25}>
                 <Section gap={0}>
                   <Section flexDirection="row" padding={0.25} gap={0.5}>
@@ -1782,17 +1782,6 @@ function AccountsAccessSettings() {
                       );
                     })}
                   </Section>
-                </Section>
-              </Card>
-            ) : (
-              <Card>
-                <Section flexDirection="row" justifyContent="between">
-                  <Text font="secondary-body" color="text-03">
-                    Access tokens require an active paid subscription.
-                  </Text>
-                  <Button prominence="secondary" href="/admin/billing">
-                    Upgrade Plan
-                  </Button>
                 </Section>
               </Card>
             )}
