@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCard } from "@opal/components";
-import type { ExpiryWarningStage } from "@/lib/billing/interfaces";
 import { useLicense } from "@/hooks/useLicense";
 
 const DISMISS_STORAGE_KEY = "license-expiry-banner-dismissed";
@@ -17,7 +16,7 @@ interface BannerCopy {
 }
 
 function buildCopy(
-  stage: ExpiryWarningStage,
+  stage: string,
   expiresAt: string | null,
   graceDaysRemaining: number
 ): BannerCopy | null {
@@ -27,15 +26,15 @@ function buildCopy(
 
   if (stage === "t_30d") {
     return {
-      title: `Your Onyx license expires on ${expiresDisplay}.`,
+      title: `Your license expires on ${expiresDisplay}.`,
       description:
-        "Renewal is due in approximately 30 days. Contact your Onyx representative to renew.",
+        "Renewal is due in approximately 30 days. Please contact your system administrator or account representative to renew.",
       variant: "warning",
     };
   }
   if (stage === "t_14d") {
     return {
-      title: `Your Onyx license expires on ${expiresDisplay}.`,
+      title: `Your license expires on ${expiresDisplay}.`,
       description:
         "Renewal is due in approximately 2 weeks. Complete renewal soon to avoid service interruption.",
       variant: "warning",
@@ -43,7 +42,7 @@ function buildCopy(
   }
   if (stage === "t_1d") {
     return {
-      title: `Your Onyx license expires tomorrow (${expiresDisplay}).`,
+      title: `Your license expires tomorrow (${expiresDisplay}).`,
       description:
         "Renewal is due within 24 hours. Renew now to avoid service interruption.",
       variant: "error",
@@ -51,10 +50,17 @@ function buildCopy(
   }
   if (stage === "grace") {
     return {
-      title: `Your Onyx license expired on ${expiresDisplay}.`,
+      title: `Your license expired on ${expiresDisplay}.`,
       description: `${graceDaysRemaining} grace day${
         graceDaysRemaining === 1 ? "" : "s"
-      } remaining before access is gated. Renew now.`,
+      } remaining before access is restricted. Please contact support to renew your license.`,
+      variant: "error",
+    };
+  }
+  if (stage === "expired") {
+    return {
+      title: "Your license has expired.",
+      description: "Access to premium features is currently restricted. Please apply a valid license key.",
       variant: "error",
     };
   }
@@ -69,11 +75,11 @@ function computeGraceDaysRemaining(gracePeriodEnd: string | null): number {
 }
 
 function dismissKey(
-  stage: ExpiryWarningStage,
+  stage: string,
   expiresAt: string | null
 ): string {
   const base = `${DISMISS_STORAGE_KEY}:${stage}:${expiresAt ?? "unknown"}`;
-  if (stage === "grace") {
+  if (stage === "grace" || stage === "expired") {
     const today = new Date().toISOString().slice(0, 10);
     return `${base}:${today}`;
   }
@@ -81,7 +87,7 @@ function dismissKey(
 }
 
 interface LicenseExpiryBannerViewProps {
-  stage: ExpiryWarningStage;
+  stage: string;
   expiresAt: string | null;
   graceDaysRemaining: number;
   onDismiss?: () => void;

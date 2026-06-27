@@ -1563,8 +1563,8 @@ AUTO_LLM_UPDATE_INTERVAL_SECONDS = int(
 # if you're interested in an enterprise license, please reach out to us at
 # founders@onyx.app OR message Chris Weaver or Yuhong Sun in the Onyx
 # Discord community https://discord.gg/4NA5SbzrWb
-ENTERPRISE_EDITION_ENABLED = (
-    os.environ.get("ENABLE_PAID_ENTERPRISE_EDITION_FEATURES", "").lower() == "true"
+PREMIUM_EDITION_ENABLED = (
+    os.environ.get("ENABLE_PREMIUM_EDITION_FEATURES", "").lower() == "true"
 )
 
 #####

@@ -68,7 +68,6 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { useIsSearchModeAvailable } from "@/lib/settings/hooks";
 import { Tooltip } from "@opal/components";
-import { useCloudSubscription } from "@/hooks/useCloudSubscription";
 import { useSmoothStreaming } from "@/hooks/useSmoothStreaming";
 import { findModelConfigId } from "@/lib/languageModels/options";
 
@@ -1328,7 +1327,7 @@ function AccountsAccessSettings() {
     useState<CreatedTokenState | null>(null);
   const [tokenToDelete, setTokenToDelete] = useState<PAT | null>(null);
 
-  const canCreateTokens = useCloudSubscription();
+  const canCreateTokens = true;
 
   const showPasswordSection = Boolean(user?.password_configured);
   const showTokensSection = authType !== null;

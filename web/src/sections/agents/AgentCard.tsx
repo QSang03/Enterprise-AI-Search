@@ -95,7 +95,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                       icon={SvgBarChart}
                       tertiary
                       onClick={noProp(() =>
-                        router.push(`/ee/agents/stats/${agent.id}` as Route)
+                        router.push(`/premium/agents/stats/${agent.id}` as Route)
                       )}
                       tooltip="View Agent Stats"
                       className="hidden group-hover/AgentCard:flex"

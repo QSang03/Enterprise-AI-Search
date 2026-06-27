@@ -11,11 +11,6 @@ import { Settings, Tier } from "@/lib/settings/types";
 import { tierAtLeast } from "@/lib/tiers";
 import { Divider, InputTypeIn, Spacer, SidebarTab } from "@opal/components";
 import { SvgArrowUpCircle, SvgSearch, SvgX } from "@opal/icons";
-import {
-  useBillingInformation,
-  useLicense,
-  hasActiveSubscription,
-} from "@/lib/billing";
 import { ADMIN_ROUTES, sidebarItem } from "@/lib/admin-routes";
 import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
 import useFilter from "@/hooks/useFilter";
@@ -196,19 +191,10 @@ export default function AdminSidebar() {
   const { user } = useUser();
   const settings = useSettings();
   const tier = settings?.tier;
-  const { data: billingData, isLoading: billingLoading } =
-    useBillingInformation();
-  const { data: licenseData, isLoading: licenseLoading } = useLicense();
   const isCurator =
     user?.role === UserRole.CURATOR || user?.role === UserRole.GLOBAL_CURATOR;
-  // Default to true while loading to avoid flashing "Upgrade Plan"
-  const hasSubscriptionOrLicense =
-    billingLoading || licenseLoading
-      ? true
-      : Boolean(
-          (billingData && hasActiveSubscription(billingData)) ||
-          licenseData?.has_license
-        );
+  // Always treat as having a valid subscription/license in self-hosted mode.
+  const hasSubscriptionOrLicense = true;
   // Hooks are ENTERPRISE-only and only available for self-hosted single-tenant.
   const hooksEnabled =
     tierAtLeast(tier, Tier.ENTERPRISE) && (settings?.hooks_enabled ?? false);
@@ -297,8 +283,8 @@ export default function AdminSidebar() {
                   icon={icon}
                   tooltip={markdown(
                     requiredTier === Tier.ENTERPRISE
-                      ? "This feature is available on the [Enterprise version of Onyx](/admin/billing) only."
-                      : "This feature is available on the [Business or Enterprise version of Onyx](/admin/billing) only."
+                      ? "This feature requires an Enterprise license. Contact your administrator."
+                      : "This feature requires a Business or Enterprise license. Contact your administrator."
                   )}
                 >
                   {name}

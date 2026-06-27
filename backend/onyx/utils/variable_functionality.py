@@ -11,67 +11,73 @@ from onyx.configs.app_configs import API_SERVER_URL_OVERRIDE_FOR_HTTP_REQUESTS
 from onyx.configs.app_configs import APP_API_PREFIX
 from onyx.configs.app_configs import APP_PORT
 from onyx.configs.app_configs import DEV_MODE
-from onyx.configs.app_configs import ENTERPRISE_EDITION_ENABLED
+from onyx.configs.app_configs import PREMIUM_EDITION_ENABLED
 from onyx.utils.logger import setup_logger
 
 logger = setup_logger()
 
 
-class OnyxVersion:
+class CoreVersion:
     def __init__(self) -> None:
-        self._is_ee = False
+        self._is_premium = False
 
-    def set_ee(self) -> None:
-        self._is_ee = True
+    def set_premium(self) -> None:
+        self._is_premium = True
 
-    def unset_ee(self) -> None:
-        self._is_ee = False
+    def unset_premium(self) -> None:
+        self._is_premium = False
 
-    def is_ee_version(self) -> bool:
-        return self._is_ee
+    def is_premium_version(self) -> bool:
+        return self._is_premium
 
 
-global_version = OnyxVersion()
+core_version = CoreVersion()
 
-# Read LICENSE_ENFORCEMENT_ENABLED directly since it's in EE configs
-# This allows EE code to load when license enforcement is enabled,
-# even without ENABLE_PAID_ENTERPRISE_EDITION_FEATURES being set.
-# Eventually, ENABLE_PAID_ENTERPRISE_EDITION_FEATURES will be removed
-# and license enforcement will be the only mechanism for EE features.
+# Read LICENSE_ENFORCEMENT_ENABLED directly since it's in premium configs
+# This allows premium code to load when license enforcement is enabled,
+# even without ENABLE_PREMIUM_EDITION_FEATURES being set.
+# Eventually, ENABLE_PREMIUM_EDITION_FEATURES will be removed
+# and license enforcement will be the only mechanism for premium features.
 _LICENSE_ENFORCEMENT_ENABLED = (
     os.environ.get("LICENSE_ENFORCEMENT_ENABLED", "true").lower() == "true"
 )
 
 
-def set_is_ee_based_on_env_variable() -> None:
-    """Enable Enterprise Edition based on environment configuration.
+def set_edition_from_env() -> None:
+    """Enable Premium Edition based on environment configuration.
 
-    EE is enabled if either:
-    - ENABLE_PAID_ENTERPRISE_EDITION_FEATURES=true (legacy/rollout flag)
+    Premium is enabled if either:
+    - ENABLE_PREMIUM_EDITION_FEATURES=true (legacy/rollout flag)
     - LICENSE_ENFORCEMENT_ENABLED=true (license-based gating)
 
-    When LICENSE_ENFORCEMENT_ENABLED is true, EE code is loaded but access
-    to EE-only features is controlled by the license enforcement middleware.
+    When LICENSE_ENFORCEMENT_ENABLED is true, premium code is loaded but access
+    to premium-only features is controlled by the license enforcement middleware.
     """
-    if global_version.is_ee_version():
+    if core_version.is_premium_version():
         return
 
-    if ENTERPRISE_EDITION_ENABLED:
+    if PREMIUM_EDITION_ENABLED:
         logger.notice(
-            "Enterprise Edition enabled via ENABLE_PAID_ENTERPRISE_EDITION_FEATURES"
+            "Premium Edition enabled via ENABLE_PREMIUM_EDITION_FEATURES"
         )
-        global_version.set_ee()
+        core_version.set_premium()
     elif _LICENSE_ENFORCEMENT_ENABLED:
-        logger.notice("Enterprise Edition enabled via LICENSE_ENFORCEMENT_ENABLED")
-        global_version.set_ee()
+        logger.notice("Premium Edition enabled via LICENSE_ENFORCEMENT_ENABLED")
+        core_version.set_premium()
+
+
+# Compatibility aliases for legacy/third-party modules
+OnyxVersion = CoreVersion
+global_version = core_version
+set_is_ee_based_on_env_variable = set_edition_from_env
 
 
 @functools.lru_cache(maxsize=128)
 def fetch_versioned_implementation(module: str, attribute: str) -> Any:
     """
     Fetches a versioned implementation of a specified attribute from a given module.
-    This function first checks if the application is running in an Enterprise Edition (EE)
-    context. If so, it attempts to import the attribute from the EE-specific module.
+    This function first checks if the application is running in a Premium Edition
+    context. If so, it attempts to import the attribute from the premium-specific module.
     If the module or attribute is not found, it falls back to the default module or
     raises the appropriate exception depending on the context.
 
@@ -84,16 +90,16 @@ def fetch_versioned_implementation(module: str, attribute: str) -> Any:
 
     Raises:
         ModuleNotFoundError: If the module cannot be found and the error is not related to
-                             the Enterprise Edition fallback logic.
+                             the Premium Edition fallback logic.
 
     Logs:
         Logs debug information about the fetching process and warnings if the versioned
         implementation cannot be found or loaded.
     """
     logger.debug("Fetching versioned implementation for %s.%s", module, attribute)
-    is_ee = global_version.is_ee_version()
+    is_premium = core_version.is_premium_version()
 
-    module_full = f"ee.{module}" if is_ee else module
+    module_full = f"premium.{module}" if is_premium else module
     try:
         return getattr(importlib.import_module(module_full), attribute)
     except ModuleNotFoundError as e:
@@ -104,15 +110,15 @@ def fetch_versioned_implementation(module: str, attribute: str) -> Any:
             e,
         )
 
-        if is_ee:
-            if "ee.onyx" not in str(e):
+        if is_premium:
+            if "premium.onyx" not in str(e):
                 # If it's a non Onyx related import failure, this is likely because
                 # a dependent library has not been installed. Should raise this failure
                 # instead of letting the server start up
                 raise e
 
             # Use the MIT version as a fallback, this allows us to develop MIT
-            # versions independently and later add additional EE functionality
+            # versions independently and later add additional premium functionality
             # similar to feature flagging
             return getattr(importlib.import_module(module), attribute)
 
@@ -158,24 +164,24 @@ def noop_fallback(*args: Any, **kwargs: Any) -> None:
     """
 
 
-def fetch_ee_implementation_or_noop(
+def fetch_premium_implementation_or_noop(
     module: str, attribute: str, noop_return_value: Any = None
 ) -> Any:
     """
-    Fetches an EE implementation if EE is enabled, otherwise returns a no-op function.
-    Raises an exception if EE is enabled but the fetch fails.
+    Fetches a premium implementation if premium is enabled, otherwise returns a no-op function.
+    Raises an exception if premium is enabled but the fetch fails.
 
     Args:
         module (str): The name of the module from which to fetch the attribute.
         attribute (str): The name of the attribute to fetch from the module.
 
     Returns:
-        Any: The fetched EE implementation if successful and EE is enabled, otherwise a no-op function.
+        Any: The fetched premium implementation if successful and premium is enabled, otherwise a no-op function.
 
     Raises:
-        Exception: If EE is enabled but the fetch fails.
+        Exception: If premium is enabled but the fetch fails.
     """
-    if not global_version.is_ee_version():
+    if not core_version.is_premium_version():
         if inspect.iscoroutinefunction(noop_return_value):
 
             async def async_noop(*args: Any, **kwargs: Any) -> Any:
@@ -196,6 +202,10 @@ def fetch_ee_implementation_or_noop(
             "Failed to fetch implementation for %s.%s: %s", module, attribute, e
         )
         raise
+
+
+# Compatibility alias for legacy/third-party modules
+fetch_ee_implementation_or_noop = fetch_premium_implementation_or_noop
 
 
 def build_api_server_url_for_http_requests(

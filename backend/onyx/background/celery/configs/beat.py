@@ -1,5 +1,6 @@
 # docs: https://docs.celeryq.dev/en/stable/userguide/configuration.html
 import onyx.background.celery.configs.base as shared_config
+from onyx.background.celery.tasks.beat_schedule import get_tasks_to_schedule
 
 broker_url = shared_config.broker_url
 broker_connection_retry_on_startup = shared_config.broker_connection_retry_on_startup
@@ -12,3 +13,14 @@ redis_backend_health_check_interval = shared_config.redis_backend_health_check_i
 
 result_backend = shared_config.result_backend
 result_expires = shared_config.result_expires  # 86400 seconds is the default
+
+# Build the static beat schedule from the task list.
+beat_schedule = {}
+for _task in get_tasks_to_schedule():
+    _opts = _task.get("options", {})
+    beat_schedule[_task["name"]] = {
+        "task": _task["task"],
+        "schedule": _task["schedule"],
+        "kwargs": _task.get("kwargs", {}),
+        "options": _opts,
+    }

@@ -2,11 +2,10 @@ import re
 
 from sqlalchemy import text
 
-from onyx.db.engine.sql_engine import get_session_with_shared_schema
 from onyx.db.engine.sql_engine import SqlEngine
-from shared_configs.configs import MULTI_TENANT
 from shared_configs.configs import POSTGRES_DEFAULT_SCHEMA
 from shared_configs.configs import TENANT_ID_PREFIX
+
 
 # Regex pattern for valid tenant IDs:
 # - UUID format: tenant_xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -118,26 +117,6 @@ def get_schemas_needing_migration(
 
 
 def get_all_tenant_ids() -> list[str]:
-    """Returning [None] means the only tenant is the 'public' or self hosted tenant."""
+    """Always returns the single public tenant ID in this self-hosted deployment."""
+    return [POSTGRES_DEFAULT_SCHEMA]
 
-    tenant_ids: list[str]
-
-    if not MULTI_TENANT:
-        return [POSTGRES_DEFAULT_SCHEMA]
-
-    with get_session_with_shared_schema() as session:
-        result = session.execute(
-            text(
-                """
-                SELECT schema_name
-                FROM information_schema.schemata
-                WHERE schema_name NOT IN ('pg_catalog', 'information_schema', :default_schema)"""
-            ),
-            {"default_schema": POSTGRES_DEFAULT_SCHEMA},
-        )
-        tenant_ids = [row[0] for row in result]
-
-    valid_tenants = [
-        tenant for tenant in tenant_ids if tenant is None or validate_tenant_id(tenant)
-    ]
-    return valid_tenants

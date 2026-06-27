@@ -2,8 +2,8 @@ import useSWR from "swr";
 
 import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { LicenseStatus } from "@/lib/billing/interfaces";
 import { SWR_KEYS } from "@/lib/swr-keys";
+import { LicenseStatus } from "@/lib/types";
 
 /**
  * Hook to fetch license status for self-hosted deployments.

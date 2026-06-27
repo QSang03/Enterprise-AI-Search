@@ -700,3 +700,11 @@ export interface IndexingStatusRequest {
   source?: ValidSources;
   get_all_connectors?: boolean;
 }
+
+export interface LicenseStatus {
+  has_license: boolean;
+  expires_at: string | null;
+  grace_period_end: string | null;
+  expiry_warning_stage: "none" | "t_30d" | "t_14d" | "t_1d" | "grace" | "expired";
+}
+

@@ -31,8 +31,7 @@ import LineItem from "@/refresh-components/buttons/LineItem";
 import ConfirmationModalLayout from "@/refresh-components/layouts/ConfirmationModalLayout";
 import { markdown } from "@opal/utils";
 
-import { useBillingInformation } from "@/hooks/useBillingInformation";
-import { BillingStatus, hasActiveSubscription } from "@/lib/billing/interfaces";
+
 import {
   deleteApiKey,
   regenerateApiKey,
@@ -65,11 +64,9 @@ export default function ServiceAccountsPage() {
     error,
   } = useSWR<APIKey[]>(API_KEY_SWR_KEY, errorHandlingFetcher);
 
-  const { data: billingData } = useBillingInformation();
-  const isTrialing =
-    billingData !== undefined &&
-    hasActiveSubscription(billingData) &&
-    billingData.status === BillingStatus.TRIALING;
+
+  const isTrialing = false;
+
 
   const [fullApiKey, setFullApiKey] = useState<string | null>(null);
   const [showCreateUpdateForm, setShowCreateUpdateForm] = useState(false);

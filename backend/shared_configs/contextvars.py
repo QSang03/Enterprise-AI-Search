@@ -1,12 +1,11 @@
 import contextvars
 
-from shared_configs.configs import MULTI_TENANT
 from shared_configs.configs import POSTGRES_DEFAULT_SCHEMA
 
 # Context variable for the current tenant id
 CURRENT_TENANT_ID_CONTEXTVAR: contextvars.ContextVar[str | None] = (
     contextvars.ContextVar(
-        "current_tenant_id", default=None if MULTI_TENANT else POSTGRES_DEFAULT_SCHEMA
+        "current_tenant_id", default=POSTGRES_DEFAULT_SCHEMA
     )
 )
 
@@ -37,15 +36,6 @@ CURRENT_ENDPOINT_CONTEXTVAR: contextvars.ContextVar[str | None] = (
 def get_current_tenant_id() -> str:
     tenant_id = CURRENT_TENANT_ID_CONTEXTVAR.get()
     if tenant_id is None:
-        import traceback
-
-        if not MULTI_TENANT:
-            return POSTGRES_DEFAULT_SCHEMA
-
-        stack_trace = traceback.format_stack()
-        error_message = (
-            "Tenant ID is not set. This should never happen.\nStack trace:\n"
-            + "".join(stack_trace)
-        )
-        raise RuntimeError(error_message)
+        return POSTGRES_DEFAULT_SCHEMA
     return tenant_id
+

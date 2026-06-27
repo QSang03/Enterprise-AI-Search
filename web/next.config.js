@@ -132,8 +132,8 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/ee/assistants/:path*",
-        destination: "/ee/agents/:path*",
+        source: "/premium/assistants/:path*",
+        destination: "/premium/agents/:path*",
         permanent: true,
       },
       {

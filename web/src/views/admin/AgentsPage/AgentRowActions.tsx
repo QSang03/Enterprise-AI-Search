@@ -184,7 +184,7 @@ export default function AgentRowActions({
                     icon={SvgBarChart}
                     onClick={() => {
                       setPopoverOpen(false);
-                      router.push(`/ee/agents/stats/${agent.id}` as Route);
+                      router.push(`/premium/agents/stats/${agent.id}` as Route);
                     }}
                   >
                     Stats

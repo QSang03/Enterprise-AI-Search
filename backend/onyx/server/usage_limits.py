@@ -62,45 +62,12 @@ def is_tenant_on_trial(tenant_id: str) -> bool:  # noqa: ARG001
 
 
 def is_tenant_on_trial_fn(tenant_id: str) -> bool:
-    """
-    Get the versioned implementation of is_tenant_on_trial and call it.
-
-    Uses fetch_versioned_implementation to get the EE version if available,
-    otherwise falls back to the non-EE version that returns False.
-    """
-    fn: Callable[[str], bool] = fetch_versioned_implementation(
-        "onyx.server.usage_limits", "is_tenant_on_trial"
-    )
-    return fn(tenant_id)
+    """Always returns False in this self-hosted deployment."""
+    return False
 
 
 def _get_tenant_override(tenant_id: str, field_name: str) -> int | None:
-    """
-    Get a tenant-specific usage limit override if available.
-
-    Uses fetch_versioned_implementation to get EE version if available.
-
-    Returns:
-        - Positive int: Use this specific limit
-        - -1 (NO_LIMIT): No limit (unlimited)
-        - None: No override specified, use default env var value
-    """
-    try:
-        # Try to get EE version that has tenant overrides
-        get_overrides_fn = fetch_versioned_implementation(
-            "onyx.server.tenant_usage_limits", "get_tenant_usage_limit_overrides"
-        )
-        overrides: TenantUsageLimitOverrides | None = get_overrides_fn(tenant_id)
-
-        if overrides is not None:
-            # Get the field value - None means not set, use default
-            return getattr(overrides, field_name, None)
-    except Exception:
-        logger.exception(
-            "Error getting tenant override for %s.%s falling back to defaults",
-            tenant_id,
-            field_name,
-        )
+    """Always returns None in this self-hosted deployment."""
     return None
 
 
