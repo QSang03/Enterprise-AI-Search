@@ -1036,9 +1036,13 @@ def monitor_process_memory(self: Task, *, tenant_id: str) -> None:  # noqa: ARG0
             "--hostname=primary": "primary",
             "--hostname=light": "light",
             "--hostname=heavy": "heavy",
+            "--hostname=docprocessing": "docprocessing",
             "--hostname=indexing": "indexing",
             "--hostname=monitoring": "monitoring",
-            "beat": "beat",
+            "--hostname=user_file_processing": "user_file_processing",
+            "--hostname=scheduled_tasks": "scheduled_tasks",
+            "--hostname=docfetching": "docfetching",
+            "versioned_apps.beat": "beat",
             "slack/listener.py": "slack",
         }
 
@@ -1060,10 +1064,15 @@ def monitor_process_memory(self: Task, *, tenant_id: str) -> None:  # noqa: ARG0
                     supervisor_processes[proc.pid] = process_type
                     break
 
-        if len(supervisor_processes) != len(process_type_mapping):
-            task_logger.error(
-                f"Missing processes: {set(process_type_mapping.keys()).symmetric_difference(supervisor_processes.values())}"
-            )
+        expected_process_types = set(process_type_mapping.values())
+        if "docprocessing" in supervisor_processes.values():
+            expected_process_types.discard("indexing")
+        elif "indexing" in supervisor_processes.values():
+            expected_process_types.discard("docprocessing")
+
+        missing_processes = expected_process_types - set(supervisor_processes.values())
+        if missing_processes:
+            task_logger.warning(f"Missing expected processes: {missing_processes}")
 
         # Log memory usage for each process
         for pid, process_type in supervisor_processes.items():

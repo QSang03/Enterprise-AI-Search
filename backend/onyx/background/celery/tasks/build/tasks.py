@@ -15,6 +15,7 @@ from onyx.db.enums import SandboxStatus
 from onyx.db.models import Sandbox
 from onyx.redis.redis_pool import get_redis_client
 from onyx.redis.redis_tenant_work_gating import maybe_mark_tenant_active
+from onyx.server.features.build.configs import ENABLE_CRAFT
 from onyx.server.features.build.configs import SANDBOX_IDLE_TIMEOUT_SECONDS
 from onyx.server.features.build.db.build_session import clear_nextjs_ports_for_user
 from onyx.server.features.build.db.build_session import (
@@ -62,6 +63,9 @@ def cleanup_idle_sandboxes_task(self: Task, *, tenant_id: str) -> None:  # noqa:
     Reap stays fail-closed: snapshot failure on a reachable pod keeps the
     sandbox RUNNING for retry next sweep.
     """
+    if not ENABLE_CRAFT:
+        return
+
     task_logger.info(f"cleanup_idle_sandboxes_task starting for tenant {tenant_id}")
 
     redis_client = get_redis_client(tenant_id=tenant_id)
