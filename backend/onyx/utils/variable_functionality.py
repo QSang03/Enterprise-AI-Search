@@ -197,6 +197,18 @@ def fetch_premium_implementation_or_noop(
             return sync_noop
     try:
         return fetch_versioned_implementation(module, attribute)
+    except (ModuleNotFoundError, AttributeError) as e:
+        logger.warning(
+            "Module or attribute not found for %s.%s: %s. Falling back to no-op.", module, attribute, e
+        )
+        if inspect.iscoroutinefunction(noop_return_value):
+            async def async_noop(*args: Any, **kwargs: Any) -> Any:
+                return await noop_return_value(*args, **kwargs)
+            return async_noop
+        else:
+            def sync_noop(*args: Any, **kwargs: Any) -> Any:
+                return noop_return_value
+            return sync_noop
     except Exception as e:
         logger.error(
             "Failed to fetch implementation for %s.%s: %s", module, attribute, e

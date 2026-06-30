@@ -38,6 +38,7 @@ from onyx.file_processing.html_utils import parse_html_page_basic
 from onyx.file_processing.unstructured import get_unstructured_api_key
 from onyx.file_processing.unstructured import unstructured_to_text
 from onyx.utils.logger import setup_logger
+from onyx.document_intelligence.client import is_document_intelligence_enabled, DocumentIntelligenceClient
 
 if TYPE_CHECKING:
     from markitdown import MarkItDown
@@ -977,6 +978,33 @@ def _extract_text_and_images(
     image_callback: Callable[[bytes, str], None] | None = None,
 ) -> ExtractionResult:
     file.seek(0)
+
+    if is_document_intelligence_enabled():
+        try:
+            client = DocumentIntelligenceClient()
+            res = client.parse_file(file, file_name, parser_mode="accurate")
+            
+            if image_callback:
+                for img_bytes, img_name in res.embedded_images:
+                    image_callback(img_bytes, img_name)
+                embedded_images = []
+            else:
+                embedded_images = res.embedded_images
+                
+            metadata = dict(res.metadata)
+            metadata["__layout_blocks__"] = res.layout_blocks
+            
+            return ExtractionResult(
+                text_content=res.text_content,
+                embedded_images=embedded_images,
+                metadata=metadata
+            )
+        except Exception as e:
+            logger.error(
+                "Document Intelligence Service failed: %s. Falling back to default extraction.",
+                str(e)
+            )
+            file.seek(0)
 
     if get_unstructured_api_key():
         try:

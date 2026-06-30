@@ -1221,6 +1221,8 @@ def _run_models(
                     enable_slack_search=_should_enable_slack_search(
                         setup.persona, setup.new_msg_req.internal_search_filters
                     ),
+                    selected_doc_ids=setup.new_msg_req.selected_doc_ids,
+                    strict_sources=setup.new_msg_req.strict_sources,
                 ),
                 custom_tool_config=CustomToolConfig(
                     chat_session_id=setup.chat_session.id,
@@ -1509,6 +1511,101 @@ def _run_models(
     return _read_stream()
 
 
+def verify_citations_and_stream(
+    run_stream: "Any",
+    llm: "Any",
+    external_state_container: "Any"
+) -> "Any":
+    from typing import Any
+    import os
+    import re
+    from onyx.chat.models import Packet, StreamingError, CitationInfo
+    from onyx.server.query_and_chat.streaming_models import AgentResponseDelta
+    
+    buffered_packets = []
+    full_answer = ""
+    
+    for packet in run_stream:
+        if isinstance(packet, StreamingError):
+            yield packet
+            return
+            
+        buffered_packets.append(packet)
+        if isinstance(packet, Packet) and isinstance(packet.obj, AgentResponseDelta) and packet.obj.content:
+            full_answer += packet.obj.content
+
+    retrieved_docs = []
+    if external_state_container:
+        retrieved_docs = list(external_state_container.get_all_search_docs().values())
+        
+    if not full_answer.strip() or not retrieved_docs:
+        for p in buffered_packets:
+            yield p
+        return
+
+    # Basic Vietnamese sentence splitter
+    sentence_end = re.compile(r'(?<!\bĐiều)(?<!\bKhoản)(?<!\bT)(?<!\btp)(?<!\bTp)(?<!\d)[.!?]\s+')
+    sentences = [s.strip() for s in sentence_end.split(full_answer) if s.strip()]
+    
+    if not sentences:
+        for p in buffered_packets:
+            yield p
+        return
+
+    context_str = "\n\n".join([f"Tài liệu {idx+1}:\n{doc.blurb}" for idx, doc in enumerate(retrieved_docs)])
+    
+    unsupported_count = 0
+    for sentence in sentences:
+        prompt = (
+            "Bạn là một trợ lý kiểm chứng thông tin (NLI). Hãy kiểm tra xem câu khẳng định sau đây "
+            "có được hỗ trợ đầy đủ bởi ngữ cảnh được cung cấp hay không.\n\n"
+            f"Ngữ cảnh:\n{context_str}\n\n"
+            f"Câu cần kiểm chứng: \"{sentence}\"\n\n"
+            "Chỉ trả lời duy nhất từ \"YES\" nếu câu được hỗ trợ, hoặc \"NO\" nếu câu không được hỗ trợ bởi ngữ cảnh. "
+            "Không giải thích gì thêm."
+        )
+        try:
+            response = llm.invoke(prompt)
+            verdict = response.strip().upper()
+            if "NO" in verdict:
+                unsupported_count += 1
+                logger.info("NLI Check: Sentence '%s' is UNSUPPORTED. Verdict: %s", sentence, verdict)
+            else:
+                logger.info("NLI Check: Sentence '%s' is SUPPORTED. Verdict: %s", sentence, verdict)
+        except Exception:
+            logger.exception("Error checking NLI for sentence: %s", sentence)
+            
+    unsupported_rate = unsupported_count / len(sentences)
+    logger.info("NLI verification completed: %s/%s sentences unsupported (%s%%)", 
+                unsupported_count, len(sentences), format(unsupported_rate * 100, ".2f"))
+                
+    if unsupported_rate > 0.05:
+        refusal_msg = os.environ.get(
+            "CITATION_VERIFICATION_REFUSAL_MSG",
+            "Thông tin này không có cơ sở xác thực hoặc không được hỗ trợ bởi các tài liệu nguồn."
+        )
+        logger.warning("Rejecting LLM answer due to high unsupported claim rate (%s%% > 5%%)", format(unsupported_rate * 100, ".2f"))
+        
+        if external_state_container:
+            external_state_container.set_answer_tokens(refusal_msg)
+            
+        refusal_yielded = False
+        for p in buffered_packets:
+            if isinstance(p, Packet):
+                if isinstance(p.obj, AgentResponseDelta):
+                    if not refusal_yielded:
+                        new_obj = AgentResponseDelta(content=refusal_msg)
+                        yield Packet(placement=p.placement, obj=new_obj)
+                        refusal_yielded = True
+                    continue
+                elif isinstance(p.obj, CitationInfo):
+                    continue
+            yield p
+    else:
+        for p in buffered_packets:
+            yield p
+
+
 def _stream_chat_turn(
     new_msg_req: SendMessageRequest,
     user: User,
@@ -1642,7 +1739,11 @@ def _stream_chat_turn(
             stream_buffer=stream_buffer,
         )
         run_started = True
-        yield from run_stream
+        yield from verify_citations_and_stream(
+            run_stream=run_stream,
+            llm=setup.llms[0],
+            external_state_container=external_state_container
+        )
 
     except OnyxError as e:
         if e.error_code is not OnyxErrorCode.QUERY_REJECTED:

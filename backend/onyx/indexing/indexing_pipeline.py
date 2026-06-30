@@ -88,6 +88,18 @@ from onyx.prompts.contextual_retrieval import CONTEXTUAL_RAG_PROMPT1
 from onyx.prompts.contextual_retrieval import CONTEXTUAL_RAG_PROMPT2
 from onyx.prompts.contextual_retrieval import DOCUMENT_SUMMARY_PROMPT
 from onyx.tracing.flows import LLMFlow
+from onyx.db.models import WikiPage, WikiCitation, WikiStaleEvent, DocumentChunkV2
+from onyx.db.graph_service import extract_and_save_graph
+from onyx.llm.factory import get_default_llm
+import uuid
+from onyx.db.rag_upgrade_models import (
+    IndexRun,
+    DocumentProcessingJob,
+    DocumentProcessingError,
+    OcrPage,
+    DocumentBlock,
+    DocumentChunkV2,
+)
 from onyx.tracing.llm_utils import llm_generation_span
 from onyx.tracing.llm_utils import record_llm_response
 from onyx.utils.batching import batch_generator
@@ -1214,6 +1226,227 @@ def _maybe_push_documents(
             )
 
 
+def _save_rag_upgrade_metadata(
+    db_session: Session,
+    updatable_docs: list[Document],
+    chunk_store: ChunkBatchStore,
+) -> None:
+    try:
+        for doc in updatable_docs:
+            has_layout = doc.additional_info and isinstance(doc.additional_info, dict) and "layout_blocks" in doc.additional_info
+            parser_mode = "accurate" if has_layout else "fast"
+            
+            job_uuid = uuid.uuid4()
+            
+            processing_job = DocumentProcessingJob(
+                job_id=job_uuid,
+                doc_id=doc.id,
+                file_name=doc.semantic_identifier or doc.title or "file",
+                status="completed",
+                parser_mode=parser_mode,
+                ocr_confidence=None,
+                table_extraction_status=None,
+                chunk_count=0,
+                parser_version="v2_docintel",
+                chunker_version="v2_hierarchical",
+                embedding_model=None,
+            )
+            db_session.add(processing_job)
+            db_session.flush()
+            
+            if has_layout:
+                layout_blocks = doc.additional_info["layout_blocks"]
+                for block in layout_blocks:
+                    block_uuid = uuid.uuid4()
+                    db_block = DocumentBlock(
+                        block_id=block_uuid,
+                        doc_id=doc.id,
+                        page_number=block.get("page_number", 1),
+                        block_type=block.get("type", "text"),
+                        text_raw=block.get("text_raw", ""),
+                        text_normalized=block.get("text_normalized", ""),
+                        bbox_x1=float(block.get("bbox", [0,0,0,0])[0]),
+                        bbox_y1=float(block.get("bbox", [0,0,0,0])[1]),
+                        bbox_x2=float(block.get("bbox", [0,0,0,0])[2]),
+                        bbox_y2=float(block.get("bbox", [0,0,0,0])[3]),
+                        char_start=block.get("char_start", 0),
+                        char_end=block.get("char_end", 0),
+                        confidence=block.get("confidence"),
+                        block_metadata=block.get("metadata"),
+                    )
+                    db_session.add(db_block)
+                    
+            if doc.additional_info and isinstance(doc.additional_info, dict) and "ocr_pages" in doc.additional_info:
+                ocr_pages = doc.additional_info["ocr_pages"]
+                for page in ocr_pages:
+                    db_page = OcrPage(
+                        doc_id=doc.id,
+                        page_number=page.get("page_number", 1),
+                        ocr_text=page.get("ocr_text", ""),
+                        ocr_confidence=page.get("ocr_confidence"),
+                        layout_data=page.get("layout_data"),
+                    )
+                    db_session.add(db_page)
+        
+        doc_chunk_counts = {}
+        for chunk in chunk_store.stream():
+            doc_id = chunk.source_document.id
+            doc_chunk_counts[doc_id] = doc_chunk_counts.get(doc_id, 0) + 1
+            
+            chunk_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}__{chunk.chunk_id}")
+            
+            parent_chunk_uuid = None
+            if getattr(chunk, "large_chunk_id", None) is not None:
+                parent_chunk_uuid = uuid.uuid5(uuid.NAMESPACE_DNS, f"{doc_id}__{chunk.large_chunk_id}")
+                
+            access = getattr(chunk, "access", None)
+            allowed_users = [u for u in access.user_emails if u is not None] if access else []
+            allowed_groups = list(access.user_groups) if access else []
+            is_public = access.is_public if access else True
+            
+            db_chunk = DocumentChunkV2(
+                chunk_id=chunk_uuid,
+                doc_id=doc_id,
+                parent_chunk_id=parent_chunk_uuid,
+                sibling_order=chunk.chunk_id,
+                text_raw=chunk.content,
+                text_normalized=chunk.content,
+                text_for_embedding=chunk.content,
+                text_for_citation=chunk.content,
+                block_type="text",
+                heading_path=[],
+                page_start=0,
+                page_end=0,
+                bbox_x1=None,
+                bbox_y1=None,
+                bbox_x2=None,
+                bbox_y2=None,
+                allowed_users=allowed_users,
+                allowed_groups=allowed_groups,
+                is_public=is_public,
+                acl_hash="",
+                parser_version="v2_docintel",
+                chunker_version="v2_hierarchical",
+                run_id=None,
+            )
+            db_session.add(db_chunk)
+            
+        for doc_id, count in doc_chunk_counts.items():
+            db_session.query(DocumentProcessingJob).filter(
+                DocumentProcessingJob.doc_id == doc_id
+            ).update({"chunk_count": count})
+            
+        db_session.flush()
+        
+    except Exception as e:
+        logger.exception(f"Failed to save RAG upgrade metadata to Postgres: {e}")
+
+
+def _check_and_trigger_wiki_stale_detection(db_session: Session, updated_doc_ids: list[str]) -> None:
+    if not updated_doc_ids:
+        return
+        
+    stale_wikis = db_session.query(WikiPage).join(
+        WikiCitation,
+        (WikiCitation.wiki_id == WikiPage.wiki_id) & (WikiCitation.wiki_version == WikiPage.version)
+    ).join(
+        DocumentChunkV2,
+        DocumentChunkV2.chunk_id == WikiCitation.chunk_id
+    ).filter(
+        DocumentChunkV2.doc_id.in_(updated_doc_ids)
+    ).all()
+    
+    if not stale_wikis:
+        return
+        
+    marked_wiki_ids = set()
+    
+    for wiki in stale_wikis:
+        if wiki.wiki_id in marked_wiki_ids:
+            continue
+        marked_wiki_ids.add(wiki.wiki_id)
+        
+        wiki.is_stale = True
+        db_session.flush()
+        
+        cited_chunks = db_session.query(DocumentChunkV2).join(
+            WikiCitation,
+            WikiCitation.chunk_id == DocumentChunkV2.chunk_id
+        ).filter(
+            WikiCitation.wiki_id == wiki.wiki_id,
+            WikiCitation.wiki_version == wiki.version,
+            DocumentChunkV2.doc_id.in_(updated_doc_ids)
+        ).all()
+        
+        if not cited_chunks:
+            continue
+            
+        new_doc_texts = "\n\n".join([f"Document {c.doc_id}:\n{c.text_raw}" for c in cited_chunks])
+        
+        llm = get_default_llm()
+        prompt = f"""Bạn là công cụ kiểm duyệt và phát hiện mâu thuẫn tài liệu tự động.
+So sánh nội dung hiện tại của trang Wiki và nội dung cập nhật mới nhất từ tài liệu nguồn để phát hiện xem có sự lỗi thời (outdated) hoặc xung đột (conflict) thông tin nào hay không.
+
+Nội dung Wiki hiện tại:
+\"\"\"
+{wiki.content}
+\"\"\"
+
+Nội dung cập nhật mới từ tài liệu nguồn:
+\"\"\"
+{new_doc_texts}
+\"\"\"
+
+Hãy trả lời theo định dạng JSON duy nhất như sau (không kèm văn bản giải thích hay markdown blocks):
+{{
+  "conflict_detected": true/false,
+  "conflict_type": "outdated" hoặc "conflict" hoặc "none",
+  "description": "Giải thích chi tiết các điểm xung đột hoặc thông tin đã lỗi thời cần chỉnh sửa."
+}}
+"""
+
+        messages = [UserMessage(content=prompt)]
+        try:
+            with llm_generation_span(llm=llm, flow=LLMFlow.CHAT_RESPONSE, input_messages=messages):
+                response = llm.invoke(messages)
+            response_text = response.content.strip()
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0].strip()
+                
+            data = json.loads(response_text)
+            if data.get("conflict_detected", False):
+                trigger_doc = cited_chunks[0].doc_id
+                new_event = WikiStaleEvent(
+                    event_id=uuid.uuid4(),
+                    wiki_id=wiki.wiki_id,
+                    wiki_version=wiki.version,
+                    trigger_doc_id=trigger_doc,
+                    conflict_type=data.get("conflict_type", "outdated"),
+                    conflict_description=data.get("description", "Phát hiện thay đổi trong tài liệu nguồn trích dẫn."),
+                    resolved=False
+                )
+                db_session.add(new_event)
+        except Exception as e:
+            logger.exception(f"Error checking wiki conflict during ingestion: {e}")
+            
+    db_session.flush()
+
+
+def _extract_graph_for_indexed_docs(db_session: Session, updatable_docs: list[Document]) -> None:
+    for doc in updatable_docs:
+        chunks = db_session.query(DocumentChunkV2).filter(DocumentChunkV2.doc_id == doc.id).all()
+        if not chunks:
+            continue
+        doc_text = "\n\n".join([c.text_raw for c in chunks])
+        if doc_text.strip():
+            try:
+                extract_and_save_graph(doc_text, db_session)
+            except Exception as e:
+                logger.exception(f"Error extracting graph for doc {doc.id}: {e}")
+
+
 @log_function_time(debug_only=True)
 def index_doc_batch(
     *,
@@ -1352,6 +1585,13 @@ def index_doc_batch(
         # them.  Not needed until here, since this is when the actual race
         # condition with vector db can occur.
         with adapter.lock_context(context.updatable_docs) as db_session:
+            _save_rag_upgrade_metadata(db_session, context.updatable_docs, chunk_store)
+            try:
+                _check_and_trigger_wiki_stale_detection(db_session, [doc.id for doc in context.updatable_docs])
+                _extract_graph_for_indexed_docs(db_session, context.updatable_docs)
+            except Exception as e:
+                logger.exception(f"Failed to run wiki/graph indexing triggers: {e}")
+            
             enricher = adapter.prepare_enrichment(
                 context=context,
                 tenant_id=tenant_id,

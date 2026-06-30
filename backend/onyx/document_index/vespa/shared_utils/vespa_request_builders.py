@@ -231,6 +231,12 @@ def build_vespa_filters(
     # Time filter
     _append(filter_parts, _build_time_filter(filters.time_cutoff))
 
+    # Filter by attached_document_ids (selected documents)
+    if filters.attached_document_ids:
+        doc_clauses = [f'{DOCUMENT_ID} contains "{doc_id}"' for doc_id in filters.attached_document_ids if doc_id]
+        if doc_clauses:
+            filter_parts.append(f"({' or '.join(doc_clauses)})")
+
     # # Knowledge Graph Filters
     # _append(filter_parts, _build_kg_filter(
     #     kg_entities=filters.kg_entities,

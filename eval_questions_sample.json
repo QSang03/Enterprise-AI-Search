@@ -1,0 +1,18 @@
+[
+  {
+    "question": "Quy chế làm việc của công ty ban hành ngày nào?",
+    "gold_answer": "Quy chế làm việc ban hành ngày 15/01/2026.",
+    "gold_doc_id": "doc_quy_che_lam_viec",
+    "gold_page": 1,
+    "category": "admin_docs",
+    "is_answerable": true
+  },
+  {
+    "question": "Hạn mức chi tiêu tiếp khách của giám đốc bộ phận là bao nhiêu?",
+    "gold_answer": "Hạn mức tối đa là 20.000.000 VNĐ.",
+    "gold_doc_id": "doc_han_muc_chi_tieu",
+    "gold_page": 3,
+    "category": "legal_qa",
+    "is_answerable": true
+  }
+]

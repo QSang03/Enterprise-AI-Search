@@ -282,11 +282,25 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
         slack_context: SlackContext | None = None,
         # Whether to enable Slack federated search
         enable_slack_search: bool = True,
+        # Strict sources filtering
+        selected_doc_ids: list[str] | None = None,
+        strict_sources: bool = False,
     ) -> None:
         super().__init__(emitter=emitter)
 
         self.user = user
         self.persona_search_info = persona_search_info
+        
+        self.selected_doc_ids = selected_doc_ids
+        self.strict_sources = strict_sources
+        
+        if strict_sources and selected_doc_ids:
+            # Override attached documents to search ONLY selected documents!
+            self.persona_search_info.attached_document_ids = selected_doc_ids
+            # Clear other broad filters that might include other docs
+            self.persona_search_info.document_set_names = None
+            self.persona_search_info.hierarchy_node_ids = None
+
         self.llm = llm
         self.document_index = document_index
         self.user_selected_filters = user_selected_filters
@@ -920,52 +934,42 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             )
         )
 
-        # Run all searches in parallel with appropriate hybrid_alpha values
-        # Keyword queries use hybrid_alpha=0.2 (favor keyword search)
-        # Other queries use default hybrid_alpha (balanced semantic/keyword)
-        search_functions: list[tuple[Callable, tuple]] = []
-        search_weights: list[float] = []
+        secondary_flows_user_query = (
+            override_kwargs.original_query
+            or semantic_query
+            or (llm_queries[0] if llm_queries else "")
+        )
 
-        # Add deduplicated semantic queries (use hybrid_alpha=None)
-        for query, weight in deduplicated_semantic_queries:
-            search_functions.append(
+        # Run pure Keyword and pure Semantic search in parallel, taking top 50 each
+        search_functions = [
+            (
+                self._run_search_for_query,
                 (
-                    self._run_search_for_query,
-                    (
-                        query,
-                        None,
-                        override_kwargs.num_hits,
-                        acl_filters,
-                        embedding_model,
-                        federated_retrieval_infos,
-                        effective_filters,
-                    ),
+                    secondary_flows_user_query,
+                    1.0,  # Pure semantic (Vector)
+                    50,   # Top 50
+                    acl_filters,
+                    embedding_model,
+                    federated_retrieval_infos,
+                    effective_filters,
+                )
+            ),
+            (
+                self._run_search_for_query,
+                (
+                    secondary_flows_user_query,
+                    0.0,  # Pure keyword (BM25)
+                    50,   # Top 50
+                    acl_filters,
+                    embedding_model,
+                    federated_retrieval_infos,
+                    effective_filters,
                 )
             )
-            search_weights.append(weight)
+        ]
+        search_weights = [1.0, 1.0]
 
-        # Add deduplicated keyword queries (use hybrid_alpha=0.2)
-        for query, weight in deduplicated_keyword_queries:
-            search_functions.append(
-                (
-                    self._run_search_for_query,
-                    (
-                        query,
-                        KEYWORD_QUERY_HYBRID_ALPHA,
-                        override_kwargs.num_hits,
-                        acl_filters,
-                        embedding_model,
-                        federated_retrieval_infos,
-                        effective_filters,
-                    ),
-                )
-            )
-            search_weights.append(weight)
-
-        # Add Slack federated search (runs once in parallel with all Vespa queries)
-        # This avoids the query multiplication problem where each Vespa query
-        # would trigger a separate Slack search.
-        # Only run if pre-fetch found a valid Slack access token.
+        # Add Slack federated search if available
         if slack_access_token and override_kwargs.original_query:
             search_functions.append(
                 (
@@ -979,25 +983,51 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                     ),
                 )
             )
-            # Use same weight as original query for Slack results
             search_weights.append(ORIGINAL_QUERY_WEIGHT)
 
-        # Run all searches in parallel (Vespa queries + Slack)
+        # Run all searches in parallel
         all_search_results = run_functions_tuples_in_parallel(search_functions)
         if not all_search_results:
             all_search_results = []
 
-        # Merge results using weighted Reciprocal Rank Fusion
-        # This intelligently combines rankings from different queries
+        # Merge results using weighted Reciprocal Rank Fusion (RRF k=60)
         top_chunks = weighted_reciprocal_rank_fusion(
             ranked_results=all_search_results,
             weights=search_weights,
             id_extractor=lambda chunk: f"{chunk.document_id}_{chunk.chunk_id}",
+            k=60
         )
 
-        # We can disregard all of the chunks that exceed the num_hits parameter since it's not valid to have
-        # documents/contents from things that aren't returned to the user on the frontend
-        top_sections = merge_individual_chunks(top_chunks)[: override_kwargs.num_hits]
+        # Apply BGE Reranker (BAAI/bge-reranker-large) to get exactly top 10 chunks
+        if top_chunks:
+            try:
+                from onyx.natural_language_processing.search_nlp_models import RerankingModel
+                reranker = RerankingModel(
+                    model_name="BAAI/bge-reranker-large",
+                    provider_type=None,
+                    api_key=None,
+                    api_url=None,
+                )
+                logger.info("Reranking %s chunks using BAAI/bge-reranker-large", len(top_chunks))
+                scores = reranker.predict(
+                    query=secondary_flows_user_query,
+                    passages=[c.content for c in top_chunks]
+                )
+                ranked = sorted(zip(scores, top_chunks), key=lambda x: x[0], reverse=True)
+                top_chunks = [c for _, c in ranked][:10]
+            except Exception:
+                logger.exception("Failed to run local reranker, falling back to RRF order")
+                top_chunks = top_chunks[:10]
+        else:
+            top_chunks = top_chunks[:10]
+
+        # Apply Context Builder - Deduplicate and expand parent section context
+        from onyx.chat.context_builder import build_search_context
+        with get_session_with_current_tenant() as db_session:
+            top_chunks = build_search_context(top_chunks, db_session)
+
+        # Merge individual chunks to sections
+        top_sections = merge_individual_chunks(top_chunks)
 
         if not top_sections:
             logger.info("Search tool - no results found, returning empty response")
@@ -1024,11 +1054,7 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             top_sections, is_internet=False
         )
 
-        secondary_flows_user_query = (
-            override_kwargs.original_query
-            or semantic_query
-            or (llm_queries[0] if llm_queries else "")
-        )
+
 
         token_counter = get_llm_token_counter(self.llm)
 

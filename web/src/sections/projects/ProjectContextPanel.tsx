@@ -16,6 +16,7 @@ import UserFilesModal from "@/sections/modals/UserFilesModal";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
 import { FileCard } from "@/sections/cards/FileCard";
 import { hasNonImageFiles } from "@/lib/utils";
+import { useLlmDefaults } from "@/lib/languageModels/hooks";
 import { cn } from "@opal/utils";
 import {
   SvgAddLines,
@@ -38,6 +39,7 @@ export default function ProjectContextPanel({
 }: ProjectContextPanelProps) {
   const addInstructionModal = useCreateModal();
   const projectFilesModal = useCreateModal();
+  const { hasAnyLlm } = useLlmDefaults();
   // Convert ProjectFile to MinimalOnyxDocument format for viewing
   const handleOnView = useCallback(
     (file: ProjectFile) => {
@@ -86,6 +88,7 @@ export default function ProjectContextPanel({
 
   // Nested dropzone for drag-and-drop within ProjectContextPanel
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    disabled: !hasAnyLlm,
     noClick: true,
     noKeyboard: true,
     multiple: true,
@@ -278,7 +281,9 @@ export default function ProjectContextPanel({
               <Text as="p" font="secondary-body" color="inherit">
                 {isDragActive
                   ? "Drop files here to add to this project"
-                  : "Add documents, texts, or images to use in the project. Drag & drop supported."}
+                  : hasAnyLlm
+                    ? "Add documents, texts, or images to use in the project. Drag & drop supported."
+                    : "AI model not configured. Please configure an LLM first to upload files."}
               </Text>
             </div>
           )}

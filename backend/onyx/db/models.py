@@ -6216,3 +6216,253 @@ class ExternalAppPolicy(Base):
             name="uq_external_app_policy_app_action",
         ),
     )
+
+
+class IndexRun(Base):
+    __tablename__ = "index_runs"
+    
+    run_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    parser_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    chunker_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    embedding_model: Mapped[str] = mapped_column(String(100), nullable=False)
+    embedding_model_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    reranker_model: Mapped[str] = mapped_column(String(100), nullable=False)
+    reranker_model_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    metadata_extractor_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    index_schema_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    prompt_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    acl_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    wiki_generator_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+
+
+class DocumentProcessingJob(Base):
+    __tablename__ = "document_processing_jobs"
+    
+    job_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    parser_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    ocr_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    table_extraction_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    chunk_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    parser_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    chunker_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    embedding_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class DocumentProcessingError(Base):
+    __tablename__ = "document_processing_errors"
+    
+    error_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    job_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("document_processing_jobs.job_id", ondelete="CASCADE"), nullable=False)
+    page_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    stage: Mapped[str] = mapped_column(String(50), nullable=False)
+    error_message: Mapped[str] = mapped_column(Text, nullable=False)
+    stack_trace: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class OcrPage(Base):
+    __tablename__ = "ocr_pages"
+    
+    page_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    ocr_text: Mapped[str] = mapped_column(Text, nullable=False)
+    ocr_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    layout_data: Mapped[dict | None] = mapped_column(PGJSONB, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    
+    __table_args__ = (
+        UniqueConstraint("doc_id", "page_number", name="uq_ocr_pages_doc_page"),
+    )
+
+
+class DocumentBlock(Base):
+    __tablename__ = "document_blocks"
+    
+    block_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    page_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    block_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    text_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    text_normalized: Mapped[str] = mapped_column(Text, nullable=False)
+    bbox_x1: Mapped[float] = mapped_column(Float, nullable=False)
+    bbox_y1: Mapped[float] = mapped_column(Float, nullable=False)
+    bbox_x2: Mapped[float] = mapped_column(Float, nullable=False)
+    bbox_y2: Mapped[float] = mapped_column(Float, nullable=False)
+    char_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    char_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    block_metadata: Mapped[dict | None] = mapped_column(PGJSONB, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class DocumentChunkV2(Base):
+    __tablename__ = "document_chunks_v2"
+    
+    chunk_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    parent_chunk_id: Mapped[UUID | None] = mapped_column(PGUUID, ForeignKey("document_chunks_v2.chunk_id", ondelete="SET NULL"), nullable=True)
+    sibling_order: Mapped[int] = mapped_column(Integer, nullable=False)
+    text_raw: Mapped[str] = mapped_column(Text, nullable=False)
+    text_normalized: Mapped[str] = mapped_column(Text, nullable=False)
+    text_for_embedding: Mapped[str] = mapped_column(Text, nullable=False)
+    text_for_citation: Mapped[str] = mapped_column(Text, nullable=False)
+    block_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    heading_path: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=False)
+    page_start: Mapped[int] = mapped_column(Integer, nullable=False)
+    page_end: Mapped[int] = mapped_column(Integer, nullable=False)
+    bbox_x1: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bbox_y1: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bbox_x2: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bbox_y2: Mapped[float | None] = mapped_column(Float, nullable=True)
+    char_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    char_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    allowed_users: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=False)
+    allowed_groups: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String), nullable=False)
+    is_public: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    acl_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    parser_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    chunker_version: Mapped[str] = mapped_column(String(50), nullable=False)
+    run_id: Mapped[UUID | None] = mapped_column(PGUUID, ForeignKey("index_runs.run_id"), nullable=True)
+
+
+class EvalQuestion(Base):
+    __tablename__ = "eval_questions"
+    
+    question_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    question: Mapped[str] = mapped_column(Text, nullable=False)
+    gold_answer: Mapped[str] = mapped_column(Text, nullable=False)
+    gold_doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    gold_page: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    gold_chunk_id: Mapped[UUID | None] = mapped_column(PGUUID, nullable=True)
+    category: Mapped[str] = mapped_column(String(50), nullable=False)
+    is_answerable: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
+
+class EvalRun(Base):
+    __tablename__ = "eval_runs"
+    
+    eval_run_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    run_id: Mapped[UUID | None] = mapped_column(PGUUID, ForeignKey("index_runs.run_id"), nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class EvalResult(Base):
+    __tablename__ = "eval_results"
+    
+    result_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    eval_run_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("eval_runs.eval_run_id", ondelete="CASCADE"), nullable=False)
+    question_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("eval_questions.question_id", ondelete="CASCADE"), nullable=False)
+    generated_answer: Mapped[str | None] = mapped_column(Text, nullable=True)
+    retrieved_chunk_ids: Mapped[list[UUID] | None] = mapped_column(postgresql.ARRAY(PGUUID), nullable=True)
+    hit_10: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    citation_exact: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    no_answer_correct: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    faithfulness_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+
+class WikiPage(Base):
+    __tablename__ = "wiki_pages"
+    
+    wiki_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    is_stale: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+
+class WikiCitation(Base):
+    __tablename__ = "wiki_citations"
+    
+    citation_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True, server_default=func.gen_random_uuid())
+    wiki_id: Mapped[UUID] = mapped_column(PGUUID, nullable=False)
+    wiki_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    section_title: Mapped[str] = mapped_column(String(255), nullable=False)
+    chunk_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("document_chunks_v2.chunk_id", ondelete="CASCADE"), nullable=False)
+    
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["wiki_id", "wiki_version"],
+            ["wiki_pages.wiki_id", "wiki_pages.version"],
+            ondelete="CASCADE"
+        ),
+    )
+
+
+class WikiStaleEvent(Base):
+    __tablename__ = "wiki_stale_events"
+    
+    event_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True, server_default=func.gen_random_uuid())
+    wiki_id: Mapped[UUID] = mapped_column(PGUUID, nullable=False)
+    wiki_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    trigger_doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    conflict_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    conflict_description: Mapped[str] = mapped_column(Text, nullable=False)
+    resolved: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["wiki_id", "wiki_version"],
+            ["wiki_pages.wiki_id", "wiki_pages.version"],
+            ondelete="CASCADE"
+        ),
+    )
+
+
+class Entity(Base):
+    __tablename__ = "entities"
+    
+    entity_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True, server_default=func.gen_random_uuid())
+    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class Relation(Base):
+    __tablename__ = "relations"
+    
+    relation_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True, server_default=func.gen_random_uuid())
+    source_entity_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("entities.entity_id", ondelete="CASCADE"), nullable=False)
+    target_entity_id: Mapped[UUID] = mapped_column(PGUUID, ForeignKey("entities.entity_id", ondelete="CASCADE"), nullable=False)
+    relation_type: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+

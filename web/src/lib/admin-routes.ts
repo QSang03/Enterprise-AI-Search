@@ -53,6 +53,18 @@ export const ADMIN_ROUTES = {
     title: "Existing Connectors",
     sidebarLabel: "Existing Connectors",
   },
+  PROCESSING_JOBS: {
+    path: "/admin/indexing/processing-jobs",
+    icon: SvgProgressBars,
+    title: "Document Processing Jobs",
+    sidebarLabel: "Processing Dashboard",
+  },
+  WIKI_GRAPH: {
+    path: "/admin/indexing/wiki-graph",
+    icon: SvgGlobe,
+    title: "Knowledge Graph & Wiki Pages",
+    sidebarLabel: "Wiki & Knowledge Graph",
+  },
   ADD_CONNECTOR: {
     path: "/admin/add-connector",
     icon: SvgUploadCloud,

@@ -330,3 +330,17 @@ class TestBuildVespaFilters:
         filters = IndexFilters(access_control_list=[], document_set=["", ""])
         result = build_vespa_filters(filters)
         assert f"!({HIDDEN}=true) and " == result
+
+    def test_attached_document_ids(self) -> None:
+        """Test with attached_document_ids (selected documents)."""
+        from onyx.document_index.vespa_constants import DOCUMENT_ID
+        filters = IndexFilters(
+            access_control_list=[],
+            attached_document_ids=["doc_1", "doc_2"]
+        )
+        result = build_vespa_filters(filters)
+        assert (
+            result
+            == f'!({HIDDEN}=true) and ({DOCUMENT_ID} contains "doc_1" or {DOCUMENT_ID} contains "doc_2") and '
+        )
+

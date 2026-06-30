@@ -26,6 +26,11 @@ import useFilter from "@/hooks/useFilter";
 import { Button } from "@opal/components";
 import ScrollIndicatorDiv from "@/refresh-components/ScrollIndicatorDiv";
 import { timeAgo } from "@opal/time";
+import { useUser } from "@/providers/UserProvider";
+import { useLlmDefaults } from "@/lib/languageModels/hooks";
+import { Callout } from "@/components/ui/callout";
+import Link from "next/link";
+import { ADMIN_ROUTES } from "@/lib/admin-routes";
 
 function getIcon(
   file: ProjectFile,
@@ -118,6 +123,8 @@ export default function UserFilesModal({
   onUnpickRecent,
 }: UserFilesModalProps) {
   const { isOpen, toggle } = useModal();
+  const { isAdmin } = useUser();
+  const { hasAnyLlm, isLoading: isLoadingLlm } = useLlmDefaults();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     () => new Set(selectedFileIds || [])
   );
@@ -163,6 +170,7 @@ export default function UserFilesModal({
           multiple
           className="hidden"
           onChange={handleUploadChange}
+          disabled={!hasAnyLlm}
         />
       )}
 
@@ -196,6 +204,7 @@ export default function UserFilesModal({
                   icon={SvgPlusCircle}
                   prominence="internal"
                   onClick={triggerUploadPicker}
+                  disabled={!hasAnyLlm}
                 >
                   Add Files
                 </Button>
@@ -208,6 +217,28 @@ export default function UserFilesModal({
             gap={0.5}
             alignItems="center"
           >
+            {!isLoadingLlm && !hasAnyLlm && (
+              <div className="w-full px-4 mb-2">
+                <Callout type="warning" title="AI Model Not Configured">
+                  {isAdmin ? (
+                    <span>
+                      Please configure a default LLM model first to upload and process files.{" "}
+                      <Link
+                        href={ADMIN_ROUTES.LLM_MODELS.path}
+                        className="underline font-bold text-amber-800 dark:text-amber-200"
+                        onClick={() => toggle(false)}
+                      >
+                        Configure here
+                      </Link>
+                    </span>
+                  ) : (
+                    <span>
+                      Please contact your system administrator to configure the default LLM provider before uploading files.
+                    </span>
+                  )}
+                </Callout>
+              </div>
+            )}
             {/* File display section */}
             {filtered.length === 0 ? (
               <Text text03>No files found</Text>

@@ -2,6 +2,8 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from typing import cast
+from uuid import UUID
+from pydantic import BaseModel
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -244,4 +246,176 @@ def get_failed_documents(
     return PaginatedReturn(
         items=[IndexAttemptErrorPydantic.from_model(e) for e in errors],
         total_items=total,
+    )
+
+
+# RAG Upgrade Operations Dashboard Schemas
+class JobSummaryResponse(BaseModel):
+    job_id: UUID
+    doc_id: str
+    file_name: str
+    parser_mode: str
+    status: str
+    chunk_count: int
+    created_at: datetime
+    updated_at: datetime
+
+class PaginatedJobsResponse(BaseModel):
+    jobs: list[JobSummaryResponse]
+    total_count: int
+
+class BlockDetail(BaseModel):
+    block_id: UUID
+    block_type: str
+    text_content: str
+    page_number: int
+
+class PageDetail(BaseModel):
+    page_id: int
+    page_number: int
+    text_raw: str
+    ocr_confidence: float | None
+
+class ErrorDetail(BaseModel):
+    error_id: int
+    stage: str
+    error_message: str
+    stack_trace: str | None
+    created_at: datetime
+
+class JobDetailResponse(BaseModel):
+    job: JobSummaryResponse
+    blocks: list[BlockDetail]
+    pages: list[PageDetail]
+    errors: list[ErrorDetail]
+
+
+@router.get("/admin/rag-upgrade/jobs")
+def get_rag_upgrade_jobs(
+    status: str | None = None,
+    parser_mode: str | None = None,
+    doc_id: str | None = None,
+    page: int = 0,
+    page_size: int = 25,
+    _: User = Depends(require_permission(Permission.FULL_ADMIN_PANEL_ACCESS)),
+    db_session: Session = Depends(get_session),
+) -> PaginatedJobsResponse:
+    from onyx.db.rag_upgrade_models import DocumentProcessingJob
+    
+    query = db_session.query(DocumentProcessingJob)
+    if status:
+        query = query.filter(DocumentProcessingJob.status == status)
+    if parser_mode:
+        query = query.filter(DocumentProcessingJob.parser_mode == parser_mode)
+    if doc_id:
+        query = query.filter(DocumentProcessingJob.doc_id.ilike(f"%{doc_id}%"))
+        
+    total_count = query.count()
+    jobs = (
+        query.order_by(DocumentProcessingJob.created_at.desc())
+        .offset(page * page_size)
+        .limit(page_size)
+        .all()
+    )
+    
+    summary_jobs = [
+        JobSummaryResponse(
+            job_id=job.job_id,
+            doc_id=job.doc_id,
+            file_name=job.file_name,
+            parser_mode=job.parser_mode,
+            status=job.status,
+            chunk_count=job.chunk_count,
+            created_at=job.created_at,
+            updated_at=job.updated_at,
+        )
+        for job in jobs
+    ]
+    
+    return PaginatedJobsResponse(jobs=summary_jobs, total_count=total_count)
+
+
+@router.get("/admin/rag-upgrade/jobs/{job_id}")
+def get_rag_upgrade_job_detail(
+    job_id: UUID,
+    _: User = Depends(require_permission(Permission.FULL_ADMIN_PANEL_ACCESS)),
+    db_session: Session = Depends(get_session),
+) -> JobDetailResponse:
+    from onyx.db.rag_upgrade_models import (
+        DocumentProcessingJob,
+        DocumentBlock,
+        OcrPage,
+        DocumentProcessingError,
+    )
+    
+    job = (
+        db_session.query(DocumentProcessingJob)
+        .filter(DocumentProcessingJob.job_id == job_id)
+        .first()
+    )
+    if not job:
+        raise HTTPException(status_code=404, detail="Document processing job not found")
+        
+    blocks = (
+        db_session.query(DocumentBlock)
+        .filter(DocumentBlock.doc_id == job.doc_id)
+        .order_by(DocumentBlock.page_number)
+        .all()
+    )
+    
+    pages = (
+        db_session.query(OcrPage)
+        .filter(OcrPage.doc_id == job.doc_id)
+        .order_by(OcrPage.page_number)
+        .all()
+    )
+    
+    errors = (
+        db_session.query(DocumentProcessingError)
+        .filter(DocumentProcessingError.job_id == job_id)
+        .order_by(DocumentProcessingError.created_at.desc())
+        .all()
+    )
+    
+    job_summary = JobSummaryResponse(
+        job_id=job.job_id,
+        doc_id=job.doc_id,
+        file_name=job.file_name,
+        parser_mode=job.parser_mode,
+        status=job.status,
+        chunk_count=job.chunk_count,
+        created_at=job.created_at,
+        updated_at=job.updated_at,
+    )
+    
+    return JobDetailResponse(
+        job=job_summary,
+        blocks=[
+            BlockDetail(
+                block_id=b.block_id,
+                block_type=b.block_type,
+                text_content=b.text_raw,
+                page_number=b.page_number,
+            )
+            for b in blocks
+        ],
+        pages=[
+            PageDetail(
+                page_id=p.page_id,
+                page_number=p.page_number,
+                text_raw=p.ocr_text,
+                ocr_confidence=p.ocr_confidence,
+            )
+            for p in pages
+        ],
+        errors=[
+            ErrorDetail(
+                error_id=e.error_id,
+                stage=e.stage,
+                error_message=e.error_message,
+                stack_trace=e.stack_trace,
+                created_at=e.created_at,
+            )
+            for e in errors
+        ],
     )

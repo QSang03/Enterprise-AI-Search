@@ -97,8 +97,8 @@ def admin_put_settings(
 
 
 def apply_license_status_to_settings(settings: Settings) -> Settings:
-    """MIT version: no-op, returns settings unchanged."""
-    return settings
+    from onyx.db.license import apply_license_status_to_settings as db_apply
+    return db_apply(settings)
 
 
 @basic_router.get("")

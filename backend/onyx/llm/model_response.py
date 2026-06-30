@@ -76,6 +76,10 @@ class ModelResponse(BaseModel):
     choice: Choice
     usage: Usage | None = None
 
+    @property
+    def content(self) -> str | None:
+        return self.choice.message.content
+
 
 if TYPE_CHECKING:
     from litellm.types.utils import ModelResponse as LiteLLMModelResponse

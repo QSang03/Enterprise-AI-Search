@@ -14,6 +14,7 @@ import LineItem from "@/refresh-components/buttons/LineItem";
 import IconButton from "@/refresh-components/buttons/IconButton";
 import { toast } from "@/hooks/useToast";
 import { useProjectsContext } from "@/providers/ProjectsContext";
+import { useLlmDefaults } from "@/lib/languageModels/hooks";
 import Text from "@/refresh-components/texts/Text";
 import { MAX_FILES_TO_SHOW } from "@/lib/constants";
 import { isImageFile } from "@/lib/utils";
@@ -105,6 +106,7 @@ interface FilePickerPopoverContentsProps {
   onFileClick: (file: ProjectFile) => void;
   triggerUploadPicker: () => void;
   openRecentFilesModal: () => void;
+  hasAnyLlm: boolean;
 }
 
 function FilePickerPopoverContents({
@@ -113,6 +115,7 @@ function FilePickerPopoverContents({
   onFileClick,
   triggerUploadPicker,
   openRecentFilesModal,
+  hasAnyLlm,
 }: FilePickerPopoverContentsProps) {
   // These are the "quick" files that we show. Essentially "speed dial", but for files.
   // The rest of the files will be hidden behind the "All Recent Files" button, should there be more files left to show!
@@ -127,8 +130,9 @@ function FilePickerPopoverContents({
         <LineItem
           key="upload-files"
           icon={SvgUploadSquare}
-          description="Upload a file from your device"
-          onClick={triggerUploadPicker}
+          description={hasAnyLlm ? "Upload a file from your device" : "AI model not configured"}
+          onClick={hasAnyLlm ? triggerUploadPicker : undefined}
+          disabled={!hasAnyLlm}
         >
           Upload Files
         </LineItem>,
@@ -188,6 +192,7 @@ export default function FilePickerPopover({
   selectedFileIds,
 }: FilePickerPopoverProps) {
   const { allRecentFiles } = useProjectsContext();
+  const { hasAnyLlm } = useLlmDefaults();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const recentFilesModal = useCreateModal();
   const [open, setOpen] = useState(false);
@@ -264,6 +269,7 @@ export default function FilePickerPopover({
         multiple
         onChange={handleUploadChange}
         accept={"*/*"}
+        disabled={!hasAnyLlm}
       />
 
       <recentFilesModal.Provider>
@@ -308,6 +314,7 @@ export default function FilePickerPopover({
               // Close the small popover when opening the dialog
               setOpen(false);
             }}
+            hasAnyLlm={hasAnyLlm}
           />
         </Popover.Content>
       </Popover>

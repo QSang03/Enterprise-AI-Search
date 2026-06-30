@@ -167,6 +167,8 @@ class Chunker:
             chunk_overlap=chunk_overlap,
             return_type="texts",
         )
+        from onyx.indexing.chunking.legal_splitter import VietnameseLegalSplitter
+        self.chunk_splitter = VietnameseLegalSplitter(fallback_splitter=self.chunk_splitter)
 
         self.mini_chunk_splitter = (
             SentenceChunker(

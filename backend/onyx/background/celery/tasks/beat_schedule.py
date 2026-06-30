@@ -192,7 +192,7 @@ beat_tasks: list[dict] = [
 ]
 
 # EE features — doc permissions sync and external group sync
-if PREMIUM_EDITION_ENABLED or _LICENSE_ENFORCEMENT_ENABLED:
+if PREMIUM_EDITION_ENABLED:
     beat_tasks.extend(
         [
             {

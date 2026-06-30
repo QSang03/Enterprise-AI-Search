@@ -15,6 +15,7 @@ from transformers import logging as transformer_logging
 
 from model_server.encoders import router as encoders_router
 from model_server.management_endpoints import router as management_router
+from model_server.legacy.reranker import router as reranker_router
 from model_server.utils import get_cgroup_cpu_limit
 from model_server.utils import get_gpu_type
 from onyx import __version__
@@ -124,6 +125,7 @@ def get_model_app() -> FastAPI:
 
     application.include_router(management_router)
     application.include_router(encoders_router)
+    application.include_router(reranker_router)
 
     request_id_prefix = "INF"
     if INDEXING_ONLY:

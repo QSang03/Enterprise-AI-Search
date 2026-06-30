@@ -257,6 +257,11 @@ def _process_file(
                 "Failed to process embedded image %s in %s: %s", idx, file_name, e
             )
 
+    additional_info_data = None
+    if extraction_result.metadata and "__layout_blocks__" in extraction_result.metadata:
+        layout_blocks = extraction_result.metadata.pop("__layout_blocks__")
+        additional_info_data = {"layout_blocks": layout_blocks}
+
     return [
         Document(
             id=doc_id,
@@ -269,6 +274,7 @@ def _process_file(
             secondary_owners=secondary_owners,
             metadata=custom_tags,
             file_id=doc_file_id,
+            additional_info=additional_info_data,
         )
     ]
 

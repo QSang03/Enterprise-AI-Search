@@ -31,6 +31,8 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import NoAgentModal from "@/sections/modals/NoAgentModal";
 import PreviewModal from "@/sections/modals/PreviewModal";
 import Modal from "@/refresh-components/Modal";
+import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
+import UserFilesModal from "@/sections/modals/UserFilesModal";
 import { useSendMessageToParent } from "@/lib/extension/utils";
 import { SUBMIT_MESSAGE_TYPES } from "@/lib/extension/constants";
 import { getSourceMetadata } from "@/lib/sources";
@@ -57,19 +59,20 @@ import {
   useCurrentIsStreamDraining,
 } from "@/app/app/stores/useChatSessionStore";
 import FederatedOAuthModal from "@/components/chat/FederatedOAuthModal";
+import { getLatestMessageChain } from "@/app/app/services/messageTree";
 import ChatScrollContainer, {
   ChatScrollContainerHandle,
 } from "@/sections/chat/ChatScrollContainer";
 import ProjectContextPanel from "@/sections/projects/ProjectContextPanel";
 import { useProjectsContext } from "@/providers/ProjectsContext";
-import { getProjectTokenCount } from "@/app/app/projects/projectsService";
+import { getProjectTokenCount, UserFileStatus, type ProjectFile } from "@/app/app/projects/projectsService";
 import ProjectChatSessionList from "@/sections/projects/ProjectChatSessionList";
 import { cn } from "@opal/utils";
 import Suggestions from "@/sections/Suggestions";
 import OnboardingFlow from "@/sections/onboarding/OnboardingFlow";
 import { OnboardingStep } from "@/interfaces/onboarding";
 import { useShowOnboarding } from "@/hooks/useShowOnboarding";
-import { SvgChevronDown, SvgFileText } from "@opal/icons";
+import { SvgChevronDown, SvgFileText, SvgPlusCircle, SvgTrash, SvgCopy, SvgEdit, SvgX, SvgSearchMenu, SvgFolderOpen, SvgFiles, SvgCheck, SvgSimpleLoader, SvgChevronLeft, SvgChevronRight, SvgBookOpen, SvgBook, SvgLightbulbSimple, SvgPin, SvgCheckSquare, SvgSquare } from "@opal/icons";
 import { Button, Spacer } from "@opal/components";
 import { IllustrationContent, RootLayout } from "@opal/layouts";
 import { SvgNotFound, SvgNoAccess } from "@opal/illustrations";
@@ -171,6 +174,11 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     currentProjectDetails,
     lastFailedFiles,
     clearLastFailedFiles,
+    allCurrentProjectFiles,
+    linkFileToProject,
+    unlinkFileFromProject,
+    beginUpload,
+    projects,
   } = useProjectsContext();
 
   // When changing from project chat to main chat (or vice-versa), clear forced tools
@@ -364,6 +372,28 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   const [selectedDocuments, setSelectedDocuments] = useState<OnyxDocument[]>(
     []
   );
+  const [strictSources, setStrictSources] = useState(false);
+  const [notebookSplitView, setNotebookSplitView] = useState(false);
+  const [leftSidebarFolded, setLeftSidebarFolded] = useState(false);
+  const projectFilesModal = useCreateModal();
+  const [customNotes, setCustomNotes] = useState<Array<{id: string, title: string, content: string, date: string}>>([]);
+
+  useEffect(() => {
+    if (currentChatSessionId) {
+      try {
+        const stored = localStorage.getItem(`onyx_notes_${currentChatSessionId}`);
+        if (stored) {
+          setCustomNotes(JSON.parse(stored));
+        } else {
+          setCustomNotes([]);
+        }
+      } catch (e) {
+        setCustomNotes([]);
+      }
+    } else {
+      setCustomNotes([]);
+    }
+  }, [currentChatSessionId]);
 
   // Access chat state directly from the store
   const currentChatState = useCurrentChatState();
@@ -374,6 +404,57 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   );
   const messageHistory = useCurrentMessageHistory();
   const messageTree = useCurrentMessageTree();
+
+  const sessionFiles = useMemo(() => {
+    const filesMap = new Map<string, any>();
+    if (currentMessageFiles) {
+      currentMessageFiles.forEach((f) => {
+        filesMap.set(f.file_id || f.id, f);
+      });
+    }
+    if (messageHistory) {
+      messageHistory.forEach((msg: any) => {
+        if (msg.files) {
+          msg.files.forEach((f: any) => {
+            filesMap.set(f.file_id || f.id, f);
+          });
+        }
+      });
+    }
+    return Array.from(filesMap.values());
+  }, [currentMessageFiles, messageHistory]);
+
+  // Automatically sync session files to selectedDocuments
+  useEffect(() => {
+    if (!currentProjectId && sessionFiles.length > 0) {
+      setSelectedDocuments((prev) => {
+        const nextDocs = [...prev];
+        let changed = false;
+        sessionFiles.forEach((file) => {
+          const docId = `project_file__${file.file_id || file.id}`;
+          if (!nextDocs.some((d) => d.document_id === docId)) {
+            nextDocs.push({
+              document_id: docId,
+              semantic_identifier: file.name,
+              link: "",
+              source_type: "file" as any,
+              blurb: "",
+              boost: 1.0,
+              hidden: false,
+              score: 0.0,
+              chunk_ind: 0,
+              match_highlights: [],
+              metadata: {},
+              updated_at: null,
+              is_internet: false,
+            });
+            changed = true;
+          }
+        });
+        return changed ? nextDocs : prev;
+      });
+    }
+  }, [sessionFiles, currentProjectId]);
 
   // Block input when the last turn is multi-model and the user hasn't
   // selected a preferred response yet. Without a selection, it's ambiguous
@@ -584,6 +665,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
         selectedModels: multiModel.isMultiModelActive
           ? multiModel.selectedModels
           : undefined,
+        selectedDocIds: selectedDocuments?.map((doc) => doc.document_id) || [],
+        strictSources: strictSources,
       });
       if (showOnboarding || !onboardingDismissed) {
         finishOnboarding();
@@ -600,6 +683,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       showOnboarding,
       onboardingDismissed,
       finishOnboarding,
+      selectedDocuments,
+      strictSources,
     ]
   );
   const { submit: submitQuery, state, setAppMode } = useQueryController();
@@ -640,6 +725,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
           selectedModels: multiModel.isMultiModelActive
             ? multiModel.selectedModels
             : undefined,
+          selectedDocIds: selectedDocuments?.map((doc) => doc.document_id) || [],
+          strictSources: strictSources,
         });
         if (showOnboarding || !onboardingDismissed) {
           finishOnboarding();
@@ -666,6 +753,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       finishOnboarding,
       multiModel.isMultiModelActive,
       multiModel.selectedModels,
+      selectedDocuments,
+      strictSources,
     ]
   );
 
@@ -706,6 +795,27 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       cancelled = true;
     };
   }, [currentChatSessionId, currentProjectId, currentProjectDetails?.files]);
+
+  // Find project matching the current chat session
+  const projectForChatSession = useMemo(() => {
+    if (!currentChatSessionId || !projects) return null;
+    return projects.find((project) =>
+      project.chat_sessions?.some((session) => session.id === currentChatSessionId)
+    ) ?? null;
+  }, [projects, currentChatSessionId]);
+
+  // Automatically sync project_id from loaded chat session to URL query parameter
+  useEffect(() => {
+    if (projectForChatSession) {
+      const pId = projectForChatSession.id.toString();
+      const currentQueryPId = searchParams?.get(SEARCH_PARAM_NAMES.PROJECT_ID);
+      if (currentQueryPId !== pId) {
+        const newParams = new URLSearchParams(searchParams?.toString() || "");
+        newParams.set(SEARCH_PARAM_NAMES.PROJECT_ID, pId);
+        router.replace(`?${newParams.toString()}` as any, { scroll: false });
+      }
+    }
+  }, [projectForChatSession, searchParams, router]);
 
   // handle error case where no assistants are available
   // Only show this after agents have loaded to prevent flash during initial load
@@ -801,14 +911,213 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
         >
           {({ getRootProps }) => (
             <div
-              className="h-full w-full flex flex-col items-center outline-hidden relative"
+              className="h-full w-full flex flex-row items-stretch outline-hidden relative"
               {...getRootProps({ tabIndex: -1 })}
             >
-              {/* Main content grid — 3 rows, animated */}
-              <div
-                className="flex-1 w-full grid min-h-0 transition-[grid-template-rows] duration-150 ease-in-out"
-                style={gridStyle}
-              >
+              {/* Left Column: Project Sources Sidebar */}
+              {(appFocus.isChat() || appFocus.isNewSession()) && currentProjectId && (() => {
+                const sourcesList = allCurrentProjectFiles;
+                return (
+                  <div
+                    className={cn(
+                      "border-r border-border bg-background-strong flex flex-col shrink-0 transition-all duration-200 ease-in-out relative",
+                      leftSidebarFolded ? "w-12" : "w-64 xl:w-72"
+                    )}
+                  >
+                    {leftSidebarFolded ? (
+                      <div className="flex-1 flex flex-col items-center py-4 gap-4">
+                        <button
+                          onClick={() => setLeftSidebarFolded(false)}
+                          className="p-2 hover:bg-background-tint-01 rounded text-text-subtle hover:text-text"
+                          title="Expand Sources Workspace"
+                        >
+                          <SvgChevronRight className="w-4 h-4" />
+                        </button>
+                        <div className="w-px bg-border flex-1 my-2" />
+                        <div className="flex flex-col items-center gap-2">
+                          <SvgFiles className="w-5 h-5 text-text-subtle" />
+                          <span className="text-3xs font-extrabold bg-accent/10 text-accent px-1.5 py-0.5 rounded-full">
+                            {selectedDocuments.length}
+                          </span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex flex-col h-full overflow-hidden">
+                        {/* Sidebar Header */}
+                        <div className="p-4 border-b border-border flex items-center justify-between bg-background">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <SvgFolderOpen className="w-4 h-4 text-accent" />
+                            <span className="text-xs font-bold text-text truncate">Workspace Sources</span>
+                            <span className="px-1.5 py-0.5 text-3xs font-bold bg-accent-light/10 text-accent rounded-full select-none shrink-0">
+                              {selectedDocuments.length}/{sourcesList.length}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setLeftSidebarFolded(true)}
+                            className="p-1 hover:bg-background-strong rounded text-text-subtle hover:text-text shrink-0"
+                            title="Collapse Sources Workspace"
+                          >
+                            <SvgChevronLeft className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        {/* Action Controls Toolbar */}
+                        <div className="px-4 py-2 border-b border-border flex items-center justify-between bg-background-strong/20">
+                          {currentProjectId ? (
+                            <button
+                              onClick={() => projectFilesModal.toggle(true)}
+                              className="flex items-center gap-1 text-2xs font-bold text-accent hover:text-accent/80 transition-colors cursor-pointer select-none"
+                            >
+                              <SvgPlusCircle className="w-3.5 h-3.5" />
+                              Manage Files
+                            </button>
+                          ) : (
+                            <span className="text-2xs italic text-text-subtle">Session Files</span>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                const allDocs = sourcesList
+                                  .filter((file) => file.status === UserFileStatus.COMPLETED)
+                                  .map((file) => ({
+                                    document_id: `project_file__${file.file_id}`,
+                                    semantic_identifier: file.name,
+                                    link: "",
+                                    source_type: "file" as any,
+                                    blurb: "",
+                                    boost: 1.0,
+                                    hidden: false,
+                                    score: 0.0,
+                                    chunk_ind: 0,
+                                    match_highlights: [],
+                                    metadata: {},
+                                    updated_at: null,
+                                    is_internet: false,
+                                  }));
+                                setSelectedDocuments(allDocs);
+                              }}
+                              className="text-2xs font-bold text-text-subtle hover:text-accent transition-colors cursor-pointer select-none"
+                            >
+                              Select All
+                            </button>
+                            <span className="w-px h-2.5 bg-border" />
+                            <button
+                              onClick={() => setSelectedDocuments([])}
+                              className="text-2xs font-bold text-text-subtle hover:text-error transition-colors cursor-pointer select-none"
+                            >
+                              Clear All
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Files List */}
+                        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                          {sourcesList.length === 0 ? (
+                            <div className="text-center py-12 text-2xs text-text-subtle">
+                              No files attached yet.
+                            </div>
+                          ) : (
+                            sourcesList.map((file) => {
+                              const docId = `project_file__${file.file_id}`;
+                              const isChecked = selectedDocuments.some(
+                                (d) => d.document_id === docId
+                              );
+                              const isProcessing = file.status === UserFileStatus.PROCESSING;
+                              
+                              return (
+                                <div
+                                  key={file.id}
+                                  onClick={() => {
+                                    if (isProcessing) return;
+                                    if (isChecked) {
+                                      setSelectedDocuments((prev) =>
+                                        prev.filter((d) => d.document_id !== docId)
+                                      );
+                                    } else {
+                                      setSelectedDocuments((prev) => [
+                                        ...prev,
+                                        {
+                                          document_id: docId,
+                                          semantic_identifier: file.name,
+                                          link: "",
+                                          source_type: "file" as any,
+                                          blurb: "",
+                                          boost: 1.0,
+                                          hidden: false,
+                                          score: 0.0,
+                                          chunk_ind: 0,
+                                          match_highlights: [],
+                                          metadata: {},
+                                          updated_at: null,
+                                          is_internet: false,
+                                        },
+                                      ]);
+                                    }
+                                  }}
+                                  className={cn(
+                                    "flex items-center gap-2.5 p-2 bg-background rounded-lg border transition-all select-none",
+                                    isProcessing ? "opacity-60 cursor-not-allowed border-border" : "cursor-pointer hover:border-accent/40",
+                                    isChecked && !isProcessing ? "border-accent bg-accent-light/5 shadow-2xs" : "border-border"
+                                  )}
+                                >
+                                  {!isProcessing && (
+                                    isChecked ? (
+                                      <SvgCheckSquare className="w-4 h-4 text-accent shrink-0" />
+                                    ) : (
+                                      <SvgSquare className="w-4 h-4 text-text-subtle shrink-0" />
+                                    )
+                                  )}
+                                  {isProcessing && (
+                                    <SvgSimpleLoader className="w-3.5 h-3.5 animate-spin text-accent shrink-0" />
+                                  )}
+
+                                  <div className="flex-1 min-w-0">
+                                    <div
+                                      className={cn(
+                                        "text-xs font-semibold truncate leading-tight",
+                                        isChecked ? "text-text" : "text-text-subtle"
+                                      )}
+                                      title={file.name}
+                                    >
+                                      {file.name}
+                                    </div>
+                                    <div className="text-2xs text-text-subtle flex items-center justify-between mt-0.5">
+                                      <span>
+                                        {isProcessing ? "Processing..." : (() => {
+                                          const type = file.file_type.toLowerCase();
+                                          if (type.includes("pdf")) return "PDF";
+                                          if (type.includes("markdown") || file.name.endsWith(".md")) return "Markdown";
+                                          if (type.includes("text") || type.includes("plain")) return "Text";
+                                          if (type.includes("spreadsheet") || type.includes("csv")) return "Spreadsheet";
+                                          if (type.includes("word") || type.includes("officedocument")) return "Document";
+                                          const ext = file.name.split(".").pop();
+                                          return ext && ext.length <= 4 ? ext.toUpperCase() : "File";
+                                        })()}
+                                      </span>
+                                      {file.chunk_count !== null && !isProcessing && (
+                                        <span>{file.chunk_count} chunks</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Left Column: Chat Area */}
+              <div className="flex-1 min-w-0 h-full flex flex-col items-center overflow-hidden">
+                {/* Main content grid — 3 rows, animated */}
+                <div
+                  className="flex-1 w-full grid min-h-0 transition-[grid-template-rows] duration-150 ease-in-out"
+                  style={gridStyle}
+                >
                 {/* ── Top row: ChatUI / WelcomeMessage / ProjectUI ── */}
                 <div className="row-start-1 min-h-0 overflow-hidden flex flex-col items-center px-2 sm:px-4">
                   {/* ChatUI */}
@@ -1000,14 +1309,68 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                           isSearch ? "h-[14px]" : "h-0"
                         )}
                       />
-                      {appFocus.isChat() && liveAgent && (
-                        <div className="pb-1">
+                      {(appFocus.isChat() || appFocus.isNewSession()) && liveAgent && currentProjectId && (
+                        <div className="pb-1 flex flex-wrap items-center justify-between gap-2">
                           <MultiModelSelector
                             selectedModels={multiModel.selectedModels}
                             onAdd={multiModel.addModel}
                             onRemove={multiModel.removeModel}
                             onReplace={multiModel.replaceModel}
                           />
+                          
+                          <div className="flex items-center gap-2">
+                            {/* Strict Sources Toggle */}
+                            <button
+                              onClick={() => {
+                                const nextState = !strictSources;
+                                setStrictSources(nextState);
+                                if (nextState) {
+                                  toast.success("Strict Sources enabled: Chatting ONLY with checked documents!");
+                                } else {
+                                  toast.info("Strict Sources disabled: Search queries all documents.");
+                                }
+                              }}
+                              className={cn(
+                                "flex items-center gap-1.5 px-3.5 h-8 text-2xs font-bold rounded-full border transition-all duration-150 shadow-3xs cursor-pointer select-none",
+                                strictSources
+                                  ? "bg-accent-green/20 text-accent-green border-accent-green/45 hover:bg-accent-green/30"
+                                  : "bg-background-strong text-text-subtle border-border hover:text-text hover:bg-background-tint-01"
+                              )}
+                              title="Only search within documents/files explicitly attached to this chat session"
+                            >
+                              {strictSources ? (
+                                <SvgCheckSquare className="w-3.5 h-3.5 text-accent-green" />
+                              ) : (
+                                <SvgSquare className="w-3.5 h-3.5 text-text-subtle" />
+                              )}
+                              Strict Sources
+                            </button>
+
+                            {/* Split Note Canvas Toggle */}
+                            <button
+                              onClick={() => {
+                                const nextState = !notebookSplitView;
+                                setNotebookSplitView(nextState);
+                                if (nextState) {
+                                  toast.success("Notebook Canvas opened! Workspace mode active.");
+                                }
+                              }}
+                              className={cn(
+                                "flex items-center gap-1.5 px-3.5 h-8 text-2xs font-bold rounded-full border transition-all duration-150 shadow-3xs cursor-pointer select-none",
+                                notebookSplitView
+                                  ? "bg-accent-blue/20 text-accent-blue border-accent-blue/45 hover:bg-accent-blue/30"
+                                  : "bg-background-strong text-text-subtle border-border hover:text-text hover:bg-background-tint-01"
+                              )}
+                              title="Toggle side-by-side Note Canvas (NotebookLM Workspace mode)"
+                            >
+                              {notebookSplitView ? (
+                                <SvgCheckSquare className="w-3.5 h-3.5 text-accent-blue" />
+                              ) : (
+                                <SvgSquare className="w-3.5 h-3.5 text-text-subtle" />
+                              )}
+                              Notebook Canvas
+                            </button>
+                          </div>
                         </div>
                       )}
                       <AppInputBar
@@ -1098,9 +1461,405 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                 </div>
               </div>
             </div>
+
+              {/* Right Column: Note Canvas */}
+              {notebookSplitView && (
+                <NoteCanvas
+                  currentChatSessionId={currentChatSessionId}
+                  customNotes={customNotes}
+                  setCustomNotes={setCustomNotes}
+                  selectedDocuments={selectedDocuments}
+                  currentMessageFiles={currentMessageFiles}
+                  onSubmit={onSubmit}
+                  onClose={() => setNotebookSplitView(false)}
+                  currentMessageTree={messageTree}
+                />
+              )}
+            </div>
           )}
         </Dropzone>
       </div>
+      <projectFilesModal.Provider>
+        <UserFilesModal
+          title="Project Files"
+          description="Sessions in this project can access the files here."
+          recentFiles={[...allCurrentProjectFiles]}
+          onView={(file) => {
+            if (!setPresentingDocument) return;
+            setPresentingDocument({
+              document_id: `project_file__${file.file_id}`,
+              semantic_identifier: file.name,
+            });
+          }}
+          handleUploadChange={async (e) => {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+            beginUpload(Array.from(files), currentProjectId);
+            e.target.value = "";
+          }}
+          onDelete={async (file) => {
+            if (!currentProjectId) return;
+            await unlinkFileFromProject(currentProjectId, file.id);
+          }}
+        />
+      </projectFilesModal.Provider>
     </>
+  );
+}
+
+// ── NoteCanvas subcomponent for split-screen ──
+interface NoteCanvasProps {
+  currentChatSessionId: string | null;
+  customNotes: Array<{id: string, title: string, content: string, date: string}>;
+  setCustomNotes: React.Dispatch<React.SetStateAction<Array<{id: string, title: string, content: string, date: string}>>>;
+  selectedDocuments: OnyxDocument[];
+  currentMessageFiles: any[];
+  onSubmit: any;
+  onClose: () => void;
+  currentMessageTree: any;
+}
+
+function NoteCanvas({
+  currentChatSessionId,
+  customNotes,
+  setCustomNotes,
+  selectedDocuments,
+  currentMessageFiles,
+  onSubmit,
+  onClose,
+  currentMessageTree
+}: NoteCanvasProps) {
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteContent, setNoteContent] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+
+  const handleAddNote = () => {
+    if (!noteContent.trim()) return;
+    const newNote = {
+      id: Date.now().toString(),
+      title: noteTitle.trim() || `Note ${customNotes.length + 1}`,
+      content: noteContent,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    const updated = [newNote, ...customNotes];
+    setCustomNotes(updated);
+    if (currentChatSessionId) {
+      localStorage.setItem(`onyx_notes_${currentChatSessionId}`, JSON.stringify(updated));
+    }
+    setNoteTitle("");
+    setNoteContent("");
+    toast.success("Note added!");
+  };
+
+  const handleDeleteNote = (id: string) => {
+    const updated = customNotes.filter(n => n.id !== id);
+    setCustomNotes(updated);
+    if (currentChatSessionId) {
+      localStorage.setItem(`onyx_notes_${currentChatSessionId}`, JSON.stringify(updated));
+    }
+    toast.success("Note deleted!");
+  };
+
+  const handleStartEdit = (note: any) => {
+    setEditingNoteId(note.id);
+    setEditTitle(note.title);
+    setEditContent(note.content);
+  };
+
+  const handleSaveEdit = () => {
+    const updated = customNotes.map(n => n.id === editingNoteId ? { ...n, title: editTitle, content: editContent } : n);
+    setCustomNotes(updated);
+    if (currentChatSessionId) {
+      localStorage.setItem(`onyx_notes_${currentChatSessionId}`, JSON.stringify(updated));
+    }
+    setEditingNoteId(null);
+    toast.success("Note updated!");
+  };
+
+  const handleCopyNote = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast.success("Copied to clipboard!");
+  };
+
+  const handleTemplateClick = (type: "guide" | "brief" | "summary") => {
+    let promptText = "";
+    if (type === "guide") {
+      promptText = "Hãy tóm tắt các tài liệu và tạo một Study Guide đầy đủ cấu trúc gồm câu hỏi ôn tập, từ vựng và bài tập.";
+    } else if (type === "brief") {
+      promptText = "Hãy soạn một văn bản tóm tắt nhanh (Briefing Document) về nội dung chính của các tài liệu.";
+    } else if (type === "summary") {
+      promptText = "Tạo một thẻ tóm tắt các ý kiến, luận điểm quan trọng nhất trong tài liệu.";
+    }
+    
+    onSubmit({
+      message: promptText,
+      currentMessageFiles,
+      deepResearch: false,
+      selectedDocIds: selectedDocuments?.map((doc) => doc.document_id) || [],
+      strictSources: true,
+    });
+  };
+
+  const handleSaveLastResponse = () => {
+    const chain = getLatestMessageChain(currentMessageTree || new Map());
+    const lastAssistantMsg = chain.slice().reverse().find((m: any) => m.type === "assistant");
+    if (lastAssistantMsg) {
+      const newNote = {
+        id: Date.now().toString(),
+        title: `Summary of last response`,
+        content: lastAssistantMsg.message || "",
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      const updated = [newNote, ...customNotes];
+      setCustomNotes(updated);
+      if (currentChatSessionId) {
+        localStorage.setItem(`onyx_notes_${currentChatSessionId}`, JSON.stringify(updated));
+      }
+      toast.success("Saved response as note!");
+    } else {
+      toast.error("No response found to save.");
+    }
+  };
+
+  return (
+    <div className="w-96 xl:w-[420px] h-full border-l border-border bg-background flex flex-col">
+      {/* Header */}
+      <div className="p-4 border-b border-border flex items-center justify-between bg-background">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 bg-accent/10 rounded-lg text-accent">
+            <SvgFileText className="w-4 h-4" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-text">Notebook Canvas</span>
+            <span className="text-3xs text-text-subtle font-semibold">Workspace notes & actions</span>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1.5 hover:bg-background-strong rounded-lg text-text-subtle hover:text-text transition-all"
+        >
+          <SvgX className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin">
+        {/* Template Prompt Actions */}
+        <div className="space-y-2.5">
+          <span className="text-2xs font-bold text-text-subtle block">Notebook Ingestion Actions</span>
+          <div className="grid grid-cols-1 gap-2.5">
+            <button
+              onClick={() => handleTemplateClick("guide")}
+              className="flex flex-col items-start w-full px-4 py-3 bg-background hover:bg-accent-light/5 border border-border hover:border-accent/40 rounded-xl transition-all duration-150 shadow-2xs hover:shadow-xs text-left cursor-pointer group gap-1"
+            >
+              <span className="text-xs font-bold text-text group-hover:text-accent flex items-center gap-2">
+                <SvgBookOpen className="w-4 h-4 text-accent" />
+                Generate Study Guide
+              </span>
+              <span className="text-2xs text-text-subtle leading-normal">Compile practice questions, vocabulary, and structured guides from active documents.</span>
+            </button>
+            <button
+              onClick={() => handleTemplateClick("brief")}
+              className="flex flex-col items-start w-full px-4 py-3 bg-background hover:bg-accent-light/5 border border-border hover:border-accent/40 rounded-xl transition-all duration-150 shadow-2xs hover:shadow-xs text-left cursor-pointer group gap-1"
+            >
+              <span className="text-xs font-bold text-text group-hover:text-accent flex items-center gap-2">
+                <SvgFileText className="w-4 h-4 text-accent" />
+                Draft Briefing Document
+              </span>
+              <span className="text-2xs text-text-subtle leading-normal">Draft a summary brief covering key details and main takeaways.</span>
+            </button>
+            <button
+              onClick={() => handleTemplateClick("summary")}
+              className="flex flex-col items-start w-full px-4 py-3 bg-background hover:bg-accent-light/5 border border-border hover:border-accent/40 rounded-xl transition-all duration-150 shadow-2xs hover:shadow-xs text-left cursor-pointer group gap-1"
+            >
+              <span className="text-xs font-bold text-text group-hover:text-accent flex items-center gap-2">
+                <SvgLightbulbSimple className="w-4 h-4 text-accent" />
+                Summarize Key Points
+              </span>
+              <span className="text-2xs text-text-subtle leading-normal">Synthesize core concepts and highlight important arguments.</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Save Last Response Option */}
+        <button
+          onClick={handleSaveLastResponse}
+          className="w-full py-2 bg-accent hover:bg-accent/90 text-white font-bold text-2xs rounded-lg transition-all flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs cursor-pointer select-none"
+        >
+          <SvgPin className="w-4 h-4" />
+          Save last response as note
+        </button>
+
+        {/* Create Manual Note Card Trigger */}
+        <button
+          onClick={() => setShowAddNoteModal(true)}
+          className="w-full py-2 border border-dashed border-border hover:border-accent/40 rounded-xl text-2xs font-bold text-text-subtle hover:text-accent flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-background"
+        >
+          <SvgPlusCircle className="w-3.5 h-3.5" />
+          Add Custom Note
+        </button>
+
+        {/* Create Manual Note Modal */}
+        {showAddNoteModal && (
+          <Modal
+            open={showAddNoteModal}
+            onOpenChange={(open) => {
+              if (!open) {
+                setShowAddNoteModal(false);
+                setNoteTitle("");
+                setNoteContent("");
+              }
+            }}
+          >
+            <Modal.Content width="sm" height="fit">
+              <Modal.Header
+                title="Create Custom Note"
+                onClose={() => {
+                  setShowAddNoteModal(false);
+                  setNoteTitle("");
+                  setNoteContent("");
+                }}
+              />
+              <Modal.Body>
+                <div className="space-y-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-2xs font-bold text-text-subtle">Note Title</label>
+                    <input
+                      type="text"
+                      placeholder="Enter title..."
+                      value={noteTitle}
+                      onChange={(e) => setNoteTitle(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-background border border-border rounded-lg focus:outline-none focus:border-accent text-text transition-all focus:shadow-2xs"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-2xs font-bold text-text-subtle">Note Content</label>
+                    <textarea
+                      placeholder="Write your note content here..."
+                      value={noteContent}
+                      onChange={(e) => setNoteContent(e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-2 text-xs bg-background border border-border rounded-lg focus:outline-none focus:border-accent text-text resize-none transition-all focus:shadow-2xs leading-relaxed"
+                    />
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => {
+                      setShowAddNoteModal(false);
+                      setNoteTitle("");
+                      setNoteContent("");
+                    }}
+                    className="px-3.5 py-2 text-xs font-bold text-text-subtle hover:text-text bg-background border border-border rounded-lg transition-all cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleAddNote();
+                      setShowAddNoteModal(false);
+                    }}
+                    disabled={!noteContent.trim()}
+                    className="px-3.5 py-2 text-xs font-bold text-white bg-accent hover:bg-accent/90 rounded-lg transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    Add Note
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal.Content>
+          </Modal>
+        )}
+
+        {/* Scrollable Notes List */}
+        <div className="space-y-3 pt-2">
+          <span className="text-2xs font-bold text-text-subtle block">Workspace Notes ({customNotes.length})</span>
+          {customNotes.length === 0 ? (
+            <div className="text-center py-10 text-xs text-text-subtle bg-background-strong/20 rounded-xl border border-dashed border-border">
+              No notes created. Generate a study guide or add a custom note!
+            </div>
+          ) : (
+            customNotes.map((note) => (
+              <div
+                key={note.id}
+                className="p-4 bg-yellow-50/60 dark:bg-yellow-950/10 border border-yellow-200/60 dark:border-yellow-900/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-600 rounded-xl flex flex-col gap-2.5 transition-all hover:shadow-xs hover:border-yellow-300 dark:hover:border-yellow-800/40 relative group"
+              >
+                {editingNoteId === note.id ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className="w-full px-3 py-1.5 text-xs bg-background border border-border rounded-lg text-text focus:outline-none focus:border-accent"
+                    />
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      rows={4}
+                      className="w-full px-3 py-1.5 text-xs bg-background border border-border rounded-lg text-text resize-none focus:outline-none focus:border-accent leading-relaxed"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSaveEdit}
+                        className="px-3 py-1.5 bg-accent text-white text-2xs font-bold rounded-lg hover:bg-accent/90"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingNoteId(null)}
+                        className="px-3 py-1.5 bg-background border border-border text-text-subtle text-2xs font-bold rounded-lg hover:bg-background-strong"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold text-text truncate pr-1" title={note.title}>
+                          {note.title}
+                        </span>
+                        <span className="text-3xs text-text-subtle mt-0.5 font-medium">{note.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleStartEdit(note)}
+                          className="p-1 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-md text-text-subtle hover:text-accent transition-all"
+                          title="Edit Note"
+                        >
+                          <SvgEdit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleCopyNote(note.content)}
+                          className="p-1 hover:bg-yellow-100 dark:hover:bg-yellow-900/30 rounded-md text-text-subtle hover:text-accent-blue transition-all"
+                          title="Copy Content"
+                        >
+                          <SvgCopy className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteNote(note.id)}
+                          className="p-1 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-md text-text-subtle hover:text-error transition-all"
+                          title="Delete Note"
+                        >
+                          <SvgTrash className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="w-full h-px bg-yellow-200/30 dark:bg-yellow-900/10" />
+                    <p className="text-2xs text-text/90 leading-relaxed whitespace-pre-wrap">
+                      {note.content}
+                    </p>
+                  </>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
