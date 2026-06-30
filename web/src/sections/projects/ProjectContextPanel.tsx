@@ -245,16 +245,18 @@ export default function ProjectContextPanel({
                 ))}
 
                 {totalFiles > 4 && (
-                  <LineItemButton
-                    sizePreset="main-ui"
-                    variant="section"
-                    title="View All"
-                    description={`${displayFileCount} files`}
-                    rightChildren={
-                      <SvgFiles className="h-5 w-5 stroke-text-02" />
-                    }
-                    onClick={() => projectFilesModal.toggle(true)}
-                  />
+                  <div className="w-36 shrink-0">
+                    <LineItemButton
+                      sizePreset="main-ui"
+                      variant="section"
+                      title="View All"
+                      description={`${displayFileCount} files`}
+                      rightChildren={
+                        <SvgFiles className="h-5 w-5 stroke-text-02" />
+                      }
+                      onClick={() => projectFilesModal.toggle(true)}
+                    />
+                  </div>
                 )}
                 {isDragActive && (
                   <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-action-link-05" />
