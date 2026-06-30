@@ -25,15 +25,34 @@ class QueryExpansionType(Enum):
 
 
 class SearchSettingsCreationRequest(IndexingSetting):
+    rerank_enabled: bool = True
+    rerank_model_name: str | None = None
+    rerank_provider_type: str | None = None
+    rerank_api_key: str | None = None
+    rerank_api_url: str | None = None
+
     @classmethod
     def from_db_model(
         cls, search_settings: SearchSettings
     ) -> "SearchSettingsCreationRequest":
         indexing_setting = IndexingSetting.from_db_model(search_settings)
-        return cls(**indexing_setting.model_dump())
+        return cls(
+            **indexing_setting.model_dump(),
+            rerank_enabled=search_settings.rerank_enabled,
+            rerank_model_name=search_settings.rerank_model_name,
+            rerank_provider_type=search_settings.rerank_provider_type,
+            rerank_api_key=search_settings.rerank_api_key,
+            rerank_api_url=search_settings.rerank_api_url,
+        )
 
 
 class SavedSearchSettings(IndexingSetting):
+    rerank_enabled: bool = True
+    rerank_model_name: str | None = None
+    rerank_provider_type: str | None = None
+    rerank_api_key: str | None = None
+    rerank_api_url: str | None = None
+
     # Previously this contained also Inference time settings. Keeping this wrapper class around
     # as there may again be inference time settings that may get added.
     @classmethod
@@ -53,6 +72,12 @@ class SavedSearchSettings(IndexingSetting):
             switchover_type=search_settings.switchover_type,
             enable_contextual_rag=search_settings.enable_contextual_rag,
             contextual_rag_model_configuration_id=search_settings.contextual_rag_model_configuration_id,
+            # Reranking Setting
+            rerank_enabled=search_settings.rerank_enabled,
+            rerank_model_name=search_settings.rerank_model_name,
+            rerank_provider_type=search_settings.rerank_provider_type,
+            rerank_api_key=search_settings.rerank_api_key,
+            rerank_api_url=search_settings.rerank_api_url,
         )
 
 

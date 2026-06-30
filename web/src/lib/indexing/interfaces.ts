@@ -129,6 +129,7 @@ export interface ConfiguredEmbeddingProvider {
 }
 
 export interface RerankingDetails {
+  rerank_enabled?: boolean;
   rerank_model_name: string | null;
   rerank_provider_type: RerankerProvider | null;
   rerank_api_key: string | null;

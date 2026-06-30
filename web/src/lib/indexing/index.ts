@@ -414,3 +414,70 @@ export function resolveProviderName(
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const MAX_IMAGE_SIZE_OPTIONS = ["5", "10", "20", "50", "100"];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Search Reranking
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface RerankerModel {
+  modelName: string;
+  displayName: string;
+  description: string;
+}
+
+export interface RerankerProviderInfo {
+  providerName: string;
+  displayName: string;
+  description: string;
+  models: RerankerModel[];
+}
+
+export const RERANKER_PROVIDERS: RerankerProviderInfo[] = [
+  {
+    providerName: "local",
+    displayName: "Local/Self-hosted (BGE)",
+    description: "Run cross-encoder models locally on the Onyx model server.",
+    models: [
+      {
+        modelName: "BAAI/bge-reranker-large",
+        displayName: "BGE Reranker Large",
+        description: "Standard high-performance local cross-encoder model.",
+      },
+    ],
+  },
+  {
+    providerName: "cohere",
+    displayName: "Cohere",
+    description: "Cloud-based reranking API from Cohere.",
+    models: [
+      {
+        modelName: "rerank-english-v3.0",
+        displayName: "Rerank English v3.0",
+        description: "Cohere's state-of-the-art English reranking model.",
+      },
+      {
+        modelName: "rerank-multilingual-v3.0",
+        displayName: "Rerank Multilingual v3.0",
+        description: "Cohere's multilingual model supporting 100+ languages.",
+      },
+    ],
+  },
+  {
+    providerName: "bedrock",
+    displayName: "AWS Bedrock",
+    description: "Cloud-based reranking via AWS Bedrock.",
+    models: [
+      {
+        modelName: "cohere.rerank-v3-5:0",
+        displayName: "Cohere Rerank v3.5 (Bedrock)",
+        description: "Cohere reranking model hosted on AWS Bedrock.",
+      },
+    ],
+  },
+  {
+    providerName: "litellm",
+    displayName: "LiteLLM",
+    description: "Proxy routing via LiteLLM server.",
+    models: [],
+  },
+];

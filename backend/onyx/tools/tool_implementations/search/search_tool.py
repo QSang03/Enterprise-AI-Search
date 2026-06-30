@@ -40,7 +40,11 @@ from typing import Any
 from typing import cast
 
 from pydantic import BaseModel
+from sqlalchemy import func, literal
 from sqlalchemy.orm import Session
+
+from onyx.db.models import Entity, WikiPage
+from onyx.db.graph_service import expand_entities_cte
 
 from onyx.chat.emitter import Emitter
 from onyx.configs.chat_configs import MAX_CHUNKS_FED_TO_CHAT
@@ -658,6 +662,26 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
 
         connected_sources: list[DocumentSource] = []
 
+        db_rerank_enabled = True
+        db_rerank_model = "BAAI/bge-reranker-large"
+        db_rerank_provider = None
+        db_rerank_api_key = None
+        db_rerank_api_url = None
+
+        if "queries" not in llm_kwargs:
+            raise ToolCallException(
+                message="Missing required 'queries' parameter in internal_search tool call",
+                llm_facing_message=(
+                    "The internal_search tool requires a 'queries' parameter "
+                    "containing an array of search queries. Please provide the queries "
+                    'like: {"queries": ["your search query here"]}'
+                ),
+            )
+        llm_queries = cast(list[str], llm_kwargs["queries"])
+
+        graph_expanded_keywords: list[str] = []
+        wiki_chunks: list[InferenceChunk] = []
+
         # Pre-fetch all DB data in a single short-lived session so that
         # parallel search workers need zero DB connections.
         with get_session_with_current_tenant() as db_session:
@@ -705,6 +729,12 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                 server_port=MODEL_SERVER_PORT,
             )
 
+            db_rerank_enabled = getattr(search_settings, "rerank_enabled", True)
+            db_rerank_model = getattr(search_settings, "rerank_model_name", None) or "BAAI/bge-reranker-large"
+            db_rerank_provider = getattr(search_settings, "rerank_provider_type", None)
+            db_rerank_api_key = getattr(search_settings, "rerank_api_key", None)
+            db_rerank_api_url = getattr(search_settings, "rerank_api_url", None)
+
             # Federated retrieval functions (non-Slack; Slack is separate)
             if self.project_id_filter is not None:
                 # Project mode ignores user filters → no federated sources
@@ -742,18 +772,75 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                     None,
                     {},
                 )
-        # Session is closed here — all parallel work uses plain Python objects only
 
-        if QUERIES_FIELD not in llm_kwargs:
-            raise ToolCallException(
-                message=f"Missing required '{QUERIES_FIELD}' parameter in internal_search tool call",
-                llm_facing_message=(
-                    f"The internal_search tool requires a '{QUERIES_FIELD}' parameter "
-                    f"containing an array of search queries. Please provide the queries "
-                    f'like: {{"queries": ["your search query here"]}}'
-                ),
-            )
-        llm_queries = cast(list[str], llm_kwargs[QUERIES_FIELD])
+            # Graph Entity Expansion:
+            # Match entities in the original query or LLM queries and expand them.
+            try:
+                candidate_text = override_kwargs.original_query or (llm_queries[0] if llm_queries else "")
+                if candidate_text:
+                    matched_entities = (
+                        db_session.query(Entity.name)
+                        .filter(literal(candidate_text).ilike(func.concat("%", Entity.name, "%")))
+                        .all()
+                    )
+                    matched_names = [row[0] for row in matched_entities if row[0]]
+                    if matched_names:
+                        expanded_nodes = expand_entities_cte(
+                            entity_names=matched_names,
+                            depth=1,
+                            db_session=db_session
+                        )
+                        expanded_names = {node["name"] for node in expanded_nodes if node.get("name")}
+                        new_keywords = list(expanded_names - set(matched_names))
+                        graph_expanded_keywords = new_keywords
+            except Exception as e:
+                logger.exception(f"Failed to expand entities from graph: {e}")
+
+            # Search Wiki Pages:
+            try:
+                candidate_text = override_kwargs.original_query or (llm_queries[0] if llm_queries else "")
+                if candidate_text:
+                    matched_wikis = (
+                        db_session.query(WikiPage)
+                        .filter(
+                            WikiPage.is_stale == False,
+                            WikiPage.is_published == True,
+                            (
+                                literal(candidate_text).ilike(func.concat("%", WikiPage.title, "%"))
+                                | WikiPage.title.ilike(func.concat("%", candidate_text, "%"))
+                            )
+                        )
+                        .all()
+                    )
+                    for wiki in matched_wikis:
+                        wiki_chunks.append(
+                            InferenceChunk(
+                                chunk_id=0,
+                                blurb=wiki.content[:200] + "..." if len(wiki.content) > 200 else wiki.content,
+                                content=wiki.content,
+                                source_links=None,
+                                image_file_id=None,
+                                section_continuation=False,
+                                semantic_identifier=f"Wiki Page: {wiki.title}",
+                                document_id=f"wiki_{wiki.wiki_id}",
+                                source_type=DocumentSource.NOT_APPLICABLE,
+                                title=wiki.title,
+                                boost=0,
+                                score=1.5,
+                                hidden=False,
+                                is_relevant=None,
+                                relevance_explanation="Matched compiled Wiki page.",
+                                metadata={},
+                                match_highlights=[],
+                                doc_summary=wiki.content[:100] + "..." if len(wiki.content) > 100 else wiki.content,
+                                chunk_context="",
+                                updated_at=wiki.updated_at,
+                            )
+                        )
+            except Exception as e:
+                logger.exception(f"Failed to query matching WikiPages: {e}")
+
+        # Session is closed here — all parallel work uses plain Python objects only
 
         # Run semantic and keyword query expansion in parallel (unless skipped)
         # Use message history, memories, and user info from override_kwargs
@@ -796,6 +883,9 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
         semantic_query = expansion.semantic_query
         keyword_queries = expansion.keyword_queries
         plan_scope = expansion.plan_scope
+
+        if graph_expanded_keywords:
+            keyword_queries.extend(graph_expanded_keywords)
 
         resolved_scope = (
             plan_scope if plan_scope is not None else user_source_restriction
@@ -998,17 +1088,26 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             k=60
         )
 
-        # Apply BGE Reranker (BAAI/bge-reranker-large) to get exactly top 10 chunks
-        if top_chunks:
+        # Apply Reranker to get exactly top 10 chunks
+        if top_chunks and db_rerank_enabled:
             try:
                 from onyx.natural_language_processing.search_nlp_models import RerankingModel
+                from shared_configs.enums import RerankerProvider
+
+                resolved_provider = None
+                if db_rerank_provider:
+                    try:
+                        resolved_provider = RerankerProvider(db_rerank_provider)
+                    except ValueError:
+                        pass
+
                 reranker = RerankingModel(
-                    model_name="BAAI/bge-reranker-large",
-                    provider_type=None,
-                    api_key=None,
-                    api_url=None,
+                    model_name=db_rerank_model,
+                    provider_type=resolved_provider,
+                    api_key=db_rerank_api_key,
+                    api_url=db_rerank_api_url,
                 )
-                logger.info("Reranking %s chunks using BAAI/bge-reranker-large", len(top_chunks))
+                logger.info("Reranking %s chunks using %s (provider: %s)", len(top_chunks), db_rerank_model, db_rerank_provider)
                 scores = reranker.predict(
                     query=secondary_flows_user_query,
                     passages=[c.content for c in top_chunks]
@@ -1016,7 +1115,7 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                 ranked = sorted(zip(scores, top_chunks), key=lambda x: x[0], reverse=True)
                 top_chunks = [c for _, c in ranked][:10]
             except Exception:
-                logger.exception("Failed to run local reranker, falling back to RRF order")
+                logger.exception("Failed to run reranker, falling back to RRF order")
                 top_chunks = top_chunks[:10]
         else:
             top_chunks = top_chunks[:10]
@@ -1025,6 +1124,9 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
         from onyx.chat.context_builder import build_search_context
         with get_session_with_current_tenant() as db_session:
             top_chunks = build_search_context(top_chunks, db_session)
+
+        if wiki_chunks:
+            top_chunks = wiki_chunks + top_chunks
 
         # Merge individual chunks to sections
         top_sections = merge_individual_chunks(top_chunks)
@@ -1068,8 +1170,12 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
 
         # This is approximate since it doesn't build the exact string of the call below
         # Some things are estimated and may be under (like the metadata tokens)
+        # Split wiki and non-wiki sections: wiki sections bypass LLM selection to be injected directly
+        wiki_sections_pre = [s for s in top_sections if s.center_chunk.document_id.startswith("wiki_")]
+        non_wiki_sections_pre = [s for s in top_sections if not s.center_chunk.document_id.startswith("wiki_")]
+
         sections_for_selection = _trim_sections_by_tokens(
-            sections=top_sections,
+            sections=non_wiki_sections_pre,
             max_tokens=max_tokens_for_selection,
             token_counter=token_counter,
             max_chunks_per_section=MAX_CHUNKS_FOR_RELEVANCE,
@@ -1085,6 +1191,9 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             llm=self.llm,
             max_chunks_per_section=MAX_CHUNKS_FOR_RELEVANCE,
         )
+
+        # Prepend the wiki sections directly to the selected sections
+        selected_sections = wiki_sections_pre + selected_sections
 
         # End timing for LLM document selection
         document_selection_elapsed = time.time() - document_selection_start_time
@@ -1137,7 +1246,10 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                 )
                 return section
 
-        # Build parallel function calls for all sections
+        # Build parallel function calls for non-wiki sections only
+        wiki_sections = [s for s in selected_sections if s.center_chunk.document_id.startswith("wiki_")]
+        non_wiki_sections = [s for s in selected_sections if not s.center_chunk.document_id.startswith("wiki_")]
+
         expansion_functions: list[tuple[Callable, tuple]] = [
             (
                 expand_section_safe,
@@ -1149,21 +1261,22 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                     section.center_chunk.document_id in best_doc_ids_set,
                 ),
             )
-            for section in selected_sections
+            for section in non_wiki_sections
         ]
 
         # Start timing for document expansion
         document_expansion_start_time = time.time()
 
         # Run all expansions in parallel
-        expanded_sections = run_functions_tuples_in_parallel(expansion_functions)
+        expanded_non_wiki = run_functions_tuples_in_parallel(expansion_functions) if expansion_functions else []
+        expanded_sections = wiki_sections + expanded_non_wiki
 
         # End timing for document expansion
         document_expansion_elapsed = time.time() - document_expansion_start_time
         logger.debug(
             "Search tool - Expansion of selected documents took %s seconds (expanded %s sections)",
             format(document_expansion_elapsed, ".3f"),
-            len(expanded_sections),
+            len(expanded_non_wiki),
         )
 
         if not expanded_sections:

@@ -49,6 +49,7 @@ import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
 import {
   EmbeddingProviderName,
   SwitchoverType,
+  RerankerProvider,
   type ConfiguredEmbeddingProvider,
   type EmbeddingModel,
   type EmbeddingModelRequest,
@@ -64,12 +65,15 @@ import {
   isCloudBased,
   MAX_IMAGE_SIZE_OPTIONS,
   resolveProviderName,
+  RERANKER_PROVIDERS,
+  type RerankerProviderInfo,
 } from "@/lib/indexing";
 import {
   saveAdminSettings,
   cancelNewEmbedding,
   disconnectEmbeddingProvider,
   setNewSearchSettings,
+  updateInferenceSettings,
 } from "@/lib/indexing/svc";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
 import { ContentAction } from "@opal/layouts";
@@ -568,6 +572,12 @@ interface IndexSettingsFormValues {
   custom_model_provider: EmbeddingProviderName | null;
   enable_contextual_rag: boolean;
   contextual_rag_model_configuration_id: number | null;
+
+  rerank_enabled: boolean;
+  rerank_provider_type: string | null;
+  rerank_model_name: string | null;
+  rerank_api_key: string | null;
+  rerank_api_url: string | null;
 }
 
 export default function IndexSettingsPage() {
@@ -763,6 +773,11 @@ export default function IndexSettingsPage() {
       enable_contextual_rag: searchSettings?.enable_contextual_rag ?? false,
       contextual_rag_model_configuration_id:
         searchSettings?.contextual_rag_model_configuration_id ?? null,
+      rerank_enabled: searchSettings?.rerank_enabled ?? true,
+      rerank_provider_type: searchSettings?.rerank_provider_type ?? "local",
+      rerank_model_name: searchSettings?.rerank_model_name ?? "BAAI/bge-reranker-large",
+      rerank_api_key: searchSettings?.rerank_api_key ?? "",
+      rerank_api_url: searchSettings?.rerank_api_url ?? "",
     }),
     [currentEmbeddingModel, searchSettings]
   );
@@ -845,53 +860,104 @@ export default function IndexSettingsPage() {
             enableReinitialize
             initialValues={initialFormValues}
             onSubmit={async (values) => {
-              // Custom self-hosted models live outside the static registry,
-              // so the form carries their spec (`modelDim`, `normalize`, etc.)
-              // in `custom_model` for submission. The provider, however, is
-              // ALWAYS resolved through `resolveProviderName` — see its NOTE
-              // for why this is the single source of truth for provider
-              // discrimination.
-              const stagedModel =
-                values.custom_model ?? findRegistryModel(values.model_name);
-              if (!stagedModel) {
-                toast.error("Could not find the selected model");
-                return;
-              }
-              // A staged custom model from a no-registry cloud provider
-              // (LiteLLM / Azure) carries its owning provider explicitly;
-              // otherwise fall back to resolving the provider from the model
-              // name against the static registry.
-              const providerName =
-                values.custom_model_provider ??
-                resolveProviderName(values.model_name, null);
+               const isReindexRequired =
+                 (values.model_name !== initialFormValues.model_name &&
+                   !!values.model_name) ||
+                 values.enable_contextual_rag !== initialFormValues.enable_contextual_rag ||
+                 (values.enable_contextual_rag &&
+                   values.contextual_rag_model_configuration_id !==
+                     initialFormValues.contextual_rag_model_configuration_id);
 
-              const response = await setNewSearchSettings({
-                model: stagedModel,
-                providerName,
-                switchoverType,
-                enableContextualRag: values.enable_contextual_rag,
-                contextualRagModelConfigurationId: values.enable_contextual_rag
-                  ? values.contextual_rag_model_configuration_id
-                  : null,
-              });
+               if (!isReindexRequired && searchSettings) {
+                 try {
+                   const response = await updateInferenceSettings({
+                     ...searchSettings,
+                     enable_contextual_rag: values.enable_contextual_rag,
+                     contextual_rag_model_configuration_id: values.enable_contextual_rag
+                       ? values.contextual_rag_model_configuration_id
+                       : null,
+                     rerank_enabled: values.rerank_enabled,
+                     rerank_model_name: values.rerank_model_name,
+                     rerank_provider_type: values.rerank_provider_type as RerankerProvider | null,
+                     rerank_api_key: values.rerank_api_key,
+                     rerank_api_url: values.rerank_api_url,
+                   });
 
-              if (!response.ok) {
-                toast.error("Failed to apply settings");
-                return;
-              }
+                   if (!response.ok) {
+                     const errorDetail = (await response.json()).detail ?? "Failed to update settings";
+                     toast.error(errorDetail);
+                     return;
+                   }
 
-              toast.success("Re-indexing started");
-              setSwitchoverType(SwitchoverType.REINDEX);
-              await Promise.all([
-                mutate(SWR_KEYS.currentSearchSettings),
-                mutate(SWR_KEYS.secondarySearchSettings),
-              ]);
-            }}
+                   toast.success("Settings updated successfully");
+                   await Promise.all([
+                     mutate(SWR_KEYS.currentSearchSettings),
+                     mutate(SWR_KEYS.secondarySearchSettings),
+                   ]);
+                 } catch (error) {
+                   toast.error(error instanceof Error ? error.message : "Failed to update settings");
+                 }
+                 return;
+               }
+
+               // Custom self-hosted models live outside the static registry,
+               // so the form carries their spec (`modelDim`, `normalize`, etc.)
+               // in `custom_model` for submission. The provider, however, is
+               // ALWAYS resolved through `resolveProviderName` — see its NOTE
+               // for why this is the single source of truth for provider
+               // discrimination.
+               const stagedModel =
+                 values.custom_model ?? findRegistryModel(values.model_name);
+               if (!stagedModel) {
+                 toast.error("Could not find the selected model");
+                 return;
+               }
+               // A staged custom model from a no-registry cloud provider
+               // (LiteLLM / Azure) carries its owning provider explicitly;
+               // otherwise fall back to resolving the provider from the model
+               // name against the static registry.
+               const providerName =
+                 values.custom_model_provider ??
+                 resolveProviderName(values.model_name, null);
+
+               const response = await setNewSearchSettings({
+                 model: stagedModel,
+                 providerName,
+                 switchoverType,
+                 enableContextualRag: values.enable_contextual_rag,
+                 contextualRagModelConfigurationId: values.enable_contextual_rag
+                   ? values.contextual_rag_model_configuration_id
+                   : null,
+                 rerankEnabled: values.rerank_enabled,
+                 rerankModelName: values.rerank_model_name,
+                 rerankProviderType: values.rerank_provider_type,
+                 rerankApiKey: values.rerank_api_key,
+                 rerankApiUrl: values.rerank_api_url,
+               });
+
+               if (!response.ok) {
+                 toast.error("Failed to apply settings");
+                 return;
+               }
+
+               toast.success("Re-indexing started");
+               setSwitchoverType(SwitchoverType.REINDEX);
+               await Promise.all([
+                 mutate(SWR_KEYS.currentSearchSettings),
+                 mutate(SWR_KEYS.secondarySearchSettings),
+               ]);
+             }}
           >
             {({ values, dirty, setFieldValue, resetForm, submitForm }) => {
               const isModelStaged =
                 values.model_name !== initialFormValues.model_name &&
                 !!values.model_name;
+              const isReindexRequired =
+                isModelStaged ||
+                values.enable_contextual_rag !== initialFormValues.enable_contextual_rag ||
+                (values.enable_contextual_rag &&
+                  values.contextual_rag_model_configuration_id !==
+                    initialFormValues.contextual_rag_model_configuration_id);
               const stagedModelName = isModelStaged ? values.model_name : null;
               const statusVariant = dirty ? "warning" : undefined;
 
@@ -953,17 +1019,19 @@ export default function IndexSettingsPage() {
                       }
                     />
                   ) : (
-                    !NEXT_PUBLIC_CLOUD_ENABLED && (
+                    !NEXT_PUBLIC_CLOUD_ENABLED && dirty && (
                       <MessageCard
-                        variant={statusVariant}
+                        variant={isReindexRequired ? statusVariant : "success"}
                         headerPadding="sm"
-                        title="Changes require a full re-index."
+                        title={isReindexRequired ? "Changes require a full re-index." : "Save Settings"}
                         description={markdown(
-                          "Modifying embedding or retrieval settings requires a full re-index of all documents to take effect, which may take **hours or days** depending on corpus size. [Learn More](https://docs.onyx.app/security/architecture/data_flows)"
+                          isReindexRequired
+                            ? "Modifying embedding or retrieval settings requires a full re-index of all documents to take effect, which may take **hours or days** depending on corpus size. [Learn More](https://docs.onyx.app/security/architecture/data_flows)"
+                            : "Changes to reranking settings will be applied immediately and do not require re-indexing."
                         )}
                         bottomChildren={
-                          dirty ? (
-                            <div className="flex flex-row items-end gap-4 p-2">
+                          <div className="flex flex-row items-end gap-4 p-2">
+                            {isReindexRequired && (
                               <div className="flex-1 min-w-0">
                                 <InputSelect
                                   value={switchoverType}
@@ -1000,22 +1068,22 @@ export default function IndexSettingsPage() {
                                   </InputSelect.Content>
                                 </InputSelect>
                               </div>
-                              <div className="flex flex-row gap-2 shrink-0">
-                                <Button
-                                  prominence="secondary"
-                                  onClick={() => {
-                                    resetForm();
-                                    setSwitchoverType(SwitchoverType.REINDEX);
-                                  }}
-                                >
-                                  Revert
-                                </Button>
-                                <Button onClick={() => void submitForm()}>
-                                  Apply & Re-index
-                                </Button>
-                              </div>
+                            )}
+                            <div className="flex flex-row gap-2 shrink-0 ml-auto">
+                              <Button
+                                prominence="secondary"
+                                onClick={() => {
+                                  resetForm();
+                                  setSwitchoverType(SwitchoverType.REINDEX);
+                                }}
+                              >
+                                Revert
+                              </Button>
+                              <Button onClick={() => void submitForm()}>
+                                {isReindexRequired ? "Apply & Re-index" : "Save Changes"}
+                              </Button>
                             </div>
-                          ) : undefined
+                          </div>
                         }
                       />
                     )
@@ -1588,6 +1656,148 @@ export default function IndexSettingsPage() {
                         </GeneralLayouts.Section>
                       </Card>
                     </Disabled>
+
+                    <Divider paddingParallel="fit" paddingPerpendicular="fit" />
+
+                    {/* ── Search Reranking ── */}
+                    <GeneralLayouts.Section
+                      gap={0.75}
+                      height="fit"
+                      alignItems="stretch"
+                      justifyContent="start"
+                    >
+                      <Content
+                        title="Search Reranking"
+                        description="Rerank initial search results using a local cross-encoder or cloud reranking service to select the top 10 most relevant chunks."
+                        sizePreset="main-content"
+                        variant="section"
+                      />
+
+                      <Card border="solid" rounding="lg">
+                        <GeneralLayouts.Section width="full">
+                          <InputHorizontal
+                            title="Enable Reranking"
+                            description="When enabled, search results are re-evaluated for relevance before being sent to the LLM."
+                            withLabel
+                          >
+                            <Switch
+                              checked={values.rerank_enabled}
+                              onCheckedChange={(checked) => {
+                                setFieldValue("rerank_enabled", checked);
+                              }}
+                            />
+                          </InputHorizontal>
+
+                          {values.rerank_enabled && (
+                            <>
+                              <Divider paddingParallel="fit" paddingPerpendicular="fit" />
+
+                              <InputHorizontal
+                                title="Reranker Provider"
+                                description="Choose the provider for the reranking service."
+                                withLabel
+                              >
+                                <InputSelect
+                                  value={values.rerank_provider_type ?? "local"}
+                                  onValueChange={(value) => {
+                                    setFieldValue("rerank_provider_type", value === "local" ? null : value);
+                                    const selectedProv = RERANKER_PROVIDERS.find(p => p.providerName === value);
+                                    const defaultModel = selectedProv?.models?.[0]?.modelName ?? "";
+                                    setFieldValue("rerank_model_name", defaultModel);
+                                  }}
+                                >
+                                  <InputSelect.Trigger />
+                                  <InputSelect.Content>
+                                    {RERANKER_PROVIDERS.map((provider) => (
+                                      <InputSelect.Item
+                                        key={provider.providerName}
+                                        value={provider.providerName}
+                                      >
+                                        {provider.displayName}
+                                      </InputSelect.Item>
+                                    ))}
+                                  </InputSelect.Content>
+                                </InputSelect>
+                              </InputHorizontal>
+
+                              <InputHorizontal
+                                title="Model Name"
+                                description="The model identifier used by the provider."
+                                withLabel
+                              >
+                                {(() => {
+                                  const providerKey = values.rerank_provider_type ?? "local";
+                                  const selectedProv = RERANKER_PROVIDERS.find(p => p.providerName === providerKey);
+                                  const models = selectedProv?.models ?? [];
+
+                                  if (models.length > 0) {
+                                    return (
+                                      <InputSelect
+                                        value={values.rerank_model_name ?? ""}
+                                        onValueChange={(value) => {
+                                          setFieldValue("rerank_model_name", value);
+                                        }}
+                                      >
+                                        <InputSelect.Trigger placeholder="Select a reranker model" />
+                                        <InputSelect.Content>
+                                          {models.map((model) => (
+                                            <InputSelect.Item
+                                              key={model.modelName}
+                                              value={model.modelName}
+                                              wrapDescription
+                                              description={model.description}
+                                            >
+                                              {model.displayName}
+                                            </InputSelect.Item>
+                                          ))}
+                                        </InputSelect.Content>
+                                      </InputSelect>
+                                    );
+                                  } else {
+                                    return (
+                                      <InputTypeIn
+                                        placeholder="e.g. BAAI/bge-reranker-large"
+                                        value={values.rerank_model_name ?? ""}
+                                        onChange={(e) => setFieldValue("rerank_model_name", e.target.value)}
+                                      />
+                                    );
+                                  }
+                                })()}
+                              </InputHorizontal>
+
+                              {values.rerank_provider_type && values.rerank_provider_type !== "local" && (
+                                <InputHorizontal
+                                  title="API Key"
+                                  description="API Key or secret credential for the provider."
+                                  withLabel
+                                >
+                                  <InputTypeIn
+                                    type="password"
+                                    placeholder="••••••••••••••••"
+                                    value={values.rerank_api_key ?? ""}
+                                    onChange={(e) => setFieldValue("rerank_api_key", e.target.value)}
+                                  />
+                                </InputHorizontal>
+                              )}
+
+                              {values.rerank_provider_type === "litellm" && (
+                                <InputHorizontal
+                                  title="API URL"
+                                  description="Base endpoint URL for LiteLLM."
+                                  withLabel
+                                >
+                                  <InputTypeIn
+                                    placeholder="http://localhost:4000"
+                                    value={values.rerank_api_url ?? ""}
+                                    onChange={(e) => setFieldValue("rerank_api_url", e.target.value)}
+                                  />
+                                </InputHorizontal>
+                              )}
+                            </>
+                          )}
+                        </GeneralLayouts.Section>
+                      </Card>
+                    </GeneralLayouts.Section>
                   </GeneralLayouts.Section>
                 </>
               );

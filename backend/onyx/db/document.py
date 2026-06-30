@@ -45,6 +45,7 @@ from onyx.db.models import DocumentByConnectorCredentialPair
 from onyx.db.models import KGEntity
 from onyx.db.models import KGRelationship
 from onyx.db.models import User
+from onyx.db.models import WikiPage, WikiCitation, WikiStaleEvent, DocumentChunkV2
 from onyx.db.relationships import delete_from_kg_relationships__no_commit
 from onyx.db.relationships import (
     delete_from_kg_relationships_extraction_staging__no_commit,
@@ -974,10 +975,83 @@ def get_document_id_to_file_id_map(
     return {doc_id: file_id for doc_id, file_id in rows}
 
 
+def _check_and_trigger_wiki_stale_deletion(db_session: Session, document_ids: list[str]) -> None:
+    if not document_ids:
+        return
+        
+    try:
+        stale_wikis = (
+            db_session.query(WikiPage)
+            .join(
+                WikiCitation,
+                (WikiCitation.wiki_id == WikiPage.wiki_id) & (WikiCitation.wiki_version == WikiPage.version)
+            )
+            .join(
+                DocumentChunkV2,
+                DocumentChunkV2.chunk_id == WikiCitation.chunk_id
+            )
+            .filter(
+                DocumentChunkV2.doc_id.in_(document_ids)
+            )
+            .all()
+        )
+        
+        if not stale_wikis:
+            return
+            
+        marked_wiki_ids = set()
+        for wiki in stale_wikis:
+            if wiki.wiki_id in marked_wiki_ids:
+                continue
+            marked_wiki_ids.add(wiki.wiki_id)
+            
+            wiki.is_stale = True
+            db_session.flush()
+            
+            cited_deleted_doc_ids = (
+                db_session.query(DocumentChunkV2.doc_id)
+                .join(
+                    WikiCitation,
+                    WikiCitation.chunk_id == DocumentChunkV2.chunk_id
+                )
+                .filter(
+                    WikiCitation.wiki_id == wiki.wiki_id,
+                    WikiCitation.wiki_version == wiki.version,
+                    DocumentChunkV2.doc_id.in_(document_ids)
+                )
+                .distinct()
+                .all()
+            )
+            
+            deleted_doc_list = [row[0] for row in cited_deleted_doc_ids]
+            if not deleted_doc_list:
+                continue
+                
+            import uuid
+            for doc_id in deleted_doc_list:
+                new_event = WikiStaleEvent(
+                    event_id=uuid.uuid4(),
+                    wiki_id=wiki.wiki_id,
+                    wiki_version=wiki.version,
+                    trigger_doc_id=doc_id,
+                    conflict_type="deleted",
+                    conflict_description=f"Source document '{doc_id}' was deleted.",
+                    resolved=False
+                )
+                db_session.add(new_event)
+                
+        db_session.flush()
+    except Exception as e:
+        logger.exception(f"Failed to check wiki stale on document deletion: {e}")
+
+
 def delete_documents_complete__no_commit(
     db_session: Session, document_ids: list[str]
 ) -> None:
     """This completely deletes the documents from the db, including all foreign key relationships"""
+
+    # Trigger stale status update for cited wikis before chunks/relations are deleted
+    _check_and_trigger_wiki_stale_deletion(db_session, document_ids)
 
     # Start with the kg references
 

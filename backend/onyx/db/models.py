@@ -2078,6 +2078,13 @@ class SearchSettings(Base):
         ForeignKey("model_configuration.id", ondelete="SET NULL"), nullable=True
     )
 
+    # Reranker model configuration
+    rerank_enabled: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
+    rerank_model_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    rerank_provider_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    rerank_api_key: Mapped[str | None] = mapped_column(String, nullable=True)
+    rerank_api_url: Mapped[str | None] = mapped_column(String, nullable=True)
+
     cloud_provider: Mapped["CloudEmbeddingProvider"] = relationship(
         "CloudEmbeddingProvider",
         back_populates="search_settings",
