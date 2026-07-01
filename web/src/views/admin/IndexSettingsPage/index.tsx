@@ -765,6 +765,18 @@ export default function IndexSettingsPage() {
     return null;
   }, [llmProviders, defaultVision]);
 
+  const defaultLlmConfigId = useMemo(() => {
+    if (!defaultLlm?.modelName || !llmProviders) return null;
+    for (const p of llmProviders) {
+      if (p.name !== defaultLlm.providerName) continue;
+      const mc = p.model_configurations.find(
+        (m) => m.name === defaultLlm.modelName
+      );
+      if (mc?.id != null) return mc.id;
+    }
+    return null;
+  }, [llmProviders, defaultLlm]);
+
   const initialFormValues: IndexSettingsFormValues = useMemo(
     () => ({
       model_name: currentEmbeddingModel?.model_name ?? "",
@@ -772,14 +784,16 @@ export default function IndexSettingsPage() {
       custom_model_provider: null,
       enable_contextual_rag: searchSettings?.enable_contextual_rag ?? false,
       contextual_rag_model_configuration_id:
-        searchSettings?.contextual_rag_model_configuration_id ?? null,
+        searchSettings?.contextual_rag_model_configuration_id ??
+        defaultLlmConfigId,
       rerank_enabled: searchSettings?.rerank_enabled ?? true,
       rerank_provider_type: searchSettings?.rerank_provider_type ?? "local",
-      rerank_model_name: searchSettings?.rerank_model_name ?? "BAAI/bge-reranker-large",
+      rerank_model_name:
+        searchSettings?.rerank_model_name ?? "BAAI/bge-reranker-large",
       rerank_api_key: searchSettings?.rerank_api_key ?? "",
       rerank_api_url: searchSettings?.rerank_api_url ?? "",
     }),
-    [currentEmbeddingModel, searchSettings]
+    [currentEmbeddingModel, searchSettings, defaultLlmConfigId]
   );
 
   const handleCancelReindex = useCallback(async () => {
@@ -860,93 +874,102 @@ export default function IndexSettingsPage() {
             enableReinitialize
             initialValues={initialFormValues}
             onSubmit={async (values) => {
-               const isReindexRequired =
-                 (values.model_name !== initialFormValues.model_name &&
-                   !!values.model_name) ||
-                 values.enable_contextual_rag !== initialFormValues.enable_contextual_rag ||
-                 (values.enable_contextual_rag &&
-                   values.contextual_rag_model_configuration_id !==
-                     initialFormValues.contextual_rag_model_configuration_id);
+              const isReindexRequired =
+                (values.model_name !== initialFormValues.model_name &&
+                  !!values.model_name) ||
+                values.enable_contextual_rag !==
+                  initialFormValues.enable_contextual_rag ||
+                (values.enable_contextual_rag &&
+                  values.contextual_rag_model_configuration_id !==
+                    initialFormValues.contextual_rag_model_configuration_id);
 
-               if (!isReindexRequired && searchSettings) {
-                 try {
-                   const response = await updateInferenceSettings({
-                     ...searchSettings,
-                     enable_contextual_rag: values.enable_contextual_rag,
-                     contextual_rag_model_configuration_id: values.enable_contextual_rag
-                       ? values.contextual_rag_model_configuration_id
-                       : null,
-                     rerank_enabled: values.rerank_enabled,
-                     rerank_model_name: values.rerank_model_name,
-                     rerank_provider_type: values.rerank_provider_type as RerankerProvider | null,
-                     rerank_api_key: values.rerank_api_key,
-                     rerank_api_url: values.rerank_api_url,
-                   });
+              if (!isReindexRequired && searchSettings) {
+                try {
+                  const response = await updateInferenceSettings({
+                    ...searchSettings,
+                    enable_contextual_rag: values.enable_contextual_rag,
+                    contextual_rag_model_configuration_id:
+                      values.enable_contextual_rag
+                        ? values.contextual_rag_model_configuration_id
+                        : null,
+                    rerank_enabled: values.rerank_enabled,
+                    rerank_model_name: values.rerank_model_name,
+                    rerank_provider_type:
+                      values.rerank_provider_type as RerankerProvider | null,
+                    rerank_api_key: values.rerank_api_key,
+                    rerank_api_url: values.rerank_api_url,
+                  });
 
-                   if (!response.ok) {
-                     const errorDetail = (await response.json()).detail ?? "Failed to update settings";
-                     toast.error(errorDetail);
-                     return;
-                   }
+                  if (!response.ok) {
+                    const errorDetail =
+                      (await response.json()).detail ??
+                      "Failed to update settings";
+                    toast.error(errorDetail);
+                    return;
+                  }
 
-                   toast.success("Settings updated successfully");
-                   await Promise.all([
-                     mutate(SWR_KEYS.currentSearchSettings),
-                     mutate(SWR_KEYS.secondarySearchSettings),
-                   ]);
-                 } catch (error) {
-                   toast.error(error instanceof Error ? error.message : "Failed to update settings");
-                 }
-                 return;
-               }
+                  toast.success("Settings updated successfully");
+                  await Promise.all([
+                    mutate(SWR_KEYS.currentSearchSettings),
+                    mutate(SWR_KEYS.secondarySearchSettings),
+                  ]);
+                } catch (error) {
+                  toast.error(
+                    error instanceof Error
+                      ? error.message
+                      : "Failed to update settings"
+                  );
+                }
+                return;
+              }
 
-               // Custom self-hosted models live outside the static registry,
-               // so the form carries their spec (`modelDim`, `normalize`, etc.)
-               // in `custom_model` for submission. The provider, however, is
-               // ALWAYS resolved through `resolveProviderName` — see its NOTE
-               // for why this is the single source of truth for provider
-               // discrimination.
-               const stagedModel =
-                 values.custom_model ?? findRegistryModel(values.model_name);
-               if (!stagedModel) {
-                 toast.error("Could not find the selected model");
-                 return;
-               }
-               // A staged custom model from a no-registry cloud provider
-               // (LiteLLM / Azure) carries its owning provider explicitly;
-               // otherwise fall back to resolving the provider from the model
-               // name against the static registry.
-               const providerName =
-                 values.custom_model_provider ??
-                 resolveProviderName(values.model_name, null);
+              // Custom self-hosted models live outside the static registry,
+              // so the form carries their spec (`modelDim`, `normalize`, etc.)
+              // in `custom_model` for submission. The provider, however, is
+              // ALWAYS resolved through `resolveProviderName` — see its NOTE
+              // for why this is the single source of truth for provider
+              // discrimination.
+              const stagedModel =
+                values.custom_model ?? findRegistryModel(values.model_name);
+              if (!stagedModel) {
+                toast.error("Could not find the selected model");
+                return;
+              }
+              // A staged custom model from a no-registry cloud provider
+              // (LiteLLM / Azure) carries its owning provider explicitly;
+              // otherwise fall back to resolving the provider from the model
+              // name against the static registry.
+              const providerName =
+                values.custom_model_provider ??
+                resolveProviderName(values.model_name, null);
 
-               const response = await setNewSearchSettings({
-                 model: stagedModel,
-                 providerName,
-                 switchoverType,
-                 enableContextualRag: values.enable_contextual_rag,
-                 contextualRagModelConfigurationId: values.enable_contextual_rag
-                   ? values.contextual_rag_model_configuration_id
-                   : null,
-                 rerankEnabled: values.rerank_enabled,
-                 rerankModelName: values.rerank_model_name,
-                 rerankProviderType: values.rerank_provider_type,
-                 rerankApiKey: values.rerank_api_key,
-                 rerankApiUrl: values.rerank_api_url,
-               });
+              const response = await setNewSearchSettings({
+                model: stagedModel,
+                providerName,
+                switchoverType,
+                enableContextualRag: values.enable_contextual_rag,
+                contextualRagModelConfigurationId: values.enable_contextual_rag
+                  ? values.contextual_rag_model_configuration_id
+                  : null,
+                rerankEnabled: values.rerank_enabled,
+                rerankModelName: values.rerank_model_name,
+                rerankProviderType: values.rerank_provider_type,
+                rerankApiKey: values.rerank_api_key,
+                rerankApiUrl: values.rerank_api_url,
+              });
 
-               if (!response.ok) {
-                 toast.error("Failed to apply settings");
-                 return;
-               }
+              if (!response.ok) {
+                toast.error("Failed to apply settings");
+                return;
+              }
 
-               toast.success("Re-indexing started");
-               setSwitchoverType(SwitchoverType.REINDEX);
-               await Promise.all([
-                 mutate(SWR_KEYS.currentSearchSettings),
-                 mutate(SWR_KEYS.secondarySearchSettings),
-               ]);
-             }}
+              toast.success("Re-indexing started");
+              setSwitchoverType(SwitchoverType.REINDEX);
+              await Promise.all([
+                mutate(SWR_KEYS.currentSearchSettings),
+                mutate(SWR_KEYS.secondarySearchSettings),
+              ]);
+            }}
           >
             {({ values, dirty, setFieldValue, resetForm, submitForm }) => {
               const isModelStaged =
@@ -954,7 +977,8 @@ export default function IndexSettingsPage() {
                 !!values.model_name;
               const isReindexRequired =
                 isModelStaged ||
-                values.enable_contextual_rag !== initialFormValues.enable_contextual_rag ||
+                values.enable_contextual_rag !==
+                  initialFormValues.enable_contextual_rag ||
                 (values.enable_contextual_rag &&
                   values.contextual_rag_model_configuration_id !==
                     initialFormValues.contextual_rag_model_configuration_id);
@@ -1019,11 +1043,16 @@ export default function IndexSettingsPage() {
                       }
                     />
                   ) : (
-                    !NEXT_PUBLIC_CLOUD_ENABLED && dirty && (
+                    !NEXT_PUBLIC_CLOUD_ENABLED &&
+                    dirty && (
                       <MessageCard
                         variant={isReindexRequired ? statusVariant : "success"}
                         headerPadding="sm"
-                        title={isReindexRequired ? "Changes require a full re-index." : "Save Settings"}
+                        title={
+                          isReindexRequired
+                            ? "Changes require a full re-index."
+                            : "Save Settings"
+                        }
                         description={markdown(
                           isReindexRequired
                             ? "Modifying embedding or retrieval settings requires a full re-index of all documents to take effect, which may take **hours or days** depending on corpus size. [Learn More](https://docs.onyx.app/security/architecture/data_flows)"
@@ -1080,7 +1109,9 @@ export default function IndexSettingsPage() {
                                 Revert
                               </Button>
                               <Button onClick={() => void submitForm()}>
-                                {isReindexRequired ? "Apply & Re-index" : "Save Changes"}
+                                {isReindexRequired
+                                  ? "Apply & Re-index"
+                                  : "Save Changes"}
                               </Button>
                             </div>
                           </div>
@@ -1690,7 +1721,10 @@ export default function IndexSettingsPage() {
 
                           {values.rerank_enabled && (
                             <>
-                              <Divider paddingParallel="fit" paddingPerpendicular="fit" />
+                              <Divider
+                                paddingParallel="fit"
+                                paddingPerpendicular="fit"
+                              />
 
                               <InputHorizontal
                                 title="Reranker Provider"
@@ -1700,10 +1734,21 @@ export default function IndexSettingsPage() {
                                 <InputSelect
                                   value={values.rerank_provider_type ?? "local"}
                                   onValueChange={(value) => {
-                                    setFieldValue("rerank_provider_type", value === "local" ? null : value);
-                                    const selectedProv = RERANKER_PROVIDERS.find(p => p.providerName === value);
-                                    const defaultModel = selectedProv?.models?.[0]?.modelName ?? "";
-                                    setFieldValue("rerank_model_name", defaultModel);
+                                    setFieldValue(
+                                      "rerank_provider_type",
+                                      value === "local" ? null : value
+                                    );
+                                    const selectedProv =
+                                      RERANKER_PROVIDERS.find(
+                                        (p) => p.providerName === value
+                                      );
+                                    const defaultModel =
+                                      selectedProv?.models?.[0]?.modelName ??
+                                      "";
+                                    setFieldValue(
+                                      "rerank_model_name",
+                                      defaultModel
+                                    );
                                   }}
                                 >
                                   <InputSelect.Trigger />
@@ -1726,8 +1771,11 @@ export default function IndexSettingsPage() {
                                 withLabel
                               >
                                 {(() => {
-                                  const providerKey = values.rerank_provider_type ?? "local";
-                                  const selectedProv = RERANKER_PROVIDERS.find(p => p.providerName === providerKey);
+                                  const providerKey =
+                                    values.rerank_provider_type ?? "local";
+                                  const selectedProv = RERANKER_PROVIDERS.find(
+                                    (p) => p.providerName === providerKey
+                                  );
                                   const models = selectedProv?.models ?? [];
 
                                   if (models.length > 0) {
@@ -1735,7 +1783,10 @@ export default function IndexSettingsPage() {
                                       <InputSelect
                                         value={values.rerank_model_name ?? ""}
                                         onValueChange={(value) => {
-                                          setFieldValue("rerank_model_name", value);
+                                          setFieldValue(
+                                            "rerank_model_name",
+                                            value
+                                          );
                                         }}
                                       >
                                         <InputSelect.Trigger placeholder="Select a reranker model" />
@@ -1758,27 +1809,38 @@ export default function IndexSettingsPage() {
                                       <InputTypeIn
                                         placeholder="e.g. BAAI/bge-reranker-large"
                                         value={values.rerank_model_name ?? ""}
-                                        onChange={(e) => setFieldValue("rerank_model_name", e.target.value)}
+                                        onChange={(e) =>
+                                          setFieldValue(
+                                            "rerank_model_name",
+                                            e.target.value
+                                          )
+                                        }
                                       />
                                     );
                                   }
                                 })()}
                               </InputHorizontal>
 
-                              {values.rerank_provider_type && values.rerank_provider_type !== "local" && (
-                                <InputHorizontal
-                                  title="API Key"
-                                  description="API Key or secret credential for the provider."
-                                  withLabel
-                                >
-                                  <InputTypeIn
-                                    type="password"
-                                    placeholder="••••••••••••••••"
-                                    value={values.rerank_api_key ?? ""}
-                                    onChange={(e) => setFieldValue("rerank_api_key", e.target.value)}
-                                  />
-                                </InputHorizontal>
-                              )}
+                              {values.rerank_provider_type &&
+                                values.rerank_provider_type !== "local" && (
+                                  <InputHorizontal
+                                    title="API Key"
+                                    description="API Key or secret credential for the provider."
+                                    withLabel
+                                  >
+                                    <InputTypeIn
+                                      type="password"
+                                      placeholder="••••••••••••••••"
+                                      value={values.rerank_api_key ?? ""}
+                                      onChange={(e) =>
+                                        setFieldValue(
+                                          "rerank_api_key",
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                  </InputHorizontal>
+                                )}
 
                               {values.rerank_provider_type === "litellm" && (
                                 <InputHorizontal
@@ -1789,7 +1851,12 @@ export default function IndexSettingsPage() {
                                   <InputTypeIn
                                     placeholder="http://localhost:4000"
                                     value={values.rerank_api_url ?? ""}
-                                    onChange={(e) => setFieldValue("rerank_api_url", e.target.value)}
+                                    onChange={(e) =>
+                                      setFieldValue(
+                                        "rerank_api_url",
+                                        e.target.value
+                                      )
+                                    }
                                   />
                                 </InputHorizontal>
                               )}

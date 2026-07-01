@@ -77,6 +77,7 @@ def set_new_search_settings(
             )
 
     validate_contextual_rag_model(
+        enable_contextual_rag=search_settings_new.enable_contextual_rag,
         model_configuration_id=search_settings_new.contextual_rag_model_configuration_id,
         db_session=db_session,
     )
@@ -241,6 +242,7 @@ def update_saved_search_settings(
         )
 
     validate_contextual_rag_model(
+        enable_contextual_rag=search_settings.enable_contextual_rag,
         model_configuration_id=search_settings.contextual_rag_model_configuration_id,
         db_session=db_session,
     )
@@ -281,9 +283,16 @@ def delete_unstructured_api_key_endpoint(
 
 
 def validate_contextual_rag_model(
+    enable_contextual_rag: bool,
     model_configuration_id: int | None,
     db_session: Session,
 ) -> None:
+    if enable_contextual_rag and model_configuration_id is None:
+        raise OnyxError(
+            OnyxErrorCode.INVALID_INPUT,
+            "Must provide an LLM model configuration ID when Contextual RAG is enabled",
+        )
+
     if model_configuration_id is None:
         return
     from onyx.db.models import ModelConfiguration
