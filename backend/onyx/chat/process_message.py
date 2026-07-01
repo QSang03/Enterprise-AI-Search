@@ -16,6 +16,7 @@ from collections.abc import Generator
 from concurrent.futures import ThreadPoolExecutor
 from contextvars import Token
 from enum import Enum
+from typing import Any
 from typing import cast
 from typing import Final
 from uuid import UUID
@@ -337,6 +338,11 @@ def _extract_text_from_in_memory_file(f: InMemoryChatFile) -> str | None:
     """
     try:
         if f.file_type == ChatFileType.PLAIN_TEXT:
+            return f.content.decode("utf-8", errors="ignore").replace("\x00", "")
+
+        if f.file_type == ChatFileType.TABULAR and not f.content.startswith(
+            b"PK\x03\x04"
+        ):
             return f.content.decode("utf-8", errors="ignore").replace("\x00", "")
 
         text_content = extract_file_text(
@@ -1512,56 +1518,64 @@ def _run_models(
 
 
 def verify_citations_and_stream(
-    run_stream: "Any",
-    llm: "Any",
-    external_state_container: "Any"
+    run_stream: "Any", llm: "Any", external_state_container: "Any"
 ) -> "Any":
-    from typing import Any
     import os
     import re
-    from onyx.chat.models import Packet, StreamingError, CitationInfo
+
+    from onyx.chat.models import CitationInfo
+    from onyx.chat.models import Packet
+    from onyx.chat.models import StreamingError
     from onyx.server.query_and_chat.streaming_models import AgentResponseDelta
-    
+
     buffered_packets = []
     full_answer = ""
-    
+
     for packet in run_stream:
         if isinstance(packet, StreamingError):
             yield packet
             return
-            
+
         buffered_packets.append(packet)
-        if isinstance(packet, Packet) and isinstance(packet.obj, AgentResponseDelta) and packet.obj.content:
+        if (
+            isinstance(packet, Packet)
+            and isinstance(packet.obj, AgentResponseDelta)
+            and packet.obj.content
+        ):
             full_answer += packet.obj.content
 
     retrieved_docs = []
     if external_state_container:
         retrieved_docs = list(external_state_container.get_all_search_docs().values())
-        
+
     if not full_answer.strip() or not retrieved_docs:
         for p in buffered_packets:
             yield p
         return
 
     # Basic Vietnamese sentence splitter
-    sentence_end = re.compile(r'(?<!\bĐiều)(?<!\bKhoản)(?<!\bT)(?<!\btp)(?<!\bTp)(?<!\d)[.!?]\s+')
+    sentence_end = re.compile(
+        r"(?<!\bĐiều)(?<!\bKhoản)(?<!\bT)(?<!\btp)(?<!\bTp)(?<!\d)[.!?]\s+"
+    )
     sentences = [s.strip() for s in sentence_end.split(full_answer) if s.strip()]
-    
+
     if not sentences:
         for p in buffered_packets:
             yield p
         return
 
-    context_str = "\n\n".join([f"Tài liệu {idx+1}:\n{doc.blurb}" for idx, doc in enumerate(retrieved_docs)])
-    
+    context_str = "\n\n".join(
+        [f"Tài liệu {idx + 1}:\n{doc.blurb}" for idx, doc in enumerate(retrieved_docs)]
+    )
+
     unsupported_count = 0
     for sentence in sentences:
         prompt = (
             "Bạn là một trợ lý kiểm chứng thông tin (NLI). Hãy kiểm tra xem câu khẳng định sau đây "
             "có được hỗ trợ đầy đủ bởi ngữ cảnh được cung cấp hay không.\n\n"
             f"Ngữ cảnh:\n{context_str}\n\n"
-            f"Câu cần kiểm chứng: \"{sentence}\"\n\n"
-            "Chỉ trả lời duy nhất từ \"YES\" nếu câu được hỗ trợ, hoặc \"NO\" nếu câu không được hỗ trợ bởi ngữ cảnh. "
+            f'Câu cần kiểm chứng: "{sentence}"\n\n'
+            'Chỉ trả lời duy nhất từ "YES" nếu câu được hỗ trợ, hoặc "NO" nếu câu không được hỗ trợ bởi ngữ cảnh. '
             "Không giải thích gì thêm."
         )
         try:
@@ -1569,26 +1583,41 @@ def verify_citations_and_stream(
             verdict = response.strip().upper()
             if "NO" in verdict:
                 unsupported_count += 1
-                logger.info("NLI Check: Sentence '%s' is UNSUPPORTED. Verdict: %s", sentence, verdict)
+                logger.info(
+                    "NLI Check: Sentence '%s' is UNSUPPORTED. Verdict: %s",
+                    sentence,
+                    verdict,
+                )
             else:
-                logger.info("NLI Check: Sentence '%s' is SUPPORTED. Verdict: %s", sentence, verdict)
+                logger.info(
+                    "NLI Check: Sentence '%s' is SUPPORTED. Verdict: %s",
+                    sentence,
+                    verdict,
+                )
         except Exception:
             logger.exception("Error checking NLI for sentence: %s", sentence)
-            
+
     unsupported_rate = unsupported_count / len(sentences)
-    logger.info("NLI verification completed: %s/%s sentences unsupported (%s%%)", 
-                unsupported_count, len(sentences), format(unsupported_rate * 100, ".2f"))
-                
+    logger.info(
+        "NLI verification completed: %s/%s sentences unsupported (%s%%)",
+        unsupported_count,
+        len(sentences),
+        format(unsupported_rate * 100, ".2f"),
+    )
+
     if unsupported_rate > 0.05:
         refusal_msg = os.environ.get(
             "CITATION_VERIFICATION_REFUSAL_MSG",
-            "Thông tin này không có cơ sở xác thực hoặc không được hỗ trợ bởi các tài liệu nguồn."
+            "Thông tin này không có cơ sở xác thực hoặc không được hỗ trợ bởi các tài liệu nguồn.",
         )
-        logger.warning("Rejecting LLM answer due to high unsupported claim rate (%s%% > 5%%)", format(unsupported_rate * 100, ".2f"))
-        
+        logger.warning(
+            "Rejecting LLM answer due to high unsupported claim rate (%s%% > 5%%)",
+            format(unsupported_rate * 100, ".2f"),
+        )
+
         if external_state_container:
             external_state_container.set_answer_tokens(refusal_msg)
-            
+
         refusal_yielded = False
         for p in buffered_packets:
             if isinstance(p, Packet):
@@ -1742,7 +1771,7 @@ def _stream_chat_turn(
         yield from verify_citations_and_stream(
             run_stream=run_stream,
             llm=setup.llms[0],
-            external_state_container=external_state_container
+            external_state_container=external_state_container,
         )
 
     except OnyxError as e:

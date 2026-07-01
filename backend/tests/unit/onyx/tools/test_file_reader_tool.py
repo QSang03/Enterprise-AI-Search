@@ -221,6 +221,31 @@ class TestRun:
                 **{FILE_ID_FIELD: str(uid)},
             )
 
+    @patch(f"{TOOL_MODULE}.get_session_with_current_tenant")
+    @patch(f"{TOOL_MODULE}.load_user_file")
+    def test_tabular_file_cached_plaintext(
+        self,
+        mock_load_user_file: MagicMock,
+        mock_get_session: MagicMock,
+    ) -> None:
+        uid = uuid4()
+        content = "col1,col2\nval1,val2"
+        mock_load_user_file.return_value = InMemoryChatFile(
+            file_id=str(uid),
+            content=content.encode("utf-8"),
+            file_type=ChatFileType.TABULAR,
+            filename="data.xlsx",
+        )
+        mock_get_session.return_value.__enter__.return_value = MagicMock()
+
+        tool = _make_tool(user_file_ids=[uid])
+        resp = tool.run(
+            placement=_PLACEMENT,
+            override_kwargs=MagicMock(),
+            **{FILE_ID_FIELD: str(uid)},
+        )
+        assert content in resp.llm_facing_response
+
 
 # ------------------------------------------------------------------
 # is_available()

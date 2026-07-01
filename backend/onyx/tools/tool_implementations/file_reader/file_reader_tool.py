@@ -188,6 +188,11 @@ class FileReaderTool(Tool[FileReaderToolOverrideKwargs]):
         try:
             if chat_file.file_type == ChatFileType.PLAIN_TEXT:
                 full_text = chat_file.content.decode("utf-8", errors="replace")
+            elif (
+                chat_file.file_type == ChatFileType.TABULAR
+                and not chat_file.content.startswith(b"PK\x03\x04")
+            ):
+                full_text = chat_file.content.decode("utf-8", errors="replace")
             else:
                 full_text = (
                     extract_file_text(
