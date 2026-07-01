@@ -1228,7 +1228,6 @@ def _run_models(
                         setup.persona, setup.new_msg_req.internal_search_filters
                     ),
                     selected_doc_ids=setup.new_msg_req.selected_doc_ids,
-                    strict_sources=setup.new_msg_req.strict_sources,
                 ),
                 custom_tool_config=CustomToolConfig(
                     chat_session_id=setup.chat_session.id,

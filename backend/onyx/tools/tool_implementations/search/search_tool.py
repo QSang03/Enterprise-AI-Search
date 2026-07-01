@@ -286,9 +286,7 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
         slack_context: SlackContext | None = None,
         # Whether to enable Slack federated search
         enable_slack_search: bool = True,
-        # Strict sources filtering
         selected_doc_ids: list[str] | None = None,
-        strict_sources: bool = False,
     ) -> None:
         super().__init__(emitter=emitter)
 
@@ -296,14 +294,6 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
         self.persona_search_info = persona_search_info
         
         self.selected_doc_ids = selected_doc_ids
-        self.strict_sources = strict_sources
-        
-        if strict_sources and selected_doc_ids:
-            # Override attached documents to search ONLY selected documents!
-            self.persona_search_info.attached_document_ids = selected_doc_ids
-            # Clear other broad filters that might include other docs
-            self.persona_search_info.document_set_names = None
-            self.persona_search_info.hierarchy_node_ids = None
 
         self.llm = llm
         self.document_index = document_index

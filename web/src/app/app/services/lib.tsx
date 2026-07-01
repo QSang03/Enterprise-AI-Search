@@ -141,7 +141,6 @@ export interface SendMessageParams {
   // Used e.g. by Chrome extension "Read this tab" feature.
   additionalContext?: string;
   selectedDocIds?: string[];
-  strictSources?: boolean;
 }
 
 export async function* sendMessage({
@@ -161,7 +160,6 @@ export async function* sendMessage({
   origin,
   additionalContext,
   selectedDocIds,
-  strictSources,
 }: SendMessageParams): AsyncGenerator<PacketType, void, unknown> {
   // Build payload for new send-chat-message API
   const payload = {
@@ -172,7 +170,6 @@ export async function* sendMessage({
     internal_search_filters: filters,
     deep_research: deepResearch ?? false,
     selected_doc_ids: selectedDocIds ?? null,
-    strict_sources: strictSources ?? false,
     allowed_tool_ids: enabledToolIds,
     forced_tool_id: forcedToolId ?? null,
     llm_override:

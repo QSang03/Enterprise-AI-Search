@@ -65,7 +65,6 @@ class SearchToolConfig(BaseModel):
     slack_context: SlackContext | None = None
     enable_slack_search: bool = True
     selected_doc_ids: list[str] | None = None
-    strict_sources: bool = False
 
 
 class FileReaderToolConfig(BaseModel):
@@ -202,7 +201,6 @@ def _construct_tools_impl(
             slack_context=config.slack_context,
             enable_slack_search=config.enable_slack_search,
             selected_doc_ids=config.selected_doc_ids,
-            strict_sources=config.strict_sources,
         )
 
     added_search_tool = False
