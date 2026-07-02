@@ -3436,6 +3436,8 @@ class DocumentSet(Base):
     # If `False`, then the document set is not visible to users who are not explicitly
     # given access to it either via the `users` or `groups` relationships
     is_public: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    is_department: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_master_store: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Last time a user updated this document set
     time_last_modified_by_user: Mapped[datetime.datetime] = mapped_column(

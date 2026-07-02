@@ -209,6 +209,7 @@ function SharedGroupResources({
     const q = agentSearch.toLowerCase();
 
     const items = agents
+      .filter((a) => !a.builtin_persona)
       .filter((a) => !q || a.name.toLowerCase().includes(q))
       .map((a) => {
         const isSelected = selectedAgentSet.has(a.id);

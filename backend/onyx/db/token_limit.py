@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from onyx.configs.constants import TokenRateLimitScope
-from onyx.db.models import TokenRateLimit
+from onyx.db.models import TokenRateLimit, UserGroup
 from onyx.db.models import TokenRateLimit__UserGroup
 from onyx.server.token_rate_limits.models import TokenRateLimitArgs
 
@@ -109,3 +109,72 @@ def delete_token_rate_limit(
 
     db_session.delete(token_limit)
     db_session.commit()
+
+
+def fetch_token_rate_limits_for_group(
+    db_session: Session,
+    group_id: int,
+) -> list[TokenRateLimit]:
+    query = (
+        select(TokenRateLimit)
+        .join(
+            TokenRateLimit__UserGroup,
+            TokenRateLimit__UserGroup.rate_limit_id == TokenRateLimit.id,
+        )
+        .where(TokenRateLimit__UserGroup.user_group_id == group_id)
+        .order_by(TokenRateLimit.created_at.desc())
+    )
+    return list(db_session.scalars(query).all())
+
+
+def fetch_all_user_group_token_rate_limits(
+    db_session: Session,
+) -> dict[str, list[TokenRateLimit]]:
+    query = (
+        select(UserGroup.name, TokenRateLimit)
+        .join(
+            TokenRateLimit__UserGroup,
+            TokenRateLimit__UserGroup.user_group_id == UserGroup.id,
+        )
+        .join(
+            TokenRateLimit,
+            TokenRateLimit.id == TokenRateLimit__UserGroup.rate_limit_id,
+        )
+        .order_by(TokenRateLimit.created_at.desc())
+    )
+    results = db_session.execute(query).all()
+
+    mapping: dict[str, list[TokenRateLimit]] = {}
+    for group_name, rate_limit in results:
+        if group_name not in mapping:
+            mapping[group_name] = []
+        mapping[group_name].append(rate_limit)
+    return mapping
+
+
+def insert_user_group_token_rate_limit(
+    db_session: Session,
+    token_rate_limit_settings: TokenRateLimitArgs,
+    group_id: int,
+) -> TokenRateLimit:
+    user_group = db_session.get(UserGroup, group_id)
+    if user_group is None:
+        raise ValueError(f"UserGroup with id '{group_id}' not found")
+
+    token_limit = TokenRateLimit(
+        enabled=token_rate_limit_settings.enabled,
+        token_budget=token_rate_limit_settings.token_budget,
+        period_hours=token_rate_limit_settings.period_hours,
+        scope=TokenRateLimitScope.USER_GROUP,
+    )
+    db_session.add(token_limit)
+    db_session.flush()
+
+    mapping = TokenRateLimit__UserGroup(
+        rate_limit_id=token_limit.id,
+        user_group_id=group_id,
+    )
+    db_session.add(mapping)
+    db_session.commit()
+
+    return token_limit

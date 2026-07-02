@@ -639,6 +639,41 @@ def build_chat_turn(
         )
 
     persona = chat_session.persona
+
+    # Scoping search by department_id if provided
+    if new_msg_req.department_id is not None:
+        if new_msg_req.department_id == -1:
+            # Kho Tổng (Master Store)
+            from onyx.db.models import DocumentSet as DocumentSetDBModel
+            master_store_ds = db_session.scalar(
+                select(DocumentSetDBModel).where(DocumentSetDBModel.is_master_store == True)
+            )
+            if master_store_ds:
+                persona.document_sets = [master_store_ds]
+            else:
+                persona.document_sets = []
+        else:
+            # Kho Phòng Ban (Department)
+            from onyx.db.models import User__UserGroup, UserGroup
+            is_member = user.role == UserRole.ADMIN or db_session.scalar(
+                select(User__UserGroup).where(
+                    (User__UserGroup.user_group_id == new_msg_req.department_id)
+                    & (User__UserGroup.user_id == user.id)
+                )
+            ) is not None
+
+            if not is_member:
+                raise OnyxError(
+                    OnyxErrorCode.INSUFFICIENT_PERMISSIONS,
+                    "Access denied. You are not a member of this department.",
+                )
+
+            user_group = db_session.get(UserGroup, new_msg_req.department_id)
+            if user_group:
+                persona.document_sets = user_group.document_sets
+            else:
+                persona.document_sets = []
+
     message_text = new_msg_req.message
 
     user_identity = LLMUserIdentity(

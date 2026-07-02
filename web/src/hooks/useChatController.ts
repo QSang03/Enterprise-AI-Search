@@ -99,6 +99,7 @@ export interface OnSubmitProps {
   /** When 2+ models, triggers multi-model parallel generation via backend. */
   selectedModels?: SelectedModel[];
   selectedDocIds?: string[];
+  departmentId?: number | null;
 }
 
 interface RegenerationRequest {
@@ -380,6 +381,7 @@ export default function useChatController({
       additionalContext,
       selectedModels,
       selectedDocIds,
+      departmentId,
     }: OnSubmitProps) => {
       const isMultiModel =
         !regenerationRequest && (selectedModels?.length ?? 0) >= 2;
@@ -950,6 +952,7 @@ export default function useChatController({
             }))
             : undefined,
           selectedDocIds,
+          departmentId,
         });
 
         const delay = (ms: number) => {

@@ -30,6 +30,7 @@ class IdReturn(BaseModel):
 class MinimalUserSnapshot(BaseModel):
     id: UUID
     email: str
+    is_active: bool = True
 
 
 class UserGroupInfo(BaseModel):

@@ -87,6 +87,7 @@ from onyx.server.features.default_assistant.api import (
     router as default_assistant_router,
 )
 from onyx.server.features.document_set.api import router as document_set_router
+from onyx.server.manage.user_group import router as user_group_router
 from onyx.server.features.hierarchy.api import router as hierarchy_router
 from onyx.server.features.input_prompt.api import (
     admin_router as admin_input_prompt_router,
@@ -115,6 +116,7 @@ from onyx.server.features.web_search.api import router as web_search_router
 from onyx.server.federated.api import router as federated_router
 from onyx.server.kg.api import admin_router as kg_admin_router
 from onyx.server.manage.administrative import router as admin_router
+from onyx.server.manage.analytics import router as analytics_router
 from onyx.server.manage.wiki import router as wiki_router
 from onyx.server.manage.wiki_graph import router as wiki_graph_router
 from onyx.server.manage.license import router as admin_license_router, settings_router as enterprise_settings_router
@@ -515,6 +517,7 @@ def get_application(lifespan_override: Lifespan | None = None) -> FastAPI:
     include_router_with_global_prefix_prepended(application, user_router)
     include_router_with_global_prefix_prepended(application, admin_query_router)
     include_router_with_global_prefix_prepended(application, admin_router)
+    include_router_with_global_prefix_prepended(application, analytics_router)
     include_router_with_global_prefix_prepended(application, connector_router)
     include_router_with_global_prefix_prepended(application, credential_router)
     include_router_with_global_prefix_prepended(application, input_prompt_router)
@@ -525,6 +528,7 @@ def get_application(lifespan_override: Lifespan | None = None) -> FastAPI:
     include_router_with_global_prefix_prepended(application, public_build_router)
     include_router_with_global_prefix_prepended(application, build_router)
     include_router_with_global_prefix_prepended(application, document_set_router)
+    include_router_with_global_prefix_prepended(application, user_group_router)
     include_router_with_global_prefix_prepended(application, hierarchy_router)
     include_router_with_global_prefix_prepended(application, search_api_router)
     include_router_with_global_prefix_prepended(application, search_settings_router)

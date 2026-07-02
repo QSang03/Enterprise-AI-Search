@@ -9,7 +9,7 @@ export default async function AdminLayout({
 }) {
   // First check build-time constant (fast path)
   if (!SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED) {
-    return <PremiumFeatureRedirect />;
+    // Allow premium features in FOSS
   }
 
   // Then check runtime license status (for license enforcement mode)
@@ -25,7 +25,7 @@ export default async function AdminLayout({
           return children;
         }
 
-        return <PremiumFeatureRedirect />;
+        // Allow premium features in FOSS
       }
     }
   } catch (error) {

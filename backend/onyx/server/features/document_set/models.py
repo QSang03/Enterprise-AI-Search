@@ -57,6 +57,8 @@ class DocumentSetCreationRequest(BaseModel):
     # For Private Document Sets, who should be able to access these
     users: list[UUID] = Field(default_factory=list)
     groups: list[int] = Field(default_factory=list)
+    is_department: bool = False
+    is_master_store: bool = False
     # Federated connectors to include in the document set
     federated_connectors: list[FederatedConnectorConfig] = Field(default_factory=list)
 
@@ -70,6 +72,8 @@ class DocumentSetUpdateRequest(BaseModel):
     # For Private Document Sets, who should be able to access these
     users: list[UUID]
     groups: list[int]
+    is_department: bool = False
+    is_master_store: bool = False
     # Federated connectors to include in the document set
     federated_connectors: list[FederatedConnectorConfig] = Field(default_factory=list)
 
@@ -96,6 +100,8 @@ class DocumentSet(BaseModel):
     # For Private Document Sets, who should be able to access these
     users: list[UUID]
     groups: list[int]
+    is_department: bool = False
+    is_master_store: bool = False
     # Federated connectors in the document set
     federated_connectors: list[FederatedConnectorDescriptor] = Field(
         default_factory=list
@@ -130,6 +136,8 @@ class DocumentSet(BaseModel):
             ],
             is_up_to_date=document_set_model.is_up_to_date,
             is_public=document_set_model.is_public,
+            is_department=document_set_model.is_department,
+            is_master_store=document_set_model.is_master_store,
             users=[user.id for user in document_set_model.users],
             groups=[group.id for group in document_set_model.groups],
             federated_connectors=[
@@ -152,6 +160,8 @@ class DocumentSetSummary(BaseModel):
     is_public: bool
     users: list[UUID]
     groups: list[int]
+    is_department: bool = False
+    is_master_store: bool = False
     federated_connector_summaries: list[FederatedConnectorSummary] = Field(
         default_factory=list
     )
@@ -174,6 +184,8 @@ class DocumentSetSummary(BaseModel):
             ],
             is_up_to_date=document_set.is_up_to_date,
             is_public=document_set.is_public,
+            is_department=document_set.is_department,
+            is_master_store=document_set.is_master_store,
             users=[user.id for user in document_set.users],
             groups=[group.id for group in document_set.groups],
             federated_connector_summaries=[

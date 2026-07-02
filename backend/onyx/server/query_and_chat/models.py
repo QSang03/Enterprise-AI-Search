@@ -116,6 +116,7 @@ class SendMessageRequest(BaseModel):
     deep_research: bool = False
     
     selected_doc_ids: list[str] | None = None
+    department_id: int | None = None
 
     # Headers to forward to MCP tool calls (e.g., user JWT token, user ID)
     # Example: {"Authorization": "Bearer <user_jwt>", "X-User-ID": "user123"}

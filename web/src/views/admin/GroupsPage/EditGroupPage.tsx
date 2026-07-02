@@ -87,9 +87,13 @@ function EditGroupPage({ groupId }: EditGroupPageProps) {
   // by repeatedly flipping its isLoading state.
   const { data: tokenRateLimits, isLoading: tokenLimitsLoading } = useSWR<
     TokenRateLimitDisplay[]
-  >(SWR_KEYS.userGroupTokenRateLimit(groupId), errorHandlingFetcher, {
-    onErrorRetry: skipRetryOnAuthError,
-  });
+  >(
+    SWR_KEYS.userGroupTokenRateLimit(groupId),
+    errorHandlingFetcher,
+    {
+      onErrorRetry: skipRetryOnAuthError,
+    }
+  );
 
   // Form state
   const [groupName, setGroupName] = useState("");
@@ -249,10 +253,8 @@ function EditGroupPage({ groupId }: EditGroupPageProps) {
         selectedDocSetIds
       );
 
-      // Save token rate limits (create/update/delete) — Enterprise-only
-      if (isEnterpriseTier) {
-        await saveTokenLimits(groupId, tokenLimits, tokenRateLimits ?? []);
-      }
+      // Save token rate limits (create/update/delete)
+      await saveTokenLimits(groupId, tokenLimits, tokenRateLimits ?? []);
 
       // Update refs so subsequent saves diff correctly
       initialAgentIdsRef.current = selectedAgentIds;
@@ -460,8 +462,7 @@ function EditGroupPage({ groupId }: EditGroupPageProps) {
               <TokenLimitSection
                 limits={tokenLimits}
                 onLimitsChange={setTokenLimits}
-                disabled={!isEnterpriseTier}
-                disabledTooltip={tokenLimitsDisabledTooltip}
+                disabled={false}
               />
 
               {/* Delete This Group */}

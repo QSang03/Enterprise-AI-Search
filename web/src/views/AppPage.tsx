@@ -44,6 +44,7 @@ import useMultiModelChat from "@/hooks/useMultiModelChat";
 import MultiModelSelector from "@/sections/model-selector/MultiModelSelector";
 import { useAgentController } from "@/lib/agents/hooks";
 import useChatSessionController from "@/hooks/useChatSessionController";
+import useMyGroups from "@/hooks/useMyGroups";
 import useDeepResearchToggle from "@/hooks/useDeepResearchToggle";
 import { useIsDefaultAgent } from "@/lib/agents/hooks";
 import AgentDescription from "@/app/app/components/AgentDescription";
@@ -154,6 +155,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     isLoading: isLoadingChatSessions,
   } = useChatSessions();
   const settings = useSettings();
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
+  const { data: myGroups } = useMyGroups();
   const { appName } = settings;
 
   useLayoutEffect(() => {
@@ -607,6 +610,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       deepResearch:
         deepResearchEnabledForCurrentWorkflow && !multiModel.isMultiModelActive,
       messageIdToResend: lastUserMsg.messageId,
+      departmentId: selectedDepartmentId,
     });
   }, [
     messageHistory,
@@ -614,6 +618,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     currentMessageFiles,
     deepResearchEnabledForCurrentWorkflow,
     multiModel.isMultiModelActive,
+    selectedDepartmentId,
   ]);
 
   const toggleDocumentSidebar = useCallback(() => {
@@ -646,6 +651,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
         selectedDocIds: currentProjectId
           ? []
           : selectedDocuments?.map((doc) => doc.document_id) || [],
+        departmentId: selectedDepartmentId,
       });
       if (showOnboarding || !onboardingDismissed) {
         finishOnboarding();
@@ -665,6 +671,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       selectedDocuments,
       currentProjectId,
       allCurrentProjectFiles,
+      selectedDepartmentId,
     ]
   );
   const { submit: submitQuery, state, setAppMode } = useQueryController();
@@ -708,6 +715,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
           selectedDocIds: currentProjectId
             ? []
             : selectedDocuments?.map((doc) => doc.document_id) || [],
+          departmentId: selectedDepartmentId,
         });
         if (showOnboarding || !onboardingDismissed) {
           finishOnboarding();
@@ -737,6 +745,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       selectedDocuments,
       currentProjectId,
       allCurrentProjectFiles,
+      selectedDepartmentId,
     ]
   );
 
@@ -1095,14 +1104,36 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                             isSearch ? "h-[14px]" : "h-0"
                           )}
                         />
-                        {(appFocus.isChat() || appFocus.isNewSession()) && liveAgent && currentProjectId && (
-                          <div className="pb-1 flex flex-wrap items-center gap-2">
-                            <MultiModelSelector
-                              selectedModels={multiModel.selectedModels}
-                              onAdd={multiModel.addModel}
-                              onRemove={multiModel.removeModel}
-                              onReplace={multiModel.replaceModel}
-                            />
+                        {(appFocus.isChat() || appFocus.isNewSession()) && (
+                          <div className="pb-1.5 flex flex-wrap items-center gap-4">
+                            {liveAgent && currentProjectId && (
+                              <MultiModelSelector
+                                selectedModels={multiModel.selectedModels}
+                                onAdd={multiModel.addModel}
+                                onRemove={multiModel.removeModel}
+                                onReplace={multiModel.replaceModel}
+                              />
+                            )}
+                            
+                            <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                              <span className="font-semibold text-neutral-600">Kho kiến thức:</span>
+                              <select
+                                value={selectedDepartmentId === null ? "" : selectedDepartmentId}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setSelectedDepartmentId(val === "" ? null : Number(val));
+                                }}
+                                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-800 focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none cursor-pointer"
+                              >
+                                <option value="">Mặc định (Không lọc)</option>
+                                <option value="-1">Kho Tổng (Tất cả phòng ban)</option>
+                                {myGroups && myGroups.map((group) => (
+                                  <option key={group.id} value={group.id}>
+                                    Kho {group.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
                         )}
 

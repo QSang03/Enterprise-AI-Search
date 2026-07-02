@@ -1,0 +1,1219 @@
+web_server-1  | ▲ Next.js 16.2.6
+web_server-1  | - Local:         http://localhost:3000
+web_server-1  | - Network:       http://0.0.0.0:3000
+web_server-1  | ✓ Ready in 0ms
+relational_db-1  | 
+relational_db-1           | PostgreSQL Database directory appears to contain a database; Skipping initialization
+relational_db-1           | 
+relational_db-1           | 2026-07-02 04:09:33.722 UTC [1] LOG:  starting PostgreSQL 15.2 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 12.2.1_git20220924-r4) 12.2.1 20220924, 64-bit
+relational_db-1           | 2026-07-02 04:09:33.722 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+relational_db-1           | 2026-07-02 04:09:33.722 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+relational_db-1           | 2026-07-02 04:09:33.734 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+relational_db-1           | 2026-07-02 04:09:33.746 UTC [24] LOG:  database system was shut down at 2026-07-02 04:07:25 UTC
+inference_model_server-1  | INFO:     Started server process [1]
+inference_model_server-1  | INFO:     Waiting for application startup.
+inference_model_server-1  | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py   74: Torch GPU Detection: gpu_type=none
+indexing_model_server-1   | INFO:     Started server process [1]
+indexing_model_server-1   | INFO:     Waiting for application startup.
+indexing_model_server-1   | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py   74: Torch GPU Detection: gpu_type=none
+indexing_model_server-1   | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py   80: Moving contents of temp_huggingface to huggingface cache.
+indexing_model_server-1   | [94mNOTICE[0m:   07/02/2026 04:09:40 AM                        main.py   83: Moved contents of temp_huggingface to huggingface cache.
+indexing_model_server-1   | [94mNOTICE[0m:   07/02/2026 04:09:40 AM                        main.py  102: Torch Threads: 20 (torch default: 20, cgroup cpu limit: None)
+indexing_model_server-1   | INFO:     Application startup complete.
+inference_model_server-1  | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py   80: Moving contents of temp_huggingface to huggingface cache.
+indexing_model_server-1   | INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+indexing_model_server-1   | [92mINFO[0m:     07/02/2026 04:09:43 AM                    h11_impl.py  481: [IDX:c6wvncKZ] 127.0.0.1:47972 - "GET /api/health HTTP/1.1" 200
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+code-interpreter-1        | Docker socket found at /var/run/docker.sock - using Docker-out-of-Docker mode
+code-interpreter-1        | Docker socket found at /var/run/docker.sock - using Docker-out-of-Docker mode
+relational_db-1           | 2026-07-02 04:09:33.757 UTC [1] LOG:  database system is ready to accept connections
+inference_model_server-1  | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py   83: Moved contents of temp_huggingface to huggingface cache.
+inference_model_server-1  | [94mNOTICE[0m:   07/02/2026 04:09:39 AM                        main.py  102: Torch Threads: 20 (torch default: 20, cgroup cpu limit: None)
+inference_model_server-1  | INFO:     Application startup complete.
+inference_model_server-1  | INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+inference_model_server-1  | [92mINFO[0m:     07/02/2026 04:09:43 AM                    h11_impl.py  481: [INF:GTyEMrv4] 127.0.0.1:47976 - "GET /api/health HTTP/1.1" 200
+code-interpreter-1        | 2026-07-02 04:09:34,661 - uvicorn.error - INFO - Started server process [1]
+code-interpreter-1        | 2026-07-02 04:09:34,662 - uvicorn.error - INFO - Waiting for application startup.
+code-interpreter-1        | 2026-07-02 04:09:34,663 - app.main - INFO - Ensuring Docker executor image is available...
+code-interpreter-1        | 2026-07-02 04:09:34,663 - app.main - INFO - Checking for Docker image: onyxdotapp/python-executor-sci:latest
+api_server-1              | INFO  [env_py] run_migrations_online starting.
+cache-1                   | 1:C 02 Jul 2026 04:09:33.695 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+api_server-1              | [92mINFO[0m:     07/02/2026 04:09:37 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+cache-1                   | 1:C 02 Jul 2026 04:09:33.697 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+cache-1                   | 1:C 02 Jul 2026 04:09:33.697 * Redis version=7.4.9, bits=64, commit=00000000, modified=0, pid=1, just started
+api_server-1              | INFO  [onyx.utils.logger] Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+api_server-1              | INFO  [env_py] Migrating specific schema names: ['public']
+api_server-1              | INFO  [env_py] Migrating schema: index=1 num_schemas=1 schema=public
+api_server-1              | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+api_server-1              | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+code-interpreter-1        | 2026-07-02 04:09:34,684 - app.main - INFO - Docker image onyxdotapp/python-executor-sci:latest is already available locally
+code-interpreter-1        | 2026-07-02 04:09:34,684 - app.main - INFO - Docker executor image is ready
+code-interpreter-1        | 2026-07-02 04:09:34,731 - uvicorn.error - INFO - Application startup complete.
+code-interpreter-1        | 2026-07-02 04:09:34,732 - uvicorn.error - INFO - Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+minio-1                   | MinIO Object Storage Server
+minio-1                   | Copyright: 2015-2026 MinIO, Inc.
+minio-1                   | License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html
+minio-1                   | Version: RELEASE.2025-07-23T15-54-02Z (go1.24.5 linux/arm64)
+minio-1                   | 
+minio-1                   | API: http://172.19.0.2:9000  http://127.0.0.1:9000 
+api_server-1              | Starting Onyx Api Server
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:09:41 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+api_server-1              | Traceback (most recent call last):
+api_server-1              |   File "/usr/local/bin/uvicorn", line 10, in <module>
+cache-1                   | 1:C 02 Jul 2026 04:09:33.697 * Configuration loaded
+cache-1                   | 1:M 02 Jul 2026 04:09:33.697 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+opensearch-1              | Enabling OpenSearch Security Plugin
+opensearch-1              | Enabling execution of install_demo_configuration.sh for OpenSearch Security Plugin 
+opensearch-1              | OpenSearch 2.12.0 onwards, the OpenSearch Security Plugin a change that requires an initial password for 'admin' user. 
+opensearch-1              | Please define an environment variable 'OPENSEARCH_INITIAL_ADMIN_PASSWORD' with a strong password string. 
+opensearch-1              | If a password is not provided, the setup will quit. 
+opensearch-1              |  For more details, please visit: https://opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/
+opensearch-1              | ### OpenSearch Security Demo Installer
+background-1              | 2026-07-02 04:09:34,170 INFO Set uid to user 0 succeeded
+background-1              | 2026-07-02 04:09:34,185 INFO RPC interface 'supervisor' initialized
+background-1              | 2026-07-02 04:09:34,185 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+background-1              | 2026-07-02 04:09:34,185 INFO supervisord started with pid 7
+minio-1                   | WebUI: http://172.19.0.2:9001 http://127.0.0.1:9001  
+minio-1                   | 
+minio-1                   | Docs: https://docs.min.io
+opensearch-1              | ### ** Warning: Do not use on production or public reachable systems **
+opensearch-1              | OpenSearch install type: rpm/deb on Linux 6.17.0-1021-nvidia aarch64
+opensearch-1              | OpenSearch config dir: /usr/share/opensearch/config/
+opensearch-1              | OpenSearch config file: /usr/share/opensearch/config/opensearch.yml
+opensearch-1              | OpenSearch bin dir: /usr/share/opensearch/bin/
+opensearch-1              | OpenSearch plugins dir: /usr/share/opensearch/plugins/
+opensearch-1              | OpenSearch lib dir: /usr/share/opensearch/lib/
+opensearch-1              | Detected OpenSearch Version: 3.6.0
+opensearch-1              | Detected OpenSearch Security Version: 3.6.0.0
+minio-1                   | WARN: Detected default credentials 'minioadmin:minioadmin', we recommend that you change these values with 'MINIO_ROOT_USER' and 'MINIO_ROOT_PASSWORD' environment variables
+minio-1                   | INFO: 
+minio-1                   |  You are running an older version of MinIO released 1 month before the latest release 
+minio-1                   |  Update: Run `mc admin update ALIAS` 
+minio-1                   | 
+minio-1                   | 
+cache-1                   | 1:M 02 Jul 2026 04:09:33.697 * monotonic clock: POSIX clock_gettime
+cache-1                   | 1:M 02 Jul 2026 04:09:33.698 * Running mode=standalone, port=6379.
+cache-1                   | 1:M 02 Jul 2026 04:09:33.699 * Server initialized
+cache-1                   | 1:M 02 Jul 2026 04:09:33.699 * Ready to accept connections tcp
+opensearch-1              | Admin password set successfully.
+opensearch-1              | ### Success
+opensearch-1              | ### Execute this script now on all your nodes and then start all nodes
+opensearch-1              | ### OpenSearch Security will be automatically initialized.
+opensearch-1              | ### If you like to change the runtime configuration 
+opensearch-1              | ### change the files in ../../../config/opensearch-security and execute: 
+opensearch-1              | sudo "/usr/share/opensearch/plugins/opensearch-security/tools/securityadmin.sh" -cd "/usr/share/opensearch/config/opensearch-security" -icl -key "/usr/share/opensearch/config/kirk-key.pem" -cert "/usr/share/opensearch/config/kirk.pem" -cacert "/usr/share/opensearch/config/root-ca.pem" -nhnv
+opensearch-1              | ### or run ./securityadmin_demo.sh
+opensearch-1              | ### To use the Security Plugin ConfigurationGUI
+opensearch-1              | ### To access your secured cluster open https://<hostname>:<HTTP port> and log in with admin/<your-custom-admin-password>.
+opensearch-1              | ### (Ignore the SSL certificate warning because we installed self-signed demo certificates)
+api_server-1              |     sys.exit(main())
+api_server-1              |              ~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1485, in __call__
+api_server-1              |     return self.main(*args, **kwargs)
+api_server-1              |            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1406, in main
+api_server-1              |     rv = self.invoke(ctx)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1269, in invoke
+api_server-1              |     return ctx.invoke(self.callback, **ctx.params)
+api_server-1              |            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+api_server-1              |     return callback(*args, **kwargs)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 441, in main
+api_server-1              |     run(
+api_server-1              |     ~~~^
+api_server-1              |         app,
+api_server-1              |         ^^^^
+api_server-1              |     ...<48 lines>...
+api_server-1              |         reset_contextvars=reset_contextvars,
+api_server-1              |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |     )
+api_server-1              |     ^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 609, in run
+api_server-1              |     config.load_app()
+api_server-1              |     ~~~~~~~~~~~~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/config.py", line 415, in load_app
+api_server-1              |     return import_from_string(self.app)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/importer.py", line 19, in import_from_string
+api_server-1              |     module = importlib.import_module(module_str)
+opensearch-1              | Enabling execution of OPENSEARCH_HOME/bin/opensearch-performance-analyzer/performance-analyzer-agent-cli for OpenSearch Performance Analyzer Plugin
+opensearch-1              | WARNING: Using incubator modules: jdk.incubator.vector
+opensearch-1              | WARNING: Unknown module: org.apache.arrow.memory.core specified to --add-opens
+opensearch-1              | WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+opensearch-1              | WARNING: sun.misc.Unsafe::objectFieldOffset has been called by net.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$CreationAction
+opensearch-1              | WARNING: Please consider reporting this to the maintainers of class net.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$CreationAction
+opensearch-1              | WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+opensearch-1              | WARNING: A restricted method in java.lang.System has been called
+opensearch-1              | WARNING: java.lang.System::load has been called by com.sun.jna.Native in an unnamed module (file:/usr/share/opensearch/lib/jna-5.16.0.jar)
+opensearch-1              | WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+opensearch-1              | WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+api_server-1              |   File "/usr/local/lib/python3.13/importlib/__init__.py", line 88, in import_module
+api_server-1              |     return _bootstrap._gcd_import(name[level:], package, level)
+opensearch-1              | 
+opensearch-1              | [2026-07-02T04:09:39,770][WARN ][stderr                   ] [fa1506990903] Jul 02, 2026 4:09:39 AM org.opensearch.javaagent.bootstrap.AgentPolicy setPolicy
+opensearch-1              | [2026-07-02T04:09:39,772][WARN ][stderr                   ] [fa1506990903] INFO: Policy attached successfully: org.opensearch.bootstrap.OpenSearchPolicy@43719e98
+opensearch-1              | [2026-07-02T04:09:39,783][INFO ][o.o.n.Node               ] [fa1506990903] version[3.6.0], pid[1], build[tar/4ca747d8d47f80162db323019357447126732e35/2026-04-04T06:02:53.715432718Z], OS[Linux/6.17.0-1021-nvidia/aarch64], JVM[Eclipse Adoptium/OpenJDK 64-Bit Server VM/25.0.2/25.0.2+10-LTS]
+opensearch-1              | [2026-07-02T04:09:39,783][INFO ][o.o.n.Node               ] [fa1506990903] JVM home [/usr/share/opensearch/jdk], using bundled JDK/JRE [true]
+opensearch-1              | [2026-07-02T04:09:39,783][INFO ][o.o.n.Node               ] [fa1506990903] JVM arguments [-Xshare:auto, -Dopensearch.networkaddress.cache.ttl=60, -Dopensearch.networkaddress.cache.negative.ttl=10, -XX:+AlwaysPreTouch, -Xss1m, -Djava.awt.headless=true, -Dfile.encoding=UTF-8, -Djna.nosys=true, -XX:-OmitStackTraceInFastThrow, -XX:+ShowCodeDetailsInExceptionMessages, -Dio.netty.noUnsafe=true, -Dio.netty.noKeySetOptimization=true, -Dio.netty.recycler.maxCapacityPerThread=0, -Dio.netty.allocator.numDirectArenas=0, -Dlog4j.shutdownHookEnabled=false, -Dlog4j2.disable.jmx=true, -Djava.locale.providers=SPI,CLDR, -Xms1g, -Xmx1g, -XX:+UseG1GC, -XX:G1ReservePercent=25, -XX:InitiatingHeapOccupancyPercent=30, -Djava.io.tmpdir=/tmp/opensearch-4458865225492917615, -XX:+HeapDumpOnOutOfMemoryError, -XX:HeapDumpPath=data, -XX:ErrorFile=logs/hs_err_pid%p.log, -Xlog:gc*,gc+age=trace,safepoint:file=logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m, --add-modules=jdk.incubator.vector, -javaagent:agent/opensearch-agent.jar, --add-opens=java.base/java.nio=org.apache.arrow.memory.core,ALL-UNNAMED, -Dorg.apache.lucene.store.MMapDirectory.sharedArenaMaxPermits=1, -XX:+UseCompactObjectHeaders, -Dclk.tck=100, -Djdk.attach.allowAttachSelf=true, -Djava.security.policy=/usr/share/opensearch/config/opensearch-performance-analyzer/opensearch_security.policy, --add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED, -Dopensearch.cgroups.hierarchy.override=/, -Xms2g, -Xmx2g, -XX:MaxDirectMemorySize=1073741824, -Dopensearch.path.home=/usr/share/opensearch, -Dopensearch.path.conf=/usr/share/opensearch/config, -Dopensearch.distribution.type=tar, -Dopensearch.bundled_jdk=true]
+opensearch-1              | [2026-07-02T04:09:39,812][WARN ][o.o.p.PluginsService     ] [fa1506990903] Missing plugin [workload-management], dependency of [opensearch-security]
+opensearch-1              | [2026-07-02T04:09:39,813][WARN ][o.o.p.PluginsService     ] [fa1506990903] Some features of this plugin may not function without the dependencies being installed.
+opensearch-1              | 
+opensearch-1              | [2026-07-02T04:09:39,918][WARN ][stderr                   ] [fa1506990903] Jul 02, 2026 4:09:39 AM org.apache.lucene.internal.vectorization.PanamaVectorizationProvider <init>
+opensearch-1              | [2026-07-02T04:09:39,918][WARN ][stderr                   ] [fa1506990903] INFO: Java vector incubator API enabled; uses preferredBitSize=128; FMA enabled
+opensearch-1              | [2026-07-02T04:09:40,464][INFO ][o.o.c.b.JarHell          ] [fa1506990903] Plugin [opensearch-neural-search] extends multiple plugins/modules that share common dependencies: [file:/usr/share/opensearch/modules/transport-grpc/grpc-util-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/transport-grpc-3.6.0.jar, file:/usr/share/opensearch/modules/transport-grpc/protobufs-1.3.0.jar, file:/usr/share/opensearch/modules/transport-grpc/failureaccess-1.0.2.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-protobuf-lite-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-protobuf-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-netty-shaded-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/transport-grpc-spi-3.6.0.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-stub-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/guava-33.2.1-jre.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-api-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/perfmark-api-0.27.0.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-services-1.75.0.jar, file:/usr/share/opensearch/modules/transport-grpc/grpc-core-1.75.0.jar]. This is expected when extended plugins share common ancestors.
+opensearch-1              | [2026-07-02T04:09:40,609][INFO ][o.o.s.s.t.SSLConfig      ] [fa1506990903] SSL dual mode is disabled
+opensearch-1              | [2026-07-02T04:09:40,609][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] OpenSearch Config path is /usr/share/opensearch/config
+opensearch-1              | [2026-07-02T04:09:41,124][INFO ][o.o.s.s.SslSettingsManager] [fa1506990903] TLS HTTP Provider                    : JDK
+opensearch-1              | [2026-07-02T04:09:41,125][INFO ][o.o.s.s.SslSettingsManager] [fa1506990903] Enabled TLS protocols for HTTP layer : [TLSv1.3, TLSv1.2]
+opensearch-1              | [2026-07-02T04:09:41,125][INFO ][o.o.s.s.SslSettingsManager] [fa1506990903] TLS Transport Client Provider             : JDK
+opensearch-1              | [2026-07-02T04:09:41,126][INFO ][o.o.s.s.SslSettingsManager] [fa1506990903] TLS Transport Server Provider             : JDK
+background-1              | 2026-07-02 04:09:35,190 INFO spawned: 'celery_beat' with pid 8
+background-1              | 2026-07-02 04:09:35,192 INFO spawned: 'celery_worker_docfetching' with pid 9
+background-1              | 2026-07-02 04:09:35,194 INFO spawned: 'celery_worker_docprocessing' with pid 10
+background-1              | 2026-07-02 04:09:35,196 INFO spawned: 'celery_worker_heavy' with pid 11
+background-1              | 2026-07-02 04:09:35,198 INFO spawned: 'celery_worker_light' with pid 12
+background-1              | 2026-07-02 04:09:35,200 INFO spawned: 'celery_worker_monitoring' with pid 13
+background-1              | 2026-07-02 04:09:35,202 INFO spawned: 'celery_worker_primary' with pid 14
+background-1              | 2026-07-02 04:09:35,204 INFO spawned: 'celery_worker_scheduled_tasks' with pid 15
+background-1              | 2026-07-02 04:09:35,206 INFO spawned: 'celery_worker_user_file_processing' with pid 16
+background-1              | 2026-07-02 04:09:35,208 INFO spawned: 'discord_bot' with pid 17
+background-1              | 2026-07-02 04:09:35,211 INFO spawned: 'log-redirect-handler' with pid 18
+background-1              | 2026-07-02 04:09:35,214 INFO spawned: 'slack_bot' with pid 19
+background-1              | 2026-07-02 04:09:35,217 INFO spawned: 'supervisord_watchdog_celery_beat' with pid 20
+background-1              | 2026-07-02 04:09:36,221 INFO success: log-redirect-handler entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+opensearch-1              | [2026-07-02T04:09:41,126][INFO ][o.o.s.s.SslSettingsManager] [fa1506990903] Enabled TLS protocols for Transport layer : [TLSv1.3, TLSv1.2]
+opensearch-1              | [2026-07-02T04:09:41,338][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] Clustername: docker-cluster
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] Directory /usr/share/opensearch/config has insecure file permissions (should be 0700)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/esnode-key.pem has insecure file permissions (should be 0600)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/kirk-key.pem has insecure file permissions (should be 0600)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/kirk.pem has insecure file permissions (should be 0600)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/esnode.pem has insecure file permissions (should be 0600)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/root-ca.pem has insecure file permissions (should be 0600)
+opensearch-1              | [2026-07-02T04:09:41,369][WARN ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] File /usr/share/opensearch/config/securityadmin_demo.sh has insecure file permissions (should be 0600)
+api_server-1              |            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1395, in _gcd_import
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+api_server-1              |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+api_server-1              |   File "/app/onyx/main.py", line 119, in <module>
+api_server-1              |     from onyx.server.manage.analytics import router as analytics_router
+api_server-1              |   File "/app/onyx/server/manage/analytics.py", line 11, in <module>
+api_server-1              |     from sqlalchemy import select, func, and_, case, Date, desc, coalesce
+api_server-1              | ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+api_server-1              | CRITICAL: Exiting due to uncaught exception ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:09:54 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+api_server-1              | INFO  [env_py] run_migrations_online starting.
+opensearch-1              | [2026-07-02T04:09:41,959][ERROR][o.o.p.c.c.PluginSettings ] [fa1506990903] Loading config file /usr/share/opensearch/config/opensearch-performance-analyzer/performance-analyzer.properties failed with error: org.opensearch.performanceanalyzer.commons.config.ConfigFileException: java.io.FileNotFoundException: /usr/share/opensearch/config/opensearch-performance-analyzer/performance-analyzer.properties (No such file or directory). Disabling plugin.
+opensearch-1              | [2026-07-02T04:09:41,960][INFO ][o.o.p.c.c.PluginSettings ] [fa1506990903] Config: metricsLocation: /dev/shm/performanceanalyzer/, metricsDeletionInterval: 1, httpsEnabled: false, cleanup-metrics-db-files: false, batch-metrics-retention-period-minutes: 7, rpc-port: 9650, webservice-port 9600
+opensearch-1              | [2026-07-02T04:09:42,054][ERROR][o.o.p.c.c.StatsCollector ] [fa1506990903] Error in loading metadata for folderLocation: /usr/share/opensearch/config/opensearch-performance-analyzer/, fileLocation: plugin-stats-metadata
+opensearch-1              | java.io.FileNotFoundException: /usr/share/opensearch/config/opensearch-performance-analyzer/plugin-stats-metadata (No such file or directory)
+opensearch-1              | 	at java.base/java.io.FileInputStream.open0(Native Method)
+opensearch-1              | 	at java.base/java.io.FileInputStream.open(FileInputStream.java:185)
+api_server-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+api_server-1              | INFO  [onyx.utils.logger] Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+api_server-1              | INFO  [env_py] Migrating specific schema names: ['public']
+api_server-1              | INFO  [env_py] Migrating schema: index=1 num_schemas=1 schema=public
+api_server-1              | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+api_server-1              | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+api_server-1              | Starting Onyx Api Server
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:09:56 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+api_server-1              | Traceback (most recent call last):
+api_server-1              |   File "/usr/local/bin/uvicorn", line 10, in <module>
+api_server-1              |     sys.exit(main())
+api_server-1              |              ~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1485, in __call__
+api_server-1              |     return self.main(*args, **kwargs)
+api_server-1              |            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1406, in main
+api_server-1              |     rv = self.invoke(ctx)
+opensearch-1              | 	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:139)
+opensearch-1              | 	at java.base/java.io.FileInputStream.<init>(FileInputStream.java:109)
+opensearch-1              | 	at org.opensearch.performanceanalyzer.commons.collectors.StatsCollector.loadMetadata(StatsCollector.java:158)
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:37 AM        supervisord_watchdog.py   24: supervisord_watchdog starting: program=celery_beat conf=/etc/supervisor/conf.d/supervisord.conf
+background-1              | [93mWARNING[0m:  07/02/2026 04:09:37 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                      client.py  204: Starting Onyx Discord Bot...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM         beat.py:633 : celery.beat beat: Starting...
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM         beat.py:22  : onyx.background.celery.apps.beat beat_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 2, 'max_overflow': 0, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM   sql_engine.py:264 : onyx.utils.logger Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 2, 'max_overflow': 0, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM     app_base.py:283 : onyx.utils.logger Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM     app_base.py:309 : onyx.utils.logger Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:38 AM         beat.py:31  : onyx.background.celery.apps.beat Readiness signal touched at /tmp/onyx_k8s_beat_readiness.txt.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+opensearch-1              | 	at org.opensearch.performanceanalyzer.commons.collectors.StatsCollector.instance(StatsCollector.java:73)
+opensearch-1              | 	at org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin.scheduleRcaCollectors(PerformanceAnalyzerPlugin.java:268)
+opensearch-1              | 	at org.opensearch.performanceanalyzer.PerformanceAnalyzerPlugin.<init>(PerformanceAnalyzerPlugin.java:214)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1269, in invoke
+api_server-1              |     return ctx.invoke(self.callback, **ctx.params)
+api_server-1              |            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+api_server-1              |     return callback(*args, **kwargs)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 441, in main
+api_server-1              |     run(
+api_server-1              |     ~~~^
+api_server-1              |         app,
+api_server-1              |         ^^^^
+api_server-1              |     ...<48 lines>...
+api_server-1              |         reset_contextvars=reset_contextvars,
+api_server-1              |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |     )
+opensearch-1              | 	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+opensearch-1              | 	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+opensearch-1              | 	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:483)
+opensearch-1              | 	at org.opensearch.plugins.PluginsService.loadPlugin(PluginsService.java:880)
+opensearch-1              | 	at org.opensearch.plugins.PluginsService.loadBundle(PluginsService.java:831)
+opensearch-1              | 	at org.opensearch.plugins.PluginsService.loadBundles(PluginsService.java:626)
+opensearch-1              | 	at org.opensearch.plugins.PluginsService.<init>(PluginsService.java:227)
+opensearch-1              | 	at org.opensearch.node.Node.<init>(Node.java:555)
+opensearch-1              | 	at org.opensearch.node.Node.<init>(Node.java:483)
+opensearch-1              | 	at org.opensearch.bootstrap.Bootstrap$5.<init>(Bootstrap.java:250)
+opensearch-1              | 	at org.opensearch.bootstrap.Bootstrap.setup(Bootstrap.java:250)
+opensearch-1              | 	at org.opensearch.bootstrap.Bootstrap.init(Bootstrap.java:412)
+opensearch-1              | 	at org.opensearch.bootstrap.OpenSearch.init(OpenSearch.java:168)
+opensearch-1              | 	at org.opensearch.bootstrap.OpenSearch.execute(OpenSearch.java:159)
+opensearch-1              | 	at org.opensearch.common.cli.EnvironmentAwareCommand.execute(EnvironmentAwareCommand.java:110)
+opensearch-1              | 	at org.opensearch.cli.Command.mainWithoutErrorHandling(Command.java:138)
+opensearch-1              | 	at org.opensearch.cli.Command.main(Command.java:101)
+opensearch-1              | 	at org.opensearch.bootstrap.OpenSearch.main(OpenSearch.java:125)
+opensearch-1              | 	at org.opensearch.bootstrap.OpenSearch.main(OpenSearch.java:91)
+opensearch-1              | [2026-07-02T04:09:42,057][INFO ][o.o.p.c.SearchBackPressureStatsCollector] [fa1506990903] SearchBackPressureStatsCollector started
+opensearch-1              | [2026-07-02T04:09:42,263][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Loading 2 QueryBuilderProtoConverter extensions from other plugins
+opensearch-1              | [2026-07-02T04:09:42,264][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Discovered QueryBuilderProtoConverter extension: org.opensearch.knn.grpc.proto.request.search.query.KNNQueryBuilderProtoConverter (handles: KNN)
+opensearch-1              | [2026-07-02T04:09:42,264][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Discovered QueryBuilderProtoConverter extension: org.opensearch.neuralsearch.grpc.proto.request.search.query.HybridQueryBuilderProtoConverter (handles: HYBRID)
+opensearch-1              | [2026-07-02T04:09:42,264][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Successfully loaded 2 QueryBuilderProtoConverter extensions
+opensearch-1              | [2026-07-02T04:09:42,265][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Found 1 gRPC interceptor providers, will initialize during component creation
+opensearch-1              | [2026-07-02T04:09:42,265][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Successfully loaded 0 GrpcServiceFactory extensions
+opensearch-1              | [2026-07-02T04:09:42,267][INFO ][o.o.i.r.ReindexModulePlugin] [fa1506990903] ReindexPlugin reloadSPI called
+opensearch-1              | [2026-07-02T04:09:42,267][INFO ][o.o.i.r.ReindexModulePlugin] [fa1506990903] Unable to find any implementation for RemoteReindexExtension
+opensearch-1              | [2026-07-02T04:09:42,386][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for forecaster
+opensearch-1              | [2026-07-02T04:09:42,389][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for anomaly-detector
+opensearch-1              | [2026-07-02T04:09:42,391][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for ml-model-group
+opensearch-1              | [2026-07-02T04:09:42,392][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for report-definition
+opensearch-1              | [2026-07-02T04:09:42,392][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for report-instance
+opensearch-1              | [2026-07-02T04:09:42,393][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for workflow_state
+opensearch-1              | [2026-07-02T04:09:42,393][INFO ][o.o.s.r.ResourceActionGroupsHelper] [fa1506990903] Registered 3 action-groups for workflow
+opensearch-1              | [2026-07-02T04:09:42,395][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: opensearch_time_series_analytics, index: .opendistro-anomaly-detector-jobs
+opensearch-1              | [2026-07-02T04:09:42,396][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: opendistro-index-management, index: .opendistro-ism-config
+opensearch-1              | [2026-07-02T04:09:42,396][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: opensearch_sap_job, index: .opensearch-sap--job
+opensearch-1              | [2026-07-02T04:09:42,418][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: reports-scheduler, index: .opendistro-reports-definitions
+opensearch-1              | [2026-07-02T04:09:42,419][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: scheduled_experiment_job, index: .search-relevance-scheduled-experiment-jobs
+opensearch-1              | [2026-07-02T04:09:42,420][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: opensearch_ml_commons_jobs, index: .plugins-ml-jobs
+api_server-1              |     ^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 609, in run
+api_server-1              |     config.load_app()
+api_server-1              |     ~~~~~~~~~~~~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/config.py", line 415, in load_app
+api_server-1              |     return import_from_string(self.app)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/importer.py", line 19, in import_from_string
+api_server-1              |     module = importlib.import_module(module_str)
+api_server-1              |   File "/usr/local/lib/python3.13/importlib/__init__.py", line 88, in import_module
+api_server-1              |     return _bootstrap._gcd_import(name[level:], package, level)
+api_server-1              |            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1395, in _gcd_import
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+api_server-1              |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+api_server-1              |   File "/app/onyx/main.py", line 119, in <module>
+api_server-1              |     from onyx.server.manage.analytics import router as analytics_router
+api_server-1              |   File "/app/onyx/server/manage/analytics.py", line 11, in <module>
+api_server-1              |     from sqlalchemy import select, func, and_, case, Date, desc, coalesce
+api_server-1              | ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+api_server-1              | CRITICAL: Exiting due to uncaught exception ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:10:03 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       heavy.py   91: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 4, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  monitoring.py   64: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  monitoring.py   65: Multiprocessing start method: spawn
+opensearch-1              | [2026-07-02T04:09:42,420][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: scheduler_geospatial_ip2geo_datasource, index: .scheduler-geospatial-ip2geo-datasource
+opensearch-1              | [2026-07-02T04:09:42,421][INFO ][o.o.j.JobSchedulerPlugin ] [fa1506990903] Loaded scheduler extension: async-query-scheduler, index: .async-query-scheduler
+opensearch-1              | [2026-07-02T04:09:42,442][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [aggs-matrix-stats]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [analysis-common]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [cache-common]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [geo]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [ingest-common]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [ingest-geoip]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [ingest-user-agent]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [lang-expression]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [lang-mustache]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [lang-painless]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [mapper-extras]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [opensearch-dashboards]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [parent-join]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [percolator]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [rank-eval]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [reindex]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [repository-url]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [rule-framework]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [search-pipeline-common]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [store-subdirectory]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [systemd]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [transport-grpc]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded module [transport-netty4]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-alerting]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-anomaly-detection]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-asynchronous-search]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-cross-cluster-replication]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-custom-codecs]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-flow-framework]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-geospatial]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-index-management]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-job-scheduler]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-knn]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-ltr]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-ml]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-neural-search]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-notifications]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-notifications-core]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-observability]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-performance-analyzer]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-reports-scheduler]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-search-relevance]
+opensearch-1              | [2026-07-02T04:09:42,443][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-security]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-security-analytics]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-skills]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-sql]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-system-templates]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [opensearch-ubi]
+opensearch-1              | [2026-07-02T04:09:42,444][INFO ][o.o.p.PluginsService     ] [fa1506990903] loaded plugin [query-insights]
+opensearch-1              | [2026-07-02T04:09:42,453][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] Disabled https compression by default to mitigate BREACH attacks. You can enable it by setting 'http.compression: true' in opensearch.yml
+opensearch-1              | [2026-07-02T04:09:42,464][DEPRECATION][o.o.d.c.s.Settings       ] [fa1506990903] [node.max_local_storage_nodes] setting was deprecated in OpenSearch and will be removed in a future release! See the breaking changes documentation for the next major version.
+opensearch-1              | [2026-07-02T04:09:42,475][INFO ][o.o.e.NodeEnvironment    ] [fa1506990903] using [1] data paths, mounts [[/usr/share/opensearch/data (/dev/nvme0n1p2)]], net usable_space [24.1gb], net total_space [467.8gb], types [ext4]
+opensearch-1              | [2026-07-02T04:09:42,475][INFO ][o.o.e.NodeEnvironment    ] [fa1506990903] heap size [2gb], compressed ordinary object pointers [true]
+opensearch-1              | [2026-07-02T04:09:42,573][INFO ][o.o.n.Node               ] [fa1506990903] node name [fa1506990903], node ID [bmdbyHetSbGro9u4iBbnZw], cluster name [docker-cluster], roles [ingest, remote_cluster_client, data, cluster_manager]
+opensearch-1              | [2026-07-02T04:09:42,615][INFO ][o.o.e.ExtensionsManager  ] [fa1506990903] ExtensionsManager initialized
+opensearch-1              | [2026-07-02T04:09:43,591][WARN ][stderr                   ] [fa1506990903] SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+opensearch-1              | [2026-07-02T04:09:43,591][WARN ][stderr                   ] [fa1506990903] SLF4J: Defaulting to no-operation (NOP) logger implementation
+opensearch-1              | [2026-07-02T04:09:43,591][WARN ][stderr                   ] [fa1506990903] SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+opensearch-1              | [2026-07-02T04:09:43,867][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index _na_ from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:43,867][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index _na_.
+opensearch-1              | [2026-07-02T04:09:43,867][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index _na_ with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:43,983][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index _na_ from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:43,983][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index _na_.
+opensearch-1              | [2026-07-02T04:09:43,983][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index _na_ with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:45,010][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Loaded 1 gRPC interceptors into chain
+opensearch-1              | [2026-07-02T04:09:45,010][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH_ALL: org.opensearch.transport.grpc.proto.request.search.query.MatchAllQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH_NONE: org.opensearch.transport.grpc.proto.request.search.query.MatchNoneQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for TERM: org.opensearch.transport.grpc.proto.request.search.query.TermQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for TERMS: org.opensearch.transport.grpc.proto.request.search.query.TermsQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH_PHRASE: org.opensearch.transport.grpc.proto.request.search.query.MatchPhraseQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MULTI_MATCH: org.opensearch.transport.grpc.proto.request.search.query.MultiMatchQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for BOOL: org.opensearch.transport.grpc.proto.request.search.query.BoolQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for SCRIPT: org.opensearch.transport.grpc.proto.request.search.query.ScriptQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for EXISTS: org.opensearch.transport.grpc.proto.request.search.query.ExistsQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,011][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for REGEXP: org.opensearch.transport.grpc.proto.request.search.query.RegexpQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,012][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for WILDCARD: org.opensearch.transport.grpc.proto.request.search.query.WildcardQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,012][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for GEO_BOUNDING_BOX: org.opensearch.transport.grpc.proto.request.search.query.GeoBoundingBoxQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,012][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for GEO_DISTANCE: org.opensearch.transport.grpc.proto.request.search.query.GeoDistanceQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,012][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for NESTED: org.opensearch.transport.grpc.proto.request.search.query.NestedQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for IDS: org.opensearch.transport.grpc.proto.request.search.query.IdsQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for RANGE: org.opensearch.transport.grpc.proto.request.search.query.RangeQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for TERMS_SET: org.opensearch.transport.grpc.proto.request.search.query.TermsSetQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for CONSTANT_SCORE: org.opensearch.transport.grpc.proto.request.search.query.ConstantScoreQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for FUZZY: org.opensearch.transport.grpc.proto.request.search.query.FuzzyQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for PREFIX: org.opensearch.transport.grpc.proto.request.search.query.PrefixQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH: org.opensearch.transport.grpc.proto.request.search.query.MatchQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH_BOOL_PREFIX: org.opensearch.transport.grpc.proto.request.search.query.MatchBoolPrefixQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for MATCH_PHRASE_PREFIX: org.opensearch.transport.grpc.proto.request.search.query.MatchPhrasePrefixQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,013][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for FUNCTION_SCORE: org.opensearch.transport.grpc.proto.request.search.query.functionscore.FunctionScoreQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Set registry on 24 converters
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterRegistryImpl] [fa1506990903] Registered 24 built-in query converters
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Injecting registry and registering 2 external QueryBuilderProtoConverter(s)
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Processing external converter: org.opensearch.knn.grpc.proto.request.search.query.KNNQueryBuilderProtoConverter (handles: KNN)
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Injected registry into converter: org.opensearch.knn.grpc.proto.request.search.query.KNNQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for KNN: org.opensearch.knn.grpc.proto.request.search.query.KNNQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Processing external converter: org.opensearch.neuralsearch.grpc.proto.request.search.query.HybridQueryBuilderProtoConverter (handles: HYBRID)
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Injected registry into converter: org.opensearch.neuralsearch.grpc.proto.request.search.query.HybridQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Registered query converter for HYBRID: org.opensearch.neuralsearch.grpc.proto.request.search.query.HybridQueryBuilderProtoConverter
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Successfully injected registry and registered all 2 external converters
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.p.r.s.q.QueryBuilderProtoConverterSpiRegistry] [fa1506990903] Set registry on 26 converters
+opensearch-1              | [2026-07-02T04:09:45,014][INFO ][o.o.t.g.GrpcPlugin       ] [fa1506990903] Updated registry on all converters to include external converters
+opensearch-1              | [2026-07-02T04:09:45,060][WARN ][stderr                   ] [fa1506990903] SLF4J(W): No SLF4J providers were found.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 1, 'max_overflow': 3, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM           indexing_pipeline.py  319: WorkerHeartbeatMonitor started
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                  monitoring.py   96: Prometheus indexing pipeline collectors registered
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  355: Running as a secondary celery worker: pid=13
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                    app_base.py  369: Primary worker is not ready yet. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:38 AM                      client.py  217: Discord bot is dormant. Waiting for token configuration...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+opensearch-1              | [2026-07-02T04:09:45,060][WARN ][stderr                   ] [fa1506990903] SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+opensearch-1              | [2026-07-02T04:09:45,060][WARN ][stderr                   ] [fa1506990903] SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+opensearch-1              | [2026-07-02T04:09:45,153][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Message routing enabled: true
+opensearch-1              | [2026-07-02T04:09:45,187][WARN ][o.o.s.c.Salt             ] [fa1506990903] If you plan to use field masking pls configure compliance salt e1ukloTsQlOgPquJ to be a random string of 16 chars length identical on all nodes
+opensearch-1              | [2026-07-02T04:09:45,188][WARN ][o.o.s.c.Salt             ] [fa1506990903] If you plan to use field masking pls configure compliance salt e1ukloTsQlOgPquJ to be a random string of 16 chars length identical on all nodes
+opensearch-1              | [2026-07-02T04:09:45,219][WARN ][o.o.s.c.Salt             ] [fa1506990903] If you plan to use field masking pls configure compliance salt e1ukloTsQlOgPquJ to be a random string of 16 chars length identical on all nodes
+opensearch-1              | [2026-07-02T04:09:45,225][INFO ][o.o.s.f.SecurityFilter   ] [fa1506990903] <NONE> indices are made immutable.
+opensearch-1              | [2026-07-02T04:09:45,267][INFO ][o.o.l.b.LTRCircuitBreakerService] [fa1506990903] Registered memory breaker.
+opensearch-1              | [2026-07-02T04:09:45,281][INFO ][o.o.t.b.CircuitBreakerService] [fa1506990903] Registered memory breaker.
+opensearch-1              | [2026-07-02T04:09:45,466][INFO ][o.o.r.m.c.i.SdkClientFactory] [fa1506990903] Using local opensearch cluster as metadata store.
+opensearch-1              | [2026-07-02T04:09:45,638][INFO ][o.o.s.e.ExperimentTaskManager] [fa1506990903] ExperimentTaskManager initialized with batch size 10 (processors: 20)
+opensearch-1              | [2026-07-02T04:09:45,657][INFO ][o.o.r.m.c.i.SdkClientFactory] [fa1506990903] Using local opensearch cluster as metadata store.
+opensearch-1              | [2026-07-02T04:09:45,769][WARN ][o.o.s.p.SQLPlugin        ] [fa1506990903] Master key is a required config for using create and update datasource APIs. Please set plugins.query.datasources.encryption.masterkey config in opensearch.yml in all the cluster nodes. More details can be found here: https://github.com/opensearch-project/sql/blob/main/docs/user/ppl/admin/datasources.rst#master-key-config-for-encrypting-credential-information
+opensearch-1              | [2026-07-02T04:09:45,970][INFO ][o.o.p.i.c.s.LocalIndexLifecycleManager] [fa1506990903] Setting Query Insights delete after to [7]
+opensearch-1              | [2026-07-02T04:09:46,103][INFO ][o.o.r.m.c.i.SdkClientFactory] [fa1506990903] Using local opensearch cluster as metadata store.
+opensearch-1              | [2026-07-02T04:09:46,128][INFO ][o.o.m.b.MLCircuitBreakerService] [fa1506990903] Registered ML memory breaker.
+opensearch-1              | [2026-07-02T04:09:46,128][INFO ][o.o.m.b.MLCircuitBreakerService] [fa1506990903] Registered ML disk breaker.
+opensearch-1              | [2026-07-02T04:09:46,128][INFO ][o.o.m.b.MLCircuitBreakerService] [fa1506990903] Registered ML native memory breaker.
+opensearch-1              | [2026-07-02T04:09:46,220][INFO ][o.r.Reflections          ] [fa1506990903] Reflections took 42 ms to scan 1 urls, producing 39 keys and 101 values 
+opensearch-1              | [2026-07-02T04:09:46,243][INFO ][o.r.Reflections          ] [fa1506990903] Reflections took 1 ms to scan 1 urls, producing 3 keys and 5 values 
+opensearch-1              | [2026-07-02T04:09:46,247][INFO ][o.r.Reflections          ] [fa1506990903] Reflections took 1 ms to scan 1 urls, producing 5 keys and 23 values 
+opensearch-1              | [2026-07-02T04:09:46,266][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] plugin-additional-permissions.yml not found on classpath for plugin plugin:org.opensearch.jobscheduler.JobSchedulerPlugin, using empty permissions
+opensearch-1              | [2026-07-02T04:09:46,270][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] plugin-additional-permissions.yml not found on classpath for plugin plugin:org.opensearch.flowframework.FlowFrameworkPlugin, using empty permissions
+opensearch-1              | [2026-07-02T04:09:46,270][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] plugin-additional-permissions.yml not found on classpath for plugin plugin:org.opensearch.reportsscheduler.ReportsSchedulerPlugin, using empty permissions
+opensearch-1              | [2026-07-02T04:09:46,754][INFO ][o.o.t.NettyAllocator     ] [fa1506990903] creating NettyAllocator with the following configs: [name=opensearch_configured, chunk_size=256kb, suggested_max_allocation_size=256kb, factors={opensearch.unsafe.use_netty_default_chunk_and_page_size=false, g1gc_enabled=true, g1gc_region_size=1mb}]
+opensearch-1              | [2026-07-02T04:09:46,760][INFO ][o.o.s.s.t.SSLConfig      ] [fa1506990903] SSL dual mode is disabled
+opensearch-1              | [2026-07-02T04:09:46,867][INFO ][o.o.d.DiscoveryModule    ] [fa1506990903] using discovery type [single-node] and seed hosts providers [settings]
+opensearch-1              | [2026-07-02T04:09:47,329][WARN ][o.o.g.DanglingIndicesState] [fa1506990903] gateway.auto_import_dangling_indices is disabled, dangling indices will not be automatically detected or imported and must be managed manually
+opensearch-1              | [2026-07-02T04:09:47,352][WARN ][o.o.m.a.p.TransportPredictionStreamTaskAction] [fa1506990903] StreamTransportService is not available.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       light.py   96: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       light.py   98: Concurrency: 24
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 24, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+opensearch-1              | [2026-07-02T04:09:47,774][WARN ][o.o.m.a.e.TransportExecuteStreamTaskAction] [fa1506990903] StreamTransportService is not available.
+opensearch-1              | [2026-07-02T04:09:48,093][INFO ][o.o.p.h.c.PerformanceAnalyzerConfigAction] [fa1506990903] PerformanceAnalyzer Enabled: false
+opensearch-1              | [2026-07-02T04:09:48,118][INFO ][o.o.n.Node               ] [fa1506990903] initialized
+opensearch-1              | [2026-07-02T04:09:48,119][INFO ][o.o.n.Node               ] [fa1506990903] starting ...
+opensearch-1              | [2026-07-02T04:09:48,179][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [windows_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,179][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [waf_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [vpcflow_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [test_windows_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [s3_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_web_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_proxy_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_macos_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,180][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_compliance_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_cloud_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_apt_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [others_application_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [okta_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [network_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [netflow_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [m365_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [linux_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,181][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [gworkspace_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [github_logtype.json] log type
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM               docprocessing.py  108: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 6, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM        user_file_processing.py   60: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 2, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [dns_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [cloudtrail_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [azure_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [apache_access_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,182][INFO ][o.o.s.l.BuiltinLogTypeLoader] [fa1506990903] Loaded [ad_ldap_logtype.json] log type
+opensearch-1              | [2026-07-02T04:09:48,283][INFO ][o.o.t.TransportService   ] [fa1506990903] publish_address {172.19.0.5:9300}, bound_addresses {[::]:9300}
+opensearch-1              | [2026-07-02T04:09:48,284][INFO ][o.o.t.TransportService   ] [fa1506990903] Remote clusters initialized successfully.
+opensearch-1              | [2026-07-02T04:09:48,460][INFO ][o.o.c.c.Coordinator      ] [fa1506990903] cluster UUID [l9pl5YzhTJemRGHXFihu-w]
+opensearch-1              | [2026-07-02T04:09:48,565][INFO ][o.o.c.s.ClusterManagerService] [fa1506990903] Tasks batched with key: org.opensearch.cluster.coordination.JoinHelper, count:3 and sample tasks: elected-as-cluster-manager ([1] nodes joined)[{fa1506990903}{bmdbyHetSbGro9u4iBbnZw}{5WNdohoSQaajJUE6XQM_lg}{172.19.0.5}{172.19.0.5:9300}{dimr}{shard_indexing_pressure_enabled=true} elect leader, _BECOME_CLUSTER_MANAGER_TASK_, _FINISH_ELECTION_], term: 5, version: 65, delta: cluster-manager node changed {previous [], current [{fa1506990903}{bmdbyHetSbGro9u4iBbnZw}{5WNdohoSQaajJUE6XQM_lg}{172.19.0.5}{172.19.0.5:9300}{dimr}{shard_indexing_pressure_enabled=true}]}
+opensearch-1              | [2026-07-02T04:09:48,616][INFO ][o.o.c.s.ClusterApplierService] [fa1506990903] cluster-manager node changed {previous [], current [{fa1506990903}{bmdbyHetSbGro9u4iBbnZw}{5WNdohoSQaajJUE6XQM_lg}{172.19.0.5}{172.19.0.5:9300}{dimr}{shard_indexing_pressure_enabled=true}]}, term: 5, version: 65, reason: Publication{term=5, version=65}
+opensearch-1              | [2026-07-02T04:09:48,621][INFO ][o.o.t.i.IndexManagement  ] [fa1506990903] Candidate custom result indices are empty.
+opensearch-1              | [2026-07-02T04:09:48,622][INFO ][o.o.t.i.IndexManagement  ] [fa1506990903] Candidate custom result indices are empty.
+opensearch-1              | [2026-07-02T04:09:48,622][INFO ][o.o.t.c.ClusterEventListener] [fa1506990903] Cluster is not recovered yet.
+opensearch-1              | [2026-07-02T04:09:48,633][INFO ][o.o.i.i.ManagedIndexCoordinator] [fa1506990903] Cache cluster manager node onClusterManager time: 1782965388633
+opensearch-1              | [2026-07-02T04:09:48,639][WARN ][o.o.p.c.s.h.ConfigOverridesClusterSettingHandler] [fa1506990903] Config override setting update called with empty string. Ignoring.
+opensearch-1              | [2026-07-02T04:09:48,643][INFO ][o.o.d.PeerFinder         ] [fa1506990903] setting findPeersInterval to [1s] as node commission status = [true] for local node [{fa1506990903}{bmdbyHetSbGro9u4iBbnZw}{5WNdohoSQaajJUE6XQM_lg}{172.19.0.5}{172.19.0.5:9300}{dimr}{shard_indexing_pressure_enabled=true}]
+opensearch-1              | [2026-07-02T04:09:48,652][INFO ][o.o.h.AbstractHttpServerTransport] [fa1506990903] publish_address {172.19.0.5:9200}, bound_addresses {[::]:9200}
+opensearch-1              | [2026-07-02T04:09:48,652][INFO ][o.o.n.Node               ] [fa1506990903] started
+opensearch-1              | [2026-07-02T04:09:48,652][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Will attempt to create index .opendistro_security and default configs if they are absent
+opensearch-1              | [2026-07-02T04:09:48,653][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Background init thread started. Install default config?: true
+opensearch-1              | [2026-07-02T04:09:48,653][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Wait for cluster to be available ...
+opensearch-1              | [2026-07-02T04:09:48,654][INFO ][o.o.s.OpenSearchSecurityPlugin] [fa1506990903] 0 OpenSearch Security modules loaded so far: []
+opensearch-1              | [2026-07-02T04:09:48,694][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [cluster.search.request.slowlog.threshold.warn] from [-1] to [5s]
+opensearch-1              | [2026-07-02T04:09:48,694][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [cluster.search.request.slowlog.threshold.info] from [-1] to [2s]
+opensearch-1              | [2026-07-02T04:09:48,694][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [cluster.search.request.slowlog.threshold.debug] from [-1] to [1s]
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM             scheduled_tasks.py   91: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 4, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+opensearch-1              | [2026-07-02T04:09:48,695][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [cluster.search.request.slowlog.threshold.trace] from [-1] to [500ms]
+opensearch-1              | [2026-07-02T04:09:48,695][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [cluster.search.request.slowlog.level] from [TRACE] to [INFO]
+opensearch-1              | [2026-07-02T04:09:48,695][INFO ][o.o.c.s.ClusterSettings  ] [fa1506990903] updating [action.auto_create_index] from [true] to [false]
+opensearch-1              | [2026-07-02T04:09:48,702][INFO ][o.o.n.p.f.NormalizationProcessorFactory] [fa1506990903] Creating search phase results processor of type [normalization-processor] with normalization [ZScoreNormalizationTechnique(TECHNIQUE_NAME=z_score)] and combination [ArithmeticMeanScoreCombinationTechnique(TECHNIQUE_NAME=arithmetic_mean, weights=[0.5, 0.5])]
+opensearch-1              | [2026-07-02T04:09:48,704][INFO ][o.o.n.p.f.NormalizationProcessorFactory] [fa1506990903] Creating search phase results processor of type [normalization-processor] with normalization [MinMaxScoreNormalizationTechnique(TECHNIQUE_NAME=min_max)] and combination [ArithmeticMeanScoreCombinationTechnique(TECHNIQUE_NAME=arithmetic_mean, weights=[0.5, 0.5])]
+opensearch-1              | [2026-07-02T04:09:48,705][INFO ][o.o.t.c.HashRing         ] [fa1506990903] Node added: [bmdbyHetSbGro9u4iBbnZw]
+opensearch-1              | [2026-07-02T04:09:48,708][INFO ][o.o.t.c.HashRing         ] [fa1506990903] Add data node to version hash ring: bmdbyHetSbGro9u4iBbnZw
+opensearch-1              | [2026-07-02T04:09:48,710][INFO ][o.o.t.c.HashRing         ] [fa1506990903] All nodes with known version: {bmdbyHetSbGro9u4iBbnZw=ADNodeInfo{version=3.6.0, isEligibleDataNode=true}}
+opensearch-1              | [2026-07-02T04:09:48,710][INFO ][o.o.t.c.HashRing         ] [fa1506990903] Rebuild hash ring for realtime with cooldown, nodeChangeEvents size 0
+opensearch-1              | [2026-07-02T04:09:48,710][INFO ][o.o.t.c.HashRing         ] [fa1506990903] Build version hash ring successfully
+opensearch-1              | [2026-07-02T04:09:48,710][INFO ][o.o.t.c.ADDataMigrator   ] [fa1506990903] Start migrating AD data
+opensearch-1              | [2026-07-02T04:09:48,711][INFO ][o.o.t.c.ADDataMigrator   ] [fa1506990903] AD job index doesn't exist, no need to migrate
+opensearch-1              | [2026-07-02T04:09:48,711][INFO ][o.o.t.c.ClusterEventListener] [fa1506990903] Init version hash ring successfully
+opensearch-1              | [2026-07-02T04:09:48,724][INFO ][o.o.c.s.ClusterManagerTaskThrottler] [fa1506990903] Starting cluster manager throttling as all nodes are higher than or equal to 2.5.0
+opensearch-1              | [2026-07-02T04:09:48,726][INFO ][o.o.g.GatewayService     ] [fa1506990903] recovered [6] indices into cluster_state
+opensearch-1              | [2026-07-02T04:09:48,727][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loading builtin types!
+opensearch-1              | [2026-07-02T04:09:48,729][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [432] fieldMappingDocs from logTypes: 24
+opensearch-1              | [2026-07-02T04:09:48,755][WARN ][o.o.s.SecurityAnalyticsPlugin] [fa1506990903] Failed to initialize LogType config index and builtin log types
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                 docfetching.py   99: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 1, 'max_overflow': 8, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:39 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  246: Multiprocessing all start methods: ['fork', 'spawn', 'forkserver']
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  263: Multiprocessing selected start method: spawn
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+opensearch-1              | [2026-07-02T04:09:48,877][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index danswer_chunk_nomic_ai_nomic_embed_text_v1 from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:48,878][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index danswer_chunk_nomic_ai_nomic_embed_text_v1.
+opensearch-1              | [2026-07-02T04:09:48,878][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index danswer_chunk_nomic_ai_nomic_embed_text_v1 with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:48,896][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[danswer_chunk_nomic_ai_nomic_embed_text_v1/EO_cO_IbT8iwCqYfR1M-wQ]
+opensearch-1              | [2026-07-02T04:09:48,950][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index danswer_chunk_nomic_ai_nomic_embed_text_v1 from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:48,993][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index top_queries-2026.07.02-44477 from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:48,993][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index top_queries-2026.07.02-44477.
+opensearch-1              | [2026-07-02T04:09:48,993][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index top_queries-2026.07.02-44477 with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:48,994][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[top_queries-2026.07.02-44477/r7WGiMyoRiKyv9G9y8cAVA]
+opensearch-1              | [2026-07-02T04:09:48,996][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index top_queries-2026.07.02-44477 from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:49,000][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .plugins-ml-config from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:49,000][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index .plugins-ml-config.
+opensearch-1              | [2026-07-02T04:09:49,000][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index .plugins-ml-config with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:49,001][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[.plugins-ml-config/2Kw7MJUmRJazoSS527gwsQ]
+opensearch-1              | [2026-07-02T04:09:49,002][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .plugins-ml-config from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:49,006][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .opendistro_security from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:49,006][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index .opendistro_security.
+opensearch-1              | [2026-07-02T04:09:49,006][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index .opendistro_security with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:49,006][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[.opendistro_security/uYVwjQrFQjq1QWql32Xulg]
+opensearch-1              | [2026-07-02T04:09:49,008][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .opendistro_security from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:49,244][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,263][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,264][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,266][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,376][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .opensearch-sap-log-types-config from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:49,376][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index .opensearch-sap-log-types-config.
+opensearch-1              | [2026-07-02T04:09:49,377][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index .opensearch-sap-log-types-config with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:49,379][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[.opensearch-sap-log-types-config/DYN_sCnNRlKzYi2q7c7PEA]
+opensearch-1              | [2026-07-02T04:09:49,382][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index .opensearch-sap-log-types-config from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:49,390][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index security-auditlog-2026.07.02 from [false] to [true]
+opensearch-1              | [2026-07-02T04:09:49,390][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating maxThreadCount from [0] to [4] and maxMergeCount from [0] to [9] for index security-auditlog-2026.07.02.
+opensearch-1              | [2026-07-02T04:09:49,390][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Initialized index security-auditlog-2026.07.02 with maxMergeCount=9, maxThreadCount=4, autoThrottleEnabled=true
+opensearch-1              | [2026-07-02T04:09:49,391][INFO ][o.o.p.PluginsService     ] [fa1506990903] PluginService:onIndexModule index:[security-auditlog-2026.07.02/SnLOmkD_Tj-YZOBkVyuEsw]
+opensearch-1              | [2026-07-02T04:09:49,394][INFO ][o.o.i.MergeSchedulerConfig] [fa1506990903] Updating autoThrottle for index security-auditlog-2026.07.02 from [true] to [true]
+opensearch-1              | [2026-07-02T04:09:49,425][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,427][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,430][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,435][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,436][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,439][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,441][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,443][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,446][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                       setup.py   59: No tracing providers configured
+background-1              | /usr/local/lib/python3.13/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+opensearch-1              | [2026-07-02T04:09:49,449][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,451][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,453][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,490][INFO ][o.o.c.r.a.AllocationService] [fa1506990903] Cluster health status changed from [RED] to [YELLOW] (reason: [shards started [[security-auditlog-2026.07.02][0]]]).
+opensearch-1              | [2026-07-02T04:09:49,641][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loading builtin types!
+opensearch-1              | [2026-07-02T04:09:49,642][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [432] fieldMappingDocs from logTypes: 24
+opensearch-1              | [2026-07-02T04:09:49,653][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,657][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,658][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Index .opendistro_security already exists
+opensearch-1              | [2026-07-02T04:09:49,658][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Node started, try to initialize it. Wait for at least yellow cluster state....
+opensearch-1              | [2026-07-02T04:09:49,659][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,659][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loading builtin types!
+opensearch-1              | [2026-07-02T04:09:49,660][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [432] fieldMappingDocs from logTypes: 24
+opensearch-1              | [2026-07-02T04:09:49,661][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,662][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] info deleteOldIndices
+opensearch-1              | [2026-07-02T04:09:49,663][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'config' with /usr/share/opensearch/config/opensearch-security/config.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,664][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] No Old Correlation Indices to delete
+opensearch-1              | [2026-07-02T04:09:49,664][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] info deleteOldIndices
+opensearch-1              | [2026-07-02T04:09:49,665][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] No Old IOC Findings Indices to delete
+opensearch-1              | [2026-07-02T04:09:49,692][DEPRECATION][o.o.d.s.s.DeprecatedSettings] [fa1506990903] In OpenSearch 3.6.0 the setting 'transport_enabled' is deprecated, it should be removed from the relevant config file using the following location information: In AuthcDomain, using http_authenticator=HttpAuthenticator [challenge=true, type=null, config={}], authentication_backend=AuthcBackend [type=org.opensearch.security.auth.internal.InternalAuthenticationBackend, config={}]
+opensearch-1              | [2026-07-02T04:09:49,693][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,695][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,699][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,702][ERROR][o.o.s.a.BackendRegistry  ] [fa1506990903] OpenSearch Security not initialized. (you may need to run securityadmin)
+opensearch-1              | [2026-07-02T04:09:49,736][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id config, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,736][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'roles' with /usr/share/opensearch/config/opensearch-security/roles.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,750][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id roles, skipping update.
+background-1              | absolutely not recommended!
+background-1              | 
+background-1              | Please specify a different user using the --uid option.
+background-1              | 
+background-1              | User information: uid=0 euid=0 gid=0 egid=0
+background-1              | 
+background-1              |   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                     primary.py  117: worker_init signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 4, 'max_overflow': 4, 'pool_pre_ping': True, 'pool_recycle': 1200}
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  283: Redis: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  309: Redis: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  322: Database: Readiness probe starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                    app_base.py  350: Database: Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:42 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=0.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+opensearch-1              | [2026-07-02T04:09:49,750][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'rolesmapping' with /usr/share/opensearch/config/opensearch-security/roles_mapping.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,758][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id rolesmapping, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,758][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'internalusers' with /usr/share/opensearch/config/opensearch-security/internal_users.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,767][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id internalusers, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,767][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'actiongroups' with /usr/share/opensearch/config/opensearch-security/action_groups.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,771][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id actiongroups, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,771][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'tenants' with /usr/share/opensearch/config/opensearch-security/tenants.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,773][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id tenants, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,773][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'nodesdn' with /usr/share/opensearch/config/opensearch-security/nodes_dn.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=true
+opensearch-1              | [2026-07-02T04:09:49,775][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id nodesdn, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,775][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'allowlist' with /usr/share/opensearch/config/opensearch-security/allowlist.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=true
+opensearch-1              | [2026-07-02T04:09:49,777][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id allowlist, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,777][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Will update 'audit' with /usr/share/opensearch/config/opensearch-security/audit.yml and populate it with empty doc if file missing and populateEmptyIfFileMissing=false
+opensearch-1              | [2026-07-02T04:09:49,792][INFO ][o.o.s.s.ConfigHelper     ] [fa1506990903] Index .opendistro_security already contains doc with id audit, skipping update.
+opensearch-1              | [2026-07-02T04:09:49,794][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [431] fieldMappingDocs
+opensearch-1              | [2026-07-02T04:09:49,795][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [431] fieldMappingDocs
+opensearch-1              | [2026-07-02T04:09:49,956][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing on REST API is enabled.
+opensearch-1              | [2026-07-02T04:09:49,956][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] [AUTHENTICATED, GRANTED_PRIVILEGES] are excluded from REST API auditing.
+opensearch-1              | [2026-07-02T04:09:49,956][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing on Transport API is enabled.
+opensearch-1              | [2026-07-02T04:09:49,956][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] [AUTHENTICATED, GRANTED_PRIVILEGES] are excluded from Transport API auditing.
+opensearch-1              | [2026-07-02T04:09:49,956][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing of request body is enabled.
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Bulk requests resolution is disabled during request auditing.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py 1317: Starting SlackbotHandler
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  135: Initializing SlackbotHandler
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  150: Pod ID: ff2112619044
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  155: Signal handlers registered
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  158: Starting Prometheus metrics server
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  160: Prometheus metrics server started
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Index resolution is enabled during request auditing.
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Sensitive headers exclusion from auditing is enabled.
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing requests from kibanaserver users is disabled.
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing request headers <NONE> is disabled.
+opensearch-1              | [2026-07-02T04:09:49,957][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing request url params <NONE> is disabled.
+opensearch-1              | [2026-07-02T04:09:49,959][WARN ][o.o.s.a.r.AuditMessageRouter] [fa1506990903] No endpoint configured for categories [BAD_HEADERS, FAILED_LOGIN, MISSING_PRIVILEGES, GRANTED_PRIVILEGES, OPENDISTRO_SECURITY_INDEX_ATTEMPT, SSL_EXCEPTION, AUTHENTICATED, INDEX_EVENT, COMPLIANCE_DOC_READ, COMPLIANCE_DOC_WRITE, COMPLIANCE_EXTERNAL_CONFIG, COMPLIANCE_INTERNAL_CONFIG_READ, COMPLIANCE_INTERNAL_CONFIG_WRITE], using default endpoint
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing of external configuration is disabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing of internal configuration is enabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing only metadata information for read request is enabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing will watch {} for read requests.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing read operation requests from kibanaserver users is disabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing only metadata information for write request is enabled.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  163: Starting background threads
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                    listener.py  174: Background threads started
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                       setup.py   40: Braintrust API key not provided, skipping Braintrust setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                       setup.py   50: Langfuse credentials not provided, skipping Langfuse setup
+background-1              | [92mINFO[0m:     07/02/2026 04:09:41 AM                       setup.py   59: No tracing providers configured
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:43 AM                    app_base.py  369: Primary worker is not ready yet. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:44 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_beat entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_docfetching entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_docprocessing entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_heavy entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_light entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_monitoring entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_primary entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_scheduled_tasks entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: celery_worker_user_file_processing entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | 2026-07-02 04:09:45,225 INFO success: supervisord_watchdog_celery_beat entered RUNNING state, process has stayed up for > than 10 seconds (startsecs)
+background-1              | [92mINFO[0m:     07/02/2026 04:09:47 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=5.0 timeout=60.0
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:48 AM         beat.py:279 : celery.beat Scheduler: Sending due task monitor-celery-queues (monitor_celery_queues)
+background-1              | [92mINFO[0m:     07/02/2026 04:09:48 AM                    app_base.py  369: Primary worker is not ready yet. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.2 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:49 AM                      client.py 1660: [OpenSearch] Readiness probe ongoing. elapsed=10.0 timeout=60.0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                     primary.py  129: Running as the primary celery worker: pid=14
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                     primary.py  144: Redis INFO REPLICATION: role=master connected_slaves=0
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                     primary.py  151: Redis INFO MEMORY: maxmemory_policy=noeviction
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                     primary.py  171: Primary worker lock: Acquire starting.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                     primary.py  174: Primary worker lock: Acquire succeeded.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:52 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:52 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- primary@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:52
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.primary:0xf1fadc5b8ad0
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 4 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> celery           exchange=celery(direct) key=celery
+background-1              |                 
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:52 AM      primary.py:295 :  Scheduled periodic task with hub.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:52 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:52 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-indexing (check_for_indexing)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM       mingle.py:49  : celery.worker.consumer.mingle mingle: all alone
+background-1              | [92mINFO[0m:     07/02/2026 04:09:53 AM              metrics_server.py   86: Prometheus metrics server started on :9097 for primary
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9097 for primary
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:53 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_primary_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_primary_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM       worker.py:176 : celery.apps.worker primary@ff2112619044 ready.
+background-1              | [93mWARNING[0m:  WARNING  07/02/2026 04:09:53 AM        tasks.py:862 :  [check_for_indexing(c2ce0548-1385-4b65-9733-b9e2e9bb6f9e)] check_for_indexing - Starting
+background-1              | [92mINFO[0m:     07/02/2026 04:09:53 AM                       tasks.py  183: Validating active indexing attempts
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM        tasks.py:183 : onyx.utils.logger Validating active indexing attempts
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM        tasks.py:1188:  [check_for_indexing(c2ce0548-1385-4b65-9733-b9e2e9bb6f9e)] check_for_indexing finished: elapsed=0.04s primary=[evaluated=1 created=0 skipped_active=0 skipped_not_found=0 skipped_not_indexable=1 failed=0]
+background-1              | [92mINFO[0m:     07/02/2026 04:09:53 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:53 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing diffs for write requests is disabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing write operation requests from kibanaserver users is disabled.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Auditing will watch <NONE> for write requests.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] .opendistro_security is used as internal security index.
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.a.i.AuditLogImpl   ] [fa1506990903] Internal index used for posting audit logs is null
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Hot-reloading of audit configuration is enabled
+opensearch-1              | [2026-07-02T04:09:49,959][INFO ][o.o.s.c.ConfigurationRepository] [fa1506990903] Node 'fa1506990903' initialized
+opensearch-1              | [2026-07-02T04:09:50,090][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loaded [431] field mapping docs successfully!
+opensearch-1              | [2026-07-02T04:09:50,103][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loaded [431] field mapping docs successfully!
+opensearch-1              | [2026-07-02T04:09:50,112][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [23] customLogTypes
+opensearch-1              | [2026-07-02T04:09:50,123][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Indexing [23] customLogTypes
+opensearch-1              | [2026-07-02T04:09:50,173][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loaded [23] customLogType docs successfully!
+opensearch-1              | [2026-07-02T04:09:50,190][INFO ][o.o.s.l.LogTypeService   ] [fa1506990903] Loaded [23] customLogType docs successfully!
+opensearch-1              | [2026-07-02T04:09:50,248][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] info deleteOldIndices
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- monitoring@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:53
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.monitoring:0xfb1ce8465940
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 1 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> monitoring       exchange=monitoring(direct) key=monitoring
+background-1              |                 
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:53 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with heavy@ff2112619044
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with docfetching@ff2112619044
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with docprocessing@ff2112619044
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with scheduled_tasks@ff2112619044
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with user_file_processing@ff2112619044
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with light@ff2112619044
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=12
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- light@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.light:0xf897a95cda90
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+opensearch-1              | [2026-07-02T04:09:50,249][INFO ][o.o.s.i.DetectorIndexManagementService] [fa1506990903] No Old Finding Indices to delete
+opensearch-1              | [2026-07-02T04:09:58,640][INFO ][o.o.m.a.MLModelAutoReDeployer] [fa1506990903] Index not found, not performing auto reloading!
+opensearch-1              | [2026-07-02T04:09:58,641][INFO ][o.o.m.c.MLCommonsClusterManagerEventListener] [fa1506990903] Starting ML sync up job...
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 24 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> checkpoint_cleanup exchange=checkpoint_cleanup(direct) key=checkpoint_cleanup
+background-1              |                 .> connector_deletion exchange=connector_deletion(direct) key=connector_deletion
+background-1              |                 .> doc_permissions_upsert exchange=doc_permissions_upsert(direct) key=doc_permissions_upsert
+background-1              |                 .> index_attempt_cleanup exchange=index_attempt_cleanup(direct) key=index_attempt_cleanup
+background-1              |                 .> opensearch_migration exchange=opensearch_migration(direct) key=opensearch_migration
+background-1              |                 .> vespa_metadata_sync exchange=vespa_metadata_sync(direct) key=vespa_metadata_sync
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=11
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- heavy@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.heavy:0xf82c84dc4830
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 4 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> connector_doc_permissions_sync exchange=connector_doc_permissions_sync(direct) key=connector_doc_permissions_sync
+background-1              |                 .> connector_external_group_sync exchange=connector_external_group_sync(direct) key=connector_external_group_sync
+background-1              |                 .> connector_pruning exchange=connector_pruning(direct) key=connector_pruning
+background-1              |                 .> csv_generation   exchange=csv_generation(direct) key=csv_generation
+background-1              |                 .> sandbox          exchange=sandbox(direct) key=sandbox
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=10
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- docprocessing@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.docprocessing:0xf3395b6d0c20
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 6 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> docprocessing    exchange=docprocessing(direct) key=docprocessing
+background-1              |                 
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:49  : celery.worker.consumer.mingle mingle: all alone
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM              metrics_server.py   86: Prometheus metrics server started on :9096 for monitoring
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9096 for monitoring
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_monitoring_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_monitoring_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       worker.py:176 : celery.apps.worker monitoring@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM        tasks.py:963 :  [monitor_celery_queues(9c45237b-04d1-477b-bd86-70116fe59592)] Queue lengths: celery=0 docfetching=0 docfetching_prefetched=0 docprocessing=0 docprocessing_prefetched=0 user_file_processing=0 user_file_project_sync=0 user_file_delete=0 sync=0 deletion=0 pruning=0 permissions_sync=0 external_group_sync=0 permissions_upsert=0 hierarchy_fetching=0 llm_model_update=0 checkpoint_cleanup=0 index_attempt_cleanup=0 csv_generation=0 monitoring=0 sandbox=0 opensearch_migration=0 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM      control.py:375 : celery.worker.control sync with light@ff2112619044
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=16
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- user_file_processing@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.user_file_processing:0xfc99604aae40
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 2 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> user_file_delete exchange=user_file_delete(direct) key=user_file_delete
+background-1              |                 .> user_file_processing exchange=user_file_processing(direct) key=user_file_processing
+background-1              |                 .> user_file_project_sync exchange=user_file_project_sync(direct) key=user_file_project_sync
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=15
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- scheduled_tasks@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.scheduled_tasks:0xee9613d146e0
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 4 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> scheduled_tasks  exchange=scheduled_tasks(direct) key=scheduled_tasks
+background-1              |                 
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                      client.py 1650: [OpenSearch] Readiness probe succeeded. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  355: Running as a secondary celery worker: pid=9
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  363: Waiting for primary worker to be ready...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  381: Wait for primary worker completed successfully. Continuing...
+background-1              | [92mINFO[0m:     07/02/2026 04:09:54 AM                    app_base.py  529: Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM     app_base.py:529 : onyx.utils.logger Celery effective log level: INFO (source: LOG_LEVEL env var ('info'))
+background-1              |  
+background-1              |  -------------- docfetching@ff2112619044 v5.5.1 (immunity)
+background-1              | --- ***** ----- 
+background-1              | -- ******* ---- Linux-6.17.0-1021-nvidia-aarch64-with-glibc2.41 2026-07-02 04:09:54
+background-1              | - *** --- * --- 
+background-1              | - ** ---------- [config]
+background-1              | - ** ---------- .> app:         onyx.background.celery.apps.docfetching:0xf64cb328fe00
+background-1              | - ** ---------- .> transport:   redis://cache:6379/15
+background-1              | - ** ---------- .> results:     redis://cache:6379/14
+background-1              | - *** --- * --- .> concurrency: 1 (thread)
+background-1              | -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+background-1              | --- ***** ----- 
+background-1              |  -------------- [queues]
+background-1              |                 .> connector_doc_fetching exchange=connector_doc_fetching(direct) key=connector_doc_fetching
+background-1              |                 
+background-1              | 
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM   connection.py:22  : celery.worker.consumer.connection Connected to redis://cache:6379/15
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:54 AM       mingle.py:40  : celery.worker.consumer.mingle mingle: searching for neighbors
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 2 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM              metrics_server.py   86: Prometheus metrics server started on :9095 for light
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9095 for light
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_light_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_light_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker light@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 1 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM              metrics_server.py   86: Prometheus metrics server started on :9094 for heavy
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9094 for heavy
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_heavy_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_heavy_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker heavy@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 1 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM              metrics_server.py   86: Prometheus metrics server started on :9093 for docprocessing
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9093 for docprocessing
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_docprocessing_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_docprocessing_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker docprocessing@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 1 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_userfileprocessing_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_userfileprocessing_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker user_file_processing@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 1 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM              metrics_server.py   86: Prometheus metrics server started on :9098 for scheduled_tasks
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9098 for scheduled_tasks
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_scheduledtasks_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_scheduledtasks_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker scheduled_tasks@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:43  : celery.worker.consumer.mingle mingle: sync with 1 nodes
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       mingle.py:47  : celery.worker.consumer.mingle mingle: sync complete
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM              metrics_server.py   86: Prometheus metrics server started on :9092 for docfetching
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM metrics_server.py:86  : onyx.utils.logger Prometheus metrics server started on :9092 for docfetching
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:386 :  worker_ready signal received.
+background-1              | [92mINFO[0m:     07/02/2026 04:09:55 AM                    app_base.py  395: Readiness signal touched at /tmp/onyx_k8s_docfetching_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM     app_base.py:395 : onyx.utils.logger Readiness signal touched at /tmp/onyx_k8s_docfetching_readiness.txt.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:55 AM       worker.py:176 : celery.apps.worker docfetching@ff2112619044 ready.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-user-file-delete (check_for_user_file_delete)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-connector-deletion (check_for_connector_deletion_task)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-pruning (check_for_pruning)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-user-file-project-sync (check_for_user_file_project_sync)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-vespa-sync (check_for_vespa_sync_task)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task check-for-user-file-processing (check_for_user_file_processing)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM         beat.py:279 : celery.beat Scheduler: Sending due task monitor-celery-queues (monitor_celery_queues)
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:542 :  [check_for_user_file_delete(5f4bc12a-0e0e-4592-84c8-ff93e0d57b4d)] check_for_user_file_delete - Starting
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:748 :  [check_for_user_file_project_sync(bc4d0041-715d-4302-bb7b-397a84ddffe8)] Starting
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:225 :  [check_for_pruning(0ca1e6c3-23e5-4ba8-be17-4dcc54244f42)] Checking for pruning due
+background-1              | [92mINFO[0m:     07/02/2026 04:09:58 AM                       tasks.py  246: CC pair not due for pruning: 1
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:246 : onyx.utils.logger CC pair not due for pruning: 1
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:314 :  [check_for_pruning(0ca1e6c3-23e5-4ba8-be17-4dcc54244f42)] check_for_pruning finished: tenant=public
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:610 :  [check_for_user_file_delete(5f4bc12a-0e0e-4592-84c8-ff93e0d57b4d)] check_for_user_file_delete - Enqueued 0 tasks, skipped_guard=0 for tenant=public
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:802 :  [check_for_user_file_project_sync(bc4d0041-715d-4302-bb7b-397a84ddffe8)] Enqueued 0 Skipped guard 0 tasks for tenant=public
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:88  :  [check_for_vespa_sync_task(ce694acb-7ede-4ab0-8dd1-121cae15c807)] check_for_vespa_sync_task started
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:175 :  [check_for_user_file_processing(20a4eac6-92fe-4f6b-a434-0f52ca59f181)] check_user_file_processing - Starting
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:250 :  [check_for_user_file_processing(20a4eac6-92fe-4f6b-a434-0f52ca59f181)] check_user_file_processing - Enqueued 0 skipped_guard=0 tasks for tenant=public
+background-1              | [92mINFO[0m:     07/02/2026 04:09:58 AM               document_sync.py  151: No stale documents found. Skipping sync tasks generation.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM document_sync.py:151 : onyx.utils.logger No stale documents found. Skipping sync tasks generation.
+background-1              | [92mINFO[0m:     INFO     07/02/2026 04:09:58 AM        tasks.py:963 :  [monitor_celery_queues(809d6a09-d2be-443b-b59f-08a3345dbe53)] Queue lengths: celery=4 docfetching=0 docfetching_prefetched=0 docprocessing=0 docprocessing_prefetched=0 user_file_processing=0 user_file_project_sync=0 user_file_delete=0 sync=0 deletion=0 pruning=0 permissions_sync=0 external_group_sync=0 permissions_upsert=0 hierarchy_fetching=0 llm_model_update=0 checkpoint_cleanup=0 index_attempt_cleanup=0 csv_generation=0 monitoring=0 sandbox=0 opensearch_migration=0 
+api_server-1              | INFO  [env_py] run_migrations_online starting.
+api_server-1              | [92mINFO[0m:     07/02/2026 04:10:03 AM                  sql_engine.py  264: Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+api_server-1              | INFO  [onyx.utils.logger] Creating engine with kwargs: {'connect_args': {'keepalives': 1, 'keepalives_idle': 30, 'keepalives_interval': 10, 'keepalives_count': 5}, 'pool_size': 20, 'max_overflow': 5, 'pool_pre_ping': True, 'pool_recycle': 1200}
+api_server-1              | INFO  [env_py] Migrating specific schema names: ['public']
+api_server-1              | INFO  [env_py] Migrating schema: index=1 num_schemas=1 schema=public
+api_server-1              | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+api_server-1              | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+indexing_model_server-1   | [92mINFO[0m:     07/02/2026 04:10:04 AM                    h11_impl.py  481: [IDX:f0l3_the] 127.0.0.1:47058 - "GET /api/health HTTP/1.1" 200
+inference_model_server-1  | [92mINFO[0m:     07/02/2026 04:10:04 AM                    h11_impl.py  481: [INF:Lar0ScHw] 127.0.0.1:47070 - "GET /api/health HTTP/1.1" 200
+api_server-1              | Starting Onyx Api Server
+api_server-1              | [93mWARNING[0m:  07/02/2026 04:10:04 AM                 app_configs.py 1783: Object storage is using the well-known default 'minioadmin' credentials. Anyone who can reach the MinIO/S3 endpoint can read or modify stored files (uploaded documents, file-store objects). Set S3_AWS_ACCESS_KEY_ID / S3_AWS_SECRET_ACCESS_KEY (and MINIO_ROOT_USER / MINIO_ROOT_PASSWORD) to strong, unique values before deploying to production.
+api_server-1              | Traceback (most recent call last):
+api_server-1              |   File "/usr/local/bin/uvicorn", line 10, in <module>
+api_server-1              |     sys.exit(main())
+api_server-1              |              ~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1485, in __call__
+api_server-1              |     return self.main(*args, **kwargs)
+api_server-1              |            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1406, in main
+api_server-1              |     rv = self.invoke(ctx)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 1269, in invoke
+api_server-1              |     return ctx.invoke(self.callback, **ctx.params)
+api_server-1              |            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+api_server-1              |     return callback(*args, **kwargs)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 441, in main
+api_server-1              |     run(
+api_server-1              |     ~~~^
+api_server-1              |         app,
+api_server-1              |         ^^^^
+api_server-1              |     ...<48 lines>...
+api_server-1              |         reset_contextvars=reset_contextvars,
+api_server-1              |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |     )
+api_server-1              |     ^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/main.py", line 609, in run
+api_server-1              |     config.load_app()
+api_server-1              |     ~~~~~~~~~~~~~~~^^
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/config.py", line 415, in load_app
+api_server-1              |     return import_from_string(self.app)
+api_server-1              |   File "/usr/local/lib/python3.13/site-packages/uvicorn/importer.py", line 19, in import_from_string
+api_server-1              |     module = importlib.import_module(module_str)
+api_server-1              |   File "/usr/local/lib/python3.13/importlib/__init__.py", line 88, in import_module
+api_server-1              |     return _bootstrap._gcd_import(name[level:], package, level)
+api_server-1              |            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1395, in _gcd_import
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+api_server-1              |   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+api_server-1              |   File "<frozen importlib._bootstrap_external>", line 1023, in exec_module
+api_server-1              |   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+api_server-1              |   File "/app/onyx/main.py", line 119, in <module>
+api_server-1              |     from onyx.server.manage.analytics import router as analytics_router
+api_server-1              |   File "/app/onyx/server/manage/analytics.py", line 11, in <module>
+api_server-1              |     from sqlalchemy import select, func, and_, case, Date, desc, coalesce
+api_server-1              | ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+api_server-1              | CRITICAL: Exiting due to uncaught exception ImportError: cannot import name 'coalesce' from 'sqlalchemy' (/usr/local/lib/python3.13/site-packages/sqlalchemy/__init__.py)
+opensearch-1              | [2026-07-02T04:10:08,645][INFO ][o.o.m.e.i.MLIndicesHandler] [fa1506990903] Using initIndexWithoutThreadContext method to create index: .plugins-ml-config
+opensearch-1              | [2026-07-02T04:10:08,656][INFO ][o.o.m.c.MLSyncUpCron     ] [fa1506990903] ML configuration already initialized, no action needed
+

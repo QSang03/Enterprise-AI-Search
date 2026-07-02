@@ -36,34 +36,12 @@ import { SWR_KEYS } from "@/lib/swr-keys";
  * refreshGroups(); // Refresh the group list
  */
 export default function useGroups() {
-  const settings = useSettings();
-  const isPaidEnterpriseFeaturesEnabled =
-    !settings.isLoading && settings.enterprise !== null;
-
   const { data, error, isLoading } = useSWR<UserGroup[]>(
-    isPaidEnterpriseFeaturesEnabled ? SWR_KEYS.adminUserGroups : null,
+    SWR_KEYS.adminUserGroups,
     errorHandlingFetcher
   );
 
   const refreshGroups = () => mutate(SWR_KEYS.adminUserGroups);
-
-  if (settings.isLoading) {
-    return {
-      data: undefined,
-      isLoading: true,
-      error: undefined,
-      refreshGroups,
-    };
-  }
-
-  if (!isPaidEnterpriseFeaturesEnabled) {
-    return {
-      data: [],
-      isLoading: false,
-      error: undefined,
-      refreshGroups,
-    };
-  }
 
   return {
     data,

@@ -29,7 +29,6 @@ def load_env_vars(env_file: str = ".env") -> None:
                     key, value = line.split("=", 1)
                     # Preserve explicitly pre-set vars (e.g. INTEGRATION_TESTS_MODE).
                     os.environ.setdefault(key, value.strip())
-        print("Successfully loaded environment variables")
     except FileNotFoundError:
         print(f"File {env_file} not found")
 
@@ -209,6 +208,15 @@ def _start_celery_workers(
 
     processes: list[tuple[str, subprocess.Popen[bytes]]] = []
     log_handles: list[Any] = []
+
+    # When running integration tests from the host (not inside Docker),
+    # service names like "cache" and "relational_db" are not resolvable.
+    # Override them to localhost so Celery workers can connect to the
+    # Docker-exposed ports.
+    worker_env = os.environ.copy()
+    worker_env["REDIS_HOST"] = "localhost"
+    worker_env["POSTGRES_HOST"] = "localhost"
+
     for app_name, queues in _CELERY_WORKER_PROGRAMS:
         log_path = os.path.join(log_dir, f"celery_worker_{app_name}_debug.log")
         log_file = open(log_path, "ab")
@@ -228,6 +236,7 @@ def _start_celery_workers(
         proc = subprocess.Popen(
             cmd,
             cwd=BACKEND_DIR,
+            env=worker_env,
             stdout=log_file,
             stderr=subprocess.STDOUT,
             start_new_session=True,
@@ -250,6 +259,7 @@ def _start_celery_workers(
             "--loglevel=info",
         ],
         cwd=BACKEND_DIR,
+        env=worker_env,
         stdout=beat_log_file,
         stderr=subprocess.STDOUT,
         start_new_session=True,

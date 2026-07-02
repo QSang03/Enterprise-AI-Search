@@ -122,21 +122,21 @@ function buildItems(
   // 5. Permissions
   if (!isCurator) {
     add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.USERS);
-    addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS, Tier.BUSINESS);
+    add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS);
     addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.SCIM, Tier.ENTERPRISE);
-  } else if (tierAtLeast(tier, Tier.BUSINESS)) {
+  } else {
     add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS);
   }
 
   // 6. Usage (admin only)
   if (!isCurator) {
-    addGated(SECTIONS.USAGE, ADMIN_ROUTES.USAGE, Tier.BUSINESS);
-    addGated(SECTIONS.USAGE, ADMIN_ROUTES.TOKEN_RATE_LIMITS, Tier.ENTERPRISE);
+    add(SECTIONS.USAGE, ADMIN_ROUTES.USAGE);
+    add(SECTIONS.USAGE, ADMIN_ROUTES.TOKEN_RATE_LIMITS);
     if (
       settings?.query_history_type !== "disabled" &&
       !settings?.hide_query_history_from_admin_panel
     ) {
-      addGated(SECTIONS.USAGE, ADMIN_ROUTES.QUERY_HISTORY, Tier.BUSINESS);
+      add(SECTIONS.USAGE, ADMIN_ROUTES.QUERY_HISTORY);
     }
   }
 

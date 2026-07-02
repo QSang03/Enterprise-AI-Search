@@ -280,6 +280,8 @@ def insert_document_set(
             description=document_set_creation_request.description,
             user_id=user_id,
             is_public=document_set_creation_request.is_public,
+            is_department=document_set_creation_request.is_department,
+            is_master_store=document_set_creation_request.is_master_store,
             is_up_to_date=DISABLE_VECTOR_DB,
             time_last_modified_by_user=func.now(),
         )
@@ -321,6 +323,8 @@ def insert_document_set(
         )
 
         db_session.commit()
+        if new_document_set_row.is_department:
+            sync_department_connectors_to_master_store(db_session)
     except Exception as e:
         db_session.rollback()
         logger.error("Error creating document set: %s", e)
@@ -374,6 +378,8 @@ def update_document_set(
         if not DISABLE_VECTOR_DB:
             document_set_row.is_up_to_date = False
         document_set_row.is_public = document_set_update_request.is_public
+        document_set_row.is_department = document_set_update_request.is_department
+        document_set_row.is_master_store = document_set_update_request.is_master_store
         document_set_row.time_last_modified_by_user = func.now()
         versioned_private_doc_set_fn = fetch_versioned_implementation(
             "onyx.db.document_set", "make_doc_set_private"
@@ -420,6 +426,8 @@ def update_document_set(
             )
 
         db_session.commit()
+        if document_set_row.is_department:
+            sync_department_connectors_to_master_store(db_session)
     except Exception:
         db_session.rollback()
         raise
@@ -837,3 +845,72 @@ def check_document_sets_are_public(
     )
 
     return not not_public_exists
+
+
+def sync_department_connectors_to_master_store(
+    db_session: Session,
+) -> None:
+    # 1. Get or create Master Store document set
+    master_store = db_session.scalar(
+        select(DocumentSetDBModel).where(DocumentSetDBModel.is_master_store == True)
+    )
+    if not master_store:
+        # Create it if it doesn't exist yet
+        master_store = DocumentSetDBModel(
+            name="Kho Tổng",
+            description="Kho Tổng lưu trữ toàn bộ tài liệu của tất cả Kho Phòng Ban.",
+            is_public=True,
+            is_department=False,
+            is_master_store=True,
+            is_up_to_date=True,
+        )
+        db_session.add(master_store)
+        db_session.flush()
+
+    # 2. Get all CC pairs from all Department Document Sets
+    department_cc_pairs = db_session.scalars(
+        select(DocumentSet__ConnectorCredentialPair.connector_credential_pair_id)
+        .join(DocumentSetDBModel, DocumentSetDBModel.id == DocumentSet__ConnectorCredentialPair.document_set_id)
+        .where(
+            (DocumentSetDBModel.is_department == True)
+            & (DocumentSet__ConnectorCredentialPair.is_current == True)
+        )
+    ).all()
+    unique_cc_pair_ids = set(department_cc_pairs)
+
+    # 3. Get existing CC pairs of Master Store
+    existing_master_cc_pairs = db_session.scalars(
+        select(DocumentSet__ConnectorCredentialPair.connector_credential_pair_id)
+        .where(
+            (DocumentSet__ConnectorCredentialPair.document_set_id == master_store.id)
+            & (DocumentSet__ConnectorCredentialPair.is_current == True)
+        )
+    ).all()
+    existing_master_cc_pair_ids = set(existing_master_cc_pairs)
+
+    # 4. Determine additions and deletions
+    to_add = unique_cc_pair_ids - existing_master_cc_pair_ids
+    to_remove = existing_master_cc_pair_ids - unique_cc_pair_ids
+
+    if to_remove:
+        db_session.execute(
+            delete(DocumentSet__ConnectorCredentialPair).where(
+                (DocumentSet__ConnectorCredentialPair.document_set_id == master_store.id)
+                & (DocumentSet__ConnectorCredentialPair.connector_credential_pair_id.in_(to_remove))
+            )
+        )
+
+    if to_add:
+        for cc_id in to_add:
+            db_session.add(
+                DocumentSet__ConnectorCredentialPair(
+                    document_set_id=master_store.id,
+                    connector_credential_pair_id=cc_id,
+                    is_current=True,
+                )
+            )
+
+    if to_add or to_remove:
+        master_store.is_up_to_date = False
+        db_session.commit()
+

@@ -141,6 +141,7 @@ export interface SendMessageParams {
   // Used e.g. by Chrome extension "Read this tab" feature.
   additionalContext?: string;
   selectedDocIds?: string[];
+  departmentId?: number | null;
 }
 
 export async function* sendMessage({
@@ -160,6 +161,7 @@ export async function* sendMessage({
   origin,
   additionalContext,
   selectedDocIds,
+  departmentId,
 }: SendMessageParams): AsyncGenerator<PacketType, void, unknown> {
   // Build payload for new send-chat-message API
   const payload = {
@@ -185,6 +187,7 @@ export async function* sendMessage({
     // Default to "unknown" for consistency with backend; callers should set explicitly
     origin: origin ?? "unknown",
     additional_context: additionalContext ?? null,
+    department_id: departmentId ?? null,
   };
 
   const body = JSON.stringify(payload);

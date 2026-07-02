@@ -65,7 +65,7 @@ function Main() {
   const [tabIndex, setTabIndex] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  const enterpriseTier = useTierAtLeast(Tier.ENTERPRISE);
+  const enterpriseTier = true;
 
   const updateTable = (target_scope: Scope) => {
     if (target_scope === Scope.GLOBAL) {
