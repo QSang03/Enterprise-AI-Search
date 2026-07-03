@@ -7,7 +7,9 @@
     "adminPanel": "Trang quản trị",
     "newChat": "Cuộc trò chuyện mới",
     "close": "Đóng",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "notifications": "Thông báo",
+    "helpFaq": "Trợ giúp & FAQ"
   },
   "agentEditor": {
     "editAgent": "Chỉnh sửa trợ lý",
@@ -88,6 +90,10 @@
     "assistants": "Trợ lý",
     "recents": "Gần đây",
     "historyPlaceholder": "Hãy thử gửi tin nhắn! Lịch sử trò chuyện của bạn sẽ xuất hiện ở đây.",
+    "searchChats": "Tìm kiếm cuộc trò chuyện",
+    "exploreAgents": "Khám phá Trợ lý",
+    "moreAgents": "Trợ lý khác",
+    "curatorPanel": "Trang giám sát",
     "openSearchAria": "Mở tìm kiếm trò chuyện",
     "searchPlaceholder": "Tìm kiếm phiên trò chuyện, dự án...",
     "noResults": "Không tìm thấy kết quả nào",
@@ -594,7 +600,12 @@
       "validateSuccess": "Xác minh hook thành công.",
       "validateFailedStatus": "Xác minh thất bại: {status}",
       "validateFailed": "Không thể xác minh hook.",
-      "reconnectBtn": "Kết nối lại"
+      "reconnectBtn": "Kết nối lại",
+      "disconnectedStatus": "Mất kết nối",
+      "connectedStatus": "Đã kết nối",
+      "disconnectedSuffix": "(Đã ngắt kết nối)",
+      "enterpriseLicenseRequired": "Các tính năng mở rộng Hook yêu cầu giấy phép Enterprise.",
+      "hooksNotActivated": "Các tính năng mở rộng Hook chưa được kích hoạt cho bản triển khai này."
     },
     "chatPreferences": {
       "headerDescription": "Cấu hình và thiết lập chat mặc định cho toàn bộ tổ chức. Người dùng có thể ghi đè một số cấu hình này trong cài đặt cá nhân của họ.",
@@ -1448,7 +1459,10 @@
     "tag": "Thẻ",
     "filterTagsPlaceholder": "Lọc thẻ...",
     "failedSearch": "Tìm kiếm thất bại",
+    "failedSearchDetailed": "Tìm kiếm tài liệu thất bại. Vui lòng thử lại.",
+    "classificationFailed": "Phân loại truy vấn thất bại. Chuyển hướng sang chế độ trò chuyện.",
     "noResults": "Không tìm thấy kết quả",
-    "checkConnection": "Vui lòng kiểm tra lại kết nối/bộ lọc hoặc thử bằng một từ khóa tìm kiếm khác."
+    "checkConnection": "Vui lòng kiểm tra lại kết nối/bộ lọc hoặc thử bằng một từ khóa tìm kiếm khác.",
+    "resultsCount": "{count} kết quả"
   }
 }

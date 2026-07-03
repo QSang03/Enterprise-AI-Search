@@ -363,7 +363,7 @@ function ConnectedHookCard({
                     ? markdown(`~~${hook.name}~~`)
                     : hook.name
                 }
-                suffix={!hook.is_active ? "(Đã ngắt kết nối)" : undefined}
+                suffix={!hook.is_active ? t("admin.hooks.disconnectedSuffix") : undefined}
                 description={`Hook Point: ${
                   spec?.display_name ?? hook.hook_point
                 }`}
@@ -372,7 +372,7 @@ function ConnectedHookCard({
               {spec?.docs_url && (
                 <div className="ml-6">
                   <LinkButton href={spec.docs_url} target="_blank">
-                    Tài liệu hướng dẫn
+                    {t("admin.hooks.docsLink")}
                   </LinkButton>
                 </div>
               )}
@@ -515,13 +515,13 @@ export default function HooksPage() {
   useEffect(() => {
     if (settings.isLoading) return;
     if (!enterpriseTier) {
-      toast.info("Các tính năng mở rộng Hook yêu cầu giấy phép Enterprise.");
+      toast.info(t("admin.hooks.enterpriseLicenseRequired"));
       router.replace("/");
     } else if (!settings.hooks_enabled) {
-      toast.info("Các tính năng mở rộng Hook chưa được kích hoạt cho bản triển khai này.");
+      toast.info(t("admin.hooks.hooksNotActivated"));
       router.replace("/");
     }
-  }, [settings.isLoading, enterpriseTier, settings.hooks_enabled, router]);
+  }, [settings.isLoading, enterpriseTier, settings.hooks_enabled, router, t]);
 
   if (settings.isLoading || !enterpriseTier || !settings.hooks_enabled) {
     return <SvgSimpleLoader />;

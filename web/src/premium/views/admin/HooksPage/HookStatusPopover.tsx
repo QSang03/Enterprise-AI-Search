@@ -200,7 +200,9 @@ export default function HookStatusPopover({
             onClick={noProp(handleTriggerClick)}
             disabled={isBusy}
           >
-            {hook.is_reachable === false ? "Mất kết nối" : "Đã kết nối"}
+            {hook.is_reachable === false
+              ? t("admin.hooks.disconnectedStatus")
+              : t("admin.hooks.connectedStatus")}
           </Button>
         </Popover.Anchor>
 

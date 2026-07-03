@@ -317,7 +317,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           <div className="flex-1 flex flex-col justify-end gap-3">
             <Section alignItems="start">
               <Text text03 mainUiMuted>
-                {results.length} kết quả
+                {t("search.resultsCount", { count: results.length })}
               </Text>
             </Section>
 

@@ -13,6 +13,7 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { useIsSearchModeAvailable } from "@/lib/settings/hooks";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   QueryControllerContext,
   QueryControllerValue,
@@ -31,6 +32,7 @@ export function QueryControllerProvider({
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const searchUiEnabled = useIsSearchModeAvailable();
   const { user } = useUser();
+  const { t } = useTranslation();
 
   // ── Merged query state (discriminated union) ──────────────────────────
   const [state, setState] = useState<QueryState>({
@@ -123,12 +125,12 @@ export function QueryControllerProvider({
           throw err;
         }
 
-        setError("Tìm kiếm tài liệu thất bại. Vui lòng thử lại.");
+        setError(t("search.failedSearchDetailed"));
         setSearchResults([]);
         setLlmSelectedDocIds(null);
       }
     },
-    []
+    [t]
   );
 
   /**
@@ -156,11 +158,11 @@ export function QueryControllerProvider({
           throw error;
         }
 
-        setError("Phân loại truy vấn thất bại. Chuyển hướng sang chế độ trò chuyện.");
+        setError(t("search.classificationFailed"));
         return "chat";
       }
     },
-    []
+    [t]
   );
 
   /**

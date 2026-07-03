@@ -7,7 +7,9 @@
     "adminPanel": "Admin Panel",
     "newChat": "New Chat",
     "close": "Close",
-    "language": "Language"
+    "language": "Language",
+    "notifications": "Notifications",
+    "helpFaq": "Help & FAQ"
   },
   "agentEditor": {
     "editAgent": "Edit Agent",
@@ -88,6 +90,10 @@
     "assistants": "Assistants",
     "recents": "Recents",
     "historyPlaceholder": "Try sending a message! Your chat history will appear here.",
+    "searchChats": "Search Chats",
+    "exploreAgents": "Explore Agents",
+    "moreAgents": "More Agents",
+    "curatorPanel": "Curator Panel",
     "openSearchAria": "Open chat search",
     "searchPlaceholder": "Search chat sessions, projects...",
     "noResults": "No results found",
@@ -594,7 +600,12 @@
       "validateSuccess": "Hook validation succeeded.",
       "validateFailedStatus": "Validation failed: {status}",
       "validateFailed": "Could not validate hook.",
-      "reconnectBtn": "Reconnect"
+      "reconnectBtn": "Reconnect",
+      "disconnectedStatus": "Disconnected",
+      "connectedStatus": "Connected",
+      "disconnectedSuffix": "(Disconnected)",
+      "enterpriseLicenseRequired": "Extension Hook features require an Enterprise license.",
+      "hooksNotActivated": "Extension Hook features are not activated for this deployment."
     },
     "chatPreferences": {
       "headerDescription": "Organization-wide chat settings and defaults. Users can override some of these in their personal settings.",
@@ -1448,7 +1459,10 @@
     "tag": "Tags",
     "filterTagsPlaceholder": "Filter tags...",
     "failedSearch": "Search Failed",
+    "failedSearchDetailed": "Failed to search documents. Please try again.",
+    "classificationFailed": "Failed to classify query. Redirecting to chat mode.",
     "noResults": "No results found",
-    "checkConnection": "Please check your connection/filters or try a different search query."
+    "checkConnection": "Please check your connection/filters or try a different search query.",
+    "resultsCount": "{count} {count, plural, =1 {result} other {results}}"
   }
 }

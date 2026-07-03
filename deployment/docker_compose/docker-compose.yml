@@ -85,6 +85,7 @@ services:
       # Onyx Craft configuration (disabled by default, set ENABLE_CRAFT=true in .env to enable)
       # Use --include-craft with install script, or manually set in .env file
       - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+      - DOCUMENT_INTELLIGENCE_URL=${DOCUMENT_INTELLIGENCE_URL:-http://document_intelligence:8090/parse}
     # PRODUCTION: Uncomment the line below to use if IAM_AUTH is true and you are using iam auth for postgres
     # volumes:
     #   - ./bundle.pem:/app/bundle.pem:ro
@@ -161,6 +162,7 @@ services:
       - API_SERVER_HOST=${API_SERVER_HOST:-api_server}
       # Onyx Craft configuration (set up automatically on container startup)
       - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+      - DOCUMENT_INTELLIGENCE_URL=${DOCUMENT_INTELLIGENCE_URL:-http://document_intelligence:8090/parse}
     # PRODUCTION: Uncomment the line below to use if IAM_AUTH is true and you are using iam auth for postgres
     # volumes:
     #   - ./bundle.pem:/app/bundle.pem:ro
@@ -361,6 +363,41 @@ services:
       # Generous start_period to absorb HuggingFace model downloads on first
       # boot. Healthy is reported as soon as /api/health responds.
       start_period: 600s
+
+  document_intelligence:
+    image: onyx-document-intelligence:latest
+    build:
+      context: ../../tools/document_intelligence_service
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    # ports:
+    #   - "8090:8090"
+    environment:
+      - USE_GPU=True
+      - PORT=8090
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8090/openapi.json')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   relational_db:
     image: ${BASE_IMAGE_REGISTRY:-docker.io}/library/postgres:15.2-alpine

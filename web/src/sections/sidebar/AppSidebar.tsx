@@ -529,12 +529,12 @@ const AppSidebar = memo(function AppSidebarInner() {
       <ChatSearchCommandMenu
         trigger={
           <SidebarTab icon={SvgSearchMenu} folded={folded}>
-            {language === "en" ? "Search Chats" : "Tìm kiếm cuộc trò chuyện"}
+            {t("sidebar.searchChats")}
           </SidebarTab>
         }
       />
     ),
-    [folded]
+    [folded, t]
   );
   const moreAgentsButton = useMemo(
     () => (
@@ -551,12 +551,12 @@ const AppSidebar = memo(function AppSidebarInner() {
           variant={folded ? "sidebar-heavy" : "sidebar-light"}
         >
           {visibleAgents.length === 0
-            ? (language === "en" ? "Explore Agents" : "Khám phá Trợ lý")
-            : (language === "en" ? "More Agents" : "Trợ lý khác")}
+            ? t("sidebar.exploreAgents")
+            : t("sidebar.moreAgents")}
         </SidebarTab>
       </div>
     ),
-    [folded, activeSidebarTab, visibleAgents]
+    [folded, activeSidebarTab, visibleAgents, t]
   );
   const newProjectButton = useMemo(
     () => (
@@ -591,7 +591,7 @@ const AppSidebar = memo(function AppSidebarInner() {
           >
             {isAdmin 
               ? t("common.adminPanel") 
-              : (language === "en" ? "Curator Panel" : "Trang giám sát")}
+              : t("sidebar.curatorPanel")}
           </SidebarTab>
         )}
         <AccountPopover

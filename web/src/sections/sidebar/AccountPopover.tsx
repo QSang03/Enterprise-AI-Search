@@ -114,7 +114,7 @@ function SettingsPopover({
           variant="section"
           rounding="sm"
           icon={SvgBell}
-          title={t("common.settings") === "Settings" ? "Notifications" : "Thông báo"}
+          title={t("common.notifications")}
           onClick={onOpenNotifications}
           rightChildren={
             undismissedCount ? (
@@ -128,7 +128,7 @@ function SettingsPopover({
           variant="section"
           rounding="sm"
           icon={SvgHelpCircle}
-          title={t("common.settings") === "Settings" ? "Help & FAQ" : "Trợ giúp & FAQ"}
+          title={t("common.helpFaq")}
           href="https://docs.onyx.app"
           target="_blank"
         />,

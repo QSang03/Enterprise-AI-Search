@@ -29,6 +29,7 @@ from onyx.file_processing.extract_file_text import get_file_ext
 from onyx.file_processing.file_types import OnyxFileExtensions
 from onyx.file_processing.image_utils import store_image_and_create_section
 from onyx.file_store.file_store import get_default_file_store
+from onyx.document_intelligence.client import is_document_intelligence_enabled
 from onyx.utils.logger import setup_logger
 
 logger = setup_logger()
@@ -116,15 +117,49 @@ def _process_file(
     doc_id = onyx_metadata.document_id or f"FILE_CONNECTOR__{file_id}"
     title = metadata.get("title") or file_display_name
 
-    # 1) If the file itself is an image, handle that scenario quickly
+    # 1) If the file itself is an image, handle that scenario
     if extension in OnyxFileExtensions.IMAGE_EXTENSIONS:
-        # Read the image data
         image_data = file.read()
         if not image_data:
             logger.warning("Empty image file: %s", file_name)
             return []
 
-        # Create an ImageSection for the image
+        sections_img: list[TextSection | ImageSection] = []
+        additional_info_img: dict[str, Any] | None = None
+
+        # Try OCR via document intelligence service first
+        if is_document_intelligence_enabled():
+            try:
+                from onyx.document_intelligence.client import DocumentIntelligenceClient
+                from io import BytesIO
+
+                di_client = DocumentIntelligenceClient()
+                result = di_client.parse_file(
+                    BytesIO(image_data), file_name, parser_mode="accurate"
+                )
+                if result.text_content.strip():
+                    sections_img.append(
+                        TextSection(link=link, text=result.text_content.strip())
+                    )
+                ocr_pages = result.metadata.get("ocr_pages", [])
+                if ocr_pages:
+                    additional_info_img = {"ocr_pages": ocr_pages}
+                    if result.layout_blocks:
+                        additional_info_img["layout_blocks"] = result.layout_blocks
+                logger.info(
+                    "OCR completed for image %s: %d chars, %d ocr pages",
+                    file_name,
+                    len(result.text_content),
+                    len(ocr_pages),
+                )
+            except Exception as e:
+                logger.warning(
+                    "Document intelligence OCR failed for %s, falling back to ImageSection only: %s",
+                    file_name,
+                    e,
+                )
+
+        # Always store the image itself as an ImageSection
         try:
             section, _ = _create_image_section(
                 image_data=image_data,
@@ -132,23 +167,26 @@ def _process_file(
                 display_name=title,
                 media_type=file_type,
             )
-
-            return [
-                Document(
-                    id=doc_id,
-                    sections=[section],
-                    source=source_type,
-                    semantic_identifier=file_display_name,
-                    title=title,
-                    doc_updated_at=time_updated,
-                    primary_owners=primary_owners,
-                    secondary_owners=secondary_owners,
-                    metadata=custom_tags,
-                )
-            ]
+            sections_img.append(section)
         except Exception as e:
-            logger.error("Failed to process image file %s: %s", file_name, e)
-            return []
+            logger.error("Failed to create ImageSection for %s: %s", file_name, e)
+            if not sections_img:
+                return []
+
+        return [
+            Document(
+                id=doc_id,
+                sections=sections_img,
+                source=source_type,
+                semantic_identifier=file_display_name,
+                title=title,
+                doc_updated_at=time_updated,
+                primary_owners=primary_owners,
+                secondary_owners=secondary_owners,
+                metadata=custom_tags,
+                additional_info=additional_info_img,
+            )
+        ]
 
     # 2) Otherwise: text-based approach. Possibly with embedded images.
     file.seek(0)
@@ -257,10 +295,15 @@ def _process_file(
                 "Failed to process embedded image %s in %s: %s", idx, file_name, e
             )
 
-    additional_info_data = None
-    if extraction_result.metadata and "__layout_blocks__" in extraction_result.metadata:
-        layout_blocks = extraction_result.metadata.pop("__layout_blocks__")
-        additional_info_data = {"layout_blocks": layout_blocks}
+    additional_info_data = {}
+    if extraction_result.metadata:
+        if "__layout_blocks__" in extraction_result.metadata:
+            additional_info_data["layout_blocks"] = extraction_result.metadata.get("__layout_blocks__")
+        if "ocr_pages" in extraction_result.metadata:
+            additional_info_data["ocr_pages"] = extraction_result.metadata.get("ocr_pages")
+    
+    if not additional_info_data:
+        additional_info_data = None
 
     return [
         Document(

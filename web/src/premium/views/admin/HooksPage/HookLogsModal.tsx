@@ -42,6 +42,7 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 function LogRow({ log, group }: { log: HookExecutionRecord; group: string }) {
+  const { t } = useTranslation();
   return (
     <Hoverable.Root group={group}>
       <Section
@@ -61,7 +62,7 @@ function LogRow({ log, group }: { log: HookExecutionRecord; group: string }) {
         {/* 2. Error message */}
         <span className="flex-1 min-w-0 break-all whitespace-pre-wrap text-code-code">
           <Text font="secondary-mono" color="inherit">
-            {log.error_message ?? "Lỗi không xác định"}
+            {log.error_message ?? t("admin.hooks.unknownError")}
           </Text>
         </span>
         {/* 3. Copy button */}
