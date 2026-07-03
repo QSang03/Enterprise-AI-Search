@@ -48,6 +48,7 @@ from onyx.llm.constants import LlmProviderNames
 from onyx.llm.well_known_providers.llm_provider_options import get_openai_model_names
 from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
 from onyx.natural_language_processing.search_nlp_models import warm_up_bi_encoder
+from onyx.natural_language_processing.search_nlp_models import warm_up_cross_encoder
 from onyx.server.manage.llm.models import LLMProviderUpsertRequest
 from onyx.server.manage.llm.models import ModelConfigurationUpsertRequest
 from onyx.server.settings.store import load_settings
@@ -156,7 +157,20 @@ def setup_onyx(
                 non_blocking=INTEGRATION_TESTS_MODE,
             )
 
-        # update multipass indexing setting based on GPU availability
+        # Warm up local reranker if configured
+        if (
+            search_settings.rerank_model_name
+            and search_settings.rerank_provider_type is None
+            and search_settings.rerank_enabled
+        ):
+            logger.notice(
+                'Using Reranking model: "%s"', search_settings.rerank_model_name
+            )
+            warm_up_cross_encoder(
+                rerank_model_name=search_settings.rerank_model_name,
+                non_blocking=INTEGRATION_TESTS_MODE,
+            )
+
         update_default_multipass_indexing(db_session)
 
 

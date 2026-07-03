@@ -171,6 +171,51 @@ export const CLOUD_BASED_PROVIDERS: EmbeddingProvider[] = [
 
 export const SELF_HOSTED_PROVIDERS: EmbeddingProvider[] = [
   {
+    providerName: EmbeddingProviderName.QWEN,
+    displayName: "Qwen (Alibaba)",
+    icon: SvgHardDrive,
+    docsLink: "https://huggingface.co/Qwen",
+    embeddingModels: [
+      {
+        modelName: "Qwen/Qwen3-Embedding-0.6B",
+        modelDim: 1024,
+        normalize: true,
+        queryPrefix:
+          "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        passagePrefix: "",
+        description:
+          "Qwen3 multilingual embedding model, 0.6B params. Strong support for Vietnamese and 100+ languages. Default model.",
+      },
+      {
+        modelName: "Qwen/Qwen3-Embedding-4B",
+        modelDim: 2560,
+        normalize: true,
+        queryPrefix:
+          "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
+        passagePrefix: "",
+        description:
+          "Larger Qwen3 embedding for higher quality retrieval. Requires more VRAM (~8GB).",
+      },
+    ],
+  },
+  {
+    providerName: EmbeddingProviderName.BAAI,
+    displayName: "BAAI (BGE)",
+    icon: SvgHardDrive,
+    docsLink: "https://huggingface.co/BAAI",
+    embeddingModels: [
+      {
+        modelName: "BAAI/bge-m3",
+        modelDim: 1024,
+        normalize: true,
+        queryPrefix: "",
+        passagePrefix: "",
+        description:
+          "BGE-M3: multilingual, multi-granularity embedding. Excellent for Vietnamese. Production-safe baseline.",
+      },
+    ],
+  },
+  {
     providerName: EmbeddingProviderName.NOMIC,
     displayName: "Nomic",
     icon: SvgNomic,
@@ -434,10 +479,32 @@ export interface RerankerProviderInfo {
 
 export const RERANKER_PROVIDERS: RerankerProviderInfo[] = [
   {
+    providerName: "local-qwen",
+    displayName: "Local/Self-hosted (Qwen3)",
+    description: "Run Qwen3-Reranker locally on the Onyx model server. Multilingual, excellent for Vietnamese.",
+    models: [
+      {
+        modelName: "Qwen/Qwen3-Reranker-0.6B",
+        displayName: "Qwen3 Reranker 0.6B",
+        description: "Lightweight multilingual reranker (0.6B). Strong for Vietnamese. Default reranker.",
+      },
+      {
+        modelName: "Qwen/Qwen3-Reranker-4B",
+        displayName: "Qwen3 Reranker 4B",
+        description: "Higher quality reranker, more VRAM required (~8GB).",
+      },
+    ],
+  },
+  {
     providerName: "local",
     displayName: "Local/Self-hosted (BGE)",
     description: "Run cross-encoder models locally on the Onyx model server.",
     models: [
+      {
+        modelName: "BAAI/bge-reranker-v2-m3",
+        displayName: "BGE Reranker v2-M3",
+        description: "Multilingual reranker, pairs with bge-m3 embedding. Production-safe baseline.",
+      },
       {
         modelName: "BAAI/bge-reranker-large",
         displayName: "BGE Reranker Large",

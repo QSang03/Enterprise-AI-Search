@@ -336,24 +336,24 @@ function AzureProviderModal({
     >
       <ModalShell provider={provider} isEditing={isEditing}>
         <ApiUrlField
-          title="Target URL"
+          title={t("admin.indexSettings.targetUrl")}
           placeholder="https://your_resource_name.openai.azure.com/openai/v1/embeddings"
         />
         <ApiKeyField provider={provider} />
         <TextField
           name="apiVersion"
-          title="API Version"
-          placeholder="e.g., 2023-05-15"
-          subDescription="The Azure OpenAI API version your deployment targets."
+          title={t("admin.indexSettings.apiVersion")}
+          placeholder={t("admin.indexSettings.apiVersionPlaceholder")}
+          subDescription={t("admin.indexSettings.apiVersionDesc")}
         />
         <TextField
           name="deploymentName"
-          title="Deployment Name"
-          placeholder="my-embedding-deployment"
-          subDescription="The deployment name you configured for this embedding model in Azure."
+          title={t("admin.indexSettings.deploymentName")}
+          placeholder={t("admin.indexSettings.deploymentNamePlaceholder")}
+          subDescription={t("admin.indexSettings.deploymentNameDesc")}
         />
 
-        <ModelSpecFields modelNameSubDescription="A label for this model in Onyx. Azure routes requests by deployment name, so this only needs to be a unique identifier." />
+        <ModelSpecFields modelNameSubDescription={t("admin.indexSettings.modelSpecDescAzure")} />
       </ModalShell>
     </Formik>
   );

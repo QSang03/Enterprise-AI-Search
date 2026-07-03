@@ -193,7 +193,7 @@ WARM_UP_STRINGS = [
 
 
 def clean_model_name(model_str: str) -> str:
-    return model_str.replace("/", "_").replace("-", "_").replace(".", "_")
+    return model_str.lower().replace("/", "_").replace("-", "_").replace(".", "_")
 
 
 def build_model_server_url(
@@ -1413,7 +1413,6 @@ def warm_up_bi_encoder(
         retry_encode(texts=[warm_up_str], text_type=EmbedTextType.QUERY)
 
 
-# No longer used
 def warm_up_cross_encoder(
     rerank_model_name: str,
     non_blocking: bool = False,

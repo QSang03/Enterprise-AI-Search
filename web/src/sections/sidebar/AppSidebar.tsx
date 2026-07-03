@@ -121,6 +121,7 @@ function RecentsSection({
   isLoadingMore,
   onLoadMore,
 }: RecentsSectionProps) {
+  const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({
     id: DRAG_TYPES.RECENTS,
     data: {
@@ -163,10 +164,10 @@ function RecentsSection({
         isOver && "bg-background-tint-03"
       )}
     >
-      <SidebarLayouts.Section title="Recents">
+      <SidebarLayouts.Section title={t("sidebar.recents")}>
         {chatSessions.length === 0 ? (
           <Text as="p" text01 className="px-3">
-            Try sending a message! Your chat history will appear here.
+            {t("sidebar.historyPlaceholder")}
           </Text>
         ) : (
           <>

@@ -132,6 +132,23 @@ _BASE_EMBEDDING_MODELS = [
         dim=384,
         index_name="danswer_chunk_intfloat_multilingual_e5_small",
     ),
+    # Qwen3 embedding models
+    _BaseEmbeddingModel(
+        name="Qwen/Qwen3-Embedding-0.6B",
+        dim=1024,
+        index_name="danswer_chunk_qwen_qwen3_embedding_0_6b",
+    ),
+    _BaseEmbeddingModel(
+        name="Qwen/Qwen3-Embedding-4B",
+        dim=2560,
+        index_name="danswer_chunk_qwen_qwen3_embedding_4b",
+    ),
+    # BGE-M3 multilingual embedding
+    _BaseEmbeddingModel(
+        name="BAAI/bge-m3",
+        dim=1024,
+        index_name="danswer_chunk_baai_bge_m3",
+    ),
 ]
 
 # Automatically generate both FLOAT and BFLOAT16 versions of all models

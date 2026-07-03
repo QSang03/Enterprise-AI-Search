@@ -13,8 +13,10 @@ import { cn } from "@opal/utils";
 import { SvgCheckCircle, SvgEdit, SvgUser, SvgX } from "@opal/icons";
 import { ContentAction } from "@opal/layouts";
 import { Hoverable } from "@opal/core";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function NonAdminStep() {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const { user, refreshUser } = useUser();
   const [name, setName] = useState("");
@@ -46,7 +48,7 @@ export default function NonAdminStep() {
         // refreshUser() is called in handleDismissConfirmation instead.
       })
       .catch((error) => {
-        toast.error("Failed to save name. Please try again.");
+        toast.error(t("onboarding.nameSaveFailed"));
         console.error(error);
       });
   };
@@ -70,7 +72,7 @@ export default function NonAdminStep() {
                 {...props}
               />
             )}
-            title="You're all set!"
+            title={t("onboarding.nameSavedSet")}
             sizePreset="main-ui"
             variant="body"
             color="muted"
@@ -95,8 +97,8 @@ export default function NonAdminStep() {
         >
           <ContentAction
             icon={SvgUser}
-            title="What should Onyx call you?"
-            description="We will display this name in the app."
+            title={t("onboarding.namePrompt")}
+            description={t("onboarding.nameDesc")}
             sizePreset="main-ui"
             variant="section"
             padding="fit"
@@ -104,7 +106,7 @@ export default function NonAdminStep() {
               <div className="flex items-center justify-end gap-2">
                 <InputTypeIn
                   ref={inputRef}
-                  placeholder="Your name"
+                  placeholder={t("onboarding.namePlaceholder")}
                   value={name || ""}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setName(e.target.value)
@@ -117,7 +119,7 @@ export default function NonAdminStep() {
                   }}
                 />
                 <Button disabled={name === ""} onClick={handleSave}>
-                  Save
+                  {t("onboarding.nameSave")}
                 </Button>
               </div>
             }
@@ -127,7 +129,7 @@ export default function NonAdminStep() {
         <Hoverable.Root group="nonAdminName" width="full">
           <div
             className={containerClasses}
-            aria-label="Edit display name"
+            aria-label={t("onboarding.nameEditAria")}
             role="button"
             tabIndex={0}
             onClick={() => {
@@ -153,7 +155,7 @@ export default function NonAdminStep() {
             <div className="p-1 flex items-center gap-1">
               {/* TODO(@raunakab): migrate to opal Button once className/iconClassName is resolved */}
               <Hoverable.Item group="nonAdminName" variant="appear-on-hover">
-                <IconButton internal icon={SvgEdit} tooltip="Edit" />
+                <IconButton internal icon={SvgEdit} tooltip={t("onboarding.nameEdit")} />
               </Hoverable.Item>
               <SvgCheckCircle className="w-4 h-4 stroke-status-success-05" />
             </div>

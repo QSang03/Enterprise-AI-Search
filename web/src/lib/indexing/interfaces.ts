@@ -16,6 +16,8 @@ export enum EmbeddingProviderName {
   // Self-hosted
   NOMIC = "nomic",
   MICROSOFT = "microsoft",
+  QWEN = "qwen",
+  BAAI = "baai",
 
   // Custom self-hosted (frontend-only sentinel; backend stores provider_type=null)
   CUSTOM = "custom",

@@ -231,15 +231,16 @@ function PATModal({
   onCreate,
   createdToken,
 }: PATModalProps) {
+  const { t } = useTranslation();
   if (createdToken?.token) {
     return (
       <Modal open onOpenChange={(open) => !open && onClose()}>
         <Modal.Content width="sm" height="sm">
           <Modal.Header
-            title="Access Token"
+            title={t("settings.patModalAccessTokenTitle")}
             icon={SvgKey}
             onClose={onClose}
-            description="Save this token before continuing. It won't be shown again."
+            description={t("settings.patModalAccessTokenDesc")}
           />
           <Modal.Body>
             <Code showCopyButton={false}>{createdToken.token}</Code>
@@ -251,7 +252,7 @@ function PATModal({
                   getCopyText={() => createdToken.token}
                   prominence="primary"
                 >
-                  Copy Token
+                  {t("settings.patModalCopyToken")}
                 </CopyButton>
               }
             />
@@ -264,8 +265,8 @@ function PATModal({
   return (
     <ConfirmationModalLayout
       icon={SvgKey}
-      title="Create Access Token"
-      description="All API requests using this token will inherit your access permissions and be attributed to you as an individual."
+      title={t("settings.patModalCreateTitle")}
+      description={t("settings.patModalCreateDesc")}
       onClose={onClose}
       submit={
         <Button
@@ -276,14 +277,14 @@ function PATModal({
           }
           onClick={onCreate}
         >
-          {isCreating ? "Creating Token..." : "Create Token"}
+          {isCreating ? t("settings.patModalCreatingToken") : t("settings.patModalCreateToken")}
         </Button>
       }
     >
       <Section gap={1}>
-        <InputVertical title="Token Name" withLabel>
+        <InputVertical title={t("settings.patModalTokenName")} withLabel>
           <InputTypeIn
-            placeholder="Name your token"
+            placeholder={t("settings.patModalTokenNamePlaceholder")}
             value={newTokenName}
             onChange={(e) => setNewTokenName(e.target.value)}
             variant={isCreating ? "disabled" : undefined}
@@ -291,7 +292,7 @@ function PATModal({
           />
         </InputVertical>
         <InputVertical
-          title="Expires in"
+          title={t("settings.patModalExpiresIn")}
           subDescription={
             expirationDays === "null"
               ? undefined
@@ -301,10 +302,12 @@ function PATModal({
                     expiryDate.getUTCDate() + parseInt(expirationDays)
                   );
                   expiryDate.setUTCHours(23, 59, 59, 999);
-                  return `This token will expire at: ${expiryDate
-                    .toISOString()
-                    .replace("T", " ")
-                    .replace(".999Z", " UTC")}`;
+                  return t("settings.patModalExpiryPreview", {
+                    expiry: expiryDate
+                      .toISOString()
+                      .replace("T", " ")
+                      .replace(".999Z", " UTC"),
+                  });
                 })()
           }
           withLabel
@@ -314,21 +317,21 @@ function PATModal({
             onValueChange={setExpirationDays}
             disabled={isCreating}
           >
-            <InputSelect.Trigger placeholder="Select expiration" />
+            <InputSelect.Trigger placeholder={t("settings.patModalSelectExpiration")} />
             <InputSelect.Content>
-              <InputSelect.Item value="7">7 days</InputSelect.Item>
-              <InputSelect.Item value="30">30 days</InputSelect.Item>
-              <InputSelect.Item value="365">365 days</InputSelect.Item>
-              <InputSelect.Item value="null">No expiration</InputSelect.Item>
+              <InputSelect.Item value="7">{t("settings.patModalDays7")}</InputSelect.Item>
+              <InputSelect.Item value="30">{t("settings.patModalDays30")}</InputSelect.Item>
+              <InputSelect.Item value="365">{t("settings.patModalDays365")}</InputSelect.Item>
+              <InputSelect.Item value="null">{t("settings.patModalNoExpiration")}</InputSelect.Item>
             </InputSelect.Content>
           </InputSelect>
         </InputVertical>
         <InputVertical
-          title="Permissions"
+          title={t("settings.patModalPermissions")}
           subDescription={
             accessMode === "full"
-              ? "Inherits all of your permissions."
-              : "Limit this token to specific capabilities."
+              ? t("settings.patModalPermissionsDescFull")
+              : t("settings.patModalPermissionsDescLimited")
           }
           withLabel
         >
@@ -337,11 +340,11 @@ function PATModal({
             onValueChange={(value) => setAccessMode(value as AccessMode)}
             disabled={isCreating}
           >
-            <InputSelect.Trigger placeholder="Select permissions" />
+            <InputSelect.Trigger placeholder={t("settings.patModalSelectPermissions")} />
             <InputSelect.Content>
-              <InputSelect.Item value="full">Full access</InputSelect.Item>
+              <InputSelect.Item value="full">{t("settings.patModalFullAccess")}</InputSelect.Item>
               <InputSelect.Item value="limited">
-                Limited access
+                {t("settings.patModalLimitedAccess")}
               </InputSelect.Item>
             </InputSelect.Content>
           </InputSelect>

@@ -7,8 +7,8 @@ from urllib.parse import urlparse
 SLACK_CHANNEL_ID = "channel_id"
 
 # Skip model warmup at startup
-# Default to True (skip warmup) if not set, otherwise respect the value
-SKIP_WARM_UP = os.environ.get("SKIP_WARM_UP", "true").lower() == "true"
+# Default to False (run warmup) unless explicitly disabled
+SKIP_WARM_UP = os.environ.get("SKIP_WARM_UP", "false").lower() == "true"
 
 # Check if model server is disabled
 DISABLE_MODEL_SERVER = os.environ.get("DISABLE_MODEL_SERVER", "").lower() == "true"

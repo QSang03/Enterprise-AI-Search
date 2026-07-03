@@ -136,7 +136,7 @@ function ProjectChatItem({
           sizePreset="main-ui"
           rounding="sm"
           icon={SvgFolderIn}
-          title="Move to Project"
+          title={t("chat.moveToProject")}
           onClick={noProp(() => setShowMoveOptions(true))}
         />,
         <LineItemButton
@@ -144,7 +144,7 @@ function ProjectChatItem({
           sizePreset="main-ui"
           rounding="sm"
           icon={SvgFolder}
-          title={`Remove from ${projects.find((p) => p.id === projectId)?.name ?? "Project"}`}
+          title={t("chat.removeFromProject", { projectName: projects.find((p) => p.id === projectId)?.name ?? "Project" })}
           onClick={noProp(handleRemoveFromProject)}
         />,
         null,
@@ -154,7 +154,7 @@ function ProjectChatItem({
           rounding="sm"
           color="danger"
           icon={SvgTrash}
-          title="Delete"
+          title={t("chat.delete")}
           onClick={noProp(() => setIsDeleteModalOpen(true))}
         />,
       ];
@@ -193,17 +193,16 @@ function ProjectChatItem({
     <>
       {isDeleteModalOpen && (
         <ConfirmationModalLayout
-          title="Delete Chat"
+          title={t("chat.deleteChatTitle")}
           icon={SvgTrash}
           onClose={() => setIsDeleteModalOpen(false)}
           submit={
             <Button variant="danger" onClick={handleConfirmDelete}>
-              Delete
+              {t("chat.delete")}
             </Button>
           }
         >
-          Are you sure you want to delete this chat? This action cannot be
-          undone.
+          {t("chat.deleteChatConfirm")}
         </ConfirmationModalLayout>
       )}
 
@@ -235,7 +234,7 @@ function ProjectChatItem({
           icon={icon}
           title={chat.name || t("common.newChat")}
           description={
-            lastUpdateTime ? `Last message ${lastUpdateTime}` : undefined
+            lastUpdateTime ? t("chat.lastMessage", { time: lastUpdateTime }) : undefined
           }
           sizePreset="main-ui"
           interaction={popoverOpen ? "active" : undefined}
@@ -274,6 +273,7 @@ function ProjectChatItem({
 }
 
 export default function ProjectChatSessionList() {
+  const { t } = useTranslation();
   const {
     currentProjectDetails,
     currentProjectId,
@@ -297,7 +297,7 @@ export default function ProjectChatSessionList() {
       <div>
         <div className="px-3 py-2">
           <Text as="p" font="secondary-body" color="text-02">
-            Recent Chats
+            {t("chat.recentChats")}
           </Text>
         </div>
 
@@ -307,7 +307,7 @@ export default function ProjectChatSessionList() {
           <Card rounding="md" border="dashed" background="none" padding="sm">
             <div className="p-1">
               <Text as="p" font="secondary-body" color="text-02">
-                No chats yet.
+                {t("chat.noChatsYet")}
               </Text>
             </div>
           </Card>

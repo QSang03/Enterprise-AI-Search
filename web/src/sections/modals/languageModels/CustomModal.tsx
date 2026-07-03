@@ -32,6 +32,7 @@ import { Button, Card, EmptyMessageCard } from "@opal/components";
 import { SvgMinusCircle, SvgPlusCircle } from "@opal/icons";
 import { markdown } from "@opal/utils";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
 import {
   Content,
@@ -65,15 +66,16 @@ function ModelConfigurationItem({
   onRemove,
   canRemove,
 }: ModelConfigurationItemProps) {
+  const { t } = useTranslation();
   return (
     <>
       <InputTypeIn
-        placeholder="Model name"
+        placeholder={t("admin.languageModels.modelName")}
         value={model.name}
         onChange={(e) => onChange({ ...model, name: e.target.value })}
       />
       <InputTypeIn
-        placeholder="Display name"
+        placeholder={t("admin.languageModels.modelDisplayName")}
         value={model.display_name}
         onChange={(e) => onChange({ ...model, display_name: e.target.value })}
       />
@@ -83,14 +85,14 @@ function ModelConfigurationItem({
           onChange({ ...model, supports_image_input: value === "text-image" })
         }
       >
-        <InputSelect.Trigger placeholder="Input type" />
+        <InputSelect.Trigger placeholder={t("admin.languageModels.modelInputType")} />
         <InputSelect.Content>
-          <InputSelect.Item value="text-only">Text Only</InputSelect.Item>
-          <InputSelect.Item value="text-image">Text & Image</InputSelect.Item>
+          <InputSelect.Item value="text-only">{t("admin.languageModels.modelTextOnly")}</InputSelect.Item>
+          <InputSelect.Item value="text-image">{t("admin.languageModels.modelTextAndImage")}</InputSelect.Item>
         </InputSelect.Content>
       </InputSelect>
       <InputTypeIn
-        placeholder="Default"
+        placeholder={t("admin.languageModels.modelDefault")}
         value={model.max_input_tokens?.toString() ?? ""}
         onChange={(e) =>
           onChange({
@@ -112,6 +114,7 @@ function ModelConfigurationItem({
 }
 
 function ModelConfigurationList() {
+  const { t } = useTranslation();
   const formikProps = useFormikContext<{
     model_configurations: CustomModelConfiguration[];
   }>();
@@ -147,11 +150,11 @@ function ModelConfigurationList() {
       {models.length > 0 ? (
         <div className={`grid items-center gap-1 ${MODEL_GRID_COLS}`}>
           <div className="pb-1">
-            <Text mainUiAction>Model Name</Text>
+            <Text mainUiAction>{t("admin.languageModels.modelName")}</Text>
           </div>
-          <Text mainUiAction>Display Name</Text>
-          <Text mainUiAction>Input Type</Text>
-          <Text mainUiAction>Max Tokens</Text>
+          <Text mainUiAction>{t("admin.languageModels.modelDisplayName")}</Text>
+          <Text mainUiAction>{t("admin.languageModels.modelInputType")}</Text>
+          <Text mainUiAction>{t("admin.languageModels.modelDefault")}</Text>
           <div aria-hidden />
 
           {models.map((model, index) => (
@@ -165,7 +168,7 @@ function ModelConfigurationList() {
           ))}
         </div>
       ) : (
-        <EmptyMessageCard title="No models added yet." padding="sm" />
+        <EmptyMessageCard title={t("admin.languageModels.noModelsAdded")} padding="sm" />
       )}
 
       <Button
@@ -174,13 +177,14 @@ function ModelConfigurationList() {
         onClick={handleAdd}
         type="button"
       >
-        Add Model
+        {t("admin.languageModels.addModel")}
       </Button>
     </div>
   );
 }
 
 function CustomConfigKeyValue() {
+  const { t } = useTranslation();
   const formikProps = useFormikContext<{ custom_config_list: KeyValue[] }>();
   return (
     <KeyValueInput
@@ -189,7 +193,7 @@ function CustomConfigKeyValue() {
       onChange={(items) =>
         formikProps.setFieldValue("custom_config_list", items)
       }
-      addButtonLabel="Add Line"
+      addButtonLabel={t("admin.languageModels.addLine")}
     />
   );
 }

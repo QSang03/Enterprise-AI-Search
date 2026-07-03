@@ -16,6 +16,7 @@ import type {
 } from "@/lib/languageModels/types";
 import { Checkbox } from "@opal/components";
 import InputTypeInField from "@/refresh-components/form/InputTypeInField";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { InputTypeIn } from "@opal/components";
 import InputComboBox from "@/refresh-components/inputs/InputComboBox";
 import InputSelect from "@/refresh-components/inputs/InputSelect";
@@ -63,17 +64,18 @@ export interface DisplayNameFieldProps {
 }
 
 export function DisplayNameField({ disabled }: DisplayNameFieldProps = {}) {
+  const { t } = useTranslation();
   return (
     <InputPadder>
       <InputVertical
         withLabel="name"
-        title="Display Name"
-        suffix="optional"
-        subDescription="Used to identify this provider in the app."
+        title={t("admin.languageModels.displayName")}
+        suffix={t("admin.languageModels.displayNameOptional")}
+        subDescription={t("admin.languageModels.displayNameDesc")}
       >
         <InputTypeInField
           name="name"
-          placeholder="Display Name"
+          placeholder={t("admin.languageModels.displayName")}
           variant={disabled ? "disabled" : undefined}
         />
       </InputVertical>
@@ -96,19 +98,20 @@ export function APIKeyField({
   providerName,
   subDescription,
 }: APIKeyFieldProps) {
+  const { t } = useTranslation();
   return (
     <InputPadder>
       <InputVertical
         withLabel={name}
-        title="API Key"
+        title={t("admin.languageModels.apiKey")}
         subDescription={
           subDescription
             ? subDescription
             : providerName
-              ? `Paste your API key from ${providerName} to access your models.`
-              : "Paste your API key to access your models."
+              ? t("admin.languageModels.apiKeyDescProvider", { providerName })
+              : t("admin.languageModels.apiKeyDesc")
         }
-        suffix={optional ? "optional" : undefined}
+        suffix={optional ? t("admin.languageModels.displayNameOptional") : undefined}
       >
         <PasswordInputTypeInField name={name} />
       </InputVertical>
@@ -136,13 +139,18 @@ export function APIBaseField({
   subDescription,
   placeholder = "https://",
 }: APIBaseFieldProps) {
+  const { t } = useTranslation();
   return (
     <InputPadder>
       <InputVertical
         withLabel="api_base"
-        title="API Base URL"
-        subDescription={subDescription}
-        suffix={optional ? "optional" : undefined}
+        title={t("admin.languageModels.apiBase")}
+        subDescription={
+          subDescription
+            ? subDescription
+            : t("admin.languageModels.apiBaseDesc")
+        }
+        suffix={optional ? t("admin.languageModels.displayNameOptional") : undefined}
       >
         <InputTypeInField name="api_base" placeholder={placeholder} />
       </InputVertical>
