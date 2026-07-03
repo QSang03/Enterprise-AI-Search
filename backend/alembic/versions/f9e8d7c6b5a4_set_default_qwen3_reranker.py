@@ -17,7 +17,7 @@ depends_on: None = None
 
 def upgrade() -> None:
     # Set Qwen3-Reranker-0.6B as the default local reranker for any existing
-    # PRESENT search_settings rows that have no reranker configured yet.
+    # search_settings rows that have no reranker configured yet.
     op.execute(
         """
         UPDATE search_settings
@@ -25,8 +25,7 @@ def upgrade() -> None:
             rerank_model_name = 'Qwen/Qwen3-Reranker-0.6B',
             rerank_enabled    = true
         WHERE
-            status            = 'PRESENT'
-            AND rerank_model_name IS NULL
+            rerank_model_name IS NULL
         """
     )
 
@@ -39,7 +38,6 @@ def downgrade() -> None:
             rerank_model_name = NULL,
             rerank_enabled    = false
         WHERE
-            status            = 'PRESENT'
-            AND rerank_model_name = 'Qwen/Qwen3-Reranker-0.6B'
+            rerank_model_name = 'Qwen/Qwen3-Reranker-0.6B'
         """
     )
