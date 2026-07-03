@@ -243,7 +243,7 @@ def list_accepted_users(
         )
 
     user_ids = [user.id for user in filtered_accepted_users]
-    groups_by_user = batch_get_user_groups(db_session, user_ids)
+    groups_by_user = batch_get_user_groups(db_session, user_ids, include_default=True)
 
     # Batch-fetch SCIM mappings to mark synced users
     scim_synced_ids: set[UUID] = set()
@@ -289,7 +289,7 @@ def list_all_accepted_users(
         return []
 
     user_ids = [user.id for user in users]
-    groups_by_user = batch_get_user_groups(db_session, user_ids)
+    groups_by_user = batch_get_user_groups(db_session, user_ids, include_default=True)
 
     # Batch-fetch SCIM mappings to mark synced users
     scim_synced_ids: set[UUID] = set()
@@ -363,7 +363,7 @@ def list_all_users(
     accepted_users = [user for user in users if user.account_type != AccountType.BOT]
 
     user_ids = [user.id for user in users]
-    groups_by_user = batch_get_user_groups(db_session, user_ids)
+    groups_by_user = batch_get_user_groups(db_session, user_ids, include_default=True)
 
     accepted_emails = {user.email for user in accepted_users}
     slack_users_emails = {user.email for user in slack_users}
