@@ -25,6 +25,7 @@ import type {
   HookResponse,
 } from "@/premium/views/admin/HooksPage/interfaces";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function ErrorLogRow({
   log,
@@ -33,6 +34,7 @@ function ErrorLogRow({
   log: { created_at: string; error_message: string | null };
   group: string;
 }) {
+  const { t } = useTranslation();
   return (
     <Hoverable.Root group={group}>
       <Section
@@ -61,7 +63,7 @@ function ErrorLogRow({
         </Section>
         <span className="break-all">
           <Text font="secondary-mono" color="text-03">
-            {log.error_message ?? "Lỗi không xác định"}
+            {log.error_message ?? t("admin.hooks.unknownError")}
           </Text>
         </span>
       </Section>
@@ -80,6 +82,7 @@ export default function HookStatusPopover({
   spec,
   isBusy,
 }: HookStatusPopoverProps) {
+  const { t } = useTranslation();
   const logsModal = useCreateModal();
   const [open, setOpen] = useState(false);
   // true = opened by click (stays until dismissed); false = opened by hover (closes after 1s)
@@ -230,7 +233,7 @@ export default function HookStatusPopover({
               </Section>
             ) : error ? (
               <Text font="secondary-body" color="text-03">
-                Không thể tải lịch sử lỗi.
+                {t("admin.hooks.errorHistoryLoadFailed")}
               </Text>
             ) : hook.is_reachable === false ? (
               <>
@@ -244,7 +247,7 @@ export default function HookStatusPopover({
                         className="text-status-error-05"
                       />
                     )}
-                    title="Lỗi gần đây nhất"
+                    title={t("admin.hooks.mostRecentError")}
                   />
                 </div>
 
@@ -281,7 +284,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  Xem thêm dòng
+                  {t("admin.hooks.viewMoreLines")}
                 </LineItem>
               </>
             ) : hasRecentErrors ? (
@@ -298,10 +301,10 @@ export default function HookStatusPopover({
                     )}
                     title={
                       recentErrors.length <= 3
-                        ? `${recentErrors.length} lỗi`
-                        : "Lỗi gần đây nhất"
+                        ? t("admin.hooks.errorsCount", { count: recentErrors.length })
+                        : t("admin.hooks.mostRecentError")
                     }
-                    description="trong giờ qua"
+                    description={t("admin.hooks.inPastHour")}
                   />
                 </div>
 
@@ -334,7 +337,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  Xem thêm dòng
+                  {t("admin.hooks.viewMoreLines")}
                 </LineItem>
               </>
             ) : (
@@ -345,8 +348,8 @@ export default function HookStatusPopover({
                     sizePreset="secondary"
                     variant="section"
                     icon={SvgCheckCircle}
-                    title="Không có lỗi"
-                    description="trong giờ qua"
+                    title={t("admin.hooks.noErrors")}
+                    description={t("admin.hooks.inPastHour")}
                   />
                 </div>
 
@@ -361,7 +364,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  Xem các lỗi cũ hơn
+                  {t("admin.hooks.viewOlderErrors")}
                 </LineItem>
               </>
             )}

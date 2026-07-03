@@ -170,6 +170,7 @@ export function ModelAccessField() {
   const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
   const { data: usersData } = useUsers({ includeApiKeys: false });
   const businessTier = useTierAtLeast(Tier.BUSINESS);
+  const { t } = useTranslation();
 
   const adminCount =
     usersData?.accepted.filter((u) => u.role === UserRole.ADMIN).length ?? 0;
@@ -184,14 +185,14 @@ export function ModelAccessField() {
       ? userGroups.map((g) => ({
           value: `${GROUP_PREFIX}${g.id}`,
           label: g.name,
-          description: "Group",
+          description: t("admin.languageModels.groupLabel"),
         }))
       : [];
 
   const agentOptions = agents.map((a) => ({
     value: `${AGENT_PREFIX}${a.id}`,
     label: a.name,
-    description: "Agent",
+    description: t("admin.languageModels.agentLabel"),
   }));
 
   // Exclude already-selected items from the dropdown
@@ -251,20 +252,20 @@ export function ModelAccessField() {
       <InputPadder>
         <InputHorizontal
           withLabel="is_public"
-          title="Models Access"
-          description="Who can access this provider."
+          title={t("admin.languageModels.modelsAccess")}
+          description={t("admin.languageModels.modelsAccessDesc")}
         >
           <InputSelect
             value={isPublic ? "public" : "private"}
             onValueChange={handleAccessChange}
           >
-            <InputSelect.Trigger placeholder="Select access level" />
+            <InputSelect.Trigger placeholder={t("admin.languageModels.selectAccessLevel")} />
             <InputSelect.Content>
               <InputSelect.Item value="public" icon={SvgOrganization}>
-                All Users & Agents
+                {t("admin.languageModels.allUsersAndAgents")}
               </InputSelect.Item>
               <InputSelect.Item value="private" icon={SvgUsers}>
-                Named Groups & Agents
+                {t("admin.languageModels.namedGroupsAndAgents")}
               </InputSelect.Item>
             </InputSelect.Content>
           </InputSelect>
@@ -275,7 +276,7 @@ export function ModelAccessField() {
         <Card background="light" border="none" padding="sm">
           <Section gap={0.5}>
             <InputComboBox
-              placeholder="Add groups and agents"
+              placeholder={t("admin.languageModels.addGroupsAndAgents")}
               value=""
               onChange={() => {}}
               onValueChange={handleSelect}
@@ -287,15 +288,15 @@ export function ModelAccessField() {
             <Card background="heavy" border="none" padding="sm">
               <ContentAction
                 icon={SvgUserManage}
-                title="Admin"
+                title={t("admin.languageModels.admin")}
                 description={`${adminCount} ${
-                  adminCount === 1 ? "member" : "members"
+                  adminCount === 1 ? t("admin.languageModels.member") : t("admin.languageModels.members")
                 }`}
                 sizePreset="main-ui"
                 variant="section"
                 rightChildren={
                   <Text secondaryBody text03>
-                    Always shared
+                    {t("admin.languageModels.alwaysShared")}
                   </Text>
                 }
                 padding="fit"
@@ -311,9 +312,9 @@ export function ModelAccessField() {
                       <Card background="heavy" border="none" padding="sm">
                         <ContentAction
                           icon={SvgUsers}
-                          title={group?.name ?? `Group ${id}`}
+                          title={group?.name ?? `${t("admin.languageModels.groupLabel")} ${id}`}
                           description={`${memberCount} ${
-                            memberCount === 1 ? "member" : "members"
+                            memberCount === 1 ? t("admin.languageModels.member") : t("admin.languageModels.members")
                           }`}
                           sizePreset="main-ui"
                           variant="section"
@@ -350,8 +351,8 @@ export function ModelAccessField() {
                               ? () => <AgentAvatar agent={agent} size={20} />
                               : SvgSparkle
                           }
-                          title={agent?.name ?? `Agent ${id}`}
-                          description="Agent"
+                          title={agent?.name ?? `${t("admin.languageModels.agentLabel")} ${id}`}
+                          description={t("admin.languageModels.agentLabel")}
                           sizePreset="main-ui"
                           variant="section"
                           rightChildren={
@@ -374,8 +375,8 @@ export function ModelAccessField() {
               <div className="w-full p-2">
                 <Content
                   icon={SvgOnyxOctagon}
-                  title="No agents added"
-                  description="This provider will not be used by any agents."
+                  title={t("admin.languageModels.noAgentsAdded")}
+                  description={t("admin.languageModels.noAgentsAddedDesc")}
                   variant="section"
                   sizePreset="main-ui"
                 />
@@ -587,6 +588,7 @@ export function ModelSelectionField({
   const formikProps = useFormikContext<BaseLLMFormValues>();
   const [newModelName, setNewModelName] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
+  const { t } = useTranslation();
   // When the auto-update toggle is hidden, auto mode should have no effect —
   // otherwise models can't be deselected and "Select All" stays disabled.
   const isAutoMode =
@@ -654,8 +656,8 @@ export function ModelSelectionField({
     <Card background="light" border="none" padding="sm">
       <Section gap={0.5}>
         <InputHorizontal
-          title="Models"
-          description="Select models to make available for this provider."
+          title={t("admin.languageModels.models")}
+          description={t("admin.languageModels.modelsDesc")}
           center
         >
           <Section flexDirection="row" gap={0}>
@@ -665,14 +667,14 @@ export function ModelSelectionField({
               size="md"
               onClick={handleToggleSelectAll}
             >
-              {allSelected ? "Deselect All" : "Select All"}
+              {allSelected ? t("admin.languageModels.deselectAll") : t("admin.languageModels.selectAll")}
             </Button>
             {onRefetch && <RefetchButton onRefetch={onRefetch} />}
           </Section>
         </InputHorizontal>
 
         {models.length === 0 ? (
-          <EmptyMessageCard title="No models available." padding="sm" />
+          <EmptyMessageCard title={t("admin.languageModels.noModelsAvailable")} padding="sm" />
         ) : (
           <Section gap={0.25} alignItems="stretch">
             {(() => {
@@ -713,7 +715,7 @@ export function ModelSelectionField({
                         <Content
                           sizePreset="secondary"
                           variant="body"
-                          title={isExpanded ? "Fold Models" : "More Models"}
+                          title={isExpanded ? t("admin.languageModels.foldModels") : t("admin.languageModels.moreModels")}
                           icon={() => (
                             <SvgChevronDown
                               className={cn(
@@ -737,7 +739,7 @@ export function ModelSelectionField({
           <Section flexDirection="row" gap={0.5}>
             <div className="flex-1">
               <InputTypeIn
-                placeholder="Enter model name"
+                placeholder={t("admin.languageModels.enterModelName")}
                 value={newModelName}
                 onChange={(e) => setNewModelName(e.target.value)}
                 onKeyDown={(e) => {
@@ -768,15 +770,15 @@ export function ModelSelectionField({
                 }
               }}
             >
-              Add Model
+              {t("admin.languageModels.addModel")}
             </Button>
           </Section>
         )}
 
         {shouldShowAutoUpdateToggle && (
           <InputHorizontal
-            title="Auto Update"
-            description="Update the available models when new models are released."
+            title={t("admin.languageModels.autoUpdate")}
+            description={t("admin.languageModels.autoUpdateDesc")}
             withLabel
           >
             <Switch
@@ -854,6 +856,7 @@ function ModalWrapperInner({
 }: ModalWrapperInnerProps) {
   const { isValid, dirty, isSubmitting, status, setFieldValue, values } =
     useFormikContext<BaseLLMFormValues>();
+  const { t } = useTranslation();
 
   // When SWR resolves after mount, populate model_configurations if still
   // empty. test_model_name is then derived automatically by
@@ -874,9 +877,9 @@ function ModalWrapperInner({
   const disabledTooltip = busy
     ? undefined
     : !isValid
-      ? "Please fill in all required fields."
+      ? t("admin.languageModels.fillRequiredFields")
       : !dirty
-        ? "No changes to save."
+        ? t("admin.languageModels.noChangesToSave")
         : undefined;
 
   const {
@@ -886,11 +889,14 @@ function ModalWrapperInner({
   } = getProvider(providerName);
 
   const title = llmProvider
-    ? markdown(`Configure *${llmProvider.name ?? providerProductName}*`)
-    : `Set up ${providerProductName}`;
+    ? markdown(t("admin.languageModels.configureTitle", { name: llmProvider.name ?? providerProductName }))
+    : t("admin.languageModels.setUpTitle", { name: providerProductName });
   const description =
     descriptionOverride ??
-    `Connect to ${providerDisplayName} and set up your ${providerProductName} models.`;
+    t("admin.languageModels.connectDescription", {
+      provider: providerDisplayName,
+      product: providerProductName,
+    });
 
   return (
     <Modal open onOpenChange={onClose}>
@@ -909,7 +915,7 @@ function ModalWrapperInner({
           </Modal.Body>
           <Modal.Footer>
             <Button prominence="secondary" onClick={onClose} type="button">
-              Cancel
+              {t("admin.languageModels.cancel")}
             </Button>
             <Button
               disabled={!isValid || !dirty || busy}
@@ -917,7 +923,7 @@ function ModalWrapperInner({
               icon={busy ? SvgSimpleLoader : undefined}
               tooltip={disabledTooltip}
             >
-              {llmProvider ? "Update" : "Connect"}
+              {llmProvider ? t("admin.languageModels.update") : t("admin.languageModels.connect")}
             </Button>
           </Modal.Footer>
         </Form>

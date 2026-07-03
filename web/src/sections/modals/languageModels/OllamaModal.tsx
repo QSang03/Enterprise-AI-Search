@@ -33,6 +33,7 @@ import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
 import InputTypeInField from "@/refresh-components/form/InputTypeInField";
 import { useSettings } from "@/lib/settings/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 const CLOUD_API_BASE = "https://ollama.com";
 
 enum Tab {
@@ -62,6 +63,7 @@ function OllamaModalInternals({
 }: OllamaModalInternalsProps) {
   const formikProps = useFormikContext<OllamaModalValues>();
   const settings = useSettings();
+  const { t } = useTranslation();
 
   const isFetchDisabled = useMemo(
     () =>
@@ -100,26 +102,30 @@ function OllamaModalInternals({
         <Tabs value={tab} onValueChange={(value) => setTab(value as Tab)}>
           <Tabs.List>
             <Tabs.Trigger value={Tab.TAB_SELF_HOSTED}>
-              Self-hosted Ollama
+              {t("admin.languageModels.ollama.selfHosted")}
             </Tabs.Trigger>
-            <Tabs.Trigger value={Tab.TAB_CLOUD}>Ollama Cloud</Tabs.Trigger>
+            <Tabs.Trigger value={Tab.TAB_CLOUD}>
+              {t("admin.languageModels.ollama.cloud")}
+            </Tabs.Trigger>
           </Tabs.List>
           <div className="pt-4">
             <Tabs.Content value={Tab.TAB_SELF_HOSTED}>
               <InputVertical
                 withLabel="api_base"
-                title="API Base URL"
+                title={t("admin.languageModels.apiBase")}
                 subDescription={
                   settings.is_containerized
                     ? markdown(
-                        `The base URL for your Ollama instance. ${CONTAINERIZED_HOST_NOTE}`
+                        t("admin.languageModels.ollama.selfHostedDescContainer", {
+                          note: t("admin.languageModels.containerizedHostNote"),
+                        })
                       )
-                    : "The base URL for your Ollama instance."
+                    : t("admin.languageModels.ollama.selfHostedDesc")
                 }
               >
                 <InputTypeInField
                   name="api_base"
-                  placeholder="Your Ollama API base URL"
+                  placeholder={t("admin.languageModels.ollama.placeholderSelfHosted")}
                 />
               </InputVertical>
             </Tabs.Content>
@@ -127,12 +133,12 @@ function OllamaModalInternals({
             <Tabs.Content value={Tab.TAB_CLOUD}>
               <InputVertical
                 withLabel="custom_config.OLLAMA_API_KEY"
-                title="API Key"
-                subDescription="Your Ollama Cloud API key."
+                title={t("admin.languageModels.apiKey")}
+                subDescription={t("admin.languageModels.ollama.apiKeyDesc")}
               >
                 <PasswordInputTypeInField
                   name="custom_config.OLLAMA_API_KEY"
-                  placeholder="API Key"
+                  placeholder={t("admin.languageModels.apiKey")}
                 />
               </InputVertical>
             </Tabs.Content>
@@ -170,6 +176,7 @@ export default function OllamaModal({
   onOpenChange,
   onSuccess,
 }: LLMProviderFormProps) {
+  const { t } = useTranslation();
   const isOnboarding = variant === "onboarding";
   const { mutate } = useSWRConfig();
   const settings = useSettings();
@@ -203,12 +210,14 @@ export default function OllamaModal({
           tab === Tab.TAB_CLOUD
             ? {
                 custom_config: Yup.object({
-                  OLLAMA_API_KEY: Yup.string().required("API Key is required"),
+                  OLLAMA_API_KEY: Yup.string().required(
+                    t("admin.languageModels.ollama.apiKeyRequired")
+                  ),
                 }),
               }
             : undefined,
       }),
-    [tab, isOnboarding]
+    [tab, isOnboarding, t]
   );
 
   return (
@@ -253,8 +262,8 @@ export default function OllamaModal({
               await refreshLlmProviderCaches(mutate);
               toast.success(
                 existingLlmProvider
-                  ? "Provider updated successfully!"
-                  : "Provider enabled successfully!"
+                  ? t("admin.languageModels.providerUpdated")
+                  : t("admin.languageModels.providerEnabled")
               );
             }
           },

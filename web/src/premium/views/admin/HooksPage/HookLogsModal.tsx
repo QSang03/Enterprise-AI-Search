@@ -15,6 +15,7 @@ import type {
   HookResponse,
 } from "@/premium/views/admin/HooksPage/interfaces";
 import { useModalClose } from "@/refresh-components/contexts/ModalContext";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface HookLogsModalProps {
   hook: HookResponse;
@@ -76,6 +77,7 @@ function LogRow({ log, group }: { log: HookExecutionRecord; group: string }) {
 
 export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
   const onClose = useModalClose();
+  const { t } = useTranslation();
 
   const { recentErrors, olderErrors, isLoading, error } = useHookExecutionLogs(
     hook.id,
@@ -90,7 +92,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
       .map(
         (log) =>
           `${formatDateTimeLog(log.created_at)} ${
-            log.error_message ?? "Lỗi không xác định"
+            log.error_message ?? t("admin.hooks.unknownError")
           }`
       )
       .join("\n");
@@ -105,7 +107,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
       <Modal.Content width="md" height="fit">
         <Modal.Header
           icon={(props) => <SvgTextLines {...props} />}
-          title="Lỗi gần đây"
+          title={t("admin.hooks.errorHistoryTitle")}
           description={`Hook: ${hook.name} • Hook Point: ${
             spec?.display_name ?? hook.hook_point
           }`}
@@ -118,17 +120,17 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
             </Section>
           ) : error ? (
             <Text font="main-ui-body" color="text-03">
-              Không thể tải lịch sử lỗi.
+              {t("admin.hooks.errorHistoryLoadFailed")}
             </Text>
           ) : totalLines === 0 ? (
             <Text font="main-ui-body" color="text-03">
-              Không có lỗi nào trong 30 ngày qua.
+              {t("admin.hooks.errorHistoryNoErrors30d")}
             </Text>
           ) : (
             <>
               {recentErrors.length > 0 && (
                 <>
-                  <SectionHeader label="Giờ qua" />
+                  <SectionHeader label={t("admin.hooks.pastHour")} />
                   {recentErrors.map((log, idx) => (
                     <LogRow
                       key={log.created_at + String(idx)}
@@ -140,7 +142,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
               )}
               {olderErrors.length > 0 && (
                 <>
-                  <SectionHeader label="Cũ hơn" />
+                  <SectionHeader label={t("admin.hooks.older")} />
                   {olderErrors.map((log, idx) => (
                     <LogRow
                       key={log.created_at + String(idx)}
@@ -161,7 +163,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
           className="bg-background-tint-01"
         >
           <Text font="main-ui-body" color="text-03">
-            {`${totalLines} dòng`}
+            {t("admin.hooks.linesCount", { count: totalLines })}
           </Text>
           <Section
             flexDirection="row"
@@ -171,12 +173,12 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
             padding={0.25}
             className="rounded-xl bg-background-tint-00"
           >
-            <CopyButton size="sm" tooltip="Sao chép" getCopyText={getLogsText} />
+            <CopyButton size="sm" tooltip={t("admin.hooks.copy")} getCopyText={getLogsText} />
             <Button
               prominence="tertiary"
               size="sm"
               icon={SvgDownload}
-              tooltip="Tải xuống"
+              tooltip={t("admin.hooks.download")}
               onClick={handleDownload}
             />
           </Section>

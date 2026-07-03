@@ -27,6 +27,7 @@ import { LineItemButton } from "@opal/components";
 import { useQueryController } from "@/providers/QueryControllerProvider";
 import { cn } from "@opal/utils";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ============================================================================
 // Types
@@ -43,14 +44,15 @@ export interface SearchResultsProps {
 
 const RESULTS_PER_PAGE = 20;
 
-const TIME_FILTER_OPTIONS: { value: TimeFilter; label: string }[] = [
-  { value: "day", label: "24 giờ qua" },
-  { value: "week", label: "Tuần qua" },
-  { value: "month", label: "Tháng qua" },
-  { value: "year", label: "Năm qua" },
+const TIME_FILTER_OPTIONS: { value: TimeFilter; labelKey: string }[] = [
+  { value: "day", labelKey: "search.last24Hours" },
+  { value: "week", labelKey: "search.lastWeek" },
+  { value: "month", labelKey: "search.lastMonth" },
+  { value: "year", labelKey: "search.lastYear" },
 ];
 
 export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
+  const { t } = useTranslation();
   // Available tags from backend
   const { tags: availableTags } = useTags();
   const {
@@ -222,8 +224,10 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
                     onRefineSearch(buildFilters({ time: null }));
                   }}
                 >
-                  {TIME_FILTER_OPTIONS.find((o) => o.value === timeFilter)
-                    ?.label ?? "Mọi lúc"}
+                  {(() => {
+                    const matched = TIME_FILTER_OPTIONS.find((o) => o.value === timeFilter);
+                    return matched ? t(matched.labelKey) : t("search.anyTime");
+                  })()}
                 </FilterButton>
               </Popover.Trigger>
               <Popover.Content align="start" width="md">
@@ -238,7 +242,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
                       }}
                       state={timeFilter === opt.value ? "selected" : "empty"}
                       icon={timeFilter === opt.value ? SvgCheck : SvgClock}
-                      title={opt.label}
+                      title={t(opt.labelKey)}
                       sizePreset="main-ui"
                       variant="section"
                     />
@@ -259,15 +263,15 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
                   }}
                 >
                   {selectedTags.length > 0
-                    ? `${selectedTags.length} thẻ`
-                    : "Thẻ"}
+                    ? t("search.tagsCount", { count: selectedTags.length })
+                    : t("search.tag")}
                 </FilterButton>
               </Popover.Trigger>
               <Popover.Content align="start" width="lg">
                 <PopoverMenu>
                   <InputTypeIn
                     searchIcon
-                    placeholder="Lọc thẻ..."
+                    placeholder={t("search.filterTagsPlaceholder")}
                     value={tagQuery}
                     onChange={(e) => setTagQuery(e.target.value)}
                     clearButton
@@ -333,7 +337,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           {error ? (
             <EmptyMessageCard
               sizePreset="main-ui"
-              title="Tìm kiếm thất bại"
+              title={t("search.failedSearch")}
               description={error}
             />
           ) : paginatedResults.length > 0 ? (
@@ -354,8 +358,8 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           ) : (
             <IllustrationContent
               illustration={SvgNoResult}
-              title="Không tìm thấy kết quả"
-              description="Vui lòng kiểm tra lại kết nối/bộ lọc hoặc thử bằng một từ khóa tìm kiếm khác."
+              title={t("search.noResults")}
+              description={t("search.checkConnection")}
             />
           )}
         </div>

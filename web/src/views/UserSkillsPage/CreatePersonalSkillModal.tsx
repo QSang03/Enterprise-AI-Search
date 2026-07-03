@@ -7,6 +7,7 @@ import Modal from "@/refresh-components/Modal";
 import { Section } from "@/layouts/general-layouts";
 import { createUserSkill } from "@/lib/skills/api";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface CreatePersonalSkillModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ export default function CreatePersonalSkillModal({
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useTranslation();
 
   function reset() {
     setFile(null);
@@ -48,7 +50,7 @@ export default function CreatePersonalSkillModal({
     setErrorMessage(null);
     try {
       const created = await createUserSkill(file);
-      toast.success(`Đã tạo "${created.name}"`);
+      toast.success(t("skills.createSuccess", { name: created.name }));
       reset();
       onCreated();
       onClose();
@@ -57,7 +59,7 @@ export default function CreatePersonalSkillModal({
       // Surface the server detail (duplicate slug, reserved slug, cap reached)
       // inline so the user can act on it.
       setErrorMessage(
-        err instanceof Error ? err.message : "Không thể tạo kỹ năng"
+        err instanceof Error ? err.message : t("skills.failedCreate")
       );
     } finally {
       setSubmitting(false);
@@ -71,15 +73,15 @@ export default function CreatePersonalSkillModal({
       <Modal.Content width="md">
         <Modal.Header
           icon={SvgUploadCloud}
-          title="Tạo kỹ năng"
-          description="Tải lên gói zip. Tên tệp zip sẽ trở thành slug, và phần frontmatter của tệp SKILL.md sẽ cung cấp tên + mô tả. Các kỹ năng cá nhân chỉ hiển thị với riêng bạn."
+          title={t("skills.createSkillTitle")}
+          description={t("skills.createSkillDesc")}
           onClose={handleClose}
         />
         <Modal.Body>
           <Section gap={0.5} alignItems="stretch">
             <Section gap={0.25} alignItems="stretch">
               <Text font="main-ui-action" color="text-05">
-                Gói kỹ năng (.zip)
+                {t("skills.zipPackageLabel")}
               </Text>
               <div className="flex items-center gap-2">
                 <input
@@ -94,10 +96,10 @@ export default function CreatePersonalSkillModal({
                   prominence="secondary"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  {file ? "Thay đổi tệp" : "Chọn tệp zip"}
+                  {file ? t("skills.changeFile") : t("skills.selectZipFile")}
                 </Button>
                 <Text font="main-ui-body" color="text-03">
-                  {file ? file.name : "Chưa chọn tệp"}
+                  {file ? file.name : t("skills.noFileSelected")}
                 </Text>
               </div>
             </Section>
@@ -111,14 +113,14 @@ export default function CreatePersonalSkillModal({
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={handleClose}>
-            Hủy
+            {t("skills.cancel")}
           </Button>
           <Button
             disabled={submitDisabled}
             onClick={handleSubmit}
             icon={SvgUploadCloud}
           >
-            {submitting ? "Đang tạo…" : "Tạo"}
+            {submitting ? t("skills.creating") : t("skills.createBtn")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

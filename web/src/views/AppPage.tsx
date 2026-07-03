@@ -1118,7 +1118,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                             )}
                             
                             <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                              <span className="font-semibold text-neutral-600">Kho kiến thức:</span>
+                              <span className="font-semibold text-neutral-600">{t("appPage.knowledgeBase")}</span>
                               <select
                                 value={selectedDepartmentId === null ? "" : selectedDepartmentId}
                                 onChange={(e) => {
@@ -1127,11 +1127,11 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                                 }}
                                 className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-800 focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none cursor-pointer"
                               >
-                                <option value="">Mặc định (Không lọc)</option>
-                                <option value="-1">Kho Tổng (Tất cả phòng ban)</option>
+                                <option value="">{t("appPage.defaultNoFilter")}</option>
+                                <option value="-1">{t("appPage.globalKnowledge")}</option>
                                 {myGroups && myGroups.map((group) => (
                                   <option key={group.id} value={group.id}>
-                                    Kho {group.name}
+                                    {t("appPage.departmentKb", { name: group.name })}
                                   </option>
                                 ))}
                               </select>
