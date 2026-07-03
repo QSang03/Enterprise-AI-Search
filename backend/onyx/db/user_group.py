@@ -124,6 +124,39 @@ def delete_user_group(db_session: Session, user_group_id: int) -> None:
     db_session.delete(group)
     db_session.commit()
 
+def add_users_to_group(
+    db_session: Session,
+    user_group_id: int,
+    user_ids: list[UUID],
+) -> None:
+    """Add users to a group without removing existing members."""
+    group = get_user_group_by_id(db_session, user_group_id)
+    if not group:
+        raise ValueError(f"UserGroup with id {user_group_id} not found.")
+
+    existing_user_ids = {
+        row.user_id
+        for row in db_session.scalars(
+            select(User__UserGroup).where(User__UserGroup.user_group_id == user_group_id)
+        ).all()
+    }
+
+    for u_id in user_ids:
+        if u_id in existing_user_ids:
+            continue
+        user = db_session.get(User, u_id)
+        if user:
+            db_session.add(
+                User__UserGroup(
+                    user_group_id=user_group_id,
+                    user_id=u_id,
+                    is_curator=False,
+                )
+            )
+
+    db_session.commit()
+
+
 def validate_object_creation_for_user(
     db_session: Session,
     user: User,
