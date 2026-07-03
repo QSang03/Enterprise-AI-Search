@@ -89,7 +89,7 @@ function ImageFileCard({
       <div
         className={cn(
           sizeClass,
-          "rounded-08 border border-border-01",
+          "relative rounded-08 border border-border-01 overflow-hidden",
           isProcessing && "bg-background-neutral-02",
           onFileClick && !isProcessing && "cursor-pointer hover:opacity-90"
         )}
@@ -101,24 +101,35 @@ function ImageFileCard({
       >
         {!doneUploading || !imageUrl ? (
           <div className="h-full w-full flex items-center justify-center">
-            <SvgSimpleLoader className={loaderSize} />
+            <SvgSimpleLoader className={cn(loaderSize, "animate-spin")} />
           </div>
         ) : imgError ? (
           <div className="h-full w-full flex items-center justify-center">
             <SvgFileText className={iconSize} />
           </div>
         ) : (
-          <img
-            src={imageUrl}
-            alt={file.name}
-            className="h-full w-full object-cover rounded-08"
-            onError={() => setImgError(true)}
-          />
+          <>
+            <img
+              src={imageUrl}
+              alt={file.name}
+              className={cn(
+                "h-full w-full object-cover rounded-08",
+                isProcessing && "opacity-50"
+              )}
+              onError={() => setImgError(true)}
+            />
+            {isProcessing && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <SvgSimpleLoader className={cn(loaderSize, "animate-spin")} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </Removable>
   );
 }
+
 
 export interface FileCardProps {
   file: ProjectFile;
