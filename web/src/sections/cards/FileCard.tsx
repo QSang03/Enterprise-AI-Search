@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import type { ProjectFile } from "@/app/app/projects/projectsService";
@@ -9,6 +9,7 @@ import { SvgFileText, SvgX, SvgSimpleLoader } from "@opal/icons";
 import { Interactive, Hoverable } from "@opal/core";
 import { AttachmentItemLayout } from "@/layouts/general-layouts";
 import { Spacer } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface RemovableProps {
   onRemove?: () => void;
@@ -16,6 +17,7 @@ interface RemovableProps {
 }
 
 function Removable({ onRemove, children }: RemovableProps) {
+  const { t } = useTranslation();
   if (!onRemove) {
     return <>{children}</>;
   }
@@ -36,8 +38,8 @@ function Removable({ onRemove, children }: RemovableProps) {
                 e.stopPropagation();
                 onRemove();
               }}
-              title="Remove"
-              aria-label="Remove"
+              title={t("cards.remove")}
+              aria-label={t("cards.remove")}
               className={cn(
                 "h-4 w-4",
                 "flex items-center justify-center",

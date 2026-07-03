@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   forwardRef,
@@ -29,6 +29,7 @@ import {
   MAX_QUEUED_MESSAGES,
   type QueuedMessage,
 } from "@/app/app/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface BaseInputBarHandle {
   reset: () => void;
@@ -78,7 +79,7 @@ const BaseInputBar = memo(
         onSubmit,
         isRunning,
         disabled = false,
-        placeholder = "Describe your task...",
+        placeholder,
         noBottomRounding = false,
         pasteTilesEnabled = false,
         sandboxInitializing = false,
@@ -98,6 +99,8 @@ const BaseInputBar = memo(
       },
       ref
     ) => {
+      const { t } = useTranslation();
+      const resolvedPlaceholder = placeholder ?? t("input.describeTaskPlaceholder");
       const queueEnabled = !!onQueueMessage;
       const queue = queuedMessages ?? EMPTY_QUEUED_MESSAGES;
 
@@ -312,11 +315,11 @@ const BaseInputBar = memo(
                   scrollbarColor: "var(--border-02) transparent",
                 }}
                 role="textbox"
-                aria-label="Message input"
+                aria-label={t("input.messageInput")}
                 aria-multiline={true}
                 aria-disabled={disabled}
-                aria-placeholder={placeholder}
-                data-placeholder={placeholder}
+                aria-placeholder={resolvedPlaceholder}
+                data-placeholder={resolvedPlaceholder}
                 data-empty={!message ? "" : undefined}
                 onCopy={handleCopy}
                 onCut={handleCut}
@@ -366,7 +369,7 @@ const BaseInputBar = memo(
                     disabled={!interruptible || isInterrupting}
                     onClick={handleInterrupt}
                     tooltip="Stop · esc"
-                    aria-label="Stop generating"
+                    aria-label={t("input.stopGenerating")}
                   />
                 </div>
                 <IconButton

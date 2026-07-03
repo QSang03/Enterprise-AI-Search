@@ -54,6 +54,7 @@ export function PopoverSearchInput({
   onSearch,
 }: PopoverSearchInputProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const { t } = useTranslation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -85,7 +86,7 @@ export function PopoverSearchInput({
         value={searchTerm}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        placeholder="Search Projects"
+        placeholder={t("sidebar.searchProjects")}
         onClick={noProp()}
         variant="internal"
         autoFocus

@@ -5,32 +5,32 @@ import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { useUser } from "@/providers/UserProvider";
 import { SvgUser } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function NoAgentModal() {
   const { isAdmin } = useUser();
+  const { t } = useTranslation();
 
   return (
     <Modal open>
       <Modal.Content width="sm" height="sm">
-        <Modal.Header icon={SvgUser} title="No Agent Available" />
+        <Modal.Header icon={SvgUser} title={t("modals.noAgentAvailable")} />
         <Modal.Body>
           <Text as="p">
-            You currently have no agent configured. To use this feature, you
-            need to take action.
+            {t("modals.noAgentConfiguredDesc")}
           </Text>
           {isAdmin ? (
             <>
               <Text as="p">
-                As an administrator, you can create a new agent by visiting the
-                admin panel.
+                {t("modals.adminNoAgentDesc")}
               </Text>
               <Button width="full" href="/admin/agents">
-                Go to Admin Panel
+                {t("common.adminPanel")}
               </Button>
             </>
           ) : (
             <Text as="p">
-              Please contact your administrator to configure an agent for you.
+              {t("modals.contactAdminNoAgentDesc")}
             </Text>
           )}
         </Modal.Body>

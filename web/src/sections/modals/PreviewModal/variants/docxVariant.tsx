@@ -181,7 +181,7 @@ export const docxVariant: PreviewVariant = {
       {lastDocxResult && (
         <CopyButton
           size="sm"
-          tooltip="Copy content"
+          tooltip={ctx.t("modals.copyContent")}
           getCopyText={() => lastDocxResult?.plainText ?? ""}
         />
       )}

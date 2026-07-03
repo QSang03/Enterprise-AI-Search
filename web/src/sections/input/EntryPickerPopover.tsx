@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   memo,
@@ -18,6 +18,7 @@ import {
   type PickerEntry,
   type PickerSections,
 } from "@/lib/skills/picker";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { getAppTypeLogo } from "@/app/craft/v1/apps/registry";
 import { cn } from "@opal/utils";
 
@@ -40,6 +41,7 @@ function EntryPickerPopover({
 }: EntryPickerPopoverProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
 
   const filtered = useMemo(
     () => filterPickerSections(sections, query),
@@ -138,15 +140,16 @@ function EntryPickerPopover({
         width="xl"
         onOpenAutoFocus={(e) => e.preventDefault()}
         data-testid="skill-picker-popover"
-        aria-label="Skill picker"
+        aria-label={t("input.skillPicker")}
       >
         <Popover.Menu scrollContainerRef={scrollContainerRef}>
-          {buildMenuChildren({
+        {buildMenuChildren({
             filtered,
             flatEntries,
             selectedIndex,
             onSelect,
             onHover: setSelectedIndex,
+            t,
           })}
         </Popover.Menu>
       </Popover.Content>
@@ -161,6 +164,7 @@ interface BuildMenuChildrenArgs {
   selectedIndex: number;
   onSelect: (entry: PickerEntry) => void;
   onHover: (idx: number) => void;
+  t: (key: string) => string;
 }
 
 // `Popover.Menu` renders a literal `null` between children as a divider.
@@ -170,6 +174,7 @@ function buildMenuChildren({
   selectedIndex,
   onSelect,
   onHover,
+  t,
 }: BuildMenuChildrenArgs): ReactNode[] {
   if (flatEntries.length === 0) {
     return [
@@ -186,11 +191,11 @@ function buildMenuChildren({
 
   flatEntries.forEach((entry, idx) => {
     if (idx === 0 && skillsCount > 0) {
-      children.push(<SectionHeader key="skills-header" label="Skills" />);
+      children.push(<SectionHeader key="skills-header" label={t("input.skills")} />);
     }
     if (idx === skillsCount && filtered.apps.length > 0) {
       if (skillsCount > 0) children.push(null);
-      children.push(<SectionHeader key="apps-header" label="Apps" />);
+      children.push(<SectionHeader key="apps-header" label={t("input.apps")} />);
     }
     const selected = idx === selectedIndex;
     children.push(

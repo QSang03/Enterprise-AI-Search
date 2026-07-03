@@ -11,6 +11,7 @@ import { SvgFolderPlus } from "@opal/icons";
 import Modal from "@/refresh-components/Modal";
 import InputTypeInField from "@/refresh-components/form/InputTypeInField";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const validationSchema = Yup.object({
   projectName: Yup.string().trim().required("Project name is required"),
@@ -26,14 +27,15 @@ export default function CreateProjectModal({
   const { createProject } = useProjectsContext();
   const modal = useModal();
   const route = useAppRouter();
+  const { t } = useTranslation();
 
   return (
     <Modal open={modal.isOpen} onOpenChange={modal.toggle}>
       <Modal.Content width="sm">
         <Modal.Header
           icon={SvgFolderPlus}
-          title="Create New Project"
-          description="Use projects to organize your files and chats in one place, and add custom instructions for ongoing work."
+          title={t("modals.createNewProject")}
+          description={t("modals.createNewProjectDesc")}
           onClose={() => modal.toggle(false)}
         />
         <Formik
@@ -57,10 +59,10 @@ export default function CreateProjectModal({
           {({ isSubmitting, isValid }) => (
             <Form>
               <Modal.Body>
-                <InputVertical title="Project Name" withLabel="projectName">
+                <InputVertical title={t("modals.projectName")} withLabel="projectName">
                   <InputTypeInField
                     name="projectName"
-                    placeholder="What are you working on?"
+                    placeholder={t("modals.projectNamePlaceholder")}
                     clearButton
                   />
                 </InputVertical>

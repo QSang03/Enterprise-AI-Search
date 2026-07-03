@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { cn } from "@opal/utils";
 import { Button } from "@opal/components";
 import { InputTypeIn } from "@opal/components";
 import { SvgFold } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 interface ToolsSectionProps {
   onFold?: () => void;
   searchQuery: string;
@@ -18,6 +19,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({
   onSearchQueryChange,
   className,
 }) => {
+  const { t } = useTranslation();
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSearchQueryChange(e.target.value);
   };
@@ -28,8 +30,8 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({
         {/* Search Bar */}
         <div className="flex-1 min-w-[160px]">
           <InputTypeIn
-            placeholder="Search tools…"
-            aria-label="Search tools"
+            placeholder={t("actions.searchToolsPlaceholder")}
+            aria-label={t("actions.searchToolsPlaceholder")}
             value={searchQuery}
             onChange={handleSearchChange}
             searchIcon
@@ -42,7 +44,7 @@ const ToolsSection: React.FC<ToolsSectionProps> = ({
           {/* Fold Button */}
           {onFold && (
             <Button prominence="tertiary" onClick={onFold} rightIcon={SvgFold}>
-              Fold
+            {t("actions.fold")}
             </Button>
           )}
         </div>

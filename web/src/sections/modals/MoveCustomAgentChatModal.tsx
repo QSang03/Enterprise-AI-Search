@@ -6,6 +6,8 @@ import { Button } from "@opal/components";
 import { Checkbox } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { SvgAlertCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 interface MoveCustomAgentChatModalProps {
   onCancel: () => void;
   onConfirm: (doNotShowAgain: boolean) => void;
@@ -16,21 +18,33 @@ export default function MoveCustomAgentChatModal({
   onConfirm,
 }: MoveCustomAgentChatModalProps) {
   const [doNotShowAgain, setDoNotShowAgain] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <ConfirmationModalLayout
       icon={SvgAlertCircle}
-      title="Move Custom Agent Chat"
+      title={t("modals.moveCustomAgentChat")}
       onClose={onCancel}
       submit={
-        <Button onClick={() => onConfirm(doNotShowAgain)}>Confirm Move</Button>
+        <Button onClick={() => onConfirm(doNotShowAgain)}>{t("modals.confirmMove")}</Button>
       }
     >
       <div className="flex flex-col gap-4">
         <Text as="p" text03>
-          This chat uses a <b>custom agent</b> and moving it to a <b>project</b>{" "}
-          will not override the agent&apos;s prompt or knowledge configurations.
-          This should only be used for organization purposes.
+          {t("modals.moveCustomAgentDesc")
+            .split("{customAgent}")
+            .reduce((prev, current, i) => {
+              if (i === 0) return [current];
+              const projectSplit = current.split("{project}");
+              const res = [];
+              res.push(<b key="ca">{t("modals.customAgent")}</b>);
+              res.push(projectSplit[0]);
+              if (projectSplit.length > 1) {
+                res.push(<b key="proj">{t("modals.project")}</b>);
+                res.push(projectSplit[1]);
+              }
+              return [...prev, ...res];
+            }, [] as React.ReactNode[])}
         </Text>
         <div className="flex items-center gap-1">
           <Checkbox
@@ -42,7 +56,7 @@ export default function MoveCustomAgentChatModal({
             htmlFor="move-custom-agent-do-not-show"
             className="text-text-03 text-sm"
           >
-            Do not show this again
+            {t("modals.doNotShowAgain")}
           </label>
         </div>
       </div>

@@ -48,7 +48,7 @@ export const dataVariant: PreviewVariant = {
     <Section flexDirection="row" width="fit">
       <CopyButton
         size="sm"
-        tooltip="Copy content"
+        tooltip={ctx.t("modals.copyContent")}
         getCopyText={() => ctx.fileContent}
       />
       <DownloadButton fileUrl={ctx.fileUrl} fileName={ctx.fileName} />

@@ -8,6 +8,7 @@ import { useModal } from "@/refresh-components/contexts/ModalContext";
 import { SvgAddLines } from "@opal/icons";
 import Modal from "@/refresh-components/Modal";
 import InputTextAreaField from "@/refresh-components/form/InputTextAreaField";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const validationSchema = Yup.object({
   instructions: Yup.string(),
@@ -16,14 +17,15 @@ const validationSchema = Yup.object({
 export default function AddInstructionModal() {
   const modal = useModal();
   const { currentProjectDetails, upsertInstructions } = useProjectsContext();
+  const { t } = useTranslation();
 
   return (
     <Modal open={modal.isOpen} onOpenChange={modal.toggle}>
       <Modal.Content width="sm">
         <Modal.Header
           icon={SvgAddLines}
-          title="Set Project Instructions"
-          description="Specify the behaviors or tone for the chat sessions in this project."
+          title={t("modals.setProjectInstructions")}
+          description={t("modals.setProjectInstructionsDesc")}
           onClose={() => modal.toggle(false)}
         />
         <Formik
@@ -47,7 +49,7 @@ export default function AddInstructionModal() {
               <Modal.Body>
                 <InputTextAreaField
                   name="instructions"
-                  placeholder="My goal with is to... be sure to... in your responses."
+                  placeholder={t("modals.instructionsPlaceholder")}
                 />
               </Modal.Body>
               <Modal.Footer>
@@ -62,7 +64,7 @@ export default function AddInstructionModal() {
                   type="submit"
                   disabled={isSubmitting || !dirty || !isValid}
                 >
-                  Save Instructions
+                  {t("common.save")}
                 </Button>
               </Modal.Footer>
             </Form>

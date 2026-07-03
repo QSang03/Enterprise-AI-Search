@@ -585,7 +585,7 @@ const AppInputBar = React.memo(
               <Button
                 disabled={disabled}
                 icon={SvgPaperclip}
-                tooltip="Attach Files"
+                tooltip={t("input.attachFiles")}
                 interaction={open ? "hover" : "rest"}
                 prominence="tertiary"
               />
@@ -703,9 +703,9 @@ const AppInputBar = React.memo(
               <Button
                 disabled
                 icon={SvgMicrophone}
-                aria-label="Set up voice"
+                aria-label={t("input.setUpVoice")}
                 prominence="tertiary"
-                tooltip="Voice not configured. Set up in admin settings."
+                tooltip={t("input.voiceNotConfigured")}
               />
             ))}
 
@@ -848,7 +848,7 @@ const AppInputBar = React.memo(
                       ref={inputRef}
                       id="onyx-chat-input-textbox"
                       role="textbox"
-                      aria-label="Message input"
+                      aria-label={t("input.messageInput")}
                       contentEditable={!disabled}
                       suppressContentEditableWarning
                       onPaste={handlePaste}

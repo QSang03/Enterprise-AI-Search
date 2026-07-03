@@ -379,9 +379,19 @@ services:
     restart: unless-stopped
     # ports:
     #   - "8090:8090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - USE_GPU=True
+      - USE_GPU=False
       - PORT=8090
+      - VLLM_API_URL=http://host.docker.internal:9000/v1
+      - VLLM_API_KEY=sk-ai-atom-gemma4-9000
+      - VLLM_MODEL=gemma-4-e2b
+    volumes:
+      - rapidocr-cache:/root/.rapidocr
+
+
+
     logging:
       driver: json-file
       options:
@@ -616,3 +626,6 @@ volumes:
   file-system:
   # Persistent data for OpenSearch.
   opensearch-data:
+  rapidocr-cache:
+
+

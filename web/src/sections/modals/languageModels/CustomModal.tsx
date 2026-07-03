@@ -189,7 +189,7 @@ function CustomConfigKeyValue() {
   return (
     <KeyValueInput
       items={formikProps.values.custom_config_list}
-      keyPlaceholder="e.g. OPENAI_ORGANIZATION"
+      keyPlaceholder={t("modals.envVarPlaceholder")}
       onChange={(items) =>
         formikProps.setFieldValue("custom_config_list", items)
       }
@@ -203,7 +203,7 @@ function CustomConfigKeyValue() {
 function ProviderNameSelect({ disabled }: { disabled?: boolean }) {
   const { customProviderNames } = useCustomProviderNames();
   const { values, setFieldValue } = useFormikContext<{ provider: string }>();
-
+  const { t } = useTranslation();
   const options = useMemo(
     () =>
       (customProviderNames ?? []).map((opt) => ({
@@ -219,9 +219,9 @@ function ProviderNameSelect({ disabled }: { disabled?: boolean }) {
       value={values.provider}
       onValueChange={(value) => setFieldValue("provider", value)}
       options={options}
-      placeholder="Provider ID string as shown on LiteLLM"
+      placeholder={t("modals.providerIdPlaceholder")}
       disabled={disabled}
-      createPrefix="Use"
+      createPrefix={t("modals.usePrefix")}
       dropdownMaxHeight="60vh"
     />
   );
@@ -248,6 +248,7 @@ export default function CustomModal({
 }: LLMProviderFormProps) {
   const isOnboarding = variant === "onboarding";
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
 
   const onClose = () => onOpenChange?.(false);
 
@@ -288,7 +289,7 @@ export default function CustomModal({
   };
 
   const modelConfigurationSchema = Yup.object({
-    name: Yup.string().required("Model name is required"),
+    name: Yup.string().required(t("modals.modelNameRequired")),
     max_input_tokens: Yup.number()
       .transform((value, originalValue) =>
         originalValue === "" || originalValue === undefined ? null : value
@@ -299,12 +300,12 @@ export default function CustomModal({
 
   const validationSchema = isOnboarding
     ? Yup.object().shape({
-        provider: Yup.string().required("Provider Name is required"),
+        provider: Yup.string().required(t("modals.providerNameRequired")),
         model_configurations: Yup.array(modelConfigurationSchema),
       })
     : Yup.object().shape({
-        name: Yup.string().required("Display Name is required"),
-        provider: Yup.string().required("Provider Name is required"),
+        name: Yup.string().required(t("modals.displayNameRequired")),
+        provider: Yup.string().required(t("modals.providerNameRequired")),
         model_configurations: Yup.array(modelConfigurationSchema),
       });
 
@@ -315,7 +316,7 @@ export default function CustomModal({
       onClose={onClose}
       initialValues={initialValues}
       validationSchema={validationSchema}
-      description="Connect models from other LiteLLM-compatible providers."
+      description={t("modals.customProviderDesc")}
       onSubmit={async (values, { setSubmitting, setStatus }) => {
         setSubmitting(true);
 
@@ -332,7 +333,7 @@ export default function CustomModal({
           }));
 
         if (modelConfigurations.length === 0) {
-          toast.error("At least one model name is required");
+          toast.error(t("modals.atLeastOneModelRequired"));
           setSubmitting(false);
           return;
         }
@@ -369,8 +370,8 @@ export default function CustomModal({
               await refreshLlmProviderCaches(mutate);
               toast.success(
                 existingLlmProvider
-                  ? "Provider updated successfully!"
-                  : "Provider enabled successfully!"
+                  ? t("modals.providerUpdatedSuccess")
+                  : t("modals.providerEnabledSuccess")
               );
             }
           },
@@ -380,9 +381,9 @@ export default function CustomModal({
       <InputPadder>
         <InputVertical
           withLabel="provider"
-          title="Provider"
+          title={t("modals.providerTitle")}
           subDescription={markdown(
-            "See full list of supported LLM providers at [LiteLLM](https://docs.litellm.ai/docs/providers)."
+            t("modals.seeFullListLiteLlm")
           )}
         >
           <ProviderNameSelect disabled={!!existingLlmProvider} />
@@ -391,7 +392,7 @@ export default function CustomModal({
 
       <APIKeyField
         optional
-        subDescription="Paste your API key if your model provider requires authentication."
+        subDescription={t("modals.apiKeyFieldSubDesc")}
       />
 
       <APIBaseField optional />
@@ -399,7 +400,7 @@ export default function CustomModal({
       <InputPadder>
         <InputVertical
           withLabel="api_version"
-          title="API Version"
+          title={t("modals.apiVersionTitle")}
           suffix="optional"
         >
           <InputTypeInField name="api_version" />
@@ -409,9 +410,9 @@ export default function CustomModal({
       <InputPadder>
         <Section gap={0.75}>
           <Content
-            title="Environment Variables"
+            title={t("modals.envVariables")}
             description={markdown(
-              "Add extra properties as needed by the model provider. These are passed to LiteLLM's `completion()` call as [environment variables](https://docs.litellm.ai/docs/set_keys#environment-variables). See [documentation](https://docs.onyx.app/admins/ai_models/custom_inference_provider) for more instructions."
+              t("modals.envVariablesDesc")
             )}
             width="full"
             variant="section"
@@ -433,8 +434,8 @@ export default function CustomModal({
       <Section gap={0.5}>
         <InputPadder>
           <Content
-            title="Models"
-            description="List LLM models you wish to use and their configurations for this provider. See full list of models at LiteLLM."
+            title={t("modals.modelsTitle")}
+            description={t("modals.modelsDesc")}
             variant="section"
             sizePreset="main-content"
             width="full"

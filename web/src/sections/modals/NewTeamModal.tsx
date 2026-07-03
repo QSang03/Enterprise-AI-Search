@@ -16,6 +16,7 @@ import {
   SvgPlus,
   SvgSimpleLoader,
 } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 export interface TenantByDomainResponse {
   tenant_id: string;
   number_of_users: number;
@@ -30,6 +31,7 @@ export default function NewTeamModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasRequestedInvite, setHasRequestedInvite] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const { user } = useUser();
   const appDomain = user?.email.split("@")[1];
@@ -72,7 +74,7 @@ export default function NewTeamModal() {
       setExistingTenant(data);
     } catch (error) {
       console.error("Failed to fetch tenant info:", error);
-      setError("Could not retrieve team information. Please try again later.");
+      setError(t("modals.couldNotRetrieveTeamInfo"));
     } finally {
       setIsLoading(false);
     }
@@ -101,10 +103,10 @@ export default function NewTeamModal() {
       }
 
       setHasRequestedInvite(true);
-      toast.success("Your invite request has been sent to the team admin.");
+      toast.success(t("modals.inviteRequestSent"));
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Failed to request an invite";
+        error instanceof Error ? error.message : t("modals.requestToJoinTeam");
       setError(message);
       toast.error(message);
     } finally {
@@ -141,12 +143,12 @@ export default function NewTeamModal() {
             {hasRequestedInvite ? (
               <>
                 <SvgCheckCircle className="mr-2 h-5 w-5 stroke-text-05" />
-                Join Request Sent
+                {t("modals.joinRequestSent")}
               </>
             ) : (
               <>
                 <SvgOrganization className="mr-2 h-5 w-5 stroke-text-04" />
-                We found an existing team for {appDomain}
+                {t("modals.foundExistingTeam", { domain: appDomain ?? "" })}
               </>
             )}
           </Dialog.Title>
@@ -154,7 +156,7 @@ export default function NewTeamModal() {
           {isLoading ? (
             <div className="py-8 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-border-05 mx-auto mb-4"></div>
-              <p>Loading team information...</p>
+              <p>{t("modals.loadingTeamInfo")}</p>
             </div>
           ) : error ? (
             <div className="space-y-4">
@@ -165,16 +167,14 @@ export default function NewTeamModal() {
                   width="full"
                   rightIcon={SvgArrowRight}
                 >
-                  Continue with new team
+                  {t("modals.continueWithNewTeam")}
                 </Button>
               </div>
             </div>
           ) : hasRequestedInvite ? (
             <div className="space-y-4">
               <p className="text-text-04">
-                Your join request has been sent. You can explore as your own
-                team while waiting for an admin of {appDomain} to approve your
-                request.
+                {t("modals.joinRequestSentDesc", { domain: appDomain ?? "" })}
               </p>
               <div className="flex w-full pt-2">
                 <Button
@@ -182,14 +182,14 @@ export default function NewTeamModal() {
                   width="full"
                   rightIcon={SvgArrowRight}
                 >
-                  Try Onyx while waiting
+                  {t("modals.tryOnyxWhileWaiting")}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               <p className="text-text-03 text-sm mb-2">
-                Your join request can be approved by any admin of {appDomain}.
+                {t("modals.joinRequestApprovedBy", { domain: appDomain ?? "" })}
               </p>
               <div className="flex flex-col items-center justify-center gap-4 mt-4">
                 <Button
@@ -199,8 +199,8 @@ export default function NewTeamModal() {
                   icon={isSubmitting ? SvgSimpleLoader : SvgArrowUp}
                 >
                   {isSubmitting
-                    ? "Sending request..."
-                    : "Request to join your team"}
+                    ? t("modals.sendingRequest")
+                    : t("modals.requestToJoinTeam")}
                 </Button>
               </div>
               <Button
@@ -209,7 +209,7 @@ export default function NewTeamModal() {
                 icon={SvgPlus}
                 prominence="secondary"
               >
-                Continue with new team
+                {t("modals.continueWithNewTeam")}
               </Button>
             </div>
           )}

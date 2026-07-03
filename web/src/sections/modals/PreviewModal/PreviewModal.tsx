@@ -16,6 +16,7 @@ import {
 import { fetchChatFile } from "@/lib/chat/svc";
 import { PreviewContext } from "@/sections/modals/PreviewModal/interfaces";
 import { resolveVariant } from "@/sections/modals/PreviewModal/variants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PreviewModalProps {
   presentingDocument: MinimalOnyxDocument;
@@ -33,6 +34,7 @@ export default function PreviewModal({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [mimeType, setMimeType] = useState("application/octet-stream");
   const [zoom, setZoom] = useState(100);
+  const { t } = useTranslation();
 
   const variant = useMemo(
     () => resolveVariant(presentingDocument.semantic_identifier, mimeType),
@@ -137,6 +139,7 @@ export default function PreviewModal({
       zoom,
       onZoomIn: handleZoomIn,
       onZoomOut: handleZoomOut,
+      t,
     }),
     [
       fileContent,
@@ -148,6 +151,7 @@ export default function PreviewModal({
       zoom,
       handleZoomIn,
       handleZoomOut,
+      t,
     ]
   );
 

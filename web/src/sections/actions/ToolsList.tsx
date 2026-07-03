@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { cn } from "@opal/utils";
@@ -8,6 +8,7 @@ import FadingEdgeContainer from "@/refresh-components/FadingEdgeContainer";
 import ToolItemSkeleton from "@/sections/actions/skeleton/ToolItemSkeleton";
 import EnabledCount from "@/refresh-components/EnabledCount";
 import { SvgEye, SvgXCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ToolsListProps {
   // Loading state
@@ -45,12 +46,15 @@ const ToolsList: React.FC<ToolsListProps> = ({
   onUpdateToolsStatus,
   isEmpty = false,
   searchQuery,
-  emptyMessage = "No tools available",
-  emptySearchMessage = "No tools found",
+  emptyMessage,
+  emptySearchMessage,
   children,
   leftAction,
   className,
 }) => {
+  const { t } = useTranslation();
+  const resolvedEmptyMessage = emptyMessage ?? "No tools available";
+  const resolvedEmptySearchMessage = emptySearchMessage ?? "No tools found";
   const showFooter =
     totalCount !== undefined && enabledCount !== undefined && totalCount > 0;
 
@@ -70,7 +74,7 @@ const ToolsList: React.FC<ToolsListProps> = ({
         ) : isEmpty ? (
           <div className="flex items-center justify-center w-full py-8">
             <Text as="p" text03 mainUiBody>
-              {searchQuery ? emptySearchMessage : emptyMessage}
+              {searchQuery ? resolvedEmptySearchMessage : resolvedEmptyMessage}
             </Text>
           </div>
         ) : (
@@ -101,13 +105,13 @@ const ToolsList: React.FC<ToolsListProps> = ({
                   size="sm"
                   onClick={onToggleShowOnlyEnabled}
                   interaction={showOnlyEnabled ? "hover" : "rest"}
-                  tooltip={
-                    showOnlyEnabled ? "Show all tools" : "Show only enabled"
+                   tooltip={
+                    showOnlyEnabled ? t("actions.showAllTools") : t("actions.showOnlyEnabled")
                   }
                   aria-label={
                     showOnlyEnabled
-                      ? "Show all tools"
-                      : "Show only enabled tools"
+                      ? t("actions.showAllTools")
+                      : t("actions.showOnlyEnabledAria")
                   }
                 />
               )}
@@ -117,8 +121,8 @@ const ToolsList: React.FC<ToolsListProps> = ({
                   prominence="tertiary"
                   size="sm"
                   onClick={() => onUpdateToolsStatus(false)}
-                  tooltip="Disable all tools"
-                  aria-label="Disable all tools"
+                  tooltip={t("actions.disableAllTools")}
+                  aria-label={t("actions.disableAllTools")}
                 />
               )}
               {onUpdateToolsStatus && enabledCount === 0 && (
@@ -126,7 +130,7 @@ const ToolsList: React.FC<ToolsListProps> = ({
                   prominence="tertiary"
                   onClick={() => onUpdateToolsStatus(true)}
                 >
-                  Enable all
+                  {t("actions.enableAll")}
                 </Button>
               )}
             </div>

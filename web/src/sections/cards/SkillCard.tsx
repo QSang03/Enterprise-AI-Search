@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useCallback } from "react";
 import { Button, Switch, Tag } from "@opal/components";
@@ -8,6 +8,7 @@ import { CardItemLayout } from "@/layouts/general-layouts";
 import { Interactive } from "@opal/core";
 import { Card } from "@/refresh-components/cards";
 import { useSettings } from "@/lib/settings/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type SkillCardSource = "builtin" | "custom";
 
@@ -54,6 +55,7 @@ export default function SkillCard({
   busy = false,
 }: SkillCardProps) {
   const { appName } = useSettings();
+  const { t } = useTranslation();
 
   const handleClick = useCallback(() => {
     onClick?.(item);
@@ -111,7 +113,7 @@ export default function SkillCard({
                     prominence="tertiary"
                     size="sm"
                     icon={SvgUploadCloud}
-                    tooltip="Replace bundle"
+                  tooltip={t("cards.replaceBundle")}
                     disabled={busy}
                     onClick={() => onReplaceBundle(item)}
                   />
@@ -122,7 +124,7 @@ export default function SkillCard({
                     variant="danger"
                     size="sm"
                     icon={SvgTrash}
-                    tooltip="Delete skill"
+                    tooltip={t("cards.deleteSkill")}
                     disabled={busy}
                     onClick={() => onDelete(item)}
                   />
@@ -131,7 +133,7 @@ export default function SkillCard({
             )}
             {item.source === "builtin" ? (
               item.is_available ? (
-                <Tag title="Built-in" color="blue" />
+                <Tag title={t("cards.builtIn")} color="blue" />
               ) : (
                 <Tag
                   title={
@@ -143,9 +145,9 @@ export default function SkillCard({
                 />
               )
             ) : item.is_personal ? (
-              <Tag title="Personal" color="purple" />
+              <Tag title={t("cards.personal")} color="purple" />
             ) : (
-              <Tag title="Custom" color="gray" />
+              <Tag title={t("cards.custom")} color="gray" />
             )}
           </div>
         </div>

@@ -11,6 +11,7 @@ export interface PreviewContext {
   zoom: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  t: (key: string, options?: any) => any;
 }
 
 export interface PreviewVariant extends Required<

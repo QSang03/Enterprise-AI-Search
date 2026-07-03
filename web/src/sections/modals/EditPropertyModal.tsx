@@ -4,6 +4,7 @@ import { Button } from "@opal/components";
 import { InputVertical } from "@opal/layouts";
 import InputTypeInField from "@/refresh-components/form/InputTypeInField";
 import { SvgEdit } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface EditPropertyModalProps {
   propertyTitle: string;
@@ -24,12 +25,13 @@ export default function EditPropertyModal({
   onClose,
   onSubmit,
 }: EditPropertyModalProps) {
+  const { t } = useTranslation();
   return (
     <Modal open onOpenChange={onClose}>
       <Modal.Content width="sm">
         <Modal.Header
           icon={SvgEdit}
-          title={`Edit ${propertyTitle}`}
+          title={t("modals.editProperty", { property: propertyTitle })}
           onClose={onClose}
         />
         <Formik
@@ -56,7 +58,7 @@ export default function EditPropertyModal({
                 >
                   <InputTypeInField
                     name="propertyValue"
-                    placeholder="Property value"
+                    placeholder={t("modals.propertyValuePlaceholder")}
                   />
                 </InputVertical>
               </Modal.Body>
@@ -69,7 +71,7 @@ export default function EditPropertyModal({
                   }
                   type="submit"
                 >
-                  {isSubmitting ? "Updating..." : "Update property"}
+                  {isSubmitting ? t("modals.updating") : t("modals.updateProperty")}
                 </Button>
               </Modal.Footer>
             </Form>

@@ -24,6 +24,7 @@ import {
   SvgMoreHorizontal,
   SvgTrash,
 } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ProjectFolderButtonProps {
   project: Project;
@@ -40,6 +41,7 @@ const ProjectFolderButton = memo(({ project }: ProjectFolderButtonProps) => {
   const [isHoveringIcon, setIsHoveringIcon] = useState(false);
   const [allowHoverEffect, setAllowHoverEffect] = useState(true);
   const activeSidebar = useAppFocus();
+  const { t } = useTranslation();
 
   // Make project droppable
   const dropId = `project-${project.id}`;
@@ -88,7 +90,7 @@ const ProjectFolderButton = memo(({ project }: ProjectFolderButtonProps) => {
       sizePreset="main-ui"
       rounding="sm"
       icon={SvgEdit}
-      title="Rename Project"
+      title={t("sidebar.renameProject")}
       onClick={noProp(() => setIsEditing(true))}
     />,
     null,
@@ -98,7 +100,7 @@ const ProjectFolderButton = memo(({ project }: ProjectFolderButtonProps) => {
       rounding="sm"
       color="danger"
       icon={SvgTrash}
-      title="Delete Project"
+      title={t("sidebar.deleteProject")}
       onClick={noProp(() => setDeleteConfirmationModalOpen(true))}
     />,
   ];
@@ -114,7 +116,7 @@ const ProjectFolderButton = memo(({ project }: ProjectFolderButtonProps) => {
       {/* Confirmation Modal (only for deletion) */}
       {deleteConfirmationModalOpen && (
         <ConfirmationModalLayout
-          title="Delete Project"
+          title={t("sidebar.deleteProject")}
           icon={SvgTrash}
           onClose={() => setDeleteConfirmationModalOpen(false)}
           submit={

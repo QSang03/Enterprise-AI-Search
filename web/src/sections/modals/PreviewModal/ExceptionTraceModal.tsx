@@ -3,6 +3,7 @@ import { SvgAlertTriangle } from "@opal/icons";
 import { CodePreview } from "@/sections/modals/PreviewModal/variants/CodePreview";
 import { CopyButton } from "@opal/components";
 import FloatingFooter from "@/sections/modals/PreviewModal/FloatingFooter";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ExceptionTraceModalProps {
   onOutsideClick: () => void;
@@ -21,14 +22,17 @@ export default function ExceptionTraceModal({
   onOutsideClick,
   exceptionTrace,
   language = "python",
-  title = "Full Exception Trace",
+  title,
 }: ExceptionTraceModalProps) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t("modals.fullExceptionTrace");
+
   return (
     <Modal open onOpenChange={onOutsideClick}>
       <Modal.Content width="full" height="full">
         <Modal.Header
           icon={SvgAlertTriangle}
-          title={title}
+          title={resolvedTitle}
           onClose={onOutsideClick}
           height="fit"
         />
@@ -41,7 +45,7 @@ export default function ExceptionTraceModal({
           right={
             <CopyButton
               size="sm"
-              tooltip="Copy content"
+              tooltip={t("modals.copyContent")}
               getCopyText={() => exceptionTrace}
             />
           }
