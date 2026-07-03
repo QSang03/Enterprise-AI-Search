@@ -63,6 +63,8 @@ BIFROST_VISION_MODEL_FAMILIES = frozenset(
         "openai/gpt-4o",
         "openai/gpt-4.1",
         "google/gemini",
+        "google/gemma-4",
+        "gemma-4",
         "meta-llama/llama-3.2",
         "mistral/pixtral",
         "qwen/qwen2.5-vl",
