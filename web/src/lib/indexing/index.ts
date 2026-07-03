@@ -479,9 +479,9 @@ export interface RerankerProviderInfo {
 
 export const RERANKER_PROVIDERS: RerankerProviderInfo[] = [
   {
-    providerName: "local-qwen",
-    displayName: "Local/Self-hosted (Qwen3)",
-    description: "Run Qwen3-Reranker locally on the Onyx model server. Multilingual, excellent for Vietnamese.",
+    providerName: "local",
+    displayName: "Local/Self-hosted",
+    description: "Run reranker models locally on the Onyx model server.",
     models: [
       {
         modelName: "Qwen/Qwen3-Reranker-0.6B",
@@ -493,13 +493,6 @@ export const RERANKER_PROVIDERS: RerankerProviderInfo[] = [
         displayName: "Qwen3 Reranker 4B",
         description: "Higher quality reranker, more VRAM required (~8GB).",
       },
-    ],
-  },
-  {
-    providerName: "local",
-    displayName: "Local/Self-hosted (BGE)",
-    description: "Run cross-encoder models locally on the Onyx model server.",
-    models: [
       {
         modelName: "BAAI/bge-reranker-v2-m3",
         displayName: "BGE Reranker v2-M3",
