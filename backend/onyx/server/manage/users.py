@@ -362,6 +362,9 @@ def list_all_users(
     slack_users = [user for user in users if user.account_type == AccountType.BOT]
     accepted_users = [user for user in users if user.account_type != AccountType.BOT]
 
+    user_ids = [user.id for user in users]
+    groups_by_user = batch_get_user_groups(db_session, user_ids)
+
     accepted_emails = {user.email for user in accepted_users}
     slack_users_emails = {user.email for user in slack_users}
     invited_emails = get_invited_users()
@@ -385,10 +388,22 @@ def list_all_users(
     if accepted_page is None or invited_page is None or slack_users_page is None:
         return AllUsersResponse(
             accepted=[
-                FullUserSnapshot.from_user_model(user) for user in accepted_users
+                FullUserSnapshot.from_user_model(
+                    user,
+                    groups=[
+                        UserGroupInfo(id=gid, name=gname)
+                        for gid, gname in groups_by_user.get(user.id, [])
+                    ]
+                ) for user in accepted_users
             ],
             slack_users=[
-                FullUserSnapshot.from_user_model(user) for user in slack_users
+                FullUserSnapshot.from_user_model(
+                    user,
+                    groups=[
+                        UserGroupInfo(id=gid, name=gname)
+                        for gid, gname in groups_by_user.get(user.id, [])
+                    ]
+                ) for user in slack_users
             ],
             invited=[InvitedUserSnapshot(email=email) for email in invited_emails],
             accepted_pages=1,
@@ -398,10 +413,26 @@ def list_all_users(
 
     # Otherwise, return paginated results
     return AllUsersResponse(
-        accepted=[FullUserSnapshot.from_user_model(user) for user in accepted_users][
+        accepted=[
+            FullUserSnapshot.from_user_model(
+                user,
+                groups=[
+                    UserGroupInfo(id=gid, name=gname)
+                    for gid, gname in groups_by_user.get(user.id, [])
+                ]
+            ) for user in accepted_users
+        ][
             accepted_page * USERS_PAGE_SIZE : (accepted_page + 1) * USERS_PAGE_SIZE
         ],
-        slack_users=[FullUserSnapshot.from_user_model(user) for user in slack_users][
+        slack_users=[
+            FullUserSnapshot.from_user_model(
+                user,
+                groups=[
+                    UserGroupInfo(id=gid, name=gname)
+                    for gid, gname in groups_by_user.get(user.id, [])
+                ]
+            ) for user in slack_users
+        ][
             slack_users_page * USERS_PAGE_SIZE : (slack_users_page + 1)
             * USERS_PAGE_SIZE
         ],
