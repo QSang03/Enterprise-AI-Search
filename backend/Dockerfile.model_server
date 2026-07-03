@@ -15,8 +15,8 @@ RUN mkdir -p /app/.cache/huggingface
 
 COPY ./requirements/model_server.txt /tmp/requirements.txt
 
-# Install torch + CUDA/GPU deps from the PyTorch cu126 index
-RUN uv pip install --system --no-cache-dir torch==2.9.1 --index-url https://download.pytorch.org/whl/cu126 && \
+# Install torch + CUDA/GPU deps from the PyTorch cu128 nightly index to support Blackwell GPUs (sm_100/sm_120)
+RUN uv pip install --system --no-cache-dir --pre torch --index-url https://download.pytorch.org/whl/nightly/cu128 && \
     rm -rf ~/.cache/uv
 
 # Install the remaining model server dependencies, excluding torch, nvidia-*, and triton
