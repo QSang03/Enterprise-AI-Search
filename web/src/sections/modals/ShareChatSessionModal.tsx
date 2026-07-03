@@ -15,6 +15,7 @@ import SvgLock from "@opal/icons/lock";
 
 import type { IconProps } from "@opal/types";
 import useChatSessions from "@/hooks/useChatSessions";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function buildShareLink(chatSessionId: string) {
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
@@ -97,6 +98,7 @@ export default function ShareChatSessionModal({
   chatSession,
   onClose,
 }: ShareChatSessionModalProps) {
+  const { t } = useTranslation();
   const isCurrentlyPublic =
     chatSession.shared_status === ChatSessionSharedStatus.Public;
 
@@ -118,11 +120,11 @@ export default function ShareChatSessionModal({
 
   let submitButtonText: string;
   if (isShared) {
-    submitButtonText = "Copy Link";
+    submitButtonText = t("chat.copyLink");
   } else if (isCurrentlyPublic && !wantsPublic) {
-    submitButtonText = "Make Private";
+    submitButtonText = t("chat.makePrivate");
   } else {
-    submitButtonText = "Create Share Link";
+    submitButtonText = t("chat.createShareLink");
   }
 
   const submitDisabled = isLoading || (!isCurrentlyPublic && !wantsPublic);
@@ -137,9 +139,9 @@ export default function ShareChatSessionModal({
           updateCurrentChatSessionSharedStatus(ChatSessionSharedStatus.Public);
           await refreshChatSessions();
           copyAll(link);
-          toast.success("Share link copied to clipboard!");
+          toast.success(t("chat.shareLinkCopied"));
         } else {
-          toast.error("Failed to generate share link");
+          toast.error(t("chat.failedGenerateLink"));
         }
       } else if (!wantsPublic && isCurrentlyPublic) {
         const success = await deleteShareLink(chatSession.id);
@@ -147,20 +149,20 @@ export default function ShareChatSessionModal({
           setShareLink("");
           updateCurrentChatSessionSharedStatus(ChatSessionSharedStatus.Private);
           await refreshChatSessions();
-          toast.success("Chat is now private");
+          toast.success(t("chat.chatIsPrivate"));
           onClose();
         } else {
-          toast.error("Failed to make chat private");
+          toast.error(t("chat.failedMakePrivate"));
         }
       } else if (wantsPublic && shareLink) {
         copyAll(shareLink);
-        toast.success("Share link copied to clipboard!");
+        toast.success(t("chat.shareLinkCopied"));
       } else {
         onClose();
       }
     } catch (e) {
       console.error(e);
-      toast.error("An error occurred");
+      toast.error(t("chat.networkError"));
     } finally {
       setIsLoading(false);
     }
@@ -171,8 +173,8 @@ export default function ShareChatSessionModal({
       <Modal.Content width="sm">
         <Modal.Header
           icon={SvgShare}
-          title={isShared ? "Chat shared" : "Share this chat"}
-          description="All existing and future messages in this chat will be shared."
+          title={isShared ? t("chat.chatShared") : t("chat.shareThisChat")}
+          description={t("chat.shareChatDesc")}
           onClose={onClose}
         />
         <Modal.Body twoTone>
@@ -184,16 +186,16 @@ export default function ShareChatSessionModal({
           >
             <PrivacyOption
               icon={SvgLock}
-              title="Private"
-              description="Only you have access to this chat."
+              title={t("chat.private")}
+              description={t("chat.privateDesc")}
               selected={selectedPrivacy === "private"}
               onClick={() => setSelectedPrivacy("private")}
               ariaLabel="share-modal-option-private"
             />
             <PrivacyOption
               icon={SvgUsers}
-              title="Your Organization"
-              description="Anyone in your organization can view this chat."
+              title={t("chat.organization")}
+              description={t("chat.organizationDesc")}
               selected={selectedPrivacy === "public"}
               onClick={() => setSelectedPrivacy("public")}
               ariaLabel="share-modal-option-public"
@@ -208,7 +210,7 @@ export default function ShareChatSessionModal({
               rightChildren={
                 <CopyButton
                   getCopyText={() => shareLink}
-                  tooltip="Copy link"
+                  tooltip={t("chat.copyLinkTooltip")}
                   size="sm"
                   aria-label="share-modal-copy-link"
                 />
@@ -223,7 +225,7 @@ export default function ShareChatSessionModal({
               onClick={onClose}
               aria-label="share-modal-cancel"
             >
-              Cancel
+              {t("chat.cancel")}
             </Button>
           )}
           <Button

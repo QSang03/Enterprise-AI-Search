@@ -33,6 +33,7 @@ import UserAvatar from "@/refresh-components/avatars/UserAvatar";
 import { useNotificationSummary } from "@/hooks/useNotifications";
 import { SvgOnyxLogo } from "@opal/logos";
 import { markdown } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface SettingsPopoverProps {
   onUserSettingsClick: () => void;
@@ -46,6 +47,7 @@ function SettingsPopover({
   undismissedCount,
 }: SettingsPopoverProps) {
   const { user } = useUser();
+  const { language, setLanguage, t } = useTranslation();
   const settings = useSettings();
   const enterpriseSettings = settings.enterprise;
   const router = useRouter();
@@ -101,7 +103,7 @@ function SettingsPopover({
             variant="section"
             rounding="sm"
             icon={SvgSliders}
-            title="Settings"
+            title={t("common.settings")}
             href="/app/settings"
             onClick={onUserSettingsClick}
           />
@@ -112,7 +114,7 @@ function SettingsPopover({
           variant="section"
           rounding="sm"
           icon={SvgBell}
-          title="Notifications"
+          title={t("common.settings") === "Settings" ? "Notifications" : "Thông báo"}
           onClick={onOpenNotifications}
           rightChildren={
             undismissedCount ? (
@@ -126,7 +128,7 @@ function SettingsPopover({
           variant="section"
           rounding="sm"
           icon={SvgHelpCircle}
-          title="Help & FAQ"
+          title={t("common.settings") === "Settings" ? "Help & FAQ" : "Trợ giúp & FAQ"}
           href="https://docs.onyx.app"
           target="_blank"
         />,
@@ -152,7 +154,7 @@ function SettingsPopover({
             variant="section"
             rounding="sm"
             icon={SvgUser}
-            title="Log in"
+            title={t("common.login")}
             onClick={handleLogin}
           />
         ),
@@ -164,11 +166,36 @@ function SettingsPopover({
             color="danger"
             rounding="sm"
             icon={SvgLogOut}
-            title="Log Out"
+            title={t("common.logout")}
             onClick={handleLogout}
           />
         ),
         null,
+        <div key="language-select" className="px-3 py-1 flex items-center justify-between text-sm border-t border-border mt-1 pt-2">
+          <span className="text-muted-foreground">{t("common.language")}</span>
+          <div className="flex space-x-1">
+            <button
+              onClick={() => setLanguage("en")}
+              className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                language === "en"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted text-muted-foreground"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage("vi")}
+              className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                language === "vi"
+                  ? "bg-primary text-primary-foreground"
+                  : "hover:bg-muted text-muted-foreground"
+              }`}
+            >
+              VI
+            </button>
+          </div>
+        </div>,
         <div key="version" className="p-2">
           <Content
             sizePreset="secondary"

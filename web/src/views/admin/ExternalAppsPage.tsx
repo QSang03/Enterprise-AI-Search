@@ -21,6 +21,7 @@ import {
   setExternalAppEnabled,
 } from "@/app/craft/services/externalAppsService";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ModalState {
   descriptor: BuiltInExternalAppDescriptor;
@@ -35,12 +36,13 @@ interface ExternalAppsPageProps {
 export default function ExternalAppsPage({
   onBack,
 }: ExternalAppsPageProps = {}) {
+  const { t } = useTranslation();
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgPlug}
-        title="External Apps"
-        description="Connect third-party integrations so users in your org can authorize them with their personal accounts in Onyx Craft."
+        title={t("admin.externalApps.title")}
+        description={t("admin.externalApps.description")}
         rightChildren={
           onBack ? (
             <div className="flex items-center gap-2">
@@ -49,7 +51,7 @@ export default function ExternalAppsPage({
                 icon={SvgArrowLeft}
                 onClick={onBack}
               >
-                Back
+                {t("admin.externalApps.back")}
               </Button>
             </div>
           ) : undefined
@@ -63,6 +65,7 @@ export default function ExternalAppsPage({
 }
 
 function AppsAdminContent() {
+  const { t } = useTranslation();
   const { data: descriptors } = useSWR<BuiltInExternalAppDescriptor[]>(
     SWR_KEYS.buildExternalAppsBuiltInOptions,
     errorHandlingFetcher,
@@ -98,7 +101,7 @@ function AppsAdminContent() {
   if (!isReady) {
     return (
       <Card variant="tertiary">
-        <Text font="main-content-body">Loading…</Text>
+        <Text font="main-content-body">{t("admin.externalApps.loading")}</Text>
       </Card>
     );
   }
@@ -109,7 +112,7 @@ function AppsAdminContent() {
         <>
           <section className="flex flex-col gap-2">
             <Text font="main-content-emphasis" color="text-04">
-              Configured
+              {t("admin.externalApps.configured")}
             </Text>
             <div className="flex flex-col gap-2">
               {apps.map((app) => (
@@ -135,12 +138,10 @@ function AppsAdminContent() {
 
       <section className="flex flex-col gap-2">
         <Text font="main-content-emphasis" color="text-04">
-          {hasConfigured ? "Add another" : "Available apps"}
+          {hasConfigured ? t("admin.externalApps.addAnother") : t("admin.externalApps.availableApps")}
         </Text>
         <Text font="secondary-body" color="text-03">
-          Add a built-in integration. Each provider can be configured once;
-          connected providers no longer appear here. Use a custom app for
-          anything not listed.
+          {t("admin.externalApps.addAnotherDesc")}
         </Text>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
           {availableDescriptors.map((descriptor) => (
@@ -198,6 +199,7 @@ function ConfiguredAppCard({
   onEditCustom,
   onChange,
 }: ConfiguredAppCardProps) {
+  const { t } = useTranslation();
   const [isMutating, setIsMutating] = useState(false);
   const Logo = getAppTypeLogo(app.app_type);
 
@@ -210,7 +212,10 @@ function ConfiguredAppCard({
       toast.error(
         e instanceof Error
           ? e.message
-          : `Failed to ${app.enabled ? "disable" : "enable"} "${app.name}"`
+          : t("admin.externalApps.failedToChangeStatus", {
+              action: app.enabled ? t("admin.externalApps.disable").toLowerCase() : t("admin.externalApps.enable").toLowerCase(),
+              name: app.name,
+            })
       );
     } finally {
       setIsMutating(false);
@@ -224,7 +229,9 @@ function ConfiguredAppCard({
       onChange();
     } catch (e) {
       toast.error(
-        e instanceof Error ? e.message : `Failed to delete "${app.name}"`
+        e instanceof Error
+          ? e.message
+          : t("admin.externalApps.failedToDelete", { name: app.name })
       );
     } finally {
       setIsMutating(false);
@@ -238,7 +245,7 @@ function ConfiguredAppCard({
         <div className="flex-1 flex flex-col gap-0.5">
           <Text font="main-ui-action">{app.name}</Text>
           <Text font="secondary-body" color="text-03">
-            {app.enabled ? "Enabled" : "Disabled"}
+            {app.enabled ? t("admin.externalApps.enabled") : t("admin.externalApps.disabled")}
           </Text>
         </div>
         <div className="flex items-center gap-2">
@@ -248,7 +255,7 @@ function ConfiguredAppCard({
               onClick={() => onEditCustom(app)}
               disabled={isMutating}
             >
-              Edit
+              {t("admin.externalApps.edit")}
             </Button>
           ) : (
             descriptor && (
@@ -266,7 +273,7 @@ function ConfiguredAppCard({
             onClick={toggleEnabled}
             disabled={isMutating}
           >
-            {isMutating ? "…" : app.enabled ? "Disable" : "Enable"}
+            {isMutating ? "…" : app.enabled ? t("admin.externalApps.disable") : t("admin.externalApps.enable")}
           </Button>
           {/* Onyx-managed built-ins (cloud) can't be deleted — only disabled. */}
           {!app.is_onyx_managed && (
@@ -276,7 +283,7 @@ function ConfiguredAppCard({
               icon={SvgTrash}
               onClick={remove}
               disabled={isMutating}
-              aria-label={`Delete ${app.name}`}
+              aria-label={t("admin.externalApps.deleteAria", { name: app.name })}
             />
           )}
         </div>
@@ -293,6 +300,7 @@ interface AvailableAppCardProps {
 }
 
 function AvailableAppCard({ descriptor, onClick }: AvailableAppCardProps) {
+  const { t } = useTranslation();
   const Logo = getAppTypeLogo(descriptor.app_type);
   return (
     <Card className="h-full flex flex-col justify-center">
@@ -305,7 +313,7 @@ function AvailableAppCard({ descriptor, onClick }: AvailableAppCardProps) {
           </Text>
         </div>
         <Button icon={SvgPlus} onClick={onClick}>
-          Add
+          {t("admin.externalApps.add")}
         </Button>
       </div>
     </Card>
@@ -319,19 +327,19 @@ interface CreateCustomAppCardProps {
 }
 
 function CreateCustomAppCard({ onClick }: CreateCustomAppCardProps) {
+  const { t } = useTranslation();
   return (
     <Card className="h-full flex flex-col justify-center">
       <div className="flex items-center gap-3 w-full">
         <SvgPlug className="w-8 h-8 shrink-0" />
         <div className="flex-1 flex flex-col gap-0.5">
-          <Text font="main-ui-action">Custom app</Text>
+          <Text font="main-ui-action">{t("admin.externalApps.customApp")}</Text>
           <Text font="secondary-body" color="text-03">
-            Bring your own integration: upload a skill bundle and configure its
-            credentials.
+            {t("admin.externalApps.customAppDesc")}
           </Text>
         </div>
         <Button icon={SvgPlus} onClick={onClick}>
-          Create
+          {t("admin.externalApps.create")}
         </Button>
       </div>
     </Card>

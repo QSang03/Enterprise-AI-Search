@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { SettingsLayouts } from "@opal/layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 import * as GeneralLayouts from "@/layouts/general-layouts";
 import { Button, Card, Divider, MessageCard } from "@opal/components";
 import { Hoverable, Disabled } from "@opal/core";
@@ -491,6 +492,7 @@ export default function AgentEditorPage({
   agent: existingAgent,
   refreshAgent,
 }: AgentEditorPageProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const appRouter = useAppRouter();
   const { refresh: refreshAgents } = useAgents();
@@ -1227,7 +1229,7 @@ export default function AgentEditorPage({
                   <SettingsLayouts.Root>
                     <SettingsLayouts.Header
                       icon={SvgOnyxOctagon}
-                      title={existingAgent ? "Edit Agent" : "Create Agent"}
+                      title={existingAgent ? t("agentEditor.editAgent") : t("agentEditor.createAgent")}
                       rightChildren={
                         <div className="flex gap-2">
                           <Button
@@ -1235,7 +1237,7 @@ export default function AgentEditorPage({
                             type="button"
                             onClick={() => router.back()}
                           >
-                            Cancel
+                            {t("agentEditor.cancel")}
                           </Button>
                           <Tooltip
                             tooltip={
@@ -1256,11 +1258,11 @@ export default function AgentEditorPage({
                                 isSubmitting ||
                                 !isValid ||
                                 !dirty ||
-                                hasUploadingFiles
+                                  hasUploadingFiles
                               }
                               type="submit"
                             >
-                              {existingAgent ? "Save" : "Create"}
+                              {existingAgent ? t("agentEditor.save") : t("agentEditor.create")}
                             </Button>
                           </Tooltip>
                         </div>
@@ -1277,21 +1279,21 @@ export default function AgentEditorPage({
                         alignItems="start"
                       >
                         <GeneralLayouts.Section>
-                          <InputVertical withLabel="name" title="Name">
+                          <InputVertical withLabel="name" title={t("agentEditor.name")}>
                             <InputTypeInField
                               name="name"
-                              placeholder="Name your agent"
+                              placeholder={t("agentEditor.namePlaceholder")}
                             />
                           </InputVertical>
 
                           <InputVertical
                             withLabel="description"
-                            title="Description"
+                            title={t("agentEditor.description")}
                             suffix="optional"
                           >
                             <InputTextAreaField
                               name="description"
-                              placeholder="What does this agent do?"
+                              placeholder={t("agentEditor.descriptionPlaceholder")}
                             />
                           </InputVertical>
                         </GeneralLayouts.Section>
@@ -1299,7 +1301,7 @@ export default function AgentEditorPage({
                         <GeneralLayouts.Section width="fit">
                           <InputVertical
                             withLabel="agent_avatar"
-                            title="Agent Avatar"
+                            title={t("agentEditor.avatar")}
                           >
                             <AgentIconEditor existingAgent={existingAgent} />
                           </InputVertical>
@@ -1314,20 +1316,20 @@ export default function AgentEditorPage({
                       <GeneralLayouts.Section>
                         <InputVertical
                           withLabel="instructions"
-                          title="Instructions"
+                          title={t("agentEditor.instructions")}
                           suffix="optional"
-                          description="Add instructions to tailor the response for this agent."
+                          description={t("agentEditor.instructionsDesc")}
                         >
                           <InputTextAreaField
                             name="instructions"
-                            placeholder="Think step by step and show reasoning for complex problems. Use specific examples. Emphasize action items, and leave blanks for the human to fill in when you have unknown. Use a polite enthusiastic tone."
+                            placeholder={t("agentEditor.instructionsPlaceholder")}
                           />
                         </InputVertical>
 
                         <InputVertical
                           withLabel="starter_messages"
-                          title="Conversation Starters"
-                          description="Example messages that help users understand what this agent can do and how to interact with it effectively."
+                          title={t("agentEditor.starters")}
+                          description={t("agentEditor.startersDesc")}
                           suffix="optional"
                         >
                           <AgentStarterMessages />

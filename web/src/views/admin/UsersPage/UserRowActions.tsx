@@ -28,6 +28,7 @@ import {
   ResetPasswordModal,
 } from "./UserActionModals";
 import type { UserRow } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -55,6 +56,7 @@ export default function UserRowActions({
   user,
   onMutate,
 }: UserRowActionsProps) {
+  const { t } = useTranslation();
   const [modal, setModal] = useState<Modal | null>(null);
   const [popoverOpen, setPopoverOpen] = useState(false);
 
@@ -82,17 +84,17 @@ export default function UserRowActions({
               icon={SvgUsers}
               onClick={() => openModal(Modal.EDIT_GROUPS)}
             >
-              Groups &amp; Roles
+              {t("admin.users.groupsAndRoles")}
             </LineItem>
           )}
           <Disabled disabled>
             <LineItem danger icon={SvgUserX}>
-              Deactivate User
+              {t("admin.users.deactivateUser")}
             </LineItem>
           </Disabled>
           <Divider paddingPerpendicular="md" />
           <Text as="p" secondaryBody text03 className="px-3 py-1">
-            This is a synced SCIM user managed by your identity provider.
+            {t("admin.users.scimManagedNotice")}
           </Text>
         </>
       );
@@ -106,7 +108,7 @@ export default function UserRowActions({
             icon={SvgXCircle}
             onClick={() => openModal(Modal.CANCEL_INVITE)}
           >
-            Cancel Invite
+            {t("admin.users.cancelInvite")}
           </LineItem>
         );
 
@@ -120,7 +122,7 @@ export default function UserRowActions({
                 try {
                   await approveRequest(user.email);
                   onMutate();
-                  toast.success("Request approved");
+                  toast.success(t("admin.users.requestApproved"));
                 } catch (err) {
                   toast.error(
                     err instanceof Error ? err.message : "An error occurred"
@@ -129,7 +131,7 @@ export default function UserRowActions({
               })();
             }}
           >
-            Approve
+            {t("admin.users.approve")}
           </LineItem>
         );
 
@@ -141,14 +143,14 @@ export default function UserRowActions({
                 icon={SvgUsers}
                 onClick={() => openModal(Modal.EDIT_GROUPS)}
               >
-                Groups &amp; Roles
+                {t("admin.users.groupsAndRoles")}
               </LineItem>
             )}
             <LineItem
               icon={SvgKey}
               onClick={() => openModal(Modal.RESET_PASSWORD)}
             >
-              Reset Password
+              {t("admin.users.resetPassword")}
             </LineItem>
             <Divider paddingPerpendicular="md" />
             <LineItem
@@ -156,7 +158,7 @@ export default function UserRowActions({
               icon={SvgUserX}
               onClick={() => openModal(Modal.DEACTIVATE)}
             >
-              Deactivate User
+              {t("admin.users.deactivateUser")}
             </LineItem>
           </>
         );
@@ -169,21 +171,21 @@ export default function UserRowActions({
                 icon={SvgUsers}
                 onClick={() => openModal(Modal.EDIT_GROUPS)}
               >
-                Groups &amp; Roles
+                {t("admin.users.groupsAndRoles")}
               </LineItem>
             )}
             <LineItem
               icon={SvgKey}
               onClick={() => openModal(Modal.RESET_PASSWORD)}
             >
-              Reset Password
+              {t("admin.users.resetPassword")}
             </LineItem>
             <Divider paddingPerpendicular="md" />
             <LineItem
               icon={SvgUserPlus}
               onClick={() => openModal(Modal.ACTIVATE)}
             >
-              Activate User
+              {t("admin.users.activateUser")}
             </LineItem>
             <Divider paddingPerpendicular="md" />
             <LineItem
@@ -191,7 +193,7 @@ export default function UserRowActions({
               icon={SvgUserX}
               onClick={() => openModal(Modal.DELETE)}
             >
-              Delete User
+              {t("admin.users.deleteUser")}
             </LineItem>
           </>
         );

@@ -1,6 +1,7 @@
 "use client";
 
 import { Formik, Form } from "formik";
+import { useTranslation } from "@/providers/LanguageProvider";
 import * as Yup from "yup";
 import { SvgArrowExchange, SvgSimpleLoader } from "@opal/icons";
 import { SvgOnyxLogo } from "@opal/logos";
@@ -54,6 +55,7 @@ export interface WebSearchSetupModalProps {
 }
 
 export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
+  const { t } = useTranslation();
   const onClose = useModalClose();
   const { category, providerType, provider } = state;
   const {
@@ -141,10 +143,10 @@ export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
   const validationSchema = Yup.object().shape({
     api_key:
       requiresApiKey && !hasStoredKey
-        ? Yup.string().required("API key is required")
+        ? Yup.string().required(t("admin.webSearch.validationApiKey"))
         : Yup.string(),
     config: configField
-      ? Yup.string().required(`${configField.title} is required`)
+      ? Yup.string().required(t("admin.webSearch.validationRequiredField", { field: configField.title }))
       : Yup.string(),
   });
 
@@ -190,7 +192,7 @@ export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
         onSaving: () => {},
         onError: (message) => toast.error(message),
         onClose: () => {
-          toast.success("Provider connected");
+          toast.success(t("admin.webSearch.providerConnected"));
           onClose?.();
         },
         mutate,
@@ -218,8 +220,8 @@ export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
                 moreIcon2={SvgOnyxLogo}
                 title={
                   isEditing
-                    ? `Configure ${providerLabel}`
-                    : `Set up ${providerLabel}`
+                    ? t("admin.webSearch.configureTitle", { name: providerLabel })
+                    : t("admin.webSearch.setUpTitle", { name: providerLabel })
                 }
                 onClose={onClose}
               />
@@ -242,7 +244,7 @@ export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
               )}
               <Modal.Footer>
                 <Button prominence="secondary" type="button" onClick={onClose}>
-                  Cancel
+                  {t("admin.webSearch.cancel")}
                 </Button>
                 <Button
                   type="submit"
@@ -251,7 +253,7 @@ export function WebSearchSetupModal({ state }: WebSearchSetupModalProps) {
                   }
                   icon={isSubmitting ? SvgSimpleLoader : undefined}
                 >
-                  {isEditing ? "Update" : "Connect"}
+                  {isEditing ? t("admin.webSearch.update") : t("admin.webSearch.connect")}
                 </Button>
               </Modal.Footer>
             </Form>

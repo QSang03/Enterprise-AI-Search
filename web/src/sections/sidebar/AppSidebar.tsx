@@ -79,6 +79,7 @@ import { NotificationType } from "@/lib/notifications/interfaces";
 import { dismissNotification } from "@/lib/notifications/api";
 import AccountPopover from "@/sections/sidebar/AccountPopover";
 import ChatSearchCommandMenu from "@/sections/sidebar/ChatSearchCommandMenu";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useQueryController } from "@/providers/QueryControllerProvider";
 
 // Visible-agents = pinned-agents + current-agent (if current-agent not in pinned-agents)
@@ -198,6 +199,7 @@ function RecentsSection({
 
 const AppSidebar = memo(function AppSidebarInner() {
   const { folded } = useSidebarState();
+  const { language, t } = useTranslation();
   const router = useRouter();
   const combinedSettingsData = useSettings();
   const { newTenantInfo, invitationInfo } = useModalContext();
@@ -493,7 +495,7 @@ const AppSidebar = memo(function AppSidebarInner() {
             reset();
           }}
         >
-          New Session
+          {t("common.newChat")}
         </SidebarTab>
       </div>
     );
@@ -526,7 +528,7 @@ const AppSidebar = memo(function AppSidebarInner() {
       <ChatSearchCommandMenu
         trigger={
           <SidebarTab icon={SvgSearchMenu} folded={folded}>
-            Search Chats
+            {language === "en" ? "Search Chats" : "Tìm kiếm cuộc trò chuyện"}
           </SidebarTab>
         }
       />
@@ -547,7 +549,9 @@ const AppSidebar = memo(function AppSidebarInner() {
           selected={activeSidebarTab.isMoreAgents()}
           variant={folded ? "sidebar-heavy" : "sidebar-light"}
         >
-          {visibleAgents.length === 0 ? "Explore Agents" : "More Agents"}
+          {visibleAgents.length === 0
+            ? (language === "en" ? "Explore Agents" : "Khám phá Trợ lý")
+            : (language === "en" ? "More Agents" : "Trợ lý khác")}
         </SidebarTab>
       </div>
     ),
@@ -562,7 +566,7 @@ const AppSidebar = memo(function AppSidebarInner() {
         folded={folded}
         variant={folded ? "sidebar-heavy" : "sidebar-light"}
       >
-        New Project
+        {t("sidebar.newProject")}
       </SidebarTab>
     ),
     [folded, createProjectModal.toggle, createProjectModal.isOpen]
@@ -584,7 +588,9 @@ const AppSidebar = memo(function AppSidebarInner() {
             icon={SvgSettings}
             folded={folded}
           >
-            {isAdmin ? "Admin Panel" : "Curator Panel"}
+            {isAdmin 
+              ? t("common.adminPanel") 
+              : (language === "en" ? "Curator Panel" : "Trang giám sát")}
           </SidebarTab>
         )}
         <AccountPopover
@@ -683,7 +689,7 @@ const AppSidebar = memo(function AppSidebarInner() {
                 collisionDetection={closestCenter}
                 onDragEnd={handleAgentDragEnd}
               >
-                <SidebarLayouts.Section title="Agents">
+                <SidebarLayouts.Section title={t("sidebar.assistants")}>
                   <SortableContext
                     items={visibleAgentIds}
                     strategy={verticalListSortingStrategy}
@@ -708,13 +714,13 @@ const AppSidebar = memo(function AppSidebarInner() {
               >
                 {/* Projects */}
                 <SidebarLayouts.Section
-                  title="Projects"
+                  title={t("sidebar.projects")}
                   action={
                     <OpalButton
                       icon={SvgFolderPlus}
                       prominence="tertiary"
                       size="sm"
-                      tooltip="New Project"
+                      tooltip={t("sidebar.newProject")}
                       onClick={() => createProjectModal.toggle(true)}
                     />
                   }

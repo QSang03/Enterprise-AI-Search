@@ -19,6 +19,7 @@ import { useProjectsContext } from "@/providers/ProjectsContext";
 import MoveCustomAgentChatModal from "@/sections/modals/MoveCustomAgentChatModal";
 import { UNNAMED_CHAT } from "@/lib/constants";
 import ShareChatSessionModal from "@/sections/modals/ShareChatSessionModal";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Button, LineItemButton, SidebarTab } from "@opal/components";
 import IconButton from "@/refresh-components/buttons/IconButton";
 import { InputTypeIn } from "@opal/components";
@@ -102,6 +103,7 @@ export interface ChatButtonProps {
 const ChatButton = memo(
   ({ chatSession, project, draggable = false }: ChatButtonProps) => {
     const route = useAppRouter();
+    const { t } = useTranslation();
     const activeSidebarTab = useAppFocus();
     const active = useMemo(
       () =>
@@ -193,7 +195,7 @@ const ChatButton = memo(
             sizePreset="main-ui"
             rounding="sm"
             icon={SvgShare}
-            title="Share"
+            title={t("chat.share")}
             onClick={noProp(() => setShowShareModal(true))}
           />,
           <LineItemButton
@@ -201,7 +203,7 @@ const ChatButton = memo(
             sizePreset="main-ui"
             rounding="sm"
             icon={SvgEdit}
-            title="Rename"
+            title={t("chat.rename")}
             onClick={noProp(() => setRenaming(true))}
           />,
           <LineItemButton
@@ -209,7 +211,7 @@ const ChatButton = memo(
             sizePreset="main-ui"
             rounding="sm"
             icon={SvgFolderIn}
-            title="Move to Project"
+            title={t("chat.moveToProject")}
             onClick={noProp(() => setShowMoveOptions(true))}
           />,
           project && (
@@ -218,7 +220,7 @@ const ChatButton = memo(
               sizePreset="main-ui"
               rounding="sm"
               icon={SvgFolder}
-              title={`Remove from ${project.name}`}
+              title={t("chat.removeFromProject", { projectName: project.name })}
               onClick={noProp(() => handleRemoveFromProject())}
             />
           ),
@@ -229,7 +231,7 @@ const ChatButton = memo(
             rounding="sm"
             color="danger"
             icon={SvgTrash}
-            title="Delete"
+            title={t("chat.delete")}
             onClick={noProp(() => setDeleteConfirmationModalOpen(true))}
           />,
         ];
@@ -264,7 +266,7 @@ const ChatButton = memo(
                   sizePreset="main-ui"
                   rounding="sm"
                   icon={SvgFolderPlus}
-                  title={`Create ${searchTerm.trim()}`}
+                  title={t("chat.createNewProject", { projectName: searchTerm.trim() })}
                   onClick={noProp(() =>
                     handleCreateProjectAndMove(searchTerm.trim())
                   )}
@@ -321,7 +323,7 @@ const ChatButton = memo(
         await refreshChatSessions();
       } catch (error) {
         console.error("Failed to delete chat:", error);
-        showErrorNotification("Failed to delete chat. Please try again.");
+        showErrorNotification(t("chat.failedDeleteChat"));
       }
     }
 
@@ -394,7 +396,7 @@ const ChatButton = memo(
         setNavigateAfterMoveProjectId(null);
       } catch (error) {
         console.error("Failed to create project and move chat:", error);
-        showErrorNotification("Failed to create project. Please try again.");
+        showErrorNotification(t("chat.failedCreateProject"));
         setNavigateAfterMoveProjectId(null);
       }
     }
@@ -446,7 +448,7 @@ const ChatButton = memo(
                 onClose={() => setRenaming(false)}
               />
             ) : (
-              displayName
+              displayName === UNNAMED_CHAT ? t("common.newChat") : displayName
             )}
           </SidebarTab>
         </Popover.Anchor>
@@ -457,7 +459,7 @@ const ChatButton = memo(
       <>
         {deleteConfirmationModalOpen && (
           <ConfirmationModalLayout
-            title="Delete Chat"
+            title={t("chat.deleteChatTitle")}
             icon={SvgTrash}
             onClose={() => setDeleteConfirmationModalOpen(false)}
             submit={
@@ -468,12 +470,11 @@ const ChatButton = memo(
                   handleChatDelete();
                 }}
               >
-                Delete
+                {t("chat.delete")}
               </Button>
             }
           >
-            Are you sure you want to delete this chat? This action cannot be
-            undone.
+            {t("chat.deleteChatConfirm")}
           </ConfirmationModalLayout>
         )}
 

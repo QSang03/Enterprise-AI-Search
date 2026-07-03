@@ -18,6 +18,7 @@ import {
   buildLlmOptions,
   groupLlmOptions,
 } from "@/lib/languageModels/options";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useCurrentAgentLLMProviders } from "@/lib/languageModels/hooks";
 import {
   Collapsible,
@@ -47,6 +48,7 @@ export default function ModelSelectorContent({
   includeGlobalDefault = false,
   footer,
 }: ModelSelectorContentProps) {
+  const { t } = useTranslation();
   const { llmProviders, isLoading, defaultText } =
     useCurrentAgentLLMProviders();
 
@@ -125,8 +127,8 @@ export default function ModelSelectorContent({
     const disabled = isDisabled?.(option) ?? false;
 
     const capabilities: string[] = [];
-    if (option.supportsReasoning) capabilities.push("Reasoning");
-    if (option.supportsImageInput) capabilities.push("Vision");
+    if (option.supportsReasoning) capabilities.push(t("chat.reasoning"));
+    if (option.supportsImageInput) capabilities.push(t("chat.vision"));
     const description =
       capabilities.length > 0 ? capabilities.join(", ") : undefined;
 
@@ -163,7 +165,7 @@ export default function ModelSelectorContent({
         variant="internal"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search models..."
+        placeholder={t("chat.searchModels")}
       />
 
       <PopoverMenu scrollContainerRef={scrollContainerRef}>
@@ -196,13 +198,13 @@ export default function ModelSelectorContent({
           ...(isLoading
             ? [
                 <Text key="loading" font="secondary-body" color="text-03">
-                  Loading models...
+                  {t("chat.loadingModels")}
                 </Text>,
               ]
             : groupedOptions.length === 0
               ? [
                   <Text key="empty" font="secondary-body" color="text-03">
-                    No models found
+                    {t("chat.noModelsFound")}
                   </Text>,
                 ]
               : groupedOptions.length === 1

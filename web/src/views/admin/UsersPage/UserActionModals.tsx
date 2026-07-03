@@ -13,6 +13,8 @@ import {
   cancelInvite,
   resetPassword,
 } from "./svc";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 
 // ---------------------------------------------------------------------------
 // Shared helper
@@ -22,7 +24,8 @@ async function runAction(
   action: () => Promise<void>,
   successMessage: string,
   onDone: () => void,
-  setIsSubmitting: (v: boolean) => void
+  setIsSubmitting: (v: boolean) => void,
+  t: any
 ) {
   setIsSubmitting(true);
   try {
@@ -30,7 +33,7 @@ async function runAction(
     onDone();
     toast.success(successMessage);
   } catch (err) {
-    toast.error(err instanceof Error ? err.message : "An error occurred");
+    toast.error(err instanceof Error ? err.message : t("common.networkError"));
   } finally {
     setIsSubmitting(false);
   }
@@ -51,6 +54,7 @@ export function CancelInviteModal({
   onClose,
   onMutate,
 }: CancelInviteModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
@@ -58,7 +62,7 @@ export function CancelInviteModal({
       icon={(props) => (
         <SvgUserX {...props} className="text-action-danger-05" />
       )}
-      title="Cancel Invite"
+      title={t("admin.users.cancelInvite")}
       onClose={isSubmitting ? undefined : onClose}
       submit={
         <Button
@@ -67,16 +71,17 @@ export function CancelInviteModal({
           onClick={() =>
             runAction(
               () => cancelInvite(email),
-              "Invite cancelled",
+              t("admin.users.inviteCancelled"),
               () => {
                 onMutate();
                 onClose();
               },
-              setIsSubmitting
+              setIsSubmitting,
+              t
             )
           }
         >
-          Cancel Invite
+          {t("admin.users.cancelInvite")}
         </Button>
       }
     >
@@ -84,7 +89,7 @@ export function CancelInviteModal({
         <Text as="span" text05>
           {email}
         </Text>{" "}
-        will no longer be able to join Onyx with this invite.
+        {t("admin.users.cancelInviteDesc", { email: "" })}
       </Text>
     </ConfirmationModalLayout>
   );
@@ -105,6 +110,7 @@ export function DeactivateUserModal({
   onClose,
   onMutate,
 }: DeactivateUserModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
@@ -112,7 +118,7 @@ export function DeactivateUserModal({
       icon={(props) => (
         <SvgUserX {...props} className="text-action-danger-05" />
       )}
-      title="Deactivate User"
+      title={t("admin.users.deactivateUser")}
       onClose={isSubmitting ? undefined : onClose}
       submit={
         <Button
@@ -121,26 +127,22 @@ export function DeactivateUserModal({
           onClick={() =>
             runAction(
               () => deactivateUser(email),
-              "User deactivated",
+              t("admin.users.userDeactivated"),
               () => {
                 onMutate();
                 onClose();
               },
-              setIsSubmitting
+              setIsSubmitting,
+              t
             )
           }
         >
-          Deactivate
+          {t("admin.users.deactivate")}
         </Button>
       }
     >
       <Text as="p" text03>
-        <Text as="span" text05>
-          {email}
-        </Text>{" "}
-        will immediately lose access to Onyx. Their sessions and agents will be
-        preserved. Their license seat will be freed. You can reactivate this
-        account later.
+        {t("admin.users.deactivateDesc", { email })}
       </Text>
     </ConfirmationModalLayout>
   );
@@ -161,12 +163,13 @@ export function ActivateUserModal({
   onClose,
   onMutate,
 }: ActivateUserModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <ConfirmationModalLayout
       icon={SvgUserPlus}
-      title="Activate User"
+      title={t("admin.users.activateUser")}
       onClose={isSubmitting ? undefined : onClose}
       submit={
         <Button
@@ -174,24 +177,22 @@ export function ActivateUserModal({
           onClick={() =>
             runAction(
               () => activateUser(email),
-              "User activated",
+              t("admin.users.userActivated"),
               () => {
                 onMutate();
                 onClose();
               },
-              setIsSubmitting
+              setIsSubmitting,
+              t
             )
           }
         >
-          Activate
+          {t("admin.users.activate")}
         </Button>
       }
     >
       <Text as="p" text03>
-        <Text as="span" text05>
-          {email}
-        </Text>{" "}
-        will regain access to Onyx.
+        {t("admin.users.activateDesc", { email })}
       </Text>
     </ConfirmationModalLayout>
   );
@@ -212,6 +213,7 @@ export function DeleteUserModal({
   onClose,
   onMutate,
 }: DeleteUserModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
@@ -219,7 +221,7 @@ export function DeleteUserModal({
       icon={(props) => (
         <SvgUserX {...props} className="text-action-danger-05" />
       )}
-      title="Delete User"
+      title={t("admin.users.deleteUser")}
       onClose={isSubmitting ? undefined : onClose}
       submit={
         <Button
@@ -228,25 +230,22 @@ export function DeleteUserModal({
           onClick={() =>
             runAction(
               () => deleteUser(email),
-              "User deleted",
+              t("admin.users.userDeleted"),
               () => {
                 onMutate();
                 onClose();
               },
-              setIsSubmitting
+              setIsSubmitting,
+              t
             )
           }
         >
-          Delete
+          {t("admin.users.delete")}
         </Button>
       }
     >
       <Text as="p" text03>
-        <Text as="span" text05>
-          {email}
-        </Text>{" "}
-        will be permanently removed from Onyx. All of their session history will
-        be deleted. Deletion cannot be undone.
+        {t("admin.users.deleteDesc", { email })}
       </Text>
     </ConfirmationModalLayout>
   );
@@ -265,6 +264,7 @@ export function ResetPasswordModal({
   email,
   onClose,
 }: ResetPasswordModalProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newPassword, setNewPassword] = useState<string | null>(null);
 
@@ -276,11 +276,11 @@ export function ResetPasswordModal({
   return (
     <ConfirmationModalLayout
       icon={SvgKey}
-      title={newPassword ? "Password Reset" : "Reset Password"}
+      title={newPassword ? t("admin.users.passwordReset") : t("admin.users.resetPassword")}
       onClose={isSubmitting ? undefined : handleClose}
       submit={
         newPassword ? (
-          <Button onClick={handleClose}>Done</Button>
+          <Button onClick={handleClose}>{t("admin.users.done")}</Button>
         ) : (
           <Button
             disabled={isSubmitting}
@@ -294,14 +294,14 @@ export function ResetPasswordModal({
                 toast.error(
                   err instanceof Error
                     ? err.message
-                    : "Failed to reset password"
+                    : t("admin.users.failedResetPassword")
                 );
               } finally {
                 setIsSubmitting(false);
               }
             }}
           >
-            Reset Password
+            {t("admin.users.resetPassword")}
           </Button>
         )
       }
@@ -309,12 +309,7 @@ export function ResetPasswordModal({
       {newPassword ? (
         <div className="flex flex-col gap-2">
           <Text as="p" text03>
-            The password for{" "}
-            <Text as="span" text05>
-              {email}
-            </Text>{" "}
-            has been reset. Copy the new password below — it will not be shown
-            again.
+            {t("admin.users.passwordResetSuccessDesc", { email })}
           </Text>
           <code className="rounded-xs bg-background-neutral-02 px-3 py-2 text-sm select-all">
             {newPassword}
@@ -322,11 +317,7 @@ export function ResetPasswordModal({
         </div>
       ) : (
         <Text as="p" text03>
-          This will generate a new random password for{" "}
-          <Text as="span" text05>
-            {email}
-          </Text>
-          . Their current password will stop working immediately.
+          {t("admin.users.passwordResetWarningDesc", { email })}
         </Text>
       )}
     </ConfirmationModalLayout>

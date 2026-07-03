@@ -123,7 +123,7 @@ export function QueryControllerProvider({
           throw err;
         }
 
-        setError("Document search failed. Please try again.");
+        setError("Tìm kiếm tài liệu thất bại. Vui lòng thử lại.");
         setSearchResults([]);
         setLlmSelectedDocIds(null);
       }
@@ -156,7 +156,7 @@ export function QueryControllerProvider({
           throw error;
         }
 
-        setError("Query classification failed. Falling back to chat.");
+        setError("Phân loại truy vấn thất bại. Chuyển hướng sang chế độ trò chuyện.");
         return "chat";
       }
     },

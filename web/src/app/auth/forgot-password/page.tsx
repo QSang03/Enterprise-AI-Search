@@ -15,8 +15,10 @@ import { toast } from "@/hooks/useToast";
 import { Spinner } from "@/components/Spinner";
 import { redirect } from "next/navigation";
 import { NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED } from "@/lib/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const ForgotPasswordPage: React.FC = () => {
+  const { t } = useTranslation();
   const [isWorking, setIsWorking] = useState(false);
 
   if (!NEXT_PUBLIC_FORGOT_PASSWORD_ENABLED) {
@@ -27,7 +29,7 @@ const ForgotPasswordPage: React.FC = () => {
     <AuthFlowContainer>
       <div className="flex flex-col w-full justify-center">
         <div className="flex">
-          <Title className="mb-2 mx-auto font-bold">Forgot Password</Title>
+          <Title className="mb-2 mx-auto font-bold">{t("auth.forgotPasswordTitle")}</Title>
         </div>
         {isWorking && <Spinner />}
         <Formik
@@ -42,13 +44,13 @@ const ForgotPasswordPage: React.FC = () => {
             try {
               await forgotPassword(values.email);
               toast.success(
-                "Password reset email sent. Please check your inbox."
+                t("auth.forgotPasswordEmailSent")
               );
             } catch (error) {
               const errorMessage =
                 error instanceof Error
                   ? error.message
-                  : "An error occurred. Please try again.";
+                  : t("auth.genericError");
               toast.error(errorMessage);
             } finally {
               setIsWorking(false);
@@ -59,14 +61,14 @@ const ForgotPasswordPage: React.FC = () => {
             <Form className="w-full flex flex-col items-stretch mt-2">
               <TextFormField
                 name="email"
-                label="Email"
+                label={t("auth.emailLabel")}
                 type="email"
-                placeholder="email@yourcompany.com"
+                placeholder={t("auth.emailPlaceholder")}
               />
 
               <div className="flex">
                 <Button disabled={isSubmitting} type="submit" width="full">
-                  Reset Password
+                  {t("auth.resetPasswordBtn")}
                 </Button>
               </div>
             </Form>
@@ -75,7 +77,7 @@ const ForgotPasswordPage: React.FC = () => {
         <Spacer rem={1} />
         <div className="flex">
           <div className="mx-auto">
-            <Text as="p">{markdown("[Back to Login](/auth/login)")}</Text>
+            <Text as="p">{markdown(`[${t("auth.backToLogin")}](/auth/login)`)}</Text>
           </div>
         </div>
       </div>

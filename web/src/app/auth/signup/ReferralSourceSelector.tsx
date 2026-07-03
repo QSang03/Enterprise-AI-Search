@@ -3,6 +3,7 @@
 import { useState } from "react";
 import InputSelect from "@/refresh-components/inputs/InputSelect";
 import { Label } from "@/components/Field";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ReferralSourceSelectorProps {
   defaultValue?: string;
@@ -11,20 +12,21 @@ interface ReferralSourceSelectorProps {
 export default function ReferralSourceSelector({
   defaultValue,
 }: ReferralSourceSelectorProps) {
+  const { t } = useTranslation();
   const [referralSource, setReferralSource] = useState(defaultValue);
 
   const referralOptions = [
-    { value: "search", label: "Search Engine (Google/Bing)" },
-    { value: "friend", label: "Friend/Colleague" },
-    { value: "linkedin", label: "LinkedIn" },
-    { value: "twitter", label: "Twitter" },
-    { value: "hackernews", label: "HackerNews" },
-    { value: "reddit", label: "Reddit" },
-    { value: "youtube", label: "YouTube" },
-    { value: "podcast", label: "Podcast" },
-    { value: "blog", label: "Article/Blog" },
-    { value: "ads", label: "Advertisements" },
-    { value: "other", label: "Other" },
+    { value: "search", label: t("auth.referralSearch") },
+    { value: "friend", label: t("auth.referralFriend") },
+    { value: "linkedin", label: t("auth.referralLinkedin") },
+    { value: "twitter", label: t("auth.referralTwitter") },
+    { value: "hackernews", label: t("auth.referralHackernews") },
+    { value: "reddit", label: t("auth.referralReddit") },
+    { value: "youtube", label: t("auth.referralYoutube") },
+    { value: "podcast", label: t("auth.referralPodcast") },
+    { value: "blog", label: t("auth.referralBlog") },
+    { value: "ads", label: t("auth.referralAds") },
+    { value: "other", label: t("auth.referralOther") },
   ];
 
   const handleChange = (value: string) => {
@@ -40,10 +42,10 @@ export default function ReferralSourceSelector({
   return (
     <div className="w-full gap-y-2 flex flex-col">
       <Label className="text-text-950" small={false}>
-        How did you hear about us?
+        {t("auth.referralLabel")}
       </Label>
       <InputSelect value={referralSource} onValueChange={handleChange}>
-        <InputSelect.Trigger placeholder="Select an option" />
+        <InputSelect.Trigger placeholder={t("auth.referralPlaceholder")} />
 
         <InputSelect.Content>
           {referralOptions.map((option) => (

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Formik } from "formik";
 import { markdown } from "@opal/utils";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { mutate } from "swr";
 import { PageLoader } from "@/refresh-components/PageLoader";
 import { SWR_KEYS } from "@/lib/swr-keys";
@@ -129,11 +130,12 @@ interface EmbeddingProviderInfoProps {
 }
 
 function EmbeddingProviderInfo({ providerName }: EmbeddingProviderInfoProps) {
+  const { t } = useTranslation();
   if (!isCloudBased(providerName)) {
     return (
       <Content
         icon={SvgServer}
-        title="Self-hosted"
+        title={t("admin.indexSettings.selfHosted")}
         sizePreset="secondary"
         variant="body"
         color="muted"
@@ -148,7 +150,7 @@ function EmbeddingProviderInfo({ providerName }: EmbeddingProviderInfoProps) {
     <>
       <Content
         icon={SvgCloud}
-        title="Cloud Provider"
+        title={t("admin.indexSettings.cloudProvider")}
         sizePreset="secondary"
         variant="body"
         color="muted"
@@ -208,6 +210,7 @@ function ProviderGroup({
   onSelectModel,
   onDeselectModel,
 }: ProviderGroupProps) {
+  const { t } = useTranslation();
   const models = provider.embeddingModels;
   const isConfigured = isCloud ? !!existingCredentials : true;
   const disconnectModal = useCreateModal();
@@ -224,12 +227,12 @@ function ProviderGroup({
     if (!isCloud) return;
     try {
       await disconnectEmbeddingProvider(provider.providerName);
-      toast.success(`Disconnected ${provider.displayName}`);
+      toast.success(t("admin.indexSettings.settingsUpdated"));
       await mutate(SWR_KEYS.embeddingProviders);
       onDeselectModel();
       disconnectModal.toggle(false);
     } catch {
-      toast.error(`Failed to disconnect ${provider.displayName}`);
+      toast.error(t("admin.webSearch.unexpectedError"));
     }
   }, [
     isCloud,
@@ -285,16 +288,16 @@ function ProviderGroup({
           <disconnectModal.Provider>
             <ConfirmationModalLayout
               icon={SvgUnplug}
-              title={`Disconnect ${provider.displayName}`}
+              title={t("admin.indexSettings.disconnectTitle", { name: provider.displayName })}
               submit={
                 <Button variant="danger" onClick={handleDisconnect}>
-                  Disconnect
+                  {t("admin.indexSettings.disconnect")}
                 </Button>
               }
             >
               <Text font="main-ui-body" color="text-03" as="p">
                 {markdown(
-                  `This will disconnect all embedding models from provider **${provider.displayName}**.`
+                  t("admin.indexSettings.disconnectDesc", { name: provider.displayName })
                 )}
               </Text>
             </ConfirmationModalLayout>
@@ -376,7 +379,7 @@ function ProviderGroup({
                     disabled={providerGroupContainsCurrentModelName}
                     tooltip={
                       providerGroupContainsCurrentModelName
-                        ? "Cannot disconnect this embedding model because it is the current default. Select a new one before proceeding."
+                        ? t("admin.indexSettings.cannotDisconnectDefaultTooltip")
                         : undefined
                     }
                     onClick={() => disconnectModal.toggle(true)}
@@ -385,8 +388,8 @@ function ProviderGroup({
                     icon={SvgSettings}
                     prominence="tertiary"
                     size="sm"
-                    aria-label="Edit credentials"
-                    tooltip="Edit credentials"
+                    aria-label={t("admin.indexSettings.editCredentialsTooltip")}
+                    tooltip={t("admin.indexSettings.editCredentialsTooltip")}
                     onClick={() => editCredentialsModal.toggle(true)}
                   />
                   <Spacer orientation="horizontal" rem={0.25} />
@@ -404,7 +407,7 @@ function ProviderGroup({
             onClick={() => providerCreationModal.toggle(true)}
           >
             <ContentAction
-              title={`Add configs for your ${provider.displayName} embedding providers.`}
+              title={t("admin.indexSettings.addConfigsInfo", { name: provider.displayName })}
               sizePreset="secondary"
               variant="body"
               color="muted"
@@ -415,7 +418,7 @@ function ProviderGroup({
                   rightIcon={SvgPlusCircle}
                   onClick={() => providerCreationModal.toggle(true)}
                 >
-                  Add Configuration
+                  {t("admin.indexSettings.addConfiguration")}
                 </Button>
               }
               center
@@ -459,6 +462,7 @@ function EmbeddingModelCard({
   cardState,
   onSelect,
 }: EmbeddingModelCardProps) {
+  const { t } = useTranslation();
   const topRightButton = (() => {
     switch (modelState) {
       case "unconnected":
@@ -470,11 +474,11 @@ function EmbeddingModelCard({
             disabled={provider.deprecated}
             tooltip={
               provider.deprecated
-                ? "This embedding model is deprecated and cannot be connected to."
+                ? t("admin.indexSettings.deprecatedTooltip")
                 : undefined
             }
           >
-            Connect
+            {t("admin.indexSettings.connect")}
           </Button>
         );
       case "connected":
@@ -485,11 +489,11 @@ function EmbeddingModelCard({
             disabled={provider.deprecated}
             tooltip={
               provider.deprecated
-                ? "This embedding model is deprecated and cannot be selected."
+                ? t("admin.indexSettings.deprecatedSelectTooltip")
                 : undefined
             }
           >
-            Select Model
+            {t("admin.indexSettings.selectModel")}
           </Button>
         );
       case "current":
@@ -581,6 +585,7 @@ interface IndexSettingsFormValues {
 }
 
 export default function IndexSettingsPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const settings = useSettings();
   const editModal = useCreateModal();

@@ -38,6 +38,7 @@ import {
   getIconForAction,
   hasSearchToolsAvailable,
 } from "@/app/app/services/actionUtils";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   SvgArrowUp,
   SvgGlobe,
@@ -123,6 +124,7 @@ const AppInputBar = React.memo(
     currentTabUrl,
     onToggleTabReading,
   }: AppInputBarProps) => {
+    const { t } = useTranslation();
     const [isRecording, setIsRecording] = useState(false);
     const [recordingCycleCount, setRecordingCycleCount] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
@@ -867,17 +869,17 @@ const AppInputBar = React.memo(
                       }}
                       aria-multiline={true}
                       aria-disabled={disabled}
-                      aria-placeholder="How can I help you today?"
+                      aria-placeholder={t("chat.placeholders.help")}
                       data-placeholder={
                         queuedMessages.length > 0 && !message
-                          ? "Press up to edit queued messages"
+                          ? t("chat.placeholders.editQueued")
                           : isRecording
-                            ? "Listening..."
+                            ? t("chat.placeholders.listening")
                             : isVoicePlaybackActive
-                              ? "Onyx is speaking..."
+                              ? t("chat.placeholders.speaking")
                               : isSearchMode
-                                ? "Search connected sources"
-                                : "How can I help you today?"
+                                ? t("chat.placeholders.search")
+                                : t("chat.placeholders.help")
                       }
                       data-empty={!message ? "" : undefined}
                       onKeyDown={(event) => {

@@ -21,6 +21,7 @@ import {
 } from "@opal/components";
 import { Hoverable } from "@opal/core";
 import { DEFAULT_AGENT_ID, UNNAMED_CHAT } from "@/lib/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   SvgBubbleText,
   SvgFolder,
@@ -51,6 +52,7 @@ function ProjectChatItem({
   icon,
   afterRefresh,
 }: ProjectChatItemProps) {
+  const { t } = useTranslation();
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [pendingMoveProjectId, setPendingMoveProjectId] = useState<
@@ -231,7 +233,7 @@ function ProjectChatItem({
           href={`/app?chatId=${chat.id}`}
           group={chat.id}
           icon={icon}
-          title={chat.name || UNNAMED_CHAT}
+          title={chat.name || t("common.newChat")}
           description={
             lastUpdateTime ? `Last message ${lastUpdateTime}` : undefined
           }

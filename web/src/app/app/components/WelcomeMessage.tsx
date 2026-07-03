@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { useSettings } from "@/lib/settings/hooks";
 import FrostedDiv from "@/refresh-components/FrostedDiv";
 import { Section } from "@/layouts/general-layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface WelcomeMessageProps {
   agent?: MinimalAgent;
@@ -23,6 +24,14 @@ export default function WelcomeMessage({
   isDefaultAgent,
 }: WelcomeMessageProps) {
   const settings = useSettings();
+  const { t } = useTranslation();
+
+  const translateGreeting = (msg: string | undefined) => {
+    if (!msg) return "";
+    if (msg === "How can I help?") return t("chat.placeholders.help");
+    if (msg === "Let's get started.") return t("chat.placeholders.getStarted");
+    return msg;
+  };
 
   // Use a stable default for SSR, then randomize on client after hydration
   const [greeting, setGreeting] = useState(GREETING_MESSAGES[0]);
@@ -48,7 +57,7 @@ export default function WelcomeMessage({
       >
         <Logo folded size={32} />
         <Text as="p" headingH2>
-          {greeting}
+          {translateGreeting(greeting)}
         </Text>
       </Section>
     );

@@ -3,16 +3,18 @@
 import React from "react";
 import { useSettings } from "@/lib/settings/hooks";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function LoginText() {
+  const { t } = useTranslation();
   const { appName } = useSettings();
   return (
     <div className="w-full flex flex-col ">
       <Text as="p" headingH2 text05>
-        Welcome to {appName}
+        {t("auth.loginWelcome", { appName })}
       </Text>
       <Text as="p" text03 mainUiMuted>
-        Your open source AI platform for work
+        {t("auth.loginSub")}
       </Text>
     </div>
   );

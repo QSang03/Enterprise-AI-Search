@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import * as Yup from "yup";
 import { FormikField } from "@/refresh-components/form/FormikField";
 import { FormField } from "@/refresh-components/form/FormField";
@@ -19,6 +19,19 @@ import {
   parseAzureTargetUri,
   isValidAzureTargetUri,
 } from "@/lib/azureTargetUri";
+import { useTranslation } from "@/providers/LanguageProvider";
+
+const getProviderTitle = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerTitle_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.title : trans;
+};
+
+const getProviderDesc = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerDesc_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.description : trans;
+};
 
 // Azure form values - target URI and API key
 interface AzureFormValues {
@@ -31,18 +44,8 @@ const initialValues: AzureFormValues = {
   api_key: "",
 };
 
-const validationSchema = Yup.object().shape({
-  target_uri: Yup.string()
-    .required("Target URI is required")
-    .test(
-      "valid-target-uri",
-      "Target URI must be a valid URL with api-version and deployment name",
-      (value) => (value ? isValidAzureTargetUri(value) : false)
-    ),
-  api_key: Yup.string().required("API Key is required"),
-});
-
 function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
+  const { t } = useTranslation();
   const {
     formikProps,
     apiStatus,
@@ -62,7 +65,7 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
         name="target_uri"
         render={(field, helper, meta, state) => (
           <FormField name="target_uri" state={state} className="w-full">
-            <FormField.Label>Target URI</FormField.Label>
+            <FormField.Label>{t("admin.imageGen.targetUriLabel")}</FormField.Label>
             <FormField.Control>
               <InputTypeIn
                 {...field}
@@ -72,21 +75,23 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
             </FormField.Control>
             <FormField.Message
               messages={{
-                idle: (
-                  <>
-                    Paste your endpoint target URI from{" "}
-                    <a
-                      href="https://oai.azure.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline"
-                    >
-                      Azure OpenAI
-                    </a>{" "}
-                    (including API endpoint base, deployment name, and API
-                    version).
-                  </>
-                ),
+                idle: (() => {
+                  const parts = t("admin.imageGen.targetUriDesc").split("{link}");
+                  return (
+                    <>
+                      {parts[0]}
+                      <a
+                        href="https://oai.azure.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        Azure OpenAI
+                      </a>
+                      {parts[1]}
+                    </>
+                  );
+                })(),
                 error: meta.error,
               }}
             />
@@ -103,7 +108,7 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
             state={apiStatus === "error" ? "error" : state}
             className="w-full"
           >
-            <FormField.Label>API Key</FormField.Label>
+            <FormField.Label>{t("admin.imageGen.apiKeyLabel")}</FormField.Label>
             <FormField.Control>
               {apiKeyOptions.length > 0 ? (
                 <InputComboBox
@@ -120,8 +125,8 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
                   options={apiKeyOptions}
                   placeholder={
                     isLoadingCredentials
-                      ? "Loading..."
-                      : "Enter new API key or select existing provider"
+                      ? t("admin.imageGen.loadingPlaceholder")
+                      : t("admin.imageGen.enterNewApiKey")
                   }
                   disabled={disabled || !formikProps.values.target_uri?.trim()}
                   isError={apiStatus === "error"}
@@ -134,7 +139,7 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
                     resetApiState();
                   }}
                   placeholder={
-                    isLoadingCredentials ? "Loading..." : "Enter your API key"
+                    isLoadingCredentials ? t("admin.imageGen.loadingPlaceholder") : t("admin.imageGen.enterApiKeyPlaceholder")
                   }
                   disabled={disabled || !formikProps.values.target_uri?.trim()}
                   error={apiStatus === "error"}
@@ -145,28 +150,31 @@ function AzureFormFields(props: ImageGenFormChildProps<AzureFormValues>) {
               <FormField.APIMessage
                 state={apiStatus}
                 messages={{
-                  loading: `Testing API key with ${imageProvider.title}...`,
-                  success: "API key is valid. Configuration saved.",
-                  error: errorMessage || "Invalid API key",
+                  loading: t("admin.imageGen.testingApiKey", { name: getProviderTitle(imageProvider, t) }),
+                  success: t("admin.imageGen.apiKeyValid"),
+                  error: errorMessage || t("admin.imageGen.invalidApiKey"),
                 }}
               />
             ) : (
               <FormField.Message
                 messages={{
-                  idle: (
-                    <>
-                      {"Paste your "}
-                      <a
-                        href="https://oai.azure.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline"
-                      >
-                        API key
-                      </a>
-                      {" from Azure OpenAI to access your models."}
-                    </>
-                  ),
+                  idle: (() => {
+                    const parts = t("admin.imageGen.apiKeyDesc").split("{link}");
+                    return (
+                      <>
+                        {parts[0]}
+                        <a
+                          href="https://oai.azure.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          API key
+                        </a>
+                        {parts[1]}
+                      </>
+                    );
+                  })(),
                   error: meta.error,
                 }}
               />
@@ -230,17 +238,32 @@ function transformValues(
 }
 
 export function AzureImageGenForm(props: ImageGenFormBaseProps) {
+  const { t } = useTranslation();
   const { imageProvider, existingConfig } = props;
+
+  const providerTitle = getProviderTitle(imageProvider, t);
+  const providerDesc = getProviderDesc(imageProvider, t);
+
+  const validationSchema = useMemo(() => Yup.object().shape({
+    target_uri: Yup.string()
+      .required(t("admin.imageGen.targetUriRequired"))
+      .test(
+        "valid-target-uri",
+        t("admin.imageGen.targetUriInvalid"),
+        (value) => (value ? isValidAzureTargetUri(value) : false)
+      ),
+    api_key: Yup.string().required(t("admin.imageGen.apiKeyRequired")),
+  }), [t]);
 
   return (
     <ImageGenFormWrapper<AzureFormValues>
       {...props}
       title={
         existingConfig
-          ? `Edit ${imageProvider.title}`
-          : `Connect ${imageProvider.title}`
+          ? t("admin.imageGen.editTitle", { name: providerTitle })
+          : t("admin.imageGen.connectTitle", { name: providerTitle })
       }
-      description={imageProvider.description}
+      description={providerDesc}
       initialValues={initialValues}
       validationSchema={validationSchema}
       getInitialValuesFromCredentials={getInitialValuesFromCredentials}

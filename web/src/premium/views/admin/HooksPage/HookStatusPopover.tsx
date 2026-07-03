@@ -61,7 +61,7 @@ function ErrorLogRow({
         </Section>
         <span className="break-all">
           <Text font="secondary-mono" color="text-03">
-            {log.error_message ?? "Unknown error"}
+            {log.error_message ?? "Lỗi không xác định"}
           </Text>
         </span>
       </Section>
@@ -197,7 +197,7 @@ export default function HookStatusPopover({
             onClick={noProp(handleTriggerClick)}
             disabled={isBusy}
           >
-            {hook.is_reachable === false ? "Connection Lost" : "Connected"}
+            {hook.is_reachable === false ? "Mất kết nối" : "Đã kết nối"}
           </Button>
         </Popover.Anchor>
 
@@ -230,7 +230,7 @@ export default function HookStatusPopover({
               </Section>
             ) : error ? (
               <Text font="secondary-body" color="text-03">
-                Failed to load logs.
+                Không thể tải lịch sử lỗi.
               </Text>
             ) : hook.is_reachable === false ? (
               <>
@@ -244,7 +244,7 @@ export default function HookStatusPopover({
                         className="text-status-error-05"
                       />
                     )}
-                    title="Most Recent Errors"
+                    title="Lỗi gần đây nhất"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  View More Lines
+                  Xem thêm dòng
                 </LineItem>
               </>
             ) : hasRecentErrors ? (
@@ -298,12 +298,10 @@ export default function HookStatusPopover({
                     )}
                     title={
                       recentErrors.length <= 3
-                        ? `${recentErrors.length} ${
-                            recentErrors.length === 1 ? "Error" : "Errors"
-                          }`
-                        : "Most Recent Errors"
+                        ? `${recentErrors.length} lỗi`
+                        : "Lỗi gần đây nhất"
                     }
-                    description="in the past hour"
+                    description="trong giờ qua"
                   />
                 </div>
 
@@ -336,7 +334,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  View More Lines
+                  Xem thêm dòng
                 </LineItem>
               </>
             ) : (
@@ -347,8 +345,8 @@ export default function HookStatusPopover({
                     sizePreset="secondary"
                     variant="section"
                     icon={SvgCheckCircle}
-                    title="No Error"
-                    description="in the past hour"
+                    title="Không có lỗi"
+                    description="trong giờ qua"
                   />
                 </div>
 
@@ -363,7 +361,7 @@ export default function HookStatusPopover({
                     logsModal.toggle(true);
                   })}
                 >
-                  View Older Errors
+                  Xem các lỗi cũ hơn
                 </LineItem>
               </>
             )}

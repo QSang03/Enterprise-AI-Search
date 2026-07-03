@@ -86,34 +86,34 @@ function DisconnectConfirmModal({
         <Modal.Header
           // TODO(@raunakab): replace the colour of this SVG with red.
           icon={SvgUnplug}
-          title={markdown(`Disconnect *${hook.name}*`)}
+          title={markdown(`Ngắt kết nối *${hook.name}*`)}
           onClose={onClose}
         />
         <Modal.Body>
           <div className="flex flex-col gap-2">
             <Text font="main-ui-body" color="text-03">
               {markdown(
-                `Onyx will stop calling this endpoint for hook ***${hook.name}***. In-flight requests will continue to run. The external endpoint may still retain data previously sent to it. You can reconnect this hook later if needed.`
+                `Onyx sẽ ngừng gọi endpoint này cho hook ***${hook.name}***. Các yêu cầu đang xử lý dở vẫn tiếp tục được chạy. Endpoint bên ngoài có thể vẫn giữ lại dữ liệu đã gửi trước đó. Bạn có thể kết nối lại hook này sau nếu cần.`
               )}
             </Text>
             <Text font="main-ui-body" color="text-03">
-              You can also delete this hook. Deletion cannot be undone.
+              Bạn cũng có thể xóa hook này. Hành động xóa không thể được hoàn tác.
             </Text>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             variant="danger"
             prominence="secondary"
             onClick={onDisconnectAndDelete}
           >
-            Disconnect &amp; Delete
+            Ngắt kết nối &amp; Xóa
           </Button>
           <Button variant="danger" prominence="primary" onClick={onDisconnect}>
-            Disconnect
+            Ngắt kết nối
           </Button>
         </Modal.Footer>
       </Modal.Content>
@@ -139,27 +139,27 @@ function DeleteConfirmModal({ hook, onDelete }: DeleteConfirmModalProps) {
         <Modal.Header
           // TODO(@raunakab): replace the colour of this SVG with red.
           icon={SvgTrash}
-          title={markdown(`Delete *${hook.name}*`)}
+          title={markdown(`Xóa *${hook.name}*`)}
           onClose={onClose}
         />
         <Modal.Body>
           <div className="flex flex-col gap-2">
             <Text font="main-ui-body" color="text-03">
               {markdown(
-                `Hook ***${hook.name}*** will be permanently removed from this hook point. The external endpoint may still retain data previously sent to it.`
+                `Hook ***${hook.name}*** sẽ bị xóa vĩnh viễn khỏi hook point này. Endpoint bên ngoài có thể vẫn giữ lại dữ liệu đã gửi trước đó.`
               )}
             </Text>
             <Text font="main-ui-body" color="text-03">
-              Deletion cannot be undone.
+              Hành động xóa không thể được hoàn tác.
             </Text>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={onClose}>
-            Cancel
+            Hủy
           </Button>
           <Button variant="danger" prominence="primary" onClick={onDelete}>
-            Delete
+            Xóa
           </Button>
         </Modal.Footer>
       </Modal.Content>
@@ -194,7 +194,7 @@ function UnconnectedHookCard({ spec, onConnect }: UnconnectedHookCardProps) {
           {spec.docs_url && (
             <div className="ml-6">
               <LinkButton href={spec.docs_url} target="_blank">
-                Documentation
+                Tài liệu hướng dẫn
               </LinkButton>
             </div>
           )}
@@ -205,7 +205,7 @@ function UnconnectedHookCard({ spec, onConnect }: UnconnectedHookCardProps) {
           rightIcon={SvgArrowExchange}
           onClick={noProp(onConnect)}
         >
-          Connect
+          Kết nối
         </Button>
       </div>
     </SelectCard>
@@ -244,7 +244,7 @@ function ConnectedHookCard({
     } catch (err) {
       console.error("Failed to delete hook:", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to delete hook."
+        err instanceof Error ? err.message : "Không thể xóa hook."
       );
     } finally {
       setIsBusy(false);
@@ -259,7 +259,7 @@ function ConnectedHookCard({
     } catch (err) {
       console.error("Failed to reconnect hook:", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to reconnect hook."
+        err instanceof Error ? err.message : "Không thể kết nối lại hook."
       );
     } finally {
       setIsBusy(false);
@@ -275,7 +275,7 @@ function ConnectedHookCard({
     } catch (err) {
       console.error("Failed to deactivate hook:", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to deactivate hook."
+        err instanceof Error ? err.message : "Không thể hủy kích hoạt hook."
       );
     } finally {
       setIsBusy(false);
@@ -293,7 +293,7 @@ function ConnectedHookCard({
     } catch (err) {
       console.error("Failed to disconnect hook:", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to disconnect hook."
+        err instanceof Error ? err.message : "Không thể ngắt kết nối hook."
       );
     } finally {
       setIsBusy(false);
@@ -305,16 +305,16 @@ function ConnectedHookCard({
     try {
       const result = await validateHook(hook.id);
       if (result.status === "passed") {
-        toast.success("Hook validated successfully.");
+        toast.success("Xác minh hook thành công.");
       } else {
         toast.error(
-          result.error_message ?? `Validation failed: ${result.status}`
+          result.error_message ?? `Xác minh thất bại: ${result.status}`
         );
       }
     } catch (err) {
       console.error("Failed to validate hook:", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to validate hook."
+        err instanceof Error ? err.message : "Không thể xác minh hook."
       );
       return;
     } finally {
@@ -358,7 +358,7 @@ function ConnectedHookCard({
                     ? markdown(`~~${hook.name}~~`)
                     : hook.name
                 }
-                suffix={!hook.is_active ? "(Disconnected)" : undefined}
+                suffix={!hook.is_active ? "(Đã ngắt kết nối)" : undefined}
                 description={`Hook Point: ${
                   spec?.display_name ?? hook.hook_point
                 }`}
@@ -367,7 +367,7 @@ function ConnectedHookCard({
               {spec?.docs_url && (
                 <div className="ml-6">
                   <LinkButton href={spec.docs_url} target="_blank">
-                    Documentation
+                    Tài liệu hướng dẫn
                   </LinkButton>
                 </div>
               )}
@@ -384,7 +384,7 @@ function ConnectedHookCard({
                     onClick={noProp(handleActivate)}
                     disabled={isBusy}
                   >
-                    Reconnect
+                    Kết nối lại
                   </Button>
                 )}
               </div>
@@ -402,7 +402,7 @@ function ConnectedHookCard({
                           size="md"
                           icon={SvgUnplug}
                           onClick={noProp(() => disconnectModal.toggle(true))}
-                          tooltip="Disconnect Hook"
+                          tooltip="Ngắt kết nối Hook"
                           aria-label="Deactivate hook"
                         />
                       </Hoverable.Item>
@@ -411,7 +411,7 @@ function ConnectedHookCard({
                         size="md"
                         icon={SvgRefreshCw}
                         onClick={noProp(handleValidate)}
-                        tooltip="Test Connection"
+                        tooltip="Kiểm tra kết nối"
                         aria-label="Re-validate hook"
                       />
                     </>
@@ -421,7 +421,7 @@ function ConnectedHookCard({
                       size="md"
                       icon={SvgTrash}
                       onClick={noProp(() => deleteModal.toggle(true))}
-                      tooltip="Delete"
+                      tooltip="Xóa"
                       aria-label="Delete hook"
                     />
                   )}
@@ -430,7 +430,7 @@ function ConnectedHookCard({
                     size="md"
                     icon={SvgSettings}
                     onClick={noProp(onEdit)}
-                    tooltip="Manage"
+                    tooltip="Quản lý"
                     aria-label="Configure hook"
                   />
                 </div>
@@ -509,10 +509,10 @@ export default function HooksPage() {
   useEffect(() => {
     if (settings.isLoading) return;
     if (!enterpriseTier) {
-      toast.info("Hook Extensions require an Enterprise license.");
+      toast.info("Các tính năng mở rộng Hook yêu cầu giấy phép Enterprise.");
       router.replace("/");
     } else if (!settings.hooks_enabled) {
-      toast.info("Hook Extensions are not enabled for this deployment.");
+      toast.info("Các tính năng mở rộng Hook chưa được kích hoạt cho bản triển khai này.");
       router.replace("/");
     }
   }, [settings.isLoading, enterpriseTier, settings.hooks_enabled, router]);
@@ -579,7 +579,7 @@ export default function HooksPage() {
         <SettingsLayouts.Header
           icon={route.icon}
           title={route.title}
-          description="Extend Onyx pipelines by registering external API endpoints as callbacks at predefined hook points."
+          description="Mở rộng pipeline Onyx bằng cách đăng ký các API endpoint bên ngoài làm callback tại các hook point được định nghĩa sẵn."
           divider
         />
         <SettingsLayouts.Body>
@@ -587,15 +587,15 @@ export default function HooksPage() {
             <SvgSimpleLoader />
           ) : specsError || hooksError ? (
             <Text font="secondary-body" color="text-03">
-              {`Failed to load${
-                specsError ? " hook specifications" : " hooks"
-              }. Please refresh the page.`}
+              {`Không thể tải${
+                specsError ? " cấu hình hook point" : " danh sách hook"
+              }. Vui lòng làm mới trang.`}
             </Text>
           ) : (
             <div className="flex flex-col gap-3 h-full">
               <div className="pb-3">
                 <InputTypeIn
-                  placeholder="Search hooks..."
+                  placeholder="Tìm kiếm hook..."
                   value={search}
                   variant="internal"
                   searchIcon
@@ -607,10 +607,10 @@ export default function HooksPage() {
                 <div>
                   <IllustrationContent
                     title={
-                      search ? "No results found" : "No hook points available"
+                      search ? "Không tìm thấy kết quả" : "Không có hook point nào khả dụng"
                     }
                     description={
-                      search ? "Try using a different search term." : undefined
+                      search ? "Hãy thử sử dụng một từ khóa tìm kiếm khác." : undefined
                     }
                     illustration={search ? SvgNoResult : SvgEmpty}
                   />

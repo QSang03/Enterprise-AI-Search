@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import * as Yup from "yup";
 import { FormikField } from "@/refresh-components/form/FormikField";
 import { FormField } from "@/refresh-components/form/FormField";
@@ -14,6 +14,19 @@ import {
 } from "@/views/admin/ImageGenerationPage/forms/types";
 import { ImageGenerationCredentials } from "@/views/admin/ImageGenerationPage/svc";
 import { ImageProvider } from "@/views/admin/ImageGenerationPage/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
+
+const getProviderTitle = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerTitle_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.title : trans;
+};
+
+const getProviderDesc = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerDesc_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.description : trans;
+};
 
 // OpenAI form values - just API key
 interface OpenAIFormValues {
@@ -24,11 +37,8 @@ const initialValues: OpenAIFormValues = {
   api_key: "",
 };
 
-const validationSchema = Yup.object().shape({
-  api_key: Yup.string().required("API Key is required"),
-});
-
 function OpenAIFormFields(props: ImageGenFormChildProps<OpenAIFormValues>) {
+  const { t } = useTranslation();
   const {
     apiStatus,
     showApiMessage,
@@ -49,7 +59,7 @@ function OpenAIFormFields(props: ImageGenFormChildProps<OpenAIFormValues>) {
           state={apiStatus === "error" ? "error" : state}
           className="w-full"
         >
-          <FormField.Label>API Key</FormField.Label>
+          <FormField.Label>{t("admin.imageGen.apiKeyLabel")}</FormField.Label>
           <FormField.Control>
             {apiKeyOptions.length > 0 ? (
               <InputComboBox
@@ -66,8 +76,8 @@ function OpenAIFormFields(props: ImageGenFormChildProps<OpenAIFormValues>) {
                 options={apiKeyOptions}
                 placeholder={
                   isLoadingCredentials
-                    ? "Loading..."
-                    : "Enter new API key or select existing provider"
+                    ? t("admin.imageGen.loadingPlaceholder")
+                    : t("admin.imageGen.enterNewApiKey")
                 }
                 disabled={disabled}
                 isError={apiStatus === "error"}
@@ -80,7 +90,7 @@ function OpenAIFormFields(props: ImageGenFormChildProps<OpenAIFormValues>) {
                   resetApiState();
                 }}
                 placeholder={
-                  isLoadingCredentials ? "Loading..." : "Enter your API key"
+                  isLoadingCredentials ? t("admin.imageGen.loadingPlaceholder") : t("admin.imageGen.enterApiKeyPlaceholder")
                 }
                 disabled={disabled}
                 error={apiStatus === "error"}
@@ -91,15 +101,31 @@ function OpenAIFormFields(props: ImageGenFormChildProps<OpenAIFormValues>) {
             <FormField.APIMessage
               state={apiStatus}
               messages={{
-                loading: `Testing API key with ${imageProvider.title}...`,
-                success: "API key is valid. Configuration saved.",
-                error: errorMessage || "Invalid API key",
+                loading: t("admin.imageGen.testingApiKey", { name: getProviderTitle(imageProvider, t) }),
+                success: t("admin.imageGen.apiKeyValid"),
+                error: errorMessage || t("admin.imageGen.invalidApiKey"),
               }}
             />
           ) : (
             <FormField.Message
               messages={{
-                idle: "Enter a new API key or select an existing provider.",
+                idle: (() => {
+                  const parts = t("admin.imageGen.apiKeyDesc").split("{link}");
+                  return (
+                    <>
+                      {parts[0]}
+                      <a
+                        href="https://platform.openai.com/api-keys"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline"
+                      >
+                        API key
+                      </a>
+                      {parts[1]}
+                    </>
+                  );
+                })(),
                 error: meta.error,
               }}
             />
@@ -132,17 +158,25 @@ function transformValues(
 }
 
 export function OpenAIImageGenForm(props: ImageGenFormBaseProps) {
+  const { t } = useTranslation();
   const { imageProvider, existingConfig } = props;
+
+  const providerTitle = getProviderTitle(imageProvider, t);
+  const providerDesc = getProviderDesc(imageProvider, t);
+
+  const validationSchema = useMemo(() => Yup.object().shape({
+    api_key: Yup.string().required(t("admin.imageGen.apiKeyRequired")),
+  }), [t]);
 
   return (
     <ImageGenFormWrapper<OpenAIFormValues>
       {...props}
       title={
         existingConfig
-          ? `Edit ${imageProvider.title}`
-          : `Connect ${imageProvider.title}`
+          ? t("admin.imageGen.editTitle", { name: providerTitle })
+          : t("admin.imageGen.connectTitle", { name: providerTitle })
       }
-      description={imageProvider.description}
+      description={providerDesc}
       initialValues={initialValues}
       validationSchema={validationSchema}
       getInitialValuesFromCredentials={getInitialValuesFromCredentials}

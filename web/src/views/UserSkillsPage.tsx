@@ -10,6 +10,7 @@ import TextSeparator from "@/refresh-components/TextSeparator";
 import useOnMount from "@/hooks/useOnMount";
 import useUserSkills from "@/hooks/useUserSkills";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import SkillCard, {
   type CustomSkillCardItem,
   type SkillCardItem,
@@ -28,6 +29,7 @@ import { toast } from "@/hooks/useToast";
 // ---------------------------------------------------------------------------
 
 export default function UserSkillsPage() {
+  const { t } = useTranslation();
   const { data, error, isLoading, refresh } = useUserSkills();
   const { user, isAdmin } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
@@ -161,8 +163,8 @@ export default function UserSkillsPage() {
     <SettingsLayouts.Root data-testid="UserSkillsPage/container">
       <SettingsLayouts.Header
         icon={SvgBlocks}
-        title="Skills"
-        description="Capability bundles your Craft agent can reach for. This page shows what's currently available to you — skills granted by admins plus your own personal skills."
+        title={t("skills.title")}
+        description={t("skills.description")}
         rightChildren={
           <div className="flex items-center gap-2">
             {isAdmin && (
@@ -171,18 +173,18 @@ export default function UserSkillsPage() {
                 prominence="secondary"
                 icon={SvgSettings}
               >
-                Manage skills
+                {t("skills.manageSkills")}
               </Button>
             )}
             <Button icon={SvgPlus} onClick={() => setCreateOpen(true)}>
-              Create skill
+              {t("skills.createSkill")}
             </Button>
           </div>
         }
       >
         <InputTypeIn
           ref={searchInputRef}
-          placeholder="Search skills..."
+          placeholder={t("skills.searchPlaceholder")}
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           searchIcon
@@ -195,8 +197,8 @@ export default function UserSkillsPage() {
         {error && !isLoading && (
           <MessageCard
             variant="error"
-            title="Failed to load skills"
-            description="Check the console for details and try refreshing the page."
+            title={t("skills.failedLoad")}
+            description={t("skills.failedLoadDesc")}
           />
         )}
 
@@ -207,20 +209,20 @@ export default function UserSkillsPage() {
                 illustration={SvgNoResult}
                 title={
                   items.length === 0
-                    ? "No skills available"
-                    : "No matching skills"
+                    ? t("skills.noSkills")
+                    : t("skills.noMatching")
                 }
                 description={
                   items.length === 0
-                    ? "Your admin hasn't granted you access to any custom skills yet, and no built-ins are configured."
-                    : "Try a different search."
+                    ? t("skills.noSkillsDesc")
+                    : t("skills.tryDifferentSearch")
                 }
               />
             ) : (
               <>
                 <section className="flex flex-col gap-2">
                   <Text font="secondary-body" color="text-03">
-                    Browse skills
+                    {t("skills.browseSkills")}
                   </Text>
                   <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                     {visibleItems.map((item) => (
@@ -237,7 +239,7 @@ export default function UserSkillsPage() {
                 </section>
                 <TextSeparator
                   count={visibleItems.length}
-                  text={visibleItems.length === 1 ? "Skill" : "Skills"}
+                  text={visibleItems.length === 1 ? t("skills.skill") : t("skills.skills")}
                 />
               </>
             )}
@@ -245,8 +247,7 @@ export default function UserSkillsPage() {
             {visibleItems.length > 0 && (
               <div className="pt-2">
                 <Text as="p" font="secondary-body" color="text-03">
-                  Org-wide skills are managed by admins. Personal skills you
-                  create are visible only to you.
+                  {t("skills.footerDesc")}
                 </Text>
               </div>
             )}

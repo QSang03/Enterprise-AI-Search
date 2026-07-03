@@ -1,6 +1,7 @@
 "use client";
 
 import { Form, Formik } from "formik";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { toast } from "@/hooks/useToast";
 import {
   createApiKey,
@@ -27,6 +28,7 @@ export default function ApiKeyFormModal({
   onCreateApiKey,
   apiKey,
 }: ApiKeyFormModalProps) {
+  const { t } = useTranslation();
   const isUpdate = apiKey !== undefined;
 
   return (
@@ -34,11 +36,11 @@ export default function ApiKeyFormModal({
       <Modal.Content width="sm" height="lg">
         <Modal.Header
           icon={SvgKey}
-          title={isUpdate ? "Update Service Account" : "Create Service Account"}
+          title={isUpdate ? t("admin.serviceAccounts.updateTitle") : t("admin.serviceAccounts.createTitle")}
           description={
             isUpdate
               ? undefined
-              : "Use service account API key to programmatically access Onyx API with user-level permissions. You can modify the account details later."
+              : t("admin.serviceAccounts.createDesc")
           }
           onClose={onClose}
         />
@@ -65,8 +67,8 @@ export default function ApiKeyFormModal({
               if (response.ok) {
                 toast.success(
                   isUpdate
-                    ? "Successfully updated service account!"
-                    : "Successfully created service account!"
+                    ? t("admin.serviceAccounts.toastUpdateSuccess")
+                    : t("admin.serviceAccounts.toastCreateSuccess")
                 );
                 if (!isUpdate) {
                   onCreateApiKey(await response.json());
@@ -77,13 +79,13 @@ export default function ApiKeyFormModal({
                 const errorMsg = responseJson.detail || responseJson.message;
                 toast.error(
                   isUpdate
-                    ? `Error updating service account - ${errorMsg}`
-                    : `Error creating service account - ${errorMsg}`
+                    ? t("admin.serviceAccounts.toastUpdateError", { error: errorMsg })
+                    : t("admin.serviceAccounts.toastCreateError", { error: errorMsg })
                 );
               }
             } catch (e) {
               toast.error(
-                e instanceof Error ? e.message : "An unexpected error occurred."
+                e instanceof Error ? e.message : t("admin.serviceAccounts.toastUnexpectedError")
               );
             } finally {
               formikHelpers.setSubmitting(false);
@@ -93,16 +95,16 @@ export default function ApiKeyFormModal({
           {({ isSubmitting, values }) => (
             <Form className="w-full overflow-visible">
               <Modal.Body>
-                <InputVertical withLabel="name" title="Name">
+                <InputVertical withLabel="name" title={t("admin.serviceAccounts.nameLabel")}>
                   <FormikField<string>
                     name="name"
                     render={(field, helper) => (
-                      <InputTypeIn {...field} placeholder="Enter a name" />
+                      <InputTypeIn {...field} placeholder={t("admin.serviceAccounts.namePlaceholder")} />
                     )}
                   />
                 </InputVertical>
 
-                <InputVertical withLabel="role" title="Account Permissions">
+                <InputVertical withLabel="role" title={t("admin.serviceAccounts.permissionsLabel")}>
                   <FormikField<string>
                     name="role"
                     render={(field, helper) => (
@@ -110,26 +112,26 @@ export default function ApiKeyFormModal({
                         value={field.value}
                         onValueChange={(value) => helper.setValue(value)}
                       >
-                        <InputSelect.Trigger placeholder="Select permissions" />
+                        <InputSelect.Trigger placeholder={t("admin.serviceAccounts.permissionsPlaceholder")} />
                         <InputSelect.Content>
                           <InputSelect.Item
                             value={UserRole.ADMIN.toString()}
                             icon={SvgUserManage}
-                            description="Unrestricted admin access to all endpoints."
+                            description={t("admin.serviceAccounts.roleAdminDesc")}
                           >
                             {USER_ROLE_LABELS[UserRole.ADMIN]}
                           </InputSelect.Item>
                           <InputSelect.Item
                             value={UserRole.BASIC.toString()}
                             icon={SvgUser}
-                            description="Standard user-level access to non-admin endpoints."
+                            description={t("admin.serviceAccounts.roleBasicDesc")}
                           >
                             {USER_ROLE_LABELS[UserRole.BASIC]}
                           </InputSelect.Item>
                           <InputSelect.Item
                             value={UserRole.LIMITED.toString()}
                             icon={SvgLock}
-                            description="For agents: chat posting and read-only access to other endpoints."
+                            description={t("admin.serviceAccounts.roleLimitedDesc")}
                           >
                             {USER_ROLE_LABELS[UserRole.LIMITED]}
                           </InputSelect.Item>
@@ -142,13 +144,13 @@ export default function ApiKeyFormModal({
 
               <Modal.Footer>
                 <Button prominence="secondary" type="button" onClick={onClose}>
-                  Cancel
+                  {t("admin.serviceAccounts.cancel")}
                 </Button>
                 <Button
                   disabled={isSubmitting || !values.name.trim()}
                   type="submit"
                 >
-                  {isUpdate ? "Update" : "Create Account"}
+                  {isUpdate ? t("admin.serviceAccounts.updateBtn") : t("admin.serviceAccounts.createBtn")}
                 </Button>
               </Modal.Footer>
             </Form>

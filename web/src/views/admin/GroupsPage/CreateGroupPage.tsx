@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Table, Button, Divider } from "@opal/components";
 import { IllustrationContent } from "@opal/layouts";
@@ -11,6 +11,7 @@ import { Section } from "@/layouts/general-layouts";
 import { InputTypeIn } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import useGroupMemberCandidates from "./useGroupMemberCandidates";
 import {
   createGroup,
@@ -18,12 +19,13 @@ import {
   updateDocSetGroupSharing,
   saveTokenLimits,
 } from "./svc";
-import { memberTableColumns, PAGE_SIZE } from "./shared";
+import { buildBaseColumns, PAGE_SIZE, tc } from "./shared";
 import SharedGroupResources from "@/views/admin/GroupsPage/SharedGroupResources";
 import TokenLimitSection from "./TokenLimitSection";
 import type { TokenLimit } from "./TokenLimitSection";
 
 function CreateGroupPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [groupName, setGroupName] = useState("");
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
@@ -36,12 +38,17 @@ function CreateGroupPage() {
     { tokenBudget: null, periodHours: null },
   ]);
 
+  const { t: tHook } = useTranslation();
   const { rows: allRows, isLoading, error } = useGroupMemberCandidates();
+  const memberTableColumns = useMemo(() => [
+    ...buildBaseColumns(tHook),
+    tc.actions({ showSorting: false }),
+  ], [tHook]);
 
   async function handleCreate() {
     const trimmed = groupName.trim();
     if (!trimmed) {
-      toast.error("Group name is required");
+      toast.error(t("admin.groups.groupNameRequired"));
       return;
     }
 
@@ -55,10 +62,10 @@ function CreateGroupPage() {
       await updateAgentGroupSharing(groupId, [], selectedAgentIds);
       await updateDocSetGroupSharing(groupId, [], selectedDocSetIds);
       await saveTokenLimits(groupId, tokenLimits, []);
-      toast.success(`Group "${trimmed}" created`);
+      toast.success(t("admin.groups.groupCreatedSuccess", { name: trimmed }));
       router.push("/admin/groups");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to create group");
+      toast.error(e instanceof Error ? e.message : t("admin.groups.failedCreateGroup"));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,13 +77,13 @@ function CreateGroupPage() {
         prominence="secondary"
         onClick={() => router.push("/admin/groups")}
       >
-        Cancel
+        {t("admin.groups.cancel")}
       </Button>
       <Button
         onClick={handleCreate}
         disabled={!groupName.trim() || isSubmitting}
       >
-        Create
+        {t("admin.groups.create")}
       </Button>
     </Section>
   );
@@ -85,7 +92,7 @@ function CreateGroupPage() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgUsers}
-        title="Create Group"
+        title={t("admin.groups.createGroupTitle")}
         divider
         rightChildren={headerActions}
       />
@@ -99,10 +106,10 @@ function CreateGroupPage() {
           justifyContent="start"
         >
           <Text mainUiBody text04>
-            Group Name
+            {t("admin.groups.groupNameLabel")}
           </Text>
           <InputTypeIn
-            placeholder="Name your group"
+            placeholder={t("admin.groups.groupNamePlaceholder")}
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
           />
@@ -115,7 +122,7 @@ function CreateGroupPage() {
 
         {error ? (
           <Text as="p" secondaryBody text03>
-            Failed to load users.
+            {t("admin.groups.failedLoadUsers")}
           </Text>
         ) : null}
 
@@ -129,7 +136,7 @@ function CreateGroupPage() {
             <InputTypeIn
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search users and accounts..."
+              placeholder={t("admin.groups.searchUsersPlaceholder")}
               searchIcon
             />
             <Table
@@ -144,8 +151,8 @@ function CreateGroupPage() {
               emptyState={
                 <IllustrationContent
                   illustration={SvgNoResult}
-                  title="No users found"
-                  description="No users match your search."
+                  title={t("admin.groups.noUsersFound")}
+                  description={t("admin.groups.noUsersMatch")}
                 />
               }
             />

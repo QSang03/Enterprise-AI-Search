@@ -12,6 +12,7 @@ import {
 } from "@opal/icons";
 import LineItem from "@/refresh-components/buttons/LineItem";
 import type { CustomSkill } from "@/views/admin/SkillsPage/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { cn } from "@opal/utils";
 
 // ---------------------------------------------------------------------------
@@ -37,6 +38,7 @@ export default function CustomSkillRowActions({
   onToggleEnabled,
   onDelete,
 }: CustomSkillRowActionsProps) {
+  const { t } = useTranslation();
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
@@ -63,7 +65,7 @@ export default function CustomSkillRowActions({
                   onShare();
                 }}
               >
-                Edit visibility
+                {t("admin.skills.editVisibility")}
               </LineItem>,
               <LineItem
                 key="replace"
@@ -73,7 +75,7 @@ export default function CustomSkillRowActions({
                   onReplaceBundle();
                 }}
               >
-                Replace bundle
+                {t("admin.skills.replaceBundle")}
               </LineItem>,
               <LineItem
                 key="enabled"
@@ -83,7 +85,7 @@ export default function CustomSkillRowActions({
                   onToggleEnabled();
                 }}
               >
-                {skill.enabled ? "Disable" : "Re-enable"}
+                {skill.enabled ? t("admin.skills.disable") : t("admin.skills.reEnable")}
               </LineItem>,
               <LineItem
                 key="delete"
@@ -94,7 +96,7 @@ export default function CustomSkillRowActions({
                   onDelete();
                 }}
               >
-                Delete
+                {t("admin.skills.delete")}
               </LineItem>,
             ]}
           </PopoverMenu>

@@ -22,6 +22,7 @@ import useCodeInterpreter from "@/hooks/useCodeInterpreter";
 import { updateCodeInterpreter } from "@/views/admin/CodeInterpreterPage/svc";
 import { toast } from "@/hooks/useToast";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.CODE_INTERPRETER;
 
@@ -30,6 +31,7 @@ const route = ADMIN_ROUTES.CODE_INTERPRETER;
 // ---------------------------------------------------------------------------
 
 function CheckingStatus() {
+  const { t } = useTranslation();
   return (
     <Section
       flexDirection="row"
@@ -39,7 +41,7 @@ function CheckingStatus() {
       padding={0.5}
     >
       <Text mainUiAction text03>
-        Checking...
+        {t("admin.codeInterpreter.checking")}
       </Text>
       <SvgSimpleLoader />
     </Section>
@@ -52,11 +54,12 @@ interface ConnectionStatusProps {
 }
 
 function ConnectionStatus({ healthy, isLoading }: ConnectionStatusProps) {
+  const { t } = useTranslation();
   if (isLoading) {
     return <CheckingStatus />;
   }
 
-  const label = healthy ? "Connected" : "Connection Lost";
+  const label = healthy ? t("admin.codeInterpreter.connected") : t("admin.codeInterpreter.connectionLost");
   const Icon = healthy ? SvgCheckCircle : SvgXOctagon;
   const iconColor = healthy
     ? "text-status-success-05!"
@@ -83,6 +86,7 @@ function ConnectionStatus({ healthy, isLoading }: ConnectionStatusProps) {
 // ---------------------------------------------------------------------------
 
 export default function CodeInterpreterPage() {
+  const { t } = useTranslation();
   const { isHealthy, isEnabled, isLoading, refetch } = useCodeInterpreter();
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [isReconnecting, setIsReconnecting] = useState(false);
@@ -93,7 +97,7 @@ export default function CodeInterpreterPage() {
     try {
       const response = await updateCodeInterpreter({ enabled });
       if (!response.ok) {
-        toast.error(`Failed to ${action} Code Interpreter`);
+        toast.error(enabled ? t("admin.codeInterpreter.failedReconnect") : t("admin.codeInterpreter.failedDisconnect"));
         return;
       }
       setShowDisconnectModal(false);
@@ -107,8 +111,8 @@ export default function CodeInterpreterPage() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={route.icon}
-        title={route.title}
-        description="Safe and sandboxed Python runtime available to your LLM. See docs for more details."
+        title={t("admin.codeInterpreter.title")}
+        description={t("admin.codeInterpreter.headerDesc")}
         divider
       />
 
@@ -124,8 +128,8 @@ export default function CodeInterpreterPage() {
                   sizePreset="main-ui"
                   variant="section"
                   icon={SvgTerminal}
-                  title="Code Interpreter"
-                  description="Built-in Python runtime"
+                  title={t("admin.codeInterpreter.title")}
+                  description={t("admin.codeInterpreter.runtimeDesc")}
                   padding="lg"
                   rightChildren={
                     <Section alignItems="end" gap={0}>
@@ -146,7 +150,7 @@ export default function CodeInterpreterPage() {
                                 size="md"
                                 icon={SvgUnplug}
                                 onClick={() => setShowDisconnectModal(true)}
-                                tooltip="Disconnect"
+                                tooltip={t("admin.codeInterpreter.disconnect")}
                               />
                             </Hoverable.Item>
                           </Disabled>
@@ -156,7 +160,7 @@ export default function CodeInterpreterPage() {
                             size="md"
                             icon={SvgRefreshCw}
                             onClick={refetch}
-                            tooltip="Refresh"
+                            tooltip={t("admin.codeInterpreter.refresh")}
                           />
                         </Section>
                       </div>
@@ -177,8 +181,8 @@ export default function CodeInterpreterPage() {
               sizePreset="main-ui"
               variant="section"
               icon={SvgTerminal}
-              title="Code Interpreter (Disconnected)"
-              description="Built-in Python runtime"
+              title={t("admin.codeInterpreter.disconnectedTitle")}
+              description={t("admin.codeInterpreter.runtimeDesc")}
               padding="lg"
               rightChildren={
                 isReconnecting ? (
@@ -192,7 +196,7 @@ export default function CodeInterpreterPage() {
                       handleToggle(true);
                     }}
                   >
-                    Reconnect
+                    {t("admin.codeInterpreter.reconnect")}
                   </Button>
                 )
               }
@@ -204,21 +208,16 @@ export default function CodeInterpreterPage() {
       {showDisconnectModal && (
         <ConfirmationModalLayout
           icon={SvgUnplug}
-          title="Disconnect Code Interpreter"
+          title={t("admin.codeInterpreter.disconnectConfirmTitle")}
           onClose={() => setShowDisconnectModal(false)}
           submit={
             <Button variant="danger" onClick={() => handleToggle(false)}>
-              Disconnect
+              {t("admin.codeInterpreter.disconnect")}
             </Button>
           }
         >
           <Text as="p" text03>
-            All running sessions connected to{" "}
-            <Text as="span" mainContentEmphasis text03>
-              Code Interpreter
-            </Text>{" "}
-            will stop working. Note that this will not remove any data from your
-            runtime. You can reconnect to this runtime later if needed.
+            {t("admin.codeInterpreter.disconnectConfirmDesc")}
           </Text>
         </ConfirmationModalLayout>
       )}

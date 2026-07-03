@@ -6,10 +6,7 @@ export function isBuiltInGroup(group: UserGroup): boolean {
 }
 
 /** Human-readable description for built-in groups. */
-const BUILT_IN_DESCRIPTIONS: Record<string, string> = {
-  Basic: "Default group for all users with basic permissions.",
-  Admin: "Built-in admin group with full access to manage all permissions.",
-};
+
 
 /**
  * Build the description line(s) shown beneath the group name.
@@ -18,38 +15,35 @@ const BUILT_IN_DESCRIPTIONS: Record<string, string> = {
  * Custom groups list resource counts ("3 connectors · 2 document sets · 2 agents")
  * or fall back to "No private connectors / document sets / agents".
  */
-export function buildGroupDescription(group: UserGroup): string {
+export function buildGroupDescription(group: UserGroup, t: any): string {
+  const BUILT_IN_DESCRIPTIONS: Record<string, string> = {
+    Basic: t("admin.groups.basicDesc"),
+    Admin: t("admin.groups.adminDesc"),
+  };
   if (isBuiltInGroup(group)) {
     return BUILT_IN_DESCRIPTIONS[group.name] ?? "";
   }
 
   const parts: string[] = [];
   if (group.cc_pairs.length > 0) {
-    parts.push(
-      `${group.cc_pairs.length} connector${
-        group.cc_pairs.length !== 1 ? "s" : ""
-      }`
-    );
+    const count = group.cc_pairs.length;
+    parts.push(`${count} ${count === 1 ? t("admin.groups.connector") : t("admin.groups.connectors")}`);
   }
   if (group.document_sets.length > 0) {
-    parts.push(
-      `${group.document_sets.length} document set${
-        group.document_sets.length !== 1 ? "s" : ""
-      }`
-    );
+    const count = group.document_sets.length;
+    parts.push(`${count} ${count === 1 ? t("admin.groups.docSet") : t("admin.groups.docSets")}`);
   }
   if (group.personas.length > 0) {
-    parts.push(
-      `${group.personas.length} agent${group.personas.length !== 1 ? "s" : ""}`
-    );
+    const count = group.personas.length;
+    parts.push(`${count} ${count === 1 ? t("admin.groups.agent") : t("admin.groups.agents")}`);
   }
 
   return parts.length > 0
     ? parts.join(" · ")
-    : "No private connectors / document sets / agents";
+    : t("admin.groups.noResourcesDesc");
 }
 
 /** Format the member count badge, e.g. "306 Members" or "1 Member". */
-export function formatMemberCount(count: number): string {
-  return `${count} ${count === 1 ? "Member" : "Members"}`;
+export function formatMemberCount(count: number, t: any): string {
+  return `${count} ${count === 1 ? t("admin.groups.member") : t("admin.groups.members")}`;
 }

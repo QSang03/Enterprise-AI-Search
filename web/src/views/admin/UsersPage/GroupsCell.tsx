@@ -14,6 +14,7 @@ import Text from "@/refresh-components/texts/Text";
 import { Tooltip } from "@opal/components";
 import EditUserModal from "./EditUserModal";
 import type { UserRow, UserGroupInfo } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface GroupsCellProps {
   groups: UserGroupInfo[];
@@ -35,6 +36,7 @@ export default function GroupsCell({
   user,
   onMutate,
 }: GroupsCellProps) {
+  const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -172,7 +174,7 @@ export default function GroupsCell({
               <Button
                 icon={SvgEdit}
                 prominence="tertiary"
-                tooltip="Edit"
+                tooltip={t("admin.users.editTooltip")}
                 tooltipSide="left"
                 onClick={(e) => {
                   e.stopPropagation();

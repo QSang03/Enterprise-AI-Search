@@ -52,7 +52,7 @@ interface HookFormModalProps {
 const MAX_TIMEOUT_SECONDS = 600;
 
 const SOFT_DESCRIPTION =
-  "If the endpoint returns an error, Onyx logs it and continues the pipeline as normal, ignoring the hook result.";
+  "Nếu endpoint trả về lỗi, Onyx sẽ ghi nhận lỗi và tiếp tục pipeline bình thường, bỏ qua kết quả của hook.";
 
 function buildInitialValues(
   hook: HookResponse | undefined,
@@ -78,16 +78,16 @@ function buildInitialValues(
 
 function buildValidationSchema(isEdit: boolean) {
   return Yup.object().shape({
-    name: Yup.string().trim().required("Display name cannot be empty."),
-    endpoint_url: Yup.string().trim().required("Endpoint URL cannot be empty."),
+    name: Yup.string().trim().required("Tên hiển thị không được để trống."),
+    endpoint_url: Yup.string().trim().required("URL Endpoint không được để trống."),
     api_key: isEdit
       ? Yup.string()
-      : Yup.string().trim().required("API key cannot be empty."),
+      : Yup.string().trim().required("Khóa API không được để trống."),
     timeout_seconds: Yup.string()
-      .required("Timeout is required.")
+      .required("Thời gian chờ là bắt buộc.")
       .test(
         "valid-timeout",
-        `Must be greater than 0 and at most ${MAX_TIMEOUT_SECONDS} seconds.`,
+        `Phải lớn hơn 0 và tối đa là ${MAX_TIMEOUT_SECONDS} giây.`,
         (val) => {
           const num = parseFloat(val ?? "");
           return !isNaN(num) && num > 0 && num <= MAX_TIMEOUT_SECONDS;
@@ -111,9 +111,9 @@ function TimeoutField({ spec }: TimeoutFieldProps) {
   return (
     <InputVertical
       withLabel="timeout_seconds"
-      title="Timeout"
-      suffix="(seconds)"
-      subDescription={`Maximum time Onyx will wait for the endpoint to respond before applying the fail strategy. Must be greater than 0 and at most ${MAX_TIMEOUT_SECONDS} seconds.`}
+      title="Thời gian chờ"
+      suffix="(giây)"
+      subDescription={`Thời gian tối đa Onyx sẽ chờ endpoint phản hồi trước khi áp dụng chiến lược xử lý khi lỗi. Phải lớn hơn 0 và tối đa là ${MAX_TIMEOUT_SECONDS} giây.`}
     >
       <div className="[&_input]:!font-main-ui-mono [&_input::placeholder]:!font-main-ui-mono [&_input]:[appearance:textfield]! [&_input::-webkit-outer-spin-button]:appearance-none! [&_input::-webkit-inner-spin-button]:appearance-none! w-full">
         <InputTypeInField
@@ -128,7 +128,7 @@ function TimeoutField({ spec }: TimeoutFieldProps) {
                 prominence="tertiary"
                 size="xs"
                 icon={SvgRevert}
-                tooltip="Revert to Default"
+                tooltip="Khôi phục mặc định"
                 onClick={() =>
                   setFieldValue(
                     "timeout_seconds",
@@ -203,7 +203,7 @@ export default function HookFormModal({
                 result = await updateHook(hook.id, req);
               } else {
                 if (!spec) {
-                  toast.error("No hook point specified.");
+                  toast.error("Không có hook point nào được chỉ định.");
                   return;
                 }
                 result = await createHook({
@@ -215,7 +215,7 @@ export default function HookFormModal({
                   timeout_seconds: parseFloat(values.timeout_seconds),
                 });
               }
-              toast.success(isEdit ? "Hook updated." : "Hook created.");
+              toast.success(isEdit ? "Đã cập nhật Hook." : "Đã tạo Hook.");
               onSuccess(result);
               if (!isEdit) {
                 setIsConnected(true);
@@ -224,20 +224,20 @@ export default function HookFormModal({
               handleClose();
             } catch (err) {
               if (err instanceof HookAuthError) {
-                helpers.setFieldError("api_key", "Invalid API key.");
+                helpers.setFieldError("api_key", "Khóa API không hợp lệ.");
               } else if (err instanceof HookTimeoutError) {
                 helpers.setFieldError(
                   "timeout_seconds",
-                  "Connection timed out. Try increasing the timeout."
+                  "Kết nối quá thời gian chờ. Hãy thử tăng thời gian chờ."
                 );
               } else if (err instanceof HookConnectError) {
                 helpers.setFieldError(
                   "endpoint_url",
-                  err.message || "Could not connect to endpoint."
+                  err.message || "Không thể kết nối tới endpoint."
                 );
               } else {
                 toast.error(
-                  err instanceof Error ? err.message : "Something went wrong."
+                  err instanceof Error ? err.message : "Đã xảy ra lỗi không xác định."
                 );
               }
             } finally {
@@ -256,12 +256,12 @@ export default function HookFormModal({
                 <Modal.Header
                   icon={SvgShareWebhook}
                   title={
-                    isEdit ? "Manage Hook Extension" : "Set Up Hook Extension"
+                    isEdit ? "Quản lý Hook mở rộng" : "Thiết lập Hook mở rộng"
                   }
                   description={
                     isEdit
                       ? undefined
-                      : "Connect an external API endpoint to extend the hook point."
+                      : "Kết nối một API endpoint bên ngoài để mở rộng hook point."
                   }
                   onClose={handleClose}
                 />
@@ -286,18 +286,18 @@ export default function HookFormModal({
                         />
                         {docsUrl && (
                           <LinkButton href={docsUrl} target="_blank">
-                            Documentation
+                            Tài liệu hướng dẫn
                           </LinkButton>
                         )}
                       </div>
                     }
                   />
 
-                  <InputVertical withLabel="name" title="Display Name">
+                  <InputVertical withLabel="name" title="Tên hiển thị">
                     <div className="[&_input::placeholder]:!font-main-ui-muted w-full">
                       <InputTypeInField
                         name="name"
-                        placeholder="Name your extension at this hook point"
+                        placeholder="Đặt tên cho phần mở rộng của bạn tại hook point này"
                         variant={isSubmitting ? "disabled" : undefined}
                       />
                     </div>
@@ -305,7 +305,7 @@ export default function HookFormModal({
 
                   <InputVertical
                     withLabel="fail_strategy"
-                    title="Fail Strategy"
+                    title="Chiến lược khi lỗi"
                     subDescription={failStrategyDescription}
                   >
                     <InputSelect
@@ -315,23 +315,23 @@ export default function HookFormModal({
                       }
                       disabled={isSubmitting}
                     >
-                      <InputSelect.Trigger placeholder="Select strategy" />
+                      <InputSelect.Trigger placeholder="Chọn chiến lược" />
                       <InputSelect.Content>
                         <InputSelect.Item value="soft">
-                          Log Error and Continue
+                          Ghi nhận lỗi và tiếp tục
                           {spec?.default_fail_strategy === "soft" && (
                             <>
                               {" "}
-                              <Text color="text-03">(Default)</Text>
+                              <Text color="text-03">(Mặc định)</Text>
                             </>
                           )}
                         </InputSelect.Item>
                         <InputSelect.Item value="hard">
-                          Block Pipeline on Failure
+                          Chặn Pipeline khi lỗi
                           {spec?.default_fail_strategy === "hard" && (
                             <>
                               {" "}
-                              <Text color="text-03">(Default)</Text>
+                              <Text color="text-03">(Mặc định)</Text>
                             </>
                           )}
                         </InputSelect.Item>
@@ -343,8 +343,8 @@ export default function HookFormModal({
 
                   <InputVertical
                     withLabel="endpoint_url"
-                    title="External API Endpoint URL"
-                    subDescription="Only connect to servers you trust. You are responsible for actions taken and data shared with this connection."
+                    title="URL API Endpoint bên ngoài"
+                    subDescription="Chỉ kết nối tới các máy chủ bạn tin tưởng. Bạn chịu trách nhiệm về các hành động được thực hiện và dữ liệu được chia sẻ với kết nối này."
                   >
                     <div className="[&_input::placeholder]:!font-main-ui-muted w-full">
                       <InputTypeInField
@@ -357,15 +357,15 @@ export default function HookFormModal({
 
                   <InputVertical
                     withLabel="api_key"
-                    title="API Key"
-                    subDescription="Onyx will use this key to authenticate with your API endpoint."
+                    title="Khóa API (API Key)"
+                    subDescription="Onyx sẽ sử dụng khóa này để xác thực với API endpoint của bạn."
                   >
                     <PasswordInputTypeInField
                       name="api_key"
                       placeholder={
                         isEdit
                           ? (hook?.api_key_masked ??
-                            "Leave blank to keep current key")
+                            "Để trống để giữ khóa hiện tại")
                           : undefined
                       }
                       disabled={isSubmitting}
@@ -401,8 +401,8 @@ export default function HookFormModal({
                       </div>
                       <Text font="secondary-body" color="text-03">
                         {isConnected
-                          ? "Connection valid."
-                          : "Verifying connection…"}
+                          ? "Kết nối hợp lệ."
+                          : "Đang xác minh kết nối…"}
                       </Text>
                     </Section>
                   )}
@@ -416,7 +416,7 @@ export default function HookFormModal({
                         prominence="secondary"
                         onClick={handleClose}
                       >
-                        Cancel
+                        Hủy
                       </Button>
                     }
                     submit={
@@ -435,7 +435,7 @@ export default function HookFormModal({
                             : undefined
                         }
                       >
-                        {isEdit ? "Save Changes" : "Connect"}
+                        {isEdit ? "Lưu thay đổi" : "Kết nối"}
                       </Button>
                     }
                   />

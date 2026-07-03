@@ -26,6 +26,7 @@ import {
   setDefaultLlmModel,
 } from "@/lib/languageModels/svc";
 import ModelSelector from "@/sections/model-selector/ModelSelector";
+import { useTranslation } from "@/providers/LanguageProvider";
 import ConfirmationModalLayout from "@/refresh-components/layouts/ConfirmationModalLayout";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
 import { LLMProviderName, LLMProviderView } from "@/lib/languageModels/types";
@@ -76,6 +77,7 @@ function ExistingProviderCard({
   isDefault,
   isLastProvider,
 }: ExistingProviderCardProps) {
+  const { t } = useTranslation();
   const { mutate } = useSWRConfig();
   const [isOpen, setIsOpen] = useState(false);
   const deleteModal = useCreateModal();
@@ -85,10 +87,10 @@ function ExistingProviderCard({
       await deleteLlmProvider(provider.id, isLastProvider);
       await refreshLlmProviderCaches(mutate);
       deleteModal.toggle(false);
-      toast.success("Provider deleted successfully!");
+      toast.success(t("admin.llms.providerDeleted"));
     } catch (e) {
       const message = e instanceof Error ? e.message : "Unknown error";
-      toast.error(`Failed to delete provider: ${message}`);
+      toast.error(t("admin.llms.failedDeleteProvider", { message }));
     }
   };
 
@@ -103,7 +105,7 @@ function ExistingProviderCard({
       {deleteModal.isOpen && (
         <ConfirmationModalLayout
           icon={SvgTrash}
-          title={markdown(`Delete *${providerDisplayName(provider)}*`)}
+          title={markdown(t("admin.llms.deleteProviderTitle", { name: providerDisplayName(provider) }))}
           onClose={() => deleteModal.toggle(false)}
           submit={
             <Button
@@ -111,28 +113,25 @@ function ExistingProviderCard({
               onClick={handleDelete}
               disabled={isDefault && !isLastProvider}
             >
-              Delete
+              {t("admin.llms.delete")}
             </Button>
           }
         >
           <Section alignItems="start" gap={0.5}>
             {isDefault && !isLastProvider ? (
               <Text font="main-ui-body" color="text-03">
-                Cannot delete the default provider. Select another provider as
-                the default prior to deleting this one.
+                {t("admin.llms.cannotDeleteDefault")}
               </Text>
             ) : (
               <>
                 <Text font="main-ui-body" color="text-03">
                   {markdown(
-                    `All LLM models from provider **${providerDisplayName(
-                      provider
-                    )}** will be removed and unavailable for future chats. Chat history will be preserved.`
+                    t("admin.llms.deleteProviderWarning", { name: providerDisplayName(provider) })
                   )}
                 </Text>
                 {isLastProvider && (
                   <Text font="main-ui-body" color="text-03">
-                    Connect another provider to continue using chats.
+                    {t("admin.llms.connectAnotherProvider")}
                   </Text>
                 )}
               </>
@@ -158,7 +157,7 @@ function ExistingProviderCard({
             sizePreset="main-ui"
             variant="section"
             padding="lg"
-            tag={isDefault ? { title: "Default", color: "blue" } : undefined}
+            tag={isDefault ? { title: t("admin.llms.default"), color: "blue" } : undefined}
             rightChildren={
               <div className="flex flex-row">
                 <Hoverable.Item
@@ -168,7 +167,7 @@ function ExistingProviderCard({
                   <Button
                     icon={SvgTrash}
                     prominence="tertiary"
-                    aria-label={`Delete ${providerDisplayName(provider)}`}
+                    aria-label={t("admin.llms.deleteAria", { name: providerDisplayName(provider) })}
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteModal.toggle(true);
@@ -178,7 +177,7 @@ function ExistingProviderCard({
                 <Button
                   icon={SvgSettings}
                   prominence="tertiary"
-                  aria-label={`Edit ${providerDisplayName(provider)}`}
+                  aria-label={t("admin.llms.editAria", { name: providerDisplayName(provider) })}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsOpen(true);
@@ -206,6 +205,7 @@ function NewProviderCard({
   providerName,
   isFirstProvider,
 }: NewProviderCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { icon, productName, companyName, Modal } = getProvider(providerName);
 
@@ -232,7 +232,7 @@ function NewProviderCard({
               setIsOpen(true);
             }}
           >
-            Connect
+            {t("admin.llms.connect")}
           </Button>
         }
       />
@@ -254,6 +254,7 @@ interface NewCustomProviderCardProps {
 function NewCustomProviderCard({
   isFirstProvider,
 }: NewCustomProviderCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const { icon, productName, companyName, Modal } = getProvider("custom");
 
@@ -299,6 +300,7 @@ function NewCustomProviderCard({
 // ============================================================================
 
 export default function LanguageModelsPage() {
+  const { t } = useTranslation();
   const { mutate } = useSWRConfig();
   const { llmProviders: existingLlmProviders, defaultText } =
     useAdminLLMProviders();
@@ -356,10 +358,10 @@ export default function LanguageModelsPage() {
     try {
       await setDefaultLlmModel(providerId, modelName);
       await refreshLlmProviderCaches(mutate);
-      toast.success("Default model updated successfully!");
+      toast.success(t("admin.llms.defaultModelUpdated"));
     } catch (e) {
       const message = e instanceof Error ? e.message : "Unknown error";
-      toast.error(`Failed to set default model: ${message}`);
+      toast.error(t("admin.llms.failedSetDefaultModel", { message }));
     }
   }
 
@@ -371,8 +373,8 @@ export default function LanguageModelsPage() {
         {hasProviders ? (
           <Card border="solid" rounding="lg">
             <InputHorizontal
-              title="Default Model"
-              description="This model will be used by Onyx by default in your chats."
+              title={t("admin.llms.defaultModel")}
+              description={t("admin.llms.defaultModelDesc")}
               center
               withLabel
             >
@@ -397,7 +399,7 @@ export default function LanguageModelsPage() {
         ) : (
           <MessageCard
             variant="info"
-            title="Set up an LLM provider to start chatting."
+            title={t("admin.llms.setUpInfo")}
           />
         )}
 
@@ -411,7 +413,7 @@ export default function LanguageModelsPage() {
               justifyContent="start"
             >
               <Content
-                title="Available Providers"
+                title={t("admin.llms.availableProviders")}
                 sizePreset="main-content"
                 variant="section"
               />
@@ -435,8 +437,8 @@ export default function LanguageModelsPage() {
         {/* ── LLM configuration disablement notice ── */}
         {isConfigurationDisabled && (
           <MessageCard
-            title="New LLM configuration temporarily unavailable."
-            description="Existing LLM providers can still be used and updated."
+            title={t("admin.llms.disabledTitle")}
+            description={t("admin.llms.disabledDesc")}
             headerPadding="xs"
           />
         )}
@@ -450,8 +452,8 @@ export default function LanguageModelsPage() {
             justifyContent="start"
           >
             <Content
-              title="Add Provider"
-              description="Onyx supports both popular providers and self-hosted models."
+              title={t("admin.llms.addProvider")}
+              description={t("admin.llms.addProviderDesc")}
               sizePreset="main-content"
               variant="section"
             />

@@ -8,6 +8,7 @@ import { Popover } from "@opal/components";
 import { Divider } from "@opal/components";
 import { InputTypeIn } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { cn } from "@opal/utils";
 import type { ResourcePopoverProps } from "@/views/admin/GroupsPage/SharedGroupResources/interfaces";
 
@@ -17,6 +18,7 @@ function ResourcePopover({
   onSearchChange,
   sections,
 }: ResourcePopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const totalItems = sections.reduce((sum, s) => sum + s.items.length, 0);
@@ -45,7 +47,7 @@ function ResourcePopover({
             <div className="px-3 py-3">
               <Content
                 icon={SvgEmpty}
-                title="No results found"
+                title={t("admin.groups.noResultsFound")}
                 sizePreset="secondary"
                 variant="section"
               />

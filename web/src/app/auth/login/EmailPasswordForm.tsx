@@ -10,6 +10,7 @@ import { useMemo, useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import Link from "next/link";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { FormikField } from "@/refresh-components/form/FormikField";
 import { FormField } from "@/refresh-components/form/FormField";
 import { InputTypeIn } from "@opal/components";
@@ -37,6 +38,7 @@ export default function EmailPasswordForm({
   defaultEmail,
   isJoin = false,
 }: EmailPasswordFormProps) {
+  const { t } = useTranslation();
   const { user, authTypeMetadata } = useUser();
   const passwordMinLength = authTypeMetadata?.passwordMinLength ?? 8;
   const [isWorking, setIsWorking] = useState<boolean>(false);
@@ -49,15 +51,15 @@ export default function EmailPasswordForm({
     () => ({
       loading: isSignup
         ? isJoin
-          ? "Joining..."
-          : "Creating account..."
-        : "Signing in...",
+          ? t("auth.joining")
+          : t("auth.creating")
+        : t("auth.signingIn"),
       success: isSignup
-        ? "Account created. Signing in..."
-        : "Signed in successfully.",
+        ? t("auth.created")
+        : t("auth.signedIn"),
       error: errorMessage,
     }),
-    [isSignup, isJoin, errorMessage]
+    [isSignup, isJoin, errorMessage, t]
   );
 
   return (
@@ -79,7 +81,7 @@ export default function EmailPasswordForm({
           password: Yup.string()
             .min(
               passwordMinLength,
-              `Password must be at least ${passwordMinLength} characters`
+              t("auth.passwordMin", { min: passwordMinLength })
             )
             .required(),
         })}
@@ -181,7 +183,7 @@ export default function EmailPasswordForm({
                 name="email"
                 render={(field, helper, meta, state) => (
                   <FormField name="email" state={state} className="w-full">
-                    <FormField.Label>Email Address</FormField.Label>
+                    <FormField.Label>{t("auth.emailLabel")}</FormField.Label>
                     <FormField.Control>
                       <InputTypeIn
                         {...field}
@@ -193,7 +195,7 @@ export default function EmailPasswordForm({
                           }
                           field.onChange(e);
                         }}
-                        placeholder="email@yourcompany.com"
+                        placeholder={t("auth.emailPlaceholder")}
                         data-testid="email"
                         autoComplete="username"
                         variant={apiStatus === "error" ? "error" : undefined}
@@ -207,7 +209,7 @@ export default function EmailPasswordForm({
                 name="password"
                 render={(field, helper, meta, state) => (
                   <FormField name="password" state={state} className="w-full">
-                    <FormField.Label>Password</FormField.Label>
+                    <FormField.Label>{t("auth.passwordLabel")}</FormField.Label>
                     <FormField.Control>
                       <PasswordInputTypeIn
                         {...field}
@@ -231,9 +233,9 @@ export default function EmailPasswordForm({
                     {isSignup && !showApiMessage && (
                       <FormField.Message
                         messages={{
-                          idle: `Password must be at least ${passwordMinLength} characters`,
+                          idle: t("auth.passwordMin", { min: passwordMinLength }),
                           error: meta.error,
-                          success: `Password must be at least ${passwordMinLength} characters`,
+                          success: t("auth.passwordMin", { min: passwordMinLength }),
                         }}
                       />
                     )}
@@ -254,7 +256,7 @@ export default function EmailPasswordForm({
                 width="full"
                 rightIcon={SvgArrowRightCircle}
               >
-                {isJoin ? "Join" : isSignup ? "Create Account" : "Sign In"}
+                {isJoin ? t("auth.join") : isSignup ? t("auth.createAccountBtn") : t("auth.signIn")}
               </Button>
               {user?.is_anonymous_user && (
                 <Link
@@ -262,7 +264,7 @@ export default function EmailPasswordForm({
                   className="text-xs text-action-link-05 cursor-pointer text-center w-full font-medium mx-auto"
                 >
                   <span className="hover:border-b hover:border-dotted hover:border-action-link-05">
-                    or continue as guest
+                    {t("auth.continueGuest")}
                   </span>
                 </Link>
               )}

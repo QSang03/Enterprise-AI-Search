@@ -12,6 +12,7 @@ import InputNumber from "@/refresh-components/inputs/InputNumber";
 import Text from "@/refresh-components/texts/Text";
 import IconButton from "@/refresh-components/buttons/IconButton";
 import SimpleCollapsible from "@/refresh-components/SimpleCollapsible";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,6 +40,7 @@ function TokenLimitSection({
   disabled,
   disabledTooltip,
 }: TokenLimitSectionProps) {
+  const { t } = useTranslation();
   const nextKeyRef = useRef(limits.length);
   const keysRef = useRef<number[]>(limits.map((_, i) => i));
 
@@ -80,8 +82,8 @@ function TokenLimitSection({
   return (
     <SimpleCollapsible>
       <SimpleCollapsible.Header
-        title="Token Rate Limit"
-        description="Limit number of tokens this group can use within a given time period."
+        title={t("admin.groups.tokenRateLimitTitle")}
+        description={t("admin.groups.tokenRateLimitDesc")}
         tag={
           disabled ? { ...planTagProps("enterprise"), size: "sm" } : undefined
         }
@@ -100,18 +102,18 @@ function TokenLimitSection({
               <div className="flex flex-wrap items-center gap-1 pr-[40px]">
                 <div className="flex-1 flex items-center min-w-[160px]">
                   <Text mainUiAction text04>
-                    Token Limit
+                    {t("admin.groups.tokenLimitHeader")}
                   </Text>
                   <Text mainUiMuted text03 className="ml-0.5">
-                    (thousand tokens)
+                    {t("admin.groups.tokenLimitSuffix")}
                   </Text>
                 </div>
                 <div className="flex-1 flex items-center min-w-[160px]">
                   <Text mainUiAction text04>
-                    Time Window
+                    {t("admin.groups.timeWindowHeader")}
                   </Text>
                   <Text mainUiMuted text03 className="ml-0.5">
-                    (hours)
+                    {t("admin.groups.timeWindowSuffix")}
                   </Text>
                 </div>
               </div>
@@ -127,7 +129,7 @@ function TokenLimitSection({
                       value={limit.tokenBudget}
                       onChange={(v) => updateLimit(i, "tokenBudget", v)}
                       min={0}
-                      placeholder="Token limit in thousands"
+                      placeholder={t("admin.groups.tokenLimitPlaceholder")}
                     />
                   </div>
                   <div className="flex-1">
@@ -153,7 +155,7 @@ function TokenLimitSection({
                 size="md"
                 onClick={addLimit}
               >
-                Add Limit
+                {t("admin.groups.addLimit")}
               </Button>
             </Section>
           </Card>

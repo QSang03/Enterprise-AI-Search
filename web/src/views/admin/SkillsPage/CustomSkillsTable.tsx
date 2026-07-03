@@ -9,6 +9,7 @@ import Text from "@/refresh-components/texts/Text";
 import Truncated from "@/refresh-components/texts/Truncated";
 import { InputTypeIn } from "@opal/components";
 import type { CustomSkill } from "@/views/admin/SkillsPage/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { summarizeVisibility } from "@/views/admin/SkillsPage/helpers";
 import { Section } from "@/layouts/general-layouts";
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
@@ -41,14 +42,25 @@ function renderCreatedByColumn(value: string | null) {
   );
 }
 
-function renderAccessColumn(_value: boolean, row: CustomSkill) {
+function renderAccessColumn(_value: boolean, row: CustomSkill, t: any) {
   const summary = summarizeVisibility(row);
+  let translatedLabel = summary.label;
+  if (summary.label === "Personal") translatedLabel = t("admin.skills.accessPersonal");
+  else if (summary.label === "Private") translatedLabel = t("admin.skills.accessPrivate");
+  else if (summary.label === "Groups") translatedLabel = t("admin.skills.accessGroups");
+  else if (summary.label === "Org-wide") translatedLabel = t("admin.skills.accessOrgWide");
+
+  let translatedDesc = summary.description;
+  if (summary.label === "Groups" && row.granted_group_ids.length > 0) {
+    const n = row.granted_group_ids.length;
+    translatedDesc = n === 1 ? t("admin.skills.groupCountSingle") : t("admin.skills.groupCountMulti", { count: n });
+  }
   return (
     <Content
       sizePreset="main-ui"
       variant="section"
-      title={summary.label}
-      description={!row.enabled ? "Disabled" : summary.description}
+      title={translatedLabel}
+      description={!row.enabled ? t("admin.skills.statusDisabled") : translatedDesc}
     />
   );
 }
@@ -64,6 +76,7 @@ export default function CustomSkillsTable({
   onToggleEnabled,
   onDeleteSkill,
 }: CustomSkillsTableProps) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
 
   const sortedSkills = useMemo(() => {
@@ -91,7 +104,7 @@ export default function CustomSkillsTable({
         getContent: () => SvgBlocks,
       }),
       tc.column("name", {
-        header: "Name",
+        header: t("admin.skills.columnName"),
         weight: 25,
         cell: (value) => (
           <Text as="span" mainUiBody text05>
@@ -100,7 +113,7 @@ export default function CustomSkillsTable({
         ),
       }),
       tc.column("description", {
-        header: "Description",
+        header: t("admin.skills.columnDescription"),
         weight: 35,
         cell: (value) => (
           <Truncated mainUiBody text03>
@@ -109,14 +122,14 @@ export default function CustomSkillsTable({
         ),
       }),
       tc.column("author_email", {
-        header: "Created By",
+        header: t("admin.skills.columnCreatedBy"),
         weight: 20,
         cell: renderCreatedByColumn,
       }),
       tc.column("is_public", {
-        header: "Access",
+        header: t("admin.skills.columnAccess"),
         weight: 12,
-        cell: renderAccessColumn,
+        cell: (val, row) => renderAccessColumn(val, row, t),
       }),
       tc.actions({
         cell: (row) => (
@@ -137,7 +150,7 @@ export default function CustomSkillsTable({
       <InputTypeIn
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search skills..."
+        placeholder={t("skills.searchPlaceholder")}
         searchIcon
       />
       <Table
@@ -149,8 +162,8 @@ export default function CustomSkillsTable({
         emptyState={
           <IllustrationContent
             illustration={SvgNoResult}
-            title="No skills yet"
-            description="Upload a zip bundle to add a custom skill."
+            title={t("admin.skills.noSkillsFound")}
+            description={t("admin.skills.uploadToGetStarted")}
           />
         }
         footer={{}}

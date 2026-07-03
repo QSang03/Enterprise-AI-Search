@@ -20,6 +20,7 @@ import useGroups from "@/hooks/useGroups";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { addUserToGroup, removeUserFromGroup, setUserRole } from "./svc";
 import type { UserRow } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { cn } from "@opal/utils";
 
 // ---------------------------------------------------------------------------
@@ -51,6 +52,7 @@ export default function EditUserModal({
   onClose,
   onMutate,
 }: EditUserModalProps) {
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const { user: currentUser, mutateUser } = useCurrentUser();
   const { data: allGroups, isLoading: groupsLoading } = useGroups();
@@ -82,6 +84,16 @@ export default function EditUserModal({
     if (!allGroups) return [];
     return allGroups.filter((g) => memberGroupIds.has(g.id));
   }, [allGroups, memberGroupIds]);
+
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case UserRole.ADMIN: return t("admin.users.roleAdmin");
+      case UserRole.BASIC: return t("admin.users.roleBasic");
+      case UserRole.GLOBAL_CURATOR: return t("admin.users.roleGlobalCurator");
+      case UserRole.SLACK_USER: return t("admin.users.roleSlackUser");
+      default: return USER_ROLE_LABELS[role] ?? role;
+    }
+  };
 
   const hasGroupChanges = useMemo(() => {
     if (memberGroupIds.size !== initialMemberGroupIds.size) return true;
@@ -155,11 +167,11 @@ export default function EditUserModal({
       }
 
       onMutate();
-      toast.success("User updated");
+      toast.success(t("admin.users.userUpdated"));
       onClose();
     } catch (err) {
       onMutate(); // refresh to show partially-applied state
-      toast.error(err instanceof Error ? err.message : "An error occurred");
+      toast.error(err instanceof Error ? err.message : t("admin.users.failedUpdateUser"));
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +191,7 @@ export default function EditUserModal({
       <Modal.Content width="sm" ref={contentRef}>
         <Modal.Header
           icon={SvgUsers}
-          title="Edit User's Groups & Roles"
+          title={t("admin.users.editUserTitle")}
           description={
             user.personal_name
               ? `${user.personal_name} (${user.email})`
@@ -206,7 +218,7 @@ export default function EditUserModal({
                     <InputTypeIn
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search groups to join..."
+                      placeholder={t("admin.users.searchGroupsToJoin")}
                       searchIcon
                     />
                   </div>
@@ -217,15 +229,15 @@ export default function EditUserModal({
                   container={contentEl}
                 >
                   {groupsLoading ? (
-                    <LineItem skeleton description="Loading groups...">
-                      Loading...
+                    <LineItem skeleton description={t("admin.users.loadingGroups")}>
+                      {t("admin.users.loading")}
                     </LineItem>
                   ) : dropdownGroups.length === 0 ? (
                     <LineItem
                       skeleton
-                      description="Try a different search term."
+                      description={t("admin.users.tryDifferentSearch")}
                     >
-                      No groups found
+                      {t("admin.users.noGroupsFound")}
                     </LineItem>
                   ) : (
                     <ShadowDiv
@@ -238,9 +250,7 @@ export default function EditUserModal({
                           <LineItem
                             key={group.id}
                             icon={isMember ? SvgCheck : SvgUsers}
-                            description={`${group.users.length} ${
-                              group.users.length === 1 ? "user" : "users"
-                            }`}
+                            description={group.users.length === 1 ? t("admin.users.memberCountSingle") : t("admin.users.memberCountMulti", { count: group.users.length })}
                             selected={isMember}
                             emphasized={isMember}
                             onClick={() => toggleGroup(group.id)}
@@ -263,9 +273,9 @@ export default function EditUserModal({
                     icon={SvgUsers}
                     skeleton
                     interactive={false}
-                    description={`${displayName} is not in any groups.`}
+                    description={t("admin.users.notInAnyGroups", { name: displayName })}
                   >
-                    No groups found
+                    {t("admin.users.noGroupsFound")}
                   </LineItem>
                 ) : (
                   joinedGroups.map((group) => (
@@ -276,11 +286,9 @@ export default function EditUserModal({
                       <LineItem
                         key={group.id}
                         icon={SvgUsers}
-                        description={`${group.users.length} ${
-                          group.users.length === 1 ? "user" : "users"
-                        }`}
+                        description={group.users.length === 1 ? t("admin.users.memberCountSingle") : t("admin.users.memberCountMulti", { count: group.users.length })}
                         rightChildren={
-                          <Tooltip tooltip="Remove from group" side="left">
+                          <Tooltip tooltip={t("admin.users.removeFromGroup")} side="left">
                             <SvgLogOut height={16} width={16} />
                           </Tooltip>
                         }
@@ -298,8 +306,8 @@ export default function EditUserModal({
                 <Divider paddingParallel="fit" paddingPerpendicular="fit" />
 
                 <ContentAction
-                  title="User Role"
-                  description="This controls their general permissions."
+                  title={t("admin.users.userRole")}
+                  description={t("admin.users.userRoleDesc")}
                   sizePreset="main-ui"
                   variant="section"
                   padding="fit"
@@ -316,7 +324,7 @@ export default function EditUserModal({
                             value={user.role}
                             icon={SvgUser}
                           >
-                            {USER_ROLE_LABELS[user.role]}
+                            {getRoleLabel(user.role)}
                           </InputSelect.Item>
                         )}
                         {visibleRoles.map((role) => (
@@ -325,7 +333,7 @@ export default function EditUserModal({
                             value={role}
                             icon={SvgUser}
                           >
-                            {USER_ROLE_LABELS[role]}
+                            {getRoleLabel(role)}
                           </InputSelect.Item>
                         ))}
                       </InputSelect.Content>
@@ -342,10 +350,10 @@ export default function EditUserModal({
             prominence="secondary"
             onClick={isSubmitting ? undefined : onClose}
           >
-            Cancel
+            {t("admin.users.cancel")}
           </Button>
           <Button disabled={isSubmitting || !hasChanges} onClick={handleSave}>
-            Save Changes
+            {t("admin.users.saveChanges")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

@@ -8,12 +8,14 @@ import { RequestNewVerificationEmail } from "../waiting-on-verification/RequestN
 import { User } from "@/lib/types";
 import Logo from "@/refresh-components/Logo";
 import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface VerifyProps {
   user: User | null;
 }
 
 export default function Verify({ user }: VerifyProps) {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
 
   const [error, setError] = useState("");
@@ -24,7 +26,7 @@ export default function Verify({ user }: VerifyProps) {
       searchParams?.get("first_user") === "true" && NEXT_PUBLIC_CLOUD_ENABLED;
     if (!token) {
       setError(
-        "Missing verification token. Try requesting a new verification email."
+        t("auth.missingToken")
       );
       return;
     }
@@ -52,10 +54,10 @@ export default function Verify({ user }: VerifyProps) {
         console.error("Failed to parse verification error response:", e);
       }
       setError(
-        `Failed to verify your email - ${errorDetail}. Please try requesting a new verification email.`
+        t("auth.verifyEmailFailed", { error: errorDetail })
       );
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   useEffect(() => {
     verify();
@@ -68,7 +70,7 @@ export default function Verify({ user }: VerifyProps) {
         {!error ? (
           <>
             <Spacer rem={0.5} />
-            <Text as="p">Verifying your email...</Text>
+            <Text as="p">{t("auth.verifyingEmail")}</Text>
           </>
         ) : (
           <div>
@@ -80,7 +82,7 @@ export default function Verify({ user }: VerifyProps) {
                 <RequestNewVerificationEmail email={user.email}>
                   {/* TODO(@raunakab): migrate to @opal/components Text */}
                   <p className="text-sm mt-2 text-link">
-                    Get new verification email
+                    {t("auth.getNewVerificationEmail")}
                   </p>
                 </RequestNewVerificationEmail>
               </div>

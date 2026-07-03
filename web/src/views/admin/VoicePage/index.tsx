@@ -21,6 +21,7 @@ import {
 } from "@/views/admin/VoicePage/shared";
 import { getVoiceProviderDetail } from "@/lib/voice/utils";
 import { VoiceProviderView } from "@/lib/voice/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ModelDetails {
   id: string;
@@ -104,8 +105,7 @@ const TTS_PROVIDER_GROUPS: ProviderGroup[] = [
 ];
 
 const route = ADMIN_ROUTES.VOICE;
-const pageDescription =
-  "Configure speech-to-text and text-to-speech providers for voice input and spoken responses.";
+
 
 interface ModelCardProps {
   model: ModelDetails;
@@ -182,6 +182,7 @@ function ModelCard({
 }
 
 export default function VoicePage() {
+  const { t } = useTranslation();
   const { providers, isLoading, refresh: mutate } = useVoiceProviders();
 
   const providersByType = useMemo(() => {
@@ -198,8 +199,8 @@ export default function VoicePage() {
       <SettingsLayouts.Root>
         <SettingsLayouts.Header
           icon={route.icon}
-          title={route.title}
-          description={pageDescription}
+          title={t("admin.voice.title")}
+          description={t("admin.voice.headerDesc")}
           divider
         />
         <SettingsLayouts.Body>
@@ -229,16 +230,16 @@ export default function VoicePage() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={route.icon}
-        title={route.title}
-        description={pageDescription}
+        title={t("admin.voice.title")}
+        description={t("admin.voice.headerDesc")}
         divider
       />
       <SettingsLayouts.Body>
         <Section gap={2}>
           <Section gap={0.75}>
             <Content
-              title="Speech to Text"
-              description="Select a model to transcribe speech to text in chats."
+              title={t("admin.voice.sttTitle")}
+              description={t("admin.voice.sttDesc")}
               sizePreset="main-content"
               variant="section"
             />
@@ -246,7 +247,7 @@ export default function VoicePage() {
             {!hasActiveSTTProvider && (
               <MessageCard
                 variant="info"
-                title="Connect a speech to text provider to use in chat."
+                title={t("admin.voice.sttConnectInfo")}
               />
             )}
 
@@ -284,8 +285,8 @@ export default function VoicePage() {
 
           <Section gap={0.75}>
             <Content
-              title="Text to Speech"
-              description="Select a model to speak out chat responses."
+              title={t("admin.voice.ttsTitle")}
+              description={t("admin.voice.ttsDesc")}
               sizePreset="main-content"
               variant="section"
             />
@@ -293,7 +294,7 @@ export default function VoicePage() {
             {!hasActiveTTSProvider && (
               <MessageCard
                 variant="info"
-                title="Connect a text to speech provider to use in chat."
+                title={t("admin.voice.ttsConnectInfo")}
               />
             )}
 

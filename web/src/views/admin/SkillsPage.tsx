@@ -10,6 +10,7 @@ import { Section } from "@/layouts/general-layouts";
 import Text from "@/refresh-components/texts/Text";
 import { toast } from "@/hooks/useToast";
 import useAdminSkills from "@/hooks/useAdminSkills";
+import { useTranslation } from "@/providers/LanguageProvider";
 import BuiltinSkillsTable from "@/views/admin/SkillsPage/BuiltinSkillsTable";
 import CustomSkillsTable from "@/views/admin/SkillsPage/CustomSkillsTable";
 import UploadSkillModal from "@/views/admin/SkillsPage/UploadSkillModal";
@@ -30,6 +31,7 @@ interface SkillsPageProps {
 }
 
 export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
+  const { t } = useTranslation();
   const { data, error, isLoading, refresh } = useAdminSkills();
 
   const [uploadOpen, setUploadOpen] = useState(false);
@@ -41,7 +43,7 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
     try {
       await patchCustomSkill(skill.id, { enabled: !skill.enabled });
       toast.success(
-        `${skill.enabled ? "Disabled" : "Re-enabled"} "${skill.name}"`
+        t(skill.enabled ? "admin.skills.disabledSuccess" : "admin.skills.enabledSuccess", { name: skill.name })
       );
       refresh();
     } catch (err) {
@@ -55,7 +57,7 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
   async function handleDelete(skill: CustomSkill) {
     try {
       await deleteCustomSkill(skill.id);
-      toast.success(`Deleted "${skill.name}"`);
+      toast.success(t("admin.skills.deleteSuccess", { name: skill.name }));
       refresh();
     } catch (err) {
       console.error("Failed to delete skill", err);
@@ -79,7 +81,7 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
 
     try {
       await replaceCustomSkillBundle(target.id, file);
-      toast.success(`Replaced bundle for "${target.name}"`);
+      toast.success(t("admin.skills.replaceSuccess", { name: target.name }));
       refresh();
     } catch (err) {
       console.error("Failed to replace skill bundle", err);
@@ -93,8 +95,8 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgBlocks}
-        title="Skills"
-        description="Capability bundles the Craft agent can reach for. Built-in skills ship with Onyx; custom skills are uploaded zip bundles, gated by group grants."
+        title={t("admin.skills.title")}
+        description={t("admin.skills.description")}
         rightChildren={
           onBack ? (
             <div className="flex items-center gap-2">
@@ -103,7 +105,7 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
                 icon={SvgArrowLeft}
                 onClick={onBack}
               >
-                Back
+                {t("admin.skills.back")}
               </Button>
             </div>
           ) : undefined
@@ -115,8 +117,8 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
         {error && !isLoading && (
           <MessageCard
             variant="error"
-            title="Failed to load skills"
-            description="Check the console for details and try refreshing the page."
+            title={t("admin.skills.failedLoad")}
+            description={t("admin.skills.failedLoadDesc")}
           />
         )}
 
@@ -125,13 +127,13 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
             {/* Built-ins */}
             <Section gap={0.5} alignItems="stretch">
               <Text as="p" headingH3 text05>
-                Built-in skills
+                {t("admin.skills.builtinTitle")}
               </Text>
               {data.builtins.length === 0 ? (
                 <IllustrationContent
                   illustration={SvgNoResult}
-                  title="No built-in skills registered"
-                  description="Built-ins ship with the deploy."
+                  title={t("admin.skills.noBuiltin")}
+                  description={t("admin.skills.builtinDesc")}
                 />
               ) : (
                 <BuiltinSkillsTable skills={data.builtins} />
@@ -142,10 +144,10 @@ export default function SkillsPage({ onBack }: SkillsPageProps = {}) {
             <Section gap={0.5} alignItems="stretch">
               <div className="flex items-center justify-between gap-2">
                 <Text as="p" headingH3 text05>
-                  Custom skills
+                  {t("admin.skills.customTitle")}
                 </Text>
                 <Button icon={SvgPlus} onClick={() => setUploadOpen(true)}>
-                  Upload skill
+                  {t("admin.skills.uploadSkill")}
                 </Button>
               </div>
               <CustomSkillsTable

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useMemo } from "react";
 import * as Yup from "yup";
 import { FormikField } from "@/refresh-components/form/FormikField";
 import { FormField } from "@/refresh-components/form/FormField";
@@ -14,6 +15,19 @@ import {
 } from "@/views/admin/ImageGenerationPage/forms/types";
 import { ImageProvider } from "@/views/admin/ImageGenerationPage/constants";
 import { ImageGenerationCredentials } from "@/views/admin/ImageGenerationPage/svc";
+import { useTranslation } from "@/providers/LanguageProvider";
+
+const getProviderTitle = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerTitle_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.title : trans;
+};
+
+const getProviderDesc = (p: ImageProvider, t: any) => {
+  const key = `admin.imageGen.providerDesc_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+  const trans = t(key);
+  return trans === key ? p.description : trans;
+};
 
 const VERTEXAI_PROVIDER_NAME = "vertex_ai";
 const VERTEXAI_DEFAULT_LOCATION = "global";
@@ -32,13 +46,6 @@ const initialValues: VertexImageGenFormValues = {
     vertex_location: VERTEXAI_DEFAULT_LOCATION,
   },
 };
-
-const validationSchema = Yup.object().shape({
-  custom_config: Yup.object().shape({
-    vertex_credentials: Yup.string().required("Credentials file is required"),
-    vertex_location: Yup.string().required("Location is required"),
-  }),
-});
 
 function getInitialValuesFromCredentials(
   credentials: ImageGenerationCredentials,
@@ -71,6 +78,7 @@ function transformValues(
 function VertexFormFields(
   props: ImageGenFormChildProps<VertexImageGenFormValues>
 ) {
+  const { t } = useTranslation();
   const { apiStatus, showApiMessage, errorMessage, disabled, imageProvider } =
     props;
 
@@ -85,7 +93,7 @@ function VertexFormFields(
             state={apiStatus === "error" ? "error" : state}
             className="w-full"
           >
-            <FormField.Label>Credentials File</FormField.Label>
+            <FormField.Label>{t("admin.imageGen.credentialsFileLabel")}</FormField.Label>
             <FormField.Control>
               <InputFile
                 setValue={(value) => helper.setValue(value)}
@@ -93,30 +101,33 @@ function VertexFormFields(
                 onBlur={field.onBlur}
                 disabled={disabled}
                 accept="application/json"
-                placeholder="Upload or paste your credentials"
+                placeholder={t("admin.imageGen.uploadCredentialsPlaceholder")}
               />
             </FormField.Control>
             {showApiMessage ? (
               <FormField.APIMessage
                 state={apiStatus}
                 messages={{
-                  loading: `Testing credentials with ${imageProvider.title}...`,
-                  success: "Credentials valid. Configuration saved.",
-                  error: errorMessage || "Invalid credentials",
+                  loading: t("admin.imageGen.testingCredentials", { name: getProviderTitle(imageProvider, t) }),
+                  success: t("admin.imageGen.credentialsValid"),
+                  error: errorMessage || t("admin.imageGen.invalidCredentials"),
                 }}
               />
             ) : (
               <FormField.Message
                 messages={{
-                  idle: (
-                    <>
-                      {"Upload or paste your "}
-                      <InlineExternalLink href="https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts?supportedpurview=project">
-                        service account credentials
-                      </InlineExternalLink>
-                      {" from Google Cloud."}
-                    </>
-                  ),
+                  idle: (() => {
+                    const parts = t("admin.imageGen.vertexCredentialsDesc").split("{link}");
+                    return (
+                      <>
+                        {parts[0]}
+                        <InlineExternalLink href="https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts?supportedpurview=project">
+                          {t("admin.imageGen.serviceAccountCredentials")}
+                        </InlineExternalLink>
+                        {parts[1]}
+                      </>
+                    );
+                  })(),
                   error: meta.error,
                 }}
               />
@@ -134,7 +145,7 @@ function VertexFormFields(
             state={state}
             className="w-full"
           >
-            <FormField.Label>Location</FormField.Label>
+            <FormField.Label>{t("admin.imageGen.locationLabel")}</FormField.Label>
             <FormField.Control>
               <InputTypeIn
                 value={field.value}
@@ -146,15 +157,18 @@ function VertexFormFields(
             </FormField.Control>
             <FormField.Message
               messages={{
-                idle: (
-                  <>
-                    {"The Google Cloud region for your Vertex AI models. See "}
-                    <InlineExternalLink href="https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations">
-                      Google&apos;s documentation
-                    </InlineExternalLink>
-                    {" for available regions."}
-                  </>
-                ),
+                idle: (() => {
+                  const parts = t("admin.imageGen.vertexLocationDesc").split("{link}");
+                  return (
+                    <>
+                      {parts[0]}
+                      <InlineExternalLink href="https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations">
+                        {t("admin.imageGen.googleCloudDocs")}
+                      </InlineExternalLink>
+                      {parts[1]}
+                    </>
+                  );
+                })(),
                 error: meta.error,
               }}
             />
@@ -166,17 +180,28 @@ function VertexFormFields(
 }
 
 export function VertexImageGenForm(props: ImageGenFormBaseProps) {
+  const { t } = useTranslation();
   const { imageProvider, existingConfig } = props;
+
+  const providerTitle = getProviderTitle(imageProvider, t);
+  const providerDesc = getProviderDesc(imageProvider, t);
+
+  const validationSchema = useMemo(() => Yup.object().shape({
+    custom_config: Yup.object().shape({
+      vertex_credentials: Yup.string().required(t("admin.imageGen.credentialsFileRequired")),
+      vertex_location: Yup.string().required(t("admin.imageGen.locationRequired")),
+    }),
+  }), [t]);
 
   return (
     <ImageGenFormWrapper<VertexImageGenFormValues>
       {...props}
       title={
         existingConfig
-          ? `Edit ${imageProvider.title}`
-          : `Connect ${imageProvider.title}`
+          ? t("admin.imageGen.editTitle", { name: providerTitle })
+          : t("admin.imageGen.connectTitle", { name: providerTitle })
       }
-      description={imageProvider.description}
+      description={providerDesc}
       initialValues={initialValues}
       validationSchema={validationSchema}
       getInitialValuesFromCredentials={getInitialValuesFromCredentials}

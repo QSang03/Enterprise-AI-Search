@@ -44,10 +44,10 @@ export interface SearchResultsProps {
 const RESULTS_PER_PAGE = 20;
 
 const TIME_FILTER_OPTIONS: { value: TimeFilter; label: string }[] = [
-  { value: "day", label: "Past 24 hours" },
-  { value: "week", label: "Past week" },
-  { value: "month", label: "Past month" },
-  { value: "year", label: "Past year" },
+  { value: "day", label: "24 giờ qua" },
+  { value: "week", label: "Tuần qua" },
+  { value: "month", label: "Tháng qua" },
+  { value: "year", label: "Năm qua" },
 ];
 
 export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
@@ -223,7 +223,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
                   }}
                 >
                   {TIME_FILTER_OPTIONS.find((o) => o.value === timeFilter)
-                    ?.label ?? "All Time"}
+                    ?.label ?? "Mọi lúc"}
                 </FilterButton>
               </Popover.Trigger>
               <Popover.Content align="start" width="md">
@@ -259,17 +259,15 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
                   }}
                 >
                   {selectedTags.length > 0
-                    ? `${selectedTags.length} Tag${
-                        selectedTags.length > 1 ? "s" : ""
-                      }`
-                    : "Tags"}
+                    ? `${selectedTags.length} thẻ`
+                    : "Thẻ"}
                 </FilterButton>
               </Popover.Trigger>
               <Popover.Content align="start" width="lg">
                 <PopoverMenu>
                   <InputTypeIn
                     searchIcon
-                    placeholder="Filter tags..."
+                    placeholder="Lọc thẻ..."
                     value={tagQuery}
                     onChange={(e) => setTagQuery(e.target.value)}
                     clearButton
@@ -315,7 +313,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           <div className="flex-1 flex flex-col justify-end gap-3">
             <Section alignItems="start">
               <Text text03 mainUiMuted>
-                {results.length} Results
+                {results.length} kết quả
               </Text>
             </Section>
 
@@ -335,7 +333,7 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           {error ? (
             <EmptyMessageCard
               sizePreset="main-ui"
-              title="Search failed"
+              title="Tìm kiếm thất bại"
               description={error}
             />
           ) : paginatedResults.length > 0 ? (
@@ -356,8 +354,8 @@ export default function SearchUI({ onDocumentClick }: SearchResultsProps) {
           ) : (
             <IllustrationContent
               illustration={SvgNoResult}
-              title="No results found"
-              description="Check your connectors/filters or try a different search term."
+              title="Không tìm thấy kết quả"
+              description="Vui lòng kiểm tra lại kết nối/bộ lọc hoặc thử bằng một từ khóa tìm kiếm khác."
             />
           )}
         </div>

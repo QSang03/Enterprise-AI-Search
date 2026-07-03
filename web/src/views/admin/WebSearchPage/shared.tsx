@@ -3,6 +3,7 @@
 import { markdown } from "@opal/utils";
 import type { RichStr } from "@opal/types";
 import { InputVertical } from "@opal/layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 import InputTypeInField from "@/refresh-components/form/InputTypeInField";
 import PasswordInputTypeInField from "@/refresh-components/form/PasswordInputTypeInField";
 
@@ -12,17 +13,18 @@ interface ApiKeyFieldProps {
 }
 
 export function ApiKeyField({ providerLabel, apiKeyUrl }: ApiKeyFieldProps) {
+  const { t } = useTranslation();
   return (
     <InputVertical
-      title="API Key"
+      title={t("admin.webSearch.apiKeyLabel")}
       withLabel="api_key"
       subDescription={markdown(
         apiKeyUrl
-          ? `Paste your [API key](${apiKeyUrl}) from ${providerLabel} to connect.`
-          : `Paste your API key from ${providerLabel} to connect.`
+          ? t("admin.webSearch.apiKeyDescWithUrl", { url: apiKeyUrl, name: providerLabel })
+          : t("admin.webSearch.apiKeyDescWithoutUrl", { name: providerLabel })
       )}
     >
-      <PasswordInputTypeInField name="api_key" placeholder="API Key" />
+      <PasswordInputTypeInField name="api_key" placeholder={t("admin.webSearch.apiKeyLabel")} />
     </InputVertical>
   );
 }

@@ -4,6 +4,7 @@ import { SvgUser, SvgUserManage, SvgGlobe } from "@opal/icons";
 import { SvgSlack } from "@opal/logos";
 import type { IconFunctionComponent } from "@opal/types";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { UserRole, UserStatus, USER_ROLE_LABELS } from "@/lib/types";
 import type { ApiKeyDescriptor, MemberRow } from "./interfaces";
 
@@ -17,15 +18,17 @@ export const PAGE_SIZE = 10;
 // Helpers
 // ---------------------------------------------------------------------------
 
-export function apiKeyToMemberRow(key: ApiKeyDescriptor): MemberRow {
+export function apiKeyToMemberRow(key: ApiKeyDescriptor, t: any): MemberRow {
+  const serviceAccount = t ? t("admin.groups.serviceAccount") : "Service Account";
+  const unnamedKey = t ? t("admin.groups.unnamedKey") : "Unnamed Key";
   return {
     id: key.user_id,
-    email: "Service Account",
+    email: serviceAccount,
     role: key.api_key_role,
     status: UserStatus.ACTIVE,
     is_active: true,
     is_scim_synced: false,
-    personal_name: key.api_key_name ?? "Unnamed Key",
+    personal_name: key.api_key_name ?? unnamedKey,
     created_at: null,
     updated_at: null,
     groups: [],
@@ -59,13 +62,13 @@ function renderNameColumn(_searchValue: unknown, row: MemberRow) {
   );
 }
 
-function renderAccountTypeColumn(_value: unknown, row: MemberRow) {
+function renderAccountTypeColumn(_value: unknown, row: MemberRow, t: any) {
   const Icon = (row.role && ROLE_ICONS[row.role]) || SvgUser;
   return (
     <div className="flex flex-row items-center gap-1">
       <Icon className="w-4 h-4 text-text-03" />
       <Text as="span" mainUiBody text03>
-        {row.role ? (USER_ROLE_LABELS[row.role] ?? row.role) : "\u2014"}
+        {row.role ? (t(`admin.users.role${row.role.charAt(0).toUpperCase() + row.role.slice(1).replace("_", "")}`) || USER_ROLE_LABELS[row.role] || row.role) : "\u2014"}
       </Text>
     </div>
   );
@@ -77,35 +80,32 @@ function renderAccountTypeColumn(_value: unknown, row: MemberRow) {
 
 export const tc = createTableColumns<MemberRow>();
 
-export const baseColumns = [
-  tc.qualifier(),
-  // Search/sort by a name+email composite so service accounts — whose email is a
-  // "Service Account" placeholder — are findable by their API-key name.
-  tc.column((row) => [row.personal_name, row.email].filter(Boolean).join(" "), {
-    id: "name",
-    header: "Name",
-    weight: 25,
-    cell: renderNameColumn,
-  }),
-  tc.column("api_key_display", {
-    header: "",
-    weight: 15,
-    enableSorting: false,
-    cell: (value) =>
-      value ? (
-        <Text as="span" secondaryBody text03>
-          {value}
-        </Text>
-      ) : null,
-  }),
-  tc.column("role", {
-    header: "Account Type",
-    weight: 15,
-    cell: renderAccountTypeColumn,
-  }),
-];
+export function buildBaseColumns(t: any) {
+  return [
+    tc.qualifier(),
+    tc.column((row) => [row.personal_name, row.email].filter(Boolean).join(" "), {
+      id: "name",
+      header: t("admin.groups.columnName"),
+      weight: 25,
+      cell: renderNameColumn,
+    }),
+    tc.column("api_key_display", {
+      header: "",
+      weight: 15,
+      enableSorting: false,
+      cell: (value) =>
+        value ? (
+          <Text as="span" secondaryBody text03>
+            {value}
+          </Text>
+        ) : null,
+    }),
+    tc.column("role", {
+      header: t("admin.groups.columnAccountType"),
+      weight: 15,
+      cell: (val, row) => renderAccountTypeColumn(val, row, t),
+    }),
+  ];
+}
 
-export const memberTableColumns = [
-  ...baseColumns,
-  tc.actions({ showSorting: false }),
-];
+

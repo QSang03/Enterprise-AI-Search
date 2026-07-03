@@ -18,12 +18,14 @@ import { renameGroup } from "./svc";
 import { toast } from "@/hooks/useToast";
 import { useSWRConfig } from "swr";
 import { SWR_KEYS } from "@/lib/swr-keys";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface GroupCardProps {
   group: UserGroup;
 }
 
 function GroupCard({ group }: GroupCardProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { mutate } = useSWRConfig();
   const builtIn = isBuiltInGroup(group);
@@ -35,10 +37,10 @@ function GroupCard({ group }: GroupCardProps) {
     try {
       await renameGroup(group.id, newName);
       mutate(SWR_KEYS.adminUserGroups);
-      toast.success(`Group renamed to "${newName}"`);
+      toast.success(t("admin.groups.renamedSuccess", { name: newName }));
     } catch (e) {
       console.error("Failed to rename group:", e);
-      toast.error(e instanceof Error ? e.message : "Failed to rename group");
+      toast.error(e instanceof Error ? e.message : t("admin.groups.failedRename"));
     }
   }
 
@@ -47,10 +49,10 @@ function GroupCard({ group }: GroupCardProps) {
       <ContentAction
         icon={isAdmin ? SvgUserManage : SvgUsers}
         title={group.name}
-        description={buildGroupDescription(group)}
+        description={buildGroupDescription(group, t)}
         sizePreset="main-content"
         variant="section"
-        tag={isBasic ? { title: "Default" } : undefined}
+        tag={isBasic ? { title: t("admin.groups.defaultTag") } : undefined}
         editable={!builtIn && !isSyncing}
         onTitleChange={!builtIn && !isSyncing ? handleRename : undefined}
         rightChildren={
@@ -58,15 +60,16 @@ function GroupCard({ group }: GroupCardProps) {
             <div className="py-1">
               <Text mainUiBody text03>
                 {formatMemberCount(
-                  group.users.filter((u) => u.is_active).length
+                  group.users.filter((u) => u.is_active).length,
+                  t
                 )}
               </Text>
             </div>
             <Button
               icon={SvgChevronRight}
               prominence="tertiary"
-              tooltip="View group"
-              aria-label="View group"
+              tooltip={t("admin.groups.viewGroup")}
+              aria-label={t("admin.groups.viewGroup")}
               onClick={() => router.push(`/admin/groups/${group.id}` as Route)}
             />
           </Section>

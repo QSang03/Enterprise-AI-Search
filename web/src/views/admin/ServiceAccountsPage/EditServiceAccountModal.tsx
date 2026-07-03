@@ -23,6 +23,7 @@ import { updateApiKey } from "@/views/admin/ServiceAccountsPage/svc";
 import { SERVICE_ACCOUNT_ROLE_OPTIONS } from "@/views/admin/ServiceAccountsPage/interfaces";
 import type { APIKey } from "@/views/admin/ServiceAccountsPage/interfaces";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -46,6 +47,7 @@ export default function EditServiceAccountModal({
   onClose,
   onMutate,
 }: EditServiceAccountModalProps) {
+  const { t } = useTranslation();
   const {
     data: allGroups,
     isLoading: groupsLoading,
@@ -165,13 +167,13 @@ export default function EditServiceAccountModal({
 
       onMutate();
       refreshGroups();
-      toast.success("Service account updated");
+      toast.success(t("admin.serviceAccounts.toastUpdated"));
       onClose();
     } catch (err) {
       // Partial writes may have landed — refresh both caches.
       onMutate();
       refreshGroups();
-      toast.error(err instanceof Error ? err.message : "An error occurred");
+      toast.error(err instanceof Error ? err.message : t("admin.serviceAccounts.toastUnexpectedError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -191,7 +193,7 @@ export default function EditServiceAccountModal({
       <Modal.Content width="sm" ref={contentRef}>
         <Modal.Header
           icon={SvgUsers}
-          title={`Edit ${displayName}'s Groups & Roles`}
+          title={t("admin.serviceAccounts.editGroupsRolesTitle", { name: displayName })}
           description={apiKey.api_key_display}
           onClose={isSubmitting ? undefined : onClose}
         />
@@ -214,7 +216,7 @@ export default function EditServiceAccountModal({
                     <InputTypeIn
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search groups to join..."
+                      placeholder={t("admin.serviceAccounts.searchGroupsPlaceholder")}
                       searchIcon
                     />
                   </div>
@@ -225,15 +227,15 @@ export default function EditServiceAccountModal({
                   container={contentEl}
                 >
                   {groupsLoading ? (
-                    <LineItem skeleton description="Loading groups...">
+                    <LineItem skeleton description={t("admin.serviceAccounts.loadingGroups")}>
                       Loading...
                     </LineItem>
                   ) : dropdownGroups.length === 0 ? (
                     <LineItem
                       skeleton
-                      description="Try a different search term."
+                      description={t("admin.serviceAccounts.tryDifferentSearch")}
                     >
-                      No groups found
+                      {t("admin.serviceAccounts.noGroupsFound")}
                     </LineItem>
                   ) : (
                     <ShadowDiv
@@ -246,9 +248,7 @@ export default function EditServiceAccountModal({
                           <LineItem
                             key={group.id}
                             icon={isMember ? SvgCheck : SvgUsers}
-                            description={`${group.users.length} ${
-                              group.users.length === 1 ? "user" : "users"
-                            }`}
+                            description={group.users.length === 1 ? t("admin.serviceAccounts.memberCountSingle") : t("admin.serviceAccounts.memberCountMulti", { count: group.users.length })}
                             selected={isMember}
                             emphasized={isMember}
                             onClick={() => toggleGroup(group.id)}
@@ -271,9 +271,9 @@ export default function EditServiceAccountModal({
                     icon={SvgUsers}
                     skeleton
                     interactive={false}
-                    description={`${displayName} is not in any groups.`}
+                    description={t("admin.serviceAccounts.noGroupsDesc", { name: displayName })}
                   >
-                    No groups found
+                    {t("admin.serviceAccounts.noGroupsFound")}
                   </LineItem>
                 ) : (
                   joinedGroups.map((group) => (
@@ -288,7 +288,7 @@ export default function EditServiceAccountModal({
                           group.users.length === 1 ? "user" : "users"
                         }`}
                         rightChildren={
-                          <Tooltip tooltip="Remove from group" side="left">
+                          <Tooltip tooltip={t("admin.groups.removeFromGroup")} side="left">
                             <SvgLogOut height={16} width={16} />
                           </Tooltip>
                         }
@@ -305,8 +305,8 @@ export default function EditServiceAccountModal({
             <Divider paddingParallel="fit" paddingPerpendicular="fit" />
 
             <ContentAction
-              title="Account Role"
-              description="This controls the service account's general permissions."
+              title={t("admin.serviceAccounts.accountRoleLabel")}
+              description={t("admin.serviceAccounts.accountRoleDesc")}
               sizePreset="main-ui"
               variant="section"
               padding="fit"
@@ -322,7 +322,7 @@ export default function EditServiceAccountModal({
                         key={opt.role}
                         value={opt.role.toString()}
                         icon={opt.icon}
-                        description={opt.description}
+                        description={opt.role === UserRole.ADMIN ? t("admin.serviceAccounts.roleAdminDesc") : opt.role === UserRole.BASIC ? t("admin.serviceAccounts.roleBasicDesc") : t("admin.serviceAccounts.roleLimitedDesc")}
                       >
                         {USER_ROLE_LABELS[opt.role]}
                       </InputSelect.Item>
@@ -339,10 +339,10 @@ export default function EditServiceAccountModal({
             prominence="secondary"
             onClick={isSubmitting ? undefined : onClose}
           >
-            Cancel
+            {t("admin.serviceAccounts.cancel")}
           </Button>
           <Button disabled={isSubmitting || !hasChanges} onClick={handleSave}>
-            Save Changes
+            {t("admin.groups.saveChanges")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

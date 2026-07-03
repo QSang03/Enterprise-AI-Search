@@ -14,8 +14,10 @@ import { SvgAlertTriangle, SvgLogOut } from "@opal/icons";
 import { Content } from "@opal/layouts";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getExtensionContext } from "@/lib/extension/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function AppHealthBanner() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { error } = useSWR(SWR_KEYS.health, errorHandlingFetcher);
   const [expired, setExpired] = useState(false);
@@ -233,14 +235,14 @@ export default function AppHealthBanner() {
     return (
       <Modal open>
         <Modal.Content width="sm" height="sm">
-          <Modal.Header icon={SvgLogOut} title="You Have Been Logged Out" />
+          <Modal.Header icon={SvgLogOut} title={t("banners.health.loggedOutTitle")} />
           <Modal.Body>
             <p className="text-sm">
-              Your session has expired. Please log in again to continue.
+              {t("banners.health.loggedOutDesc")}
             </p>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={handleLogin}>Log In</Button>
+            <Button onClick={handleLogin}>{t("banners.health.loginBtn")}</Button>
           </Modal.Footer>
         </Modal.Content>
       </Modal>
@@ -258,8 +260,8 @@ export default function AppHealthBanner() {
       <div className="fixed top-0 left-0 z-101 w-full bg-status-error-01 p-3">
         <Content
           icon={SvgAlertTriangle}
-          title="The backend is currently unavailable"
-          description="If this is your initial setup or you just updated your Onyx deployment, this is likely because the backend is still starting up. Give it a minute or two, and then refresh the page. If that does not work, make sure the backend is setup and/or contact an administrator."
+          title={t("banners.health.backendUnavailableTitle")}
+          description={t("banners.health.backendUnavailableDesc")}
           sizePreset="main-content"
           variant="section"
         />

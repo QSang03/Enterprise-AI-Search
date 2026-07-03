@@ -30,10 +30,32 @@ import { markdown } from "@opal/utils";
 import { getImageGenForm } from "@/views/admin/ImageGenerationPage/forms";
 import ProviderCard from "@/sections/admin/ProviderCard";
 import { getModelIcon } from "@/lib/languageModels";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const NO_DEFAULT_VALUE = "__none__";
 
 export default function ImageGenerationContent() {
+  const { t } = useTranslation();
+
+  const getGroupName = (name: string) => {
+    if (name === "OpenAI") return t("admin.imageGen.providerGroupOpenAI");
+    if (name === "Azure OpenAI") return t("admin.imageGen.providerGroupAzure");
+    if (name === "Google Cloud Vertex AI") return t("admin.imageGen.providerGroupVertex");
+    return name;
+  };
+
+  const getProviderTitle = (p: ImageProvider) => {
+    const key = `admin.imageGen.providerTitle_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+    const trans = t(key);
+    return trans === key ? p.title : trans;
+  };
+
+  const getProviderDesc = (p: ImageProvider) => {
+    const key = `admin.imageGen.providerDesc_${p.image_provider_id.replaceAll("-", "_").replaceAll(".", "_")}`;
+    const trans = t(key);
+    return trans === key ? p.description : trans;
+  };
+
   const {
     data: llmProviderResponse,
     error: llmError,
@@ -96,11 +118,11 @@ export default function ImageGenerationContent() {
     if (config) {
       try {
         await setDefaultImageGenerationConfig(config.image_provider_id);
-        toast.success(`${provider.title} set as default`);
+        toast.success(t("admin.imageGen.setDefaultSuccess", { name: getProviderTitle(provider) }));
         refetchConfigs();
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to set default"
+          error instanceof Error ? error.message : t("admin.imageGen.failedSetDefault")
         );
       }
     }
@@ -113,11 +135,11 @@ export default function ImageGenerationContent() {
     if (config) {
       try {
         await unsetDefaultImageGenerationConfig(config.image_provider_id);
-        toast.success(`${provider.title} deselected`);
+        toast.success(t("admin.imageGen.deselectedSuccess", { name: getProviderTitle(provider) }));
         refetchConfigs();
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to deselect"
+          error instanceof Error ? error.message : t("admin.imageGen.failedDeselect")
         );
       }
     }
@@ -141,13 +163,13 @@ export default function ImageGenerationContent() {
       }
 
       await deleteImageGenerationConfig(disconnectProvider.image_provider_id);
-      toast.success(`${disconnectProvider.title} disconnected`);
+      toast.success(t("admin.imageGen.disconnectedSuccess", { name: getProviderTitle(disconnectProvider) }));
       refetchConfigs();
       refetchProviders();
     } catch (error) {
       console.error("Failed to disconnect image generation provider:", error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to disconnect"
+        error instanceof Error ? error.message : t("admin.imageGen.failedDisconnect")
       );
     } finally {
       setDisconnectProvider(null);
@@ -156,7 +178,7 @@ export default function ImageGenerationContent() {
   };
 
   const handleModalSuccess = () => {
-    toast.success("Provider configured successfully");
+    toast.success(t("admin.imageGen.configuredSuccess"));
     setEditConfig(null);
     refetchConfigs();
     refetchProviders();
@@ -165,7 +187,7 @@ export default function ImageGenerationContent() {
   if (llmError || configError) {
     return (
       <div className="text-error">
-        Failed to load configuration. Please refresh the page.
+        {t("admin.imageGen.failedLoad")}
       </div>
     );
   }
@@ -204,8 +226,8 @@ export default function ImageGenerationContent() {
     <>
       <div className="flex flex-col gap-4">
         <Content
-          title="Image Generation Model"
-          description="Select a model to generate images in chat."
+          title={t("admin.imageGen.modelSectionTitle")}
+          description={t("admin.imageGen.modelSectionDesc")}
           sizePreset="main-content"
           variant="section"
         />
@@ -213,14 +235,14 @@ export default function ImageGenerationContent() {
         {connectedProviderIds.size === 0 && (
           <MessageCard
             variant="info"
-            title="Connect an image generation model to use in chat."
+            title={t("admin.imageGen.connectInfo")}
           />
         )}
 
         {/* Provider Groups */}
         {IMAGE_PROVIDER_GROUPS.map((group) => (
           <div key={group.name} className="flex flex-col gap-2">
-            <Content title={group.name} sizePreset="secondary" variant="body" />
+            <Content title={getGroupName(group.name)} sizePreset="secondary" variant="body" />
             {group.providers.map((provider) => {
               const status = getStatus(provider);
               const isDisconnected = status === "disconnected";
@@ -231,8 +253,8 @@ export default function ImageGenerationContent() {
                 <ProviderCard
                   key={provider.image_provider_id}
                   icon={getModelIcon(provider.provider_name)}
-                  title={provider.title}
-                  description={provider.description}
+                  title={getProviderTitle(provider)}
+                  description={getProviderDesc(provider)}
                   status={status}
                   aria-label={`image-gen-provider-${provider.image_provider_id}`}
                   onConnect={() => handleConnect(provider)}
@@ -254,8 +276,8 @@ export default function ImageGenerationContent() {
       {disconnectProvider && (
         <ConfirmationModalLayout
           icon={SvgUnplug}
-          title={markdown(`Disconnect *${disconnectProvider.title}*`)}
-          description="This will remove the stored credentials for this provider."
+          title={markdown(t("admin.imageGen.disconnectTitle", { name: getProviderTitle(disconnectProvider) }))}
+          description={t("admin.imageGen.disconnectDesc")}
           onClose={() => {
             setDisconnectProvider(null);
             setReplacementProviderId(null);
@@ -268,7 +290,7 @@ export default function ImageGenerationContent() {
                 needsReplacement && hasReplacements && !replacementProviderId
               }
             >
-              Disconnect
+              {t("admin.imageGen.disconnectBtn")}
             </Button>
           }
         >
@@ -277,29 +299,29 @@ export default function ImageGenerationContent() {
               <Section alignItems="start">
                 <Text as="p" color="text-03">
                   {markdown(
-                    `**${disconnectProvider.title}** is currently the default image generation model. Session history will be preserved.`
+                    t("admin.imageGen.isDefaultModelDesc", { name: getProviderTitle(disconnectProvider) })
                   )}
                 </Text>
                 <Section alignItems="start" gap={0.25}>
                   <Text as="p" color="text-04">
-                    Set New Default
+                    {t("admin.imageGen.setNewDefault")}
                   </Text>
                   <InputSelect
                     value={replacementProviderId ?? undefined}
                     onValueChange={(v) => setReplacementProviderId(v)}
                   >
-                    <InputSelect.Trigger placeholder="Select a replacement model" />
+                    <InputSelect.Trigger placeholder={t("admin.imageGen.selectReplacementPlaceholder")} />
                     <InputSelect.Content>
                       {replacementGroups.map((group) => (
                         <InputSelect.Group key={group.name}>
-                          <InputSelect.Label>{group.name}</InputSelect.Label>
+                          <InputSelect.Label>{getGroupName(group.name)}</InputSelect.Label>
                           {group.providers.map((p) => (
                             <InputSelect.Item
                               key={p.image_provider_id}
                               value={p.image_provider_id}
                               icon={getModelIcon(p.provider_name)}
                             >
-                              {p.title}
+                              {getProviderTitle(p)}
                             </InputSelect.Item>
                           ))}
                         </InputSelect.Group>
@@ -310,10 +332,9 @@ export default function ImageGenerationContent() {
                         icon={SvgSlash}
                       >
                         <span>
-                          <b>No Default</b>
+                          <b>{t("admin.imageGen.noDefault")}</b>
                           <span className="text-text-03">
-                            {" "}
-                            (Disable Image Generation)
+                            {t("admin.imageGen.disableImageGenSuffix")}
                           </span>
                         </span>
                       </InputSelect.Item>
@@ -325,11 +346,11 @@ export default function ImageGenerationContent() {
               <>
                 <Text as="p" color="text-03">
                   {markdown(
-                    `**${disconnectProvider.title}** is currently the default image generation model.`
+                    t("admin.imageGen.isDefaultModelDesc", { name: getProviderTitle(disconnectProvider) })
                   )}
                 </Text>
                 <Text as="p" color="text-03">
-                  Connect another provider to continue using image generation.
+                  {t("admin.imageGen.connectAnotherProvider")}
                 </Text>
               </>
             )
@@ -337,11 +358,11 @@ export default function ImageGenerationContent() {
             <>
               <Text as="p" color="text-03">
                 {markdown(
-                  `**${disconnectProvider.title}** models will no longer be used to generate images.`
+                  t("admin.imageGen.noLongerUsedDesc", { name: getProviderTitle(disconnectProvider) })
                 )}
               </Text>
               <Text as="p" color="text-03">
-                Session history will be preserved.
+                {t("admin.imageGen.sessionHistoryPreserved")}
               </Text>
             </>
           )}

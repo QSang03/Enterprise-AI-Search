@@ -15,6 +15,7 @@ import LineItem from "@/refresh-components/buttons/LineItem";
 import { toast } from "@/hooks/useToast";
 import { setUserRole } from "./svc";
 import type { UserRow } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const ROLE_ICONS: Partial<Record<UserRole, IconFunctionComponent>> = {
   [UserRole.ADMIN]: SvgUserManage,
@@ -34,10 +35,20 @@ interface UserRoleCellProps {
 }
 
 export default function UserRoleCell({ user, onMutate }: UserRoleCellProps) {
+  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
   const [open, setOpen] = useState(false);
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const isUpdatingRef = useRef(false);
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case UserRole.ADMIN: return t("admin.users.roleAdmin");
+      case UserRole.BASIC: return t("admin.users.roleBasic");
+      case UserRole.GLOBAL_CURATOR: return t("admin.users.roleGlobalCurator");
+      case UserRole.SLACK_USER: return t("admin.users.roleSlackUser");
+      default: return USER_ROLE_LABELS[role] ?? role;
+    }
+  };
 
   if (!user.role) {
     return (
@@ -53,10 +64,10 @@ export default function UserRoleCell({ user, onMutate }: UserRoleCellProps) {
     setIsUpdating(true);
     try {
       await setUserRole(user.email, newRole);
-      toast.success("Role updated");
+      toast.success(t("admin.users.roleUpdated"));
       onMutate();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update role");
+      toast.error(err instanceof Error ? err.message : t("admin.users.failedUpdateRole"));
       onMutate();
     } finally {
       setIsUpdating(false);
@@ -90,7 +101,7 @@ export default function UserRoleCell({ user, onMutate }: UserRoleCellProps) {
         emphasized={isSelected}
         onClick={() => handleSelect(role)}
       >
-        {USER_ROLE_LABELS[role]}
+        {getRoleLabel(role)}
       </LineItem>
     );
   });
@@ -106,7 +117,7 @@ export default function UserRoleCell({ user, onMutate }: UserRoleCellProps) {
             justifyContent="between"
             rounding="sm"
           >
-            {USER_ROLE_LABELS[user.role]}
+            {getRoleLabel(user.role)}
           </OpenButton>
         </Popover.Trigger>
         <Popover.Content align="start">

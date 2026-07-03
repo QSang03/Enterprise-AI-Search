@@ -18,6 +18,7 @@ import {
 } from "@/lib/types";
 import { NEXT_PUBLIC_CLOUD_ENABLED } from "@/lib/constants";
 import type { GroupOption, StatusFilter, StatusCountMap } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -92,6 +93,27 @@ export default function UserFilters({
   roleCounts,
   statusCounts,
 }: UserFiltersProps) {
+  const { t } = useTranslation();
+  const getRoleLabel = (role: UserRole) => {
+    switch (role) {
+      case UserRole.ADMIN: return t("admin.users.roleAdmin");
+      case UserRole.BASIC: return t("admin.users.roleBasic");
+      case UserRole.GLOBAL_CURATOR: return t("admin.users.roleGlobalCurator");
+      case UserRole.SLACK_USER: return t("admin.users.roleSlackUser");
+      default: return USER_ROLE_LABELS[role] ?? role;
+    }
+  };
+
+  const getStatusLabel = (status: UserStatus) => {
+    switch (status) {
+      case UserStatus.ACTIVE: return t("admin.users.statusActive");
+      case UserStatus.INACTIVE: return t("admin.users.statusInactive");
+      case UserStatus.INVITED: return t("admin.users.statusInvited");
+      case UserStatus.REQUESTED: return t("admin.users.statusRequested");
+      default: return USER_STATUS_LABELS[status] ?? status;
+    }
+  };
+
   const hasRoleFilter = selectedRoles.length > 0;
   const hasGroupFilter = selectedGroups.length > 0;
   const hasStatusFilter = selectedStatuses.length > 0;
@@ -123,12 +145,9 @@ export default function UserFilters({
   };
 
   const roleLabel = hasRoleFilter
-    ? FILTERABLE_ROLES.filter(([role]) => selectedRoles.includes(role))
-        .map(([, label]) => label)
-        .slice(0, 2)
-        .join(", ") +
+    ? selectedRoles.map(getRoleLabel).slice(0, 2).join(", ") +
       (selectedRoles.length > 2 ? `, +${selectedRoles.length - 2}` : "")
-    : "All Account Types";
+    : t("admin.users.allAccountTypes");
 
   const groupLabel = hasGroupFilter
     ? groups
@@ -137,17 +156,12 @@ export default function UserFilters({
         .slice(0, 2)
         .join(", ") +
       (selectedGroups.length > 2 ? `, +${selectedGroups.length - 2}` : "")
-    : "All Groups";
+    : t("admin.users.allGroups");
 
   const statusLabel = hasStatusFilter
-    ? FILTERABLE_STATUSES.filter(([status]) =>
-        selectedStatuses.includes(status)
-      )
-        .map(([, label]) => label)
-        .slice(0, 2)
-        .join(", ") +
+    ? selectedStatuses.map(getStatusLabel).slice(0, 2).join(", ") +
       (selectedStatuses.length > 2 ? `, +${selectedStatuses.length - 2}` : "")
-    : "All Status";
+    : t("admin.users.allStatus");
 
   const filteredGroups = groupSearch
     ? groups.filter((g) =>
@@ -177,9 +191,10 @@ export default function UserFilters({
               emphasized={!hasRoleFilter}
               onClick={() => onRolesChange([])}
             >
-              All Account Types
+              {t("admin.users.allAccountTypes")}
             </LineItem>
-            {FILTERABLE_ROLES.map(([role, label]) => {
+            {FILTERABLE_ROLES.map(([role]) => {
+              const label = getRoleLabel(role);
               const isSelected = selectedRoles.includes(role);
               const roleIcon = ROLE_ICONS[role] ?? SvgUser;
               return (
@@ -223,7 +238,7 @@ export default function UserFilters({
             <InputTypeIn
               value={groupSearch}
               onChange={(e) => setGroupSearch(e.target.value)}
-              placeholder="Search groups..."
+              placeholder={t("admin.users.searchGroupsPlaceholder")}
               searchIcon
               variant="internal"
             />
@@ -233,7 +248,7 @@ export default function UserFilters({
               emphasized={!hasGroupFilter}
               onClick={() => onGroupsChange([])}
             >
-              All Groups
+              {t("admin.users.allGroups")}
             </LineItem>
             <ShadowDiv className="flex flex-col gap-1 max-h-[240px]">
               {filteredGroups.map((group) => {
@@ -253,7 +268,7 @@ export default function UserFilters({
               })}
               {filteredGroups.length === 0 && (
                 <Text as="span" secondaryBody text03 className="px-2 py-1.5">
-                  No groups found
+                  {t("admin.users.noGroupsFound")}
                 </Text>
               )}
             </ShadowDiv>
@@ -281,9 +296,10 @@ export default function UserFilters({
               emphasized={!hasStatusFilter}
               onClick={() => onStatusesChange([])}
             >
-              All Status
+              {t("admin.users.allStatus")}
             </LineItem>
-            {FILTERABLE_STATUSES.map(([status, label]) => {
+            {FILTERABLE_STATUSES.map(([status]) => {
+              const label = getStatusLabel(status);
               const isSelected = selectedStatuses.includes(status);
               const countKey = STATUS_COUNT_KEY[status];
               return (

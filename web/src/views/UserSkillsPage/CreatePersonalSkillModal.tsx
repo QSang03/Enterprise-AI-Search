@@ -48,7 +48,7 @@ export default function CreatePersonalSkillModal({
     setErrorMessage(null);
     try {
       const created = await createUserSkill(file);
-      toast.success(`Created "${created.name}"`);
+      toast.success(`Đã tạo "${created.name}"`);
       reset();
       onCreated();
       onClose();
@@ -57,7 +57,7 @@ export default function CreatePersonalSkillModal({
       // Surface the server detail (duplicate slug, reserved slug, cap reached)
       // inline so the user can act on it.
       setErrorMessage(
-        err instanceof Error ? err.message : "Failed to create skill"
+        err instanceof Error ? err.message : "Không thể tạo kỹ năng"
       );
     } finally {
       setSubmitting(false);
@@ -71,15 +71,15 @@ export default function CreatePersonalSkillModal({
       <Modal.Content width="md">
         <Modal.Header
           icon={SvgUploadCloud}
-          title="Create skill"
-          description="Upload a zip bundle. The zip filename becomes the slug, and SKILL.md frontmatter provides the name + description. Personal skills are only visible to you."
+          title="Tạo kỹ năng"
+          description="Tải lên gói zip. Tên tệp zip sẽ trở thành slug, và phần frontmatter của tệp SKILL.md sẽ cung cấp tên + mô tả. Các kỹ năng cá nhân chỉ hiển thị với riêng bạn."
           onClose={handleClose}
         />
         <Modal.Body>
           <Section gap={0.5} alignItems="stretch">
             <Section gap={0.25} alignItems="stretch">
               <Text font="main-ui-action" color="text-05">
-                Bundle (.zip)
+                Gói kỹ năng (.zip)
               </Text>
               <div className="flex items-center gap-2">
                 <input
@@ -94,10 +94,10 @@ export default function CreatePersonalSkillModal({
                   prominence="secondary"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  {file ? "Change file" : "Choose zip"}
+                  {file ? "Thay đổi tệp" : "Chọn tệp zip"}
                 </Button>
                 <Text font="main-ui-body" color="text-03">
-                  {file ? file.name : "No file selected"}
+                  {file ? file.name : "Chưa chọn tệp"}
                 </Text>
               </div>
             </Section>
@@ -111,14 +111,14 @@ export default function CreatePersonalSkillModal({
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={handleClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             disabled={submitDisabled}
             onClick={handleSubmit}
             icon={SvgUploadCloud}
           >
-            {submitting ? "Creating…" : "Create"}
+            {submitting ? "Đang tạo…" : "Tạo"}
           </Button>
         </Modal.Footer>
       </Modal.Content>

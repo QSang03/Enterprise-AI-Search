@@ -15,6 +15,7 @@ import {
   LLMOption,
 } from "@/lib/languageModels/options";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useCurrentAgentLLMProviders } from "@/lib/languageModels/hooks";
 import ModelSelectorContent from "@/sections/model-selector/ModelSelectorContent";
 
@@ -63,6 +64,7 @@ export default function ModelSelector({
   includeGlobalDefault = false,
   side = "top",
 }: ModelSelectorProps) {
+  const { t } = useTranslation();
   const { llmProviders, defaultText } = useCurrentAgentLLMProviders();
   const [open, setOpen] = useState(false);
   const { user } = useUser();
@@ -100,7 +102,7 @@ export default function ModelSelector({
   }, [defaultText, llmProviders]);
 
   const effectiveOption = currentOption ?? defaultModelOption;
-  const currentDisplayName = effectiveOption?.displayName ?? "Select Model";
+  const currentDisplayName = effectiveOption?.displayName ?? t("chat.selectModel");
 
   const isSelected = useCallback(
     (option: LLMOption) => {
@@ -159,7 +161,7 @@ export default function ModelSelector({
           />
           <div className="flex flex-row items-center justify-between">
             <Text font="secondary-body" color="text-03">
-              Temperature (creativity)
+              {t("chat.temperature")}
             </Text>
             <Text font="secondary-body" color="text-03">
               {localTemperature.toFixed(1)}

@@ -8,6 +8,7 @@ import Text from "@/refresh-components/texts/Text";
 import InputComboBox from "@/refresh-components/inputs/InputComboBox/InputComboBox";
 import { Section } from "@/layouts/general-layouts";
 import useShareableGroups from "@/hooks/useShareableGroups";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const GROUPS_TAB = "Groups";
 const YOUR_ORGANIZATION_TAB = "Your Organization";
@@ -33,6 +34,7 @@ export default function SkillSharePicker({
   groupIds,
   onGroupIdsChange,
 }: SkillSharePickerProps) {
+  const { t } = useTranslation();
   const {
     data: groupsData,
     isLoading: groupsLoading,
@@ -68,21 +70,21 @@ export default function SkillSharePicker({
 
   return (
     <Card padding="sm">
-      <Tabs defaultValue={isPublic ? YOUR_ORGANIZATION_TAB : GROUPS_TAB}>
+      <Tabs defaultValue={isPublic ? "Your Organization" : "Groups"}>
         <Tabs.List>
-          <Tabs.Trigger icon={SvgUsers} value={GROUPS_TAB}>
-            {GROUPS_TAB}
+          <Tabs.Trigger icon={SvgUsers} value="Groups">
+            {t("admin.skills.groupsTab")}
           </Tabs.Trigger>
-          <Tabs.Trigger icon={SvgOrganization} value={YOUR_ORGANIZATION_TAB}>
-            {YOUR_ORGANIZATION_TAB}
+          <Tabs.Trigger icon={SvgOrganization} value="Your Organization">
+            {t("admin.skills.orgTab")}
           </Tabs.Trigger>
         </Tabs.List>
 
-        <Tabs.Content value={GROUPS_TAB}>
+        <Tabs.Content value="Groups">
           <Section gap={0.5} alignItems="start">
             <div className="w-full">
               <InputComboBox
-                placeholder="Add a group..."
+                placeholder={t("admin.skills.addGroupPlaceholder")}
                 value=""
                 onChange={() => {}}
                 onValueChange={handleSelectGroup}
@@ -114,8 +116,7 @@ export default function SkillSharePicker({
             )}
             {!groupsLoading && !groupsError && groups.length === 0 && (
               <Text as="span" secondaryBody text03>
-                No user groups exist yet. Create groups in /admin/groups to
-                share skills with specific groups.
+                {t("admin.skills.noGroupsWarn")}
               </Text>
             )}
           </Section>
@@ -123,18 +124,18 @@ export default function SkillSharePicker({
             <Section>
               <MessageCard
                 icon={SvgOrganization}
-                title="This skill is public to your organization."
-                description="Everyone in your organization has access to this skill."
+                title={t("admin.skills.skillPublicTitle")}
+                description={t("admin.skills.skillPublicDesc")}
               />
             </Section>
           )}
         </Tabs.Content>
 
-        <Tabs.Content value={YOUR_ORGANIZATION_TAB}>
+        <Tabs.Content value="Your Organization">
           <Section gap={1} alignItems="stretch" padding={0.5}>
             <InputHorizontal
-              title="Publish This Skill"
-              description="Make this skill available to everyone in your organization."
+              title={t("admin.skills.publishSkill")}
+              description={t("admin.skills.publishSkillDesc")}
               withLabel
             >
               <Switch checked={isPublic} onCheckedChange={onIsPublicChange} />

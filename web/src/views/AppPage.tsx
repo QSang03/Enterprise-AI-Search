@@ -83,6 +83,7 @@ import { useQueryController } from "@/providers/QueryControllerProvider";
 import WelcomeMessage from "@/app/app/components/WelcomeMessage";
 import ChatUI from "@/sections/chat/ChatUI";
 import { useFullWidthChat } from "@/providers/FullWidthChatProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { paidTierGated } from "@/ce";
 import EESearchUI from "@/premium/sections/SearchUI";
 const SearchUI = paidTierGated(EESearchUI);
@@ -117,6 +118,7 @@ export interface ChatPageProps {
 }
 
 export default function AppPage({ firstMessage }: ChatPageProps) {
+  const { t } = useTranslation();
   // Performance tracking
   // Keeping this here in case we need to track down slow renders in the future
   // const renderCount = useRef(0);
@@ -986,7 +988,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                             }
                           />
                           <Button href="/app" prominence="secondary">
-                            Start a new chat
+                            {t("sidebar.startNewChat")}
                           </Button>
                         </Section>
                       )}

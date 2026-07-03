@@ -14,10 +14,17 @@ import AuthErrorDisplay from "@/components/auth/AuthErrorDisplay";
 import Text from "@/refresh-components/texts/Text";
 import { cn } from "@opal/utils";
 import { AuthType } from "@/lib/constants";
+import { cookies } from "next/headers";
+import en from "@/lib/locales/en.json";
+import vi from "@/lib/locales/vi.json";
 
 const Page = async (props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("app_lang")?.value || "en") as "en" | "vi";
+  const dict = lang === "vi" ? vi : en;
+
   const searchParams = await props.searchParams;
   const nextUrl = Array.isArray(searchParams?.next)
     ? searchParams?.next[0]
@@ -74,10 +81,10 @@ const Page = async (props: {
         >
           <div className="w-full">
             <Text as="p" headingH2 text05>
-              {cloud ? "Complete your sign up" : "Create account"}
+              {cloud ? dict.auth.completeSignUp : dict.auth.createAccountBtn}
             </Text>
             <Text as="p" text03>
-              Get started with Onyx
+              {dict.auth.signUpGetStarted}
             </Text>
           </div>
           {cloud && authUrl && (
@@ -86,7 +93,7 @@ const Page = async (props: {
               <div className="flex items-center w-full my-4">
                 <div className="grow border-t border-border-01" />
                 <Text as="p" mainUiMuted text03 className="mx-2">
-                  or
+                  {dict.auth.or}
                 </Text>
                 <div className="grow border-t border-border-01" />
               </div>

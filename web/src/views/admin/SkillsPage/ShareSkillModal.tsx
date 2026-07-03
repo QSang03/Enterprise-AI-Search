@@ -9,6 +9,7 @@ import SkillSharePicker from "@/views/admin/SkillsPage/SkillSharePicker";
 import { patchCustomSkill, replaceCustomSkillGrants } from "@/lib/skills/api";
 import { toast } from "@/hooks/useToast";
 import type { CustomSkill } from "@/views/admin/SkillsPage/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ShareSkillModalProps {
   skill: CustomSkill | null;
@@ -24,6 +25,7 @@ export default function ShareSkillModal({
   onClose,
   onSaved,
 }: ShareSkillModalProps) {
+  const { t } = useTranslation();
   const [isPublic, setIsPublic] = useState(skill?.is_public ?? false);
   const [groupIds, setGroupIds] = useState<number[]>(
     skill?.granted_group_ids ?? []
@@ -72,7 +74,7 @@ export default function ShareSkillModal({
         }
       }
 
-      toast.success(`Updated "${skill.name}" visibility`);
+      toast.success(t("admin.skills.visibilityUpdated", { name: skill.name }));
       onSaved();
       onClose();
     } catch (err) {
@@ -80,9 +82,7 @@ export default function ShareSkillModal({
       // Refresh parent data even on failure so the next open reflects the
       // partially-applied server state rather than the stale `skill` prop.
       onSaved();
-      toast.error(
-        err instanceof Error ? err.message : "Failed to update visibility"
-      );
+      toast.error(err instanceof Error ? err.message : t("admin.skills.failedUpdateVisibility"));
     } finally {
       setSaving(false);
     }
@@ -93,8 +93,8 @@ export default function ShareSkillModal({
       <Modal.Content width="md">
         <Modal.Header
           icon={SvgShare}
-          title={`Share "${skill.name}"`}
-          description="Visibility controls who sees this skill in their Craft session."
+          title={t("admin.skills.shareSkillTitle", { name: skill.name })}
+          description={t("admin.skills.shareSkillDesc")}
           onClose={onClose}
         />
         <Modal.Body>
@@ -108,20 +108,18 @@ export default function ShareSkillModal({
             {skill.is_personal && (isPublic || groupIds.length > 0) && (
               <MessageCard
                 variant="warning"
-                title="This is a personal skill"
-                description={`Sharing it removes it from ${
-                  skill.author_email ?? "its author"
-                }'s personal skills — they will no longer be able to manage it themselves.`}
+                title={t("admin.skills.personalSkillWarningTitle")}
+                description={t("admin.skills.personalSkillWarningDesc", { author: skill.author_email ?? t("admin.skills.itsAuthor") })}
               />
             )}
           </Section>
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={onClose}>
-            Cancel
+            {t("admin.skills.cancel")}
           </Button>
           <Button disabled={saving} onClick={handleSave}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? t("admin.skills.saving") : t("admin.skills.save")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

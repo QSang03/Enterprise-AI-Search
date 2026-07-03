@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCard } from "@opal/components";
 import { useLicense } from "@/hooks/useLicense";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const DISMISS_STORAGE_KEY = "license-expiry-banner-dismissed";
 
@@ -18,7 +19,8 @@ interface BannerCopy {
 function buildCopy(
   stage: string,
   expiresAt: string | null,
-  graceDaysRemaining: number
+  graceDaysRemaining: number,
+  t: (key: string, options?: any) => string
 ): BannerCopy | null {
   const expiresDisplay = expiresAt
     ? new Date(expiresAt).toLocaleDateString()
@@ -26,41 +28,38 @@ function buildCopy(
 
   if (stage === "t_30d") {
     return {
-      title: `Your license expires on ${expiresDisplay}.`,
-      description:
-        "Renewal is due in approximately 30 days. Please contact your system administrator or account representative to renew.",
+      title: t("banners.license.expiresSoon", { date: expiresDisplay }),
+      description: t("banners.license.expiresSoonDesc30d"),
       variant: "warning",
     };
   }
   if (stage === "t_14d") {
     return {
-      title: `Your license expires on ${expiresDisplay}.`,
-      description:
-        "Renewal is due in approximately 2 weeks. Complete renewal soon to avoid service interruption.",
+      title: t("banners.license.expiresSoon", { date: expiresDisplay }),
+      description: t("banners.license.expiresSoonDesc14d"),
       variant: "warning",
     };
   }
   if (stage === "t_1d") {
     return {
-      title: `Your license expires tomorrow (${expiresDisplay}).`,
-      description:
-        "Renewal is due within 24 hours. Renew now to avoid service interruption.",
+      title: t("banners.license.expiresTomorrow", { date: expiresDisplay }),
+      description: t("banners.license.expiresTomorrowDesc"),
       variant: "error",
     };
   }
   if (stage === "grace") {
     return {
-      title: `Your license expired on ${expiresDisplay}.`,
-      description: `${graceDaysRemaining} grace day${
-        graceDaysRemaining === 1 ? "" : "s"
-      } remaining before access is restricted. Please contact support to renew your license.`,
+      title: t("banners.license.expiredOn", { date: expiresDisplay }),
+      description: graceDaysRemaining === 1
+        ? t("banners.license.expiredGrace", { days: graceDaysRemaining })
+        : t("banners.license.expiredGracePlural", { days: graceDaysRemaining }),
       variant: "error",
     };
   }
   if (stage === "expired") {
     return {
-      title: "Your license has expired.",
-      description: "Access to premium features is currently restricted. Please apply a valid license key.",
+      title: t("banners.license.expired"),
+      description: t("banners.license.expiredDesc"),
       variant: "error",
     };
   }
@@ -99,7 +98,8 @@ export function LicenseExpiryBannerView({
   graceDaysRemaining,
   onDismiss,
 }: LicenseExpiryBannerViewProps) {
-  const copy = buildCopy(stage, expiresAt, graceDaysRemaining);
+  const { t } = useTranslation();
+  const copy = buildCopy(stage, expiresAt, graceDaysRemaining, t);
   if (!copy) return null;
 
   return (

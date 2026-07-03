@@ -1,6 +1,7 @@
 "use client";
 
 import { Formik, useFormikContext } from "formik";
+import { useMemo } from "react";
 import * as Yup from "yup";
 import { Button } from "@opal/components";
 import { SvgArrowExchange, SvgSimpleLoader } from "@opal/icons";
@@ -23,8 +24,10 @@ import {
   ModelSpecFields,
   TextField,
   modelSpecSchemaShape,
+  getModelSpecSchemaShape,
 } from "@/views/admin/IndexSettingsPage/shared";
 import { useModalClose } from "@/refresh-components/contexts/ModalContext";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Shared modal shell — reads `isValid`, `isSubmitting`, `submitForm` from the
@@ -275,10 +278,11 @@ function AzureProviderModal({
   existingModel,
   onSubmit,
 }: ProviderModalProps) {
+  const { t } = useTranslation();
   const isEditing = !!existingCredentials;
   const maskedApiKey = existingCredentials?.api_key ?? "";
 
-  const schema = Yup.object({
+  const schema = useMemo(() => Yup.object({
     apiUrl: Yup.string()
       .trim()
       .required("Target URL is required")
@@ -288,8 +292,8 @@ function AzureProviderModal({
       : Yup.string().trim().required("API key is required"),
     apiVersion: Yup.string().trim().required("API version is required"),
     deploymentName: Yup.string().trim().required("Deployment name is required"),
-    ...modelSpecSchemaShape,
-  });
+    ...getModelSpecSchemaShape(t),
+  }), [isEditing, t]);
 
   const initialValues: AzureFormValues = {
     apiUrl: existingCredentials?.api_url ?? "",
@@ -374,10 +378,11 @@ function LiteLLMProviderModal({
   existingModel,
   onSubmit,
 }: ProviderModalProps) {
+  const { t } = useTranslation();
   const isEditing = !!existingCredentials;
   const maskedApiKey = existingCredentials?.api_key ?? "";
 
-  const schema = Yup.object({
+  const schema = useMemo(() => Yup.object({
     apiUrl: Yup.string()
       .trim()
       .required("API base URL is required")
@@ -385,8 +390,8 @@ function LiteLLMProviderModal({
     apiKey: isEditing
       ? Yup.string().trim()
       : Yup.string().trim().required("API key is required"),
-    ...modelSpecSchemaShape,
-  });
+    ...getModelSpecSchemaShape(t),
+  }), [isEditing, t]);
 
   const initialValues: LiteLLMFormValues = {
     apiUrl: existingCredentials?.api_url ?? "",
@@ -445,13 +450,15 @@ function LiteLLMProviderModal({
 // Custom Self-Hosted
 // ---------------------------------------------------------------------------
 
-const customSchema = Yup.object(modelSpecSchemaShape);
 function CustomSelfHostedModal({
   provider,
   existingModel,
   onSubmit,
 }: ProviderModalProps) {
+  const { t } = useTranslation();
   const isEditing = !!existingModel;
+
+  const customSchema = useMemo(() => Yup.object(getModelSpecSchemaShape(t)), [t]);
 
   const initialValues: EmbeddingModelRequest = {
     modelName: existingModel?.modelName,

@@ -21,14 +21,14 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "openai",
         title: "GPT Image 2",
         description:
-          "OpenAI's latest Image Generation model with the highest prompt fidelity.",
+          "Mẫu tạo ảnh mới nhất của OpenAI với độ bám sát mô tả (prompt fidelity) cao nhất.",
       },
       {
         image_provider_id: "openai_gpt_image_1_5",
         model_name: "gpt-image-1.5",
         provider_name: "openai",
         title: "GPT Image 1.5",
-        description: "OpenAI's previous flagship Image Generation model.",
+        description: "Mẫu tạo ảnh flagship trước đây của OpenAI.",
       },
       {
         image_provider_id: "openai_gpt_image_1",
@@ -36,7 +36,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "openai",
         title: "GPT Image 1",
         description:
-          "A capable image generation model from OpenAI with strong prompt adherence.",
+          "Mẫu tạo ảnh mạnh mẽ từ OpenAI với khả năng tuân thủ mô tả (prompt adherence) tốt.",
       },
     ],
   },
@@ -49,7 +49,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "azure",
         title: "Azure OpenAI GPT Image 2",
         description:
-          "GPT Image 2 image generation model hosted on Microsoft Azure.",
+          "Mẫu tạo ảnh GPT Image 2 được cung cấp trên Microsoft Azure.",
       },
       {
         image_provider_id: "azure_gpt_image_1_5",
@@ -57,7 +57,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "azure",
         title: "Azure OpenAI GPT Image 1.5",
         description:
-          "GPT Image 1.5 image generation model hosted on Microsoft Azure.",
+          "Mẫu tạo ảnh GPT Image 1.5 được cung cấp trên Microsoft Azure.",
       },
       {
         image_provider_id: "azure_gpt_image_1",
@@ -65,7 +65,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "azure",
         title: "Azure OpenAI GPT Image 1",
         description:
-          "GPT Image 1 image generation model hosted on Microsoft Azure.",
+          "Mẫu tạo ảnh GPT Image 1 được cung cấp trên Microsoft Azure.",
       },
     ],
   },
@@ -78,7 +78,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "vertex_ai",
         title: "Gemini 2.5 Flash Image",
         description:
-          "Gemini 2.5 Flash Image (Nano Banana) model is designed for speed and efficiency.",
+          "Mẫu Gemini 2.5 Flash Image (Nano Banana) được thiết kế cho tốc độ và hiệu suất tối đa.",
       },
       {
         image_provider_id: "gemini-3-pro-image-preview",
@@ -86,7 +86,7 @@ export const IMAGE_PROVIDER_GROUPS: ProviderGroup[] = [
         provider_name: "vertex_ai",
         title: "Gemini 3 Pro Image Preview",
         description:
-          "Gemini 3 Pro Image Preview (Nano Banana Pro) is designed for professional asset production.",
+          "Gemini 3 Pro Image Preview (Nano Banana Pro) được thiết kế cho việc sản xuất hình ảnh tài nguyên chuyên nghiệp.",
       },
     ],
   },

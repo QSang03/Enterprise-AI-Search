@@ -34,6 +34,7 @@ import { AppBackgroundProvider } from "@/providers/AppBackgroundProvider";
 import { QueryControllerProvider } from "@/providers/QueryControllerProvider";
 import ToastProvider from "@/providers/ToastProvider";
 import { FullWidthChatProvider } from "@/providers/FullWidthChatProvider";
+import { LanguageProvider } from "@/providers/LanguageProvider";
 
 interface SidebarPersistenceProviderProps {
   children: React.ReactNode;
@@ -74,19 +75,21 @@ export default function AppProvider({ children }: AppProviderProps) {
   return (
     <SettingsProvider>
       <UserProvider>
-        <AppBackgroundProvider>
-          <ProviderContextProvider>
-            <ModalProvider>
-              <SidebarPersistenceProvider>
-                <QueryControllerProvider>
-                  <FullWidthChatProvider>
-                    <ToastProvider>{children}</ToastProvider>
-                  </FullWidthChatProvider>
-                </QueryControllerProvider>
-              </SidebarPersistenceProvider>
-            </ModalProvider>
-          </ProviderContextProvider>
-        </AppBackgroundProvider>
+        <LanguageProvider>
+          <AppBackgroundProvider>
+            <ProviderContextProvider>
+              <ModalProvider>
+                <SidebarPersistenceProvider>
+                  <QueryControllerProvider>
+                    <FullWidthChatProvider>
+                      <ToastProvider>{children}</ToastProvider>
+                    </FullWidthChatProvider>
+                  </QueryControllerProvider>
+                </SidebarPersistenceProvider>
+              </ModalProvider>
+            </ProviderContextProvider>
+          </AppBackgroundProvider>
+        </LanguageProvider>
       </UserProvider>
     </SettingsProvider>
   );

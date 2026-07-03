@@ -121,9 +121,9 @@ export default function Layout({ children }: LayoutProps) {
             <TooltipProvider>
               <PHProvider>
                 <SWRConfigProvider>
-                  <AppHealthBanner />
-                  <LicenseExpiryBanner />
                   <AppProvider>
+                    <AppHealthBanner />
+                    <LicenseExpiryBanner />
                     <PostHogRuntimeInitializer />
                     <CustomAnalyticsScript />
                     <PostHogPageTracker />

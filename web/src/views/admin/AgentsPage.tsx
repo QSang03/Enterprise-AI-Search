@@ -3,6 +3,7 @@
 import { SvgOnyxOctagon, SvgPlus } from "@opal/icons";
 import { Button } from "@opal/components";
 import { SettingsLayouts } from "@opal/layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 import Link from "next/link";
 
 import AgentsTable from "./AgentsPage/AgentsTable";
@@ -12,15 +13,17 @@ import AgentsTable from "./AgentsPage/AgentsTable";
 // ---------------------------------------------------------------------------
 
 export default function AgentsPage() {
+  const { t } = useTranslation();
+
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
-        title="Agents"
-        description="Customize AI behavior and knowledge with agents. Manage agents in your organization."
+        title={t("admin.agents.title")}
+        description={t("admin.agents.description")}
         icon={SvgOnyxOctagon}
         rightChildren={
           <Button href="/app/agents/create?admin=true" icon={SvgPlus}>
-            New Agent
+            {t("admin.agents.newAgent")}
           </Button>
         }
       />

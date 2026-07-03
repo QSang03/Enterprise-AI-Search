@@ -19,8 +19,10 @@ import {
   TENANT_ID_COOKIE_NAME,
 } from "@/lib/constants";
 import Cookies from "js-cookie";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const ResetPasswordPage: React.FC = () => {
+  const { t } = useTranslation();
   const [isWorking, setIsWorking] = useState(false);
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
@@ -44,7 +46,7 @@ const ResetPasswordPage: React.FC = () => {
     <AuthFlowContainer>
       <div className="flex flex-col w-full justify-center">
         <div className="flex">
-          <Title className="mb-2 mx-auto font-bold">Reset Password</Title>
+          <Title className="mb-2 mx-auto font-bold">{t("auth.resetPasswordTitle")}</Title>
         </div>
         {isWorking && <Spinner />}
         <Formik
@@ -53,21 +55,21 @@ const ResetPasswordPage: React.FC = () => {
             confirmPassword: "",
           }}
           validationSchema={Yup.object().shape({
-            password: Yup.string().required("Password is required"),
+            password: Yup.string().required(t("auth.passwordRequired")),
             confirmPassword: Yup.string()
-              .oneOf([Yup.ref("password"), undefined], "Passwords must match")
-              .required("Confirm Password is required"),
+              .oneOf([Yup.ref("password"), undefined], t("auth.passwordsMustMatch"))
+              .required(t("auth.confirmPasswordRequired")),
           })}
           onSubmit={async (values) => {
             if (!token) {
-              toast.error("Invalid or missing reset token.");
+              toast.error(t("auth.invalidToken"));
               return;
             }
             setIsWorking(true);
             try {
               await resetPassword(token, values.password);
               toast.success(
-                "Password reset successfully. Redirecting to login..."
+                t("auth.resetPasswordSuccess")
               );
               setTimeout(() => {
                 redirect("/auth/login");
@@ -75,10 +77,10 @@ const ResetPasswordPage: React.FC = () => {
             } catch (error) {
               if (error instanceof Error) {
                 toast.error(
-                  error.message || "An error occurred during password reset."
+                  error.message || t("auth.resetPasswordError")
                 );
               } else {
-                toast.error("An unexpected error occurred. Please try again.");
+                toast.error(t("auth.resetPasswordUnexpectedError"));
               }
             } finally {
               setIsWorking(false);
@@ -89,20 +91,20 @@ const ResetPasswordPage: React.FC = () => {
             <Form className="w-full flex flex-col items-stretch mt-2">
               <TextFormField
                 name="password"
-                label="New Password"
+                label={t("auth.newPasswordLabel")}
                 type="password"
-                placeholder="Enter your new password"
+                placeholder={t("auth.newPasswordPlaceholder")}
               />
               <TextFormField
                 name="confirmPassword"
-                label="Confirm New Password"
+                label={t("auth.confirmNewPasswordLabel")}
                 type="password"
-                placeholder="Confirm your new password"
+                placeholder={t("auth.confirmNewPasswordPlaceholder")}
               />
 
               <div className="flex">
                 <Button disabled={isSubmitting} type="submit" width="full">
-                  Reset Password
+                  {t("auth.resetPasswordBtn")}
                 </Button>
               </div>
             </Form>
@@ -111,7 +113,7 @@ const ResetPasswordPage: React.FC = () => {
         <Spacer rem={1} />
         <div className="flex">
           <div className="mx-auto">
-            <Text as="p">{markdown("[Back to Login](/auth/login)")}</Text>
+            <Text as="p">{markdown(`[${t("auth.backToLogin")}](/auth/login)`)}</Text>
           </div>
         </div>
       </div>

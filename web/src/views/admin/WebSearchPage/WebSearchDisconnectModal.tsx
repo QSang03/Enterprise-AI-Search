@@ -9,6 +9,7 @@ import ConfirmationModalLayout from "@/refresh-components/layouts/ConfirmationMo
 import { useModalClose } from "@/refresh-components/contexts/ModalContext";
 import { toast } from "@/hooks/useToast";
 import { useWebSearchProviders } from "@/lib/webSearch/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { disconnectProvider } from "@/lib/webSearch/svc";
 import type { DisconnectTargetState } from "@/lib/webSearch/types";
 
@@ -19,6 +20,7 @@ interface WebSearchDisconnectModalProps {
 export function WebSearchDisconnectModal({
   disconnectTarget,
 }: WebSearchDisconnectModalProps) {
+  const { t } = useTranslation();
   const onClose = useModalClose();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -52,11 +54,11 @@ export function WebSearchDisconnectModal({
       if (exaSibling) {
         await disconnectProvider(exaSibling.id, siblingCategory);
       }
-      toast.success(`${disconnectTarget.label} disconnected`);
+      toast.success(t("admin.webSearch.disconnectedSuccess", { name: disconnectTarget.label }));
       onClose?.();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Unexpected error occurred.";
+        error instanceof Error ? error.message : t("admin.webSearch.unexpectedError");
       toast.error(message);
     } finally {
       await Promise.allSettled([
@@ -70,15 +72,15 @@ export function WebSearchDisconnectModal({
   return (
     <ConfirmationModalLayout
       icon={SvgUnplug}
-      title={`Disconnect ${disconnectTarget.label}`}
-      description="This will remove the stored credentials for this provider."
+      title={t("admin.webSearch.disconnectTitle", { name: disconnectTarget.label })}
+      description={t("admin.webSearch.disconnectDesc")}
       submit={
         <Button
           variant="danger"
           onClick={() => void handleDisconnect()}
           disabled={isSubmitting}
         >
-          Disconnect
+          {t("admin.webSearch.disconnectBtn")}
         </Button>
       }
     >
@@ -87,12 +89,12 @@ export function WebSearchDisconnectModal({
           <>
             <Text color="text-03">
               {markdown(
-                `Web search will no longer be routed through **${disconnectTarget.label}**. Search history will be preserved.`
+                t("admin.webSearch.searchDisconnectExplain", { name: disconnectTarget.label })
               )}
             </Text>
             {!hasAnotherProvider && (
               <Text color="text-03">
-                Connect another search engine to continue to use web search.
+                {t("admin.webSearch.connectAnotherEngine")}
               </Text>
             )}
           </>
@@ -100,12 +102,12 @@ export function WebSearchDisconnectModal({
           <>
             <Text color="text-03">
               {markdown(
-                `**${disconnectTarget.label}** will no longer be used to read search result web pages.`
+                t("admin.webSearch.crawlerDisconnectExplain", { name: disconnectTarget.label })
               )}
             </Text>
             {!hasAnotherProvider && (
               <Text color="text-03">
-                Onyx will fall back to the built-in web crawler.
+                {t("admin.webSearch.fallbackCrawler")}
               </Text>
             )}
           </>

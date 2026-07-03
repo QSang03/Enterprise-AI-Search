@@ -9,6 +9,7 @@ import { Section } from "@/layouts/general-layouts";
 import SkillSharePicker from "@/views/admin/SkillsPage/SkillSharePicker";
 import { createCustomSkill } from "@/lib/skills/api";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface UploadSkillModalProps {
   open: boolean;
@@ -22,6 +23,7 @@ export default function UploadSkillModal({
   onClose,
   onUploaded,
 }: UploadSkillModalProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [isPublic, setIsPublic] = useState(true);
   const [groupIds, setGroupIds] = useState<number[]>([]);
@@ -56,14 +58,14 @@ export default function UploadSkillModal({
         // grants that would be ignored by the visibility filter anyway.
         group_ids: isPublic ? [] : groupIds,
       });
-      toast.success(`Uploaded "${created.name}"`);
+      toast.success(t("admin.skills.uploadedSuccess", { name: created.name }));
       reset();
       onUploaded();
       onClose();
     } catch (err) {
       console.error("Failed to upload skill bundle", err);
-      toast.error(err instanceof Error ? err.message : "Upload failed", {
-        description: "Skill bundle was not saved.",
+      toast.error(err instanceof Error ? err.message : t("admin.skills.uploadFailed"), {
+        description: t("admin.skills.uploadFailedDesc"),
       });
     } finally {
       setSubmitting(false);
@@ -77,15 +79,15 @@ export default function UploadSkillModal({
       <Modal.Content width="md">
         <Modal.Header
           icon={SvgUploadCloud}
-          title="Upload skill"
-          description="Upload a zip bundle. The zip filename becomes the slug, and SKILL.md frontmatter provides the name + description."
+          title={t("admin.skills.uploadSkillTitle")}
+          description={t("admin.skills.uploadSkillDesc")}
           onClose={handleClose}
         />
         <Modal.Body>
           <Section gap={1} alignItems="stretch">
             <Section gap={0.25} alignItems="stretch">
               <Text as="span" mainUiAction text05>
-                Bundle (.zip)
+                {t("admin.skills.bundleLabel")}
               </Text>
               <div className="flex items-center gap-2">
                 <input
@@ -100,17 +102,17 @@ export default function UploadSkillModal({
                   prominence="secondary"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  {file ? "Change file" : "Choose zip"}
+                  {file ? t("admin.skills.changeFile") : t("admin.skills.chooseZip")}
                 </Button>
                 <Text as="span" mainUiBody text03>
-                  {file ? file.name : "No file selected"}
+                  {file ? file.name : t("admin.skills.noFileSelected")}
                 </Text>
               </div>
             </Section>
 
             <Section gap={0.5} alignItems="stretch">
               <Text as="span" mainUiAction text05>
-                Share
+                {t("admin.skills.shareLabel")}
               </Text>
               <SkillSharePicker
                 isPublic={isPublic}
@@ -123,14 +125,14 @@ export default function UploadSkillModal({
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={handleClose}>
-            Cancel
+            {t("admin.skills.cancel")}
           </Button>
           <Button
             disabled={submitDisabled}
             onClick={handleSubmit}
             icon={SvgUploadCloud}
           >
-            {submitting ? "Uploading…" : "Upload"}
+            {submitting ? t("admin.skills.uploading") : t("admin.skills.upload")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

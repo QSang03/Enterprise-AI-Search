@@ -17,6 +17,7 @@ import { Section } from "@/layouts/general-layouts";
 import { SvgArrowExchange, SvgUnplug, SvgSimpleLoader } from "@opal/icons";
 import { Button, Text } from "@opal/components";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useModalClose } from "@/refresh-components/contexts/ModalContext";
 import type {
   VoiceProviderView,
@@ -56,6 +57,7 @@ export function VoiceProviderSetupModal({
   defaultModelId,
   onSuccess,
 }: VoiceProviderSetupModalProps) {
+  const { t } = useTranslation();
   const onClose = useModalClose();
   const detail = getVoiceProviderDetail(providerType);
   const initialTtsModel = defaultModelId
@@ -95,10 +97,10 @@ export function VoiceProviderSetupModal({
   }, [providerType]);
 
   const validationSchema = Yup.object().shape({
-    api_key: Yup.string().required("API key is required"),
+    api_key: Yup.string().required(t("admin.voice.validationApiKey")),
     target_uri:
       providerType === "azure"
-        ? Yup.string().required("Target URI is required")
+        ? Yup.string().required(t("admin.voice.validationTargetUri"))
         : Yup.string(),
     stt_model: Yup.string(),
     tts_model: Yup.string(),
@@ -134,7 +136,7 @@ export function VoiceProviderSetupModal({
           toast.error(
             typeof data?.detail === "string"
               ? data.detail
-              : "Connection test failed"
+              : t("admin.voice.testFailed")
           );
           setSubmitting(false);
           return;
@@ -166,11 +168,11 @@ export function VoiceProviderSetupModal({
         toast.error(
           typeof data?.detail === "string"
             ? data.detail
-            : "Failed to save provider"
+            : t("admin.voice.failedSave")
         );
       }
     } catch {
-      toast.error("Failed to save provider");
+      toast.error(t("admin.voice.failedSave"));
     } finally {
       setSubmitting(false);
     }
@@ -193,17 +195,17 @@ export function VoiceProviderSetupModal({
                 moreIcon2={SvgOnyxLogo}
                 title={
                   isEditing
-                    ? `Configure ${detail.label}`
-                    : `Set up ${detail.label}`
+                    ? t("admin.voice.configureTitle", { name: detail.label })
+                    : t("admin.voice.setUpTitle", { name: detail.label })
                 }
-                description={`Connect to ${detail.label} and set up your voice models.`}
+                description={t("admin.voice.modalDesc", { name: detail.label })}
                 onClose={onClose}
               />
               <Modal.Body>
                 <Section gap={1} alignItems="stretch">
                   {providerType === "azure" && (
                     <InputVertical
-                      title="Target URI"
+                      title={t("admin.voice.targetUriLabel")}
                       subDescription={markdown(
                         "Paste the endpoint shown in [Azure Portal (Keys and Endpoint)](https://portal.azure.com/). Onyx extracts the speech region from this URL. Examples: `https://westus.api.cognitive.microsoft.com/` or `https://westus.tts.speech.microsoft.com/`."
                       )}
@@ -217,7 +219,7 @@ export function VoiceProviderSetupModal({
                   )}
 
                   <InputVertical
-                    title="API Key"
+                    title={t("admin.voice.apiKeyLabel")}
                     subDescription={markdown(
                       `Paste your [API key](${detail.apiKeyUrl}) from ${detail.label} to access your models.`
                     )}
@@ -225,12 +227,12 @@ export function VoiceProviderSetupModal({
                   >
                     <PasswordInputTypeInField
                       name="api_key"
-                      placeholder="API key"
+                      placeholder={t("admin.voice.apiKeyLabel")}
                     />
                   </InputVertical>
 
                   {mode === "stt" && (detail.sttModels?.length ?? 0) > 1 && (
-                    <InputVertical title="STT Model" withLabel="stt_model">
+                    <InputVertical title={t("admin.voice.sttModelLabel")} withLabel="stt_model">
                       <InputSelectField name="stt_model">
                         <InputSelect.Trigger />
                         <InputSelect.Content>
@@ -248,8 +250,8 @@ export function VoiceProviderSetupModal({
                     <>
                       {(detail.ttsModels?.length ?? 0) > 1 && (
                         <InputVertical
-                          title="Default Model"
-                          subDescription="This model will be used by Onyx by default for text-to-speech."
+                          title={t("admin.voice.defaultModelLabel")}
+                          subDescription={t("admin.voice.defaultModelDesc")}
                           withLabel="tts_model"
                         >
                           <InputSelectField name="tts_model">
@@ -266,11 +268,9 @@ export function VoiceProviderSetupModal({
                       )}
 
                       <InputVertical
-                        title="Voice"
+                        title={t("admin.voice.voiceLabel")}
                         subDescription={markdown(
-                          `This voice will be used for spoken responses. See full list of supported languages and voices at [${
-                            detail.voiceDocsUrl?.label ?? detail.label
-                          }](${detail.voiceDocsUrl?.url ?? detail.docsUrl}).`
+                          t("admin.voice.voiceDesc", { label: `[${detail.voiceDocsUrl?.label ?? detail.label}](${detail.voiceDocsUrl?.url ?? detail.docsUrl})` })
                         )}
                         withLabel="default_voice"
                       >
@@ -279,8 +279,8 @@ export function VoiceProviderSetupModal({
                           options={voiceOptions}
                           placeholder={
                             isLoadingVoices
-                              ? "Loading voices..."
-                              : "Select a voice or enter voice ID"
+                              ? t("admin.voice.loadingVoices")
+                              : t("admin.voice.selectVoicePlaceholder")
                           }
                           disabled={isLoadingVoices}
                           strict={false}
@@ -292,14 +292,14 @@ export function VoiceProviderSetupModal({
               </Modal.Body>
               <Modal.Footer>
                 <Button prominence="secondary" onClick={onClose}>
-                  Cancel
+                  {t("admin.voice.cancel")}
                 </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting || !isValid || !dirty}
                   icon={isSubmitting ? SvgSimpleLoader : undefined}
                 >
-                  {isEditing ? "Update" : "Connect"}
+                  {isEditing ? t("admin.voice.update") : t("admin.voice.connect")}
                 </Button>
               </Modal.Footer>
             </Form>
@@ -329,6 +329,7 @@ export function VoiceDisconnectModal({
   hasAlternatives,
   onSuccess,
 }: VoiceDisconnectModalProps) {
+  const { t } = useTranslation();
   const onClose = useModalClose();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -341,15 +342,15 @@ export function VoiceDisconnectModal({
         throw new Error(
           typeof body?.detail === "string"
             ? body.detail
-            : "Failed to disconnect provider."
+            : t("admin.voice.failedDisconnect")
         );
       }
-      toast.success(`${disconnectTarget.providerLabel} disconnected`);
+      toast.success(t("admin.voice.disconnectedSuccess", { name: disconnectTarget.providerLabel }));
       onSuccess();
       onClose?.();
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Unexpected error occurred."
+        err instanceof Error ? err.message : t("admin.voice.unexpectedError")
       );
     } finally {
       setIsSubmitting(false);
@@ -359,27 +360,27 @@ export function VoiceDisconnectModal({
   return (
     <ConfirmationModalLayout
       icon={SvgUnplug}
-      title={`Disconnect ${disconnectTarget.providerLabel}`}
-      description="This will remove the stored credentials for this provider."
+      title={t("admin.voice.disconnectTitle", { name: disconnectTarget.providerLabel })}
+      description={t("admin.voice.disconnectDesc")}
       submit={
         <Button
           variant="danger"
           onClick={() => void handleDisconnect()}
           disabled={isSubmitting}
         >
-          Disconnect
+          {t("admin.voice.disconnectBtn")}
         </Button>
       }
     >
       <Section alignItems="start" gap={0.5}>
         <Text color="text-03">
           {markdown(
-            `**${disconnectTarget.providerLabel}** models will no longer be used for speech-to-text or text-to-speech, and it will no longer be your default. Session history will be preserved.`
+            t("admin.voice.disconnectExplain", { name: disconnectTarget.providerLabel })
           )}
         </Text>
         {!hasAlternatives && (
           <Text color="text-03">
-            Connect another provider to continue using voice features.
+            {t("admin.voice.connectAnotherProvider")}
           </Text>
         )}
       </Section>

@@ -60,7 +60,7 @@ function LogRow({ log, group }: { log: HookExecutionRecord; group: string }) {
         {/* 2. Error message */}
         <span className="flex-1 min-w-0 break-all whitespace-pre-wrap text-code-code">
           <Text font="secondary-mono" color="inherit">
-            {log.error_message ?? "Unknown error"}
+            {log.error_message ?? "Lỗi không xác định"}
           </Text>
         </span>
         {/* 3. Copy button */}
@@ -90,7 +90,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
       .map(
         (log) =>
           `${formatDateTimeLog(log.created_at)} ${
-            log.error_message ?? "Unknown error"
+            log.error_message ?? "Lỗi không xác định"
           }`
       )
       .join("\n");
@@ -105,7 +105,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
       <Modal.Content width="md" height="fit">
         <Modal.Header
           icon={(props) => <SvgTextLines {...props} />}
-          title="Recent Errors"
+          title="Lỗi gần đây"
           description={`Hook: ${hook.name} • Hook Point: ${
             spec?.display_name ?? hook.hook_point
           }`}
@@ -118,17 +118,17 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
             </Section>
           ) : error ? (
             <Text font="main-ui-body" color="text-03">
-              Failed to load logs.
+              Không thể tải lịch sử lỗi.
             </Text>
           ) : totalLines === 0 ? (
             <Text font="main-ui-body" color="text-03">
-              No errors in the past 30 days.
+              Không có lỗi nào trong 30 ngày qua.
             </Text>
           ) : (
             <>
               {recentErrors.length > 0 && (
                 <>
-                  <SectionHeader label="Past Hour" />
+                  <SectionHeader label="Giờ qua" />
                   {recentErrors.map((log, idx) => (
                     <LogRow
                       key={log.created_at + String(idx)}
@@ -140,7 +140,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
               )}
               {olderErrors.length > 0 && (
                 <>
-                  <SectionHeader label="Older" />
+                  <SectionHeader label="Cũ hơn" />
                   {olderErrors.map((log, idx) => (
                     <LogRow
                       key={log.created_at + String(idx)}
@@ -161,7 +161,7 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
           className="bg-background-tint-01"
         >
           <Text font="main-ui-body" color="text-03">
-            {`${totalLines} ${totalLines === 1 ? "line" : "lines"}`}
+            {`${totalLines} dòng`}
           </Text>
           <Section
             flexDirection="row"
@@ -171,12 +171,12 @@ export default function HookLogsModal({ hook, spec }: HookLogsModalProps) {
             padding={0.25}
             className="rounded-xl bg-background-tint-00"
           >
-            <CopyButton size="sm" tooltip="Copy" getCopyText={getLogsText} />
+            <CopyButton size="sm" tooltip="Sao chép" getCopyText={getLogsText} />
             <Button
               prominence="tertiary"
               size="sm"
               icon={SvgDownload}
-              tooltip="Download"
+              tooltip="Tải xuống"
               onClick={handleDownload}
             />
           </Section>
