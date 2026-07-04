@@ -289,7 +289,7 @@ export interface TestRailCredentialJson {
 export interface SMBCredentialJson {
   smb_username: string;
   smb_password: string;
-  smb_domain?: string;
+  smb_domain: string | null;
 }
 
 export const credentialTemplates: Record<ValidSources, any> = {
@@ -506,7 +506,7 @@ export const credentialTemplates: Record<ValidSources, any> = {
   smb: {
     smb_username: "",
     smb_password: "",
-    smb_domain: "",
+    smb_domain: null,
   } as SMBCredentialJson,
 };
 

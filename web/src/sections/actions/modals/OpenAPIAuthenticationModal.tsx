@@ -69,7 +69,7 @@ export default function OpenAPIAuthenticationModal({
   isOpen,
   onClose,
   title,
-  description = "Authenticate your connection to start using the OpenAPI actions.",
+  description,
   skipOverlay = false,
   defaultMethod = "oauth",
   oauthConfigId = null,
@@ -80,6 +80,7 @@ export default function OpenAPIAuthenticationModal({
   entityName = null,
 }: OpenAPIAuthenticationModalProps) {
   const { t } = useTranslation();
+  const resolvedDescription = description || t("actions.openApiAuthConnectionDesc");
   const authType = useAuthType();
   const isOAuthEnabled =
     authType === AuthType.OIDC || authType === AuthType.GOOGLE_OAUTH;
@@ -318,7 +319,7 @@ export default function OpenAPIAuthenticationModal({
         <Modal.Header
           icon={SvgArrowExchange}
           title={title}
-          description={description}
+          description={resolvedDescription}
           onClose={onClose}
         />
 

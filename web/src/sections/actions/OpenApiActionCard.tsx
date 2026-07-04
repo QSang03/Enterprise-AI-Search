@@ -181,7 +181,7 @@ export default function OpenApiActionCard({
             <ToolItem
               key={`${tool.id}-${method.method}-${method.path}-${method.name}`}
               name={method.name}
-              description={method.summary || "No summary provided"}
+              description={method.summary || t("actions.noSummaryProvided")}
               variant="openapi"
               openApiMetadata={{
                 method: method.method,

@@ -121,7 +121,10 @@
     "noMoreResults": "No more results",
     "footerSelect": "Select",
     "footerShowAll": "Show all",
-    "footerOpen": "Open"
+    "footerOpen": "Open",
+    "renameProject": "Rename Project",
+    "deleteProject": "Delete Project",
+    "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone."
   },
   "chat": {
     "placeholder": "Ask a question...",
@@ -196,7 +199,8 @@
       "removeHint": "remove",
       "removeTooltip": "Remove queued message"
     },
-    "waitingForSession": "Waiting for session to be ready..."
+    "waitingForSession": "Waiting for session to be ready...",
+    "editPastedText": "Edit pasted text"
   },
   "skills": {
     "createSkillTitle": "Create Personal Skill",
@@ -338,7 +342,10 @@
     "patModalPermissionsDescLimited": "Limit this token to specific capabilities.",
     "patModalSelectPermissions": "Select permissions",
     "patModalFullAccess": "Full access",
-    "patModalLimitedAccess": "Limited access"
+    "patModalLimitedAccess": "Limited access",
+    "addMemoryPlaceholder": "Add personal note or memory that Onyx should remember.",
+    "viewAdd": "View/Add",
+    "allMemories": "All Memories"
   },
   "agents": {
     "title": "Agents",
@@ -1705,7 +1712,9 @@
     "oauthPassthroughOidcRequired": "OAuth passthrough is only available if you enable OIDC or OAuth authentication.",
     "authHeadersDescShort": "Specify custom headers for all requests sent to this action\\'s API endpoint.",
     "disconnect": "Disconnect",
-    "edit": "Edit"
+    "edit": "Edit",
+    "oauthPassthrough": "OAuth Pass-through",
+    "failedToSaveAuth": "Failed to save authentication configuration"
   },
   "cards": {
     "remove": "Remove",
@@ -1733,7 +1742,8 @@
     "waitingForSession": "Waiting for session to be ready...",
     "editPastedText": "Edit pasted text",
     "replaceTileInline": "Replace this tile with its full text inline",
-    "removeQueuedMessage": "Remove queued message"
+    "removeQueuedMessage": "Remove queued message",
+    "noMatchingSkills": "No matching skills"
   },
   "knowledge": {
     "recentOrNewUploads": "Recent or new uploads",
@@ -1901,6 +1911,21 @@
     "noLlmConfiguredUploadContactAdmin": "Please contact your system administrator to configure the default LLM provider before uploading files.",
     "file": "File",
     "files": "Files",
-    "selected": "selected"
+    "selected": "selected",
+    "actionsAndTools": "Actions & Tools",
+    "overwriteSystemPromptsDesc": "Remove the base system prompt which includes useful instructions (e.g. \"You can use Markdown tables\"). This may affect response quality.",
+    "currentOwner": "Current Owner",
+    "transferOwnershipTo": "Transfer Ownership To",
+    "line": "line",
+    "lines": "lines",
+    "row": "row",
+    "rows": "rows",
+    "column": "column",
+    "columns": "columns",
+    "word": "word",
+    "words": "words",
+    "wordDocument": "Word Document",
+    "docxPreviewError": "Could not preview this document. Download the file to view it.",
+    "legacyDocPreviewError": "Legacy .doc format cannot be previewed. Download the file to view it."
   }
 }

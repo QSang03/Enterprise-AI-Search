@@ -14,9 +14,9 @@ export const codeVariant: PreviewVariant = {
 
   headerDescription: (ctx) =>
     ctx.fileContent
-      ? `${ctx.language} - ${ctx.lineCount} ${
-          ctx.lineCount === 1 ? "line" : "lines"
-        } · ${ctx.fileSize}`
+      ? `${ctx.language} - ${ctx.lineCount} ${ctx.t(
+          ctx.lineCount === 1 ? "modals.line" : "modals.lines"
+        )} · ${ctx.fileSize}`
       : "",
 
   renderContent: (ctx) => (
@@ -25,7 +25,9 @@ export const codeVariant: PreviewVariant = {
 
   renderFooterLeft: (ctx) => (
     <Text font="main-ui-body" color="text-03">
-      {`${ctx.lineCount} ${ctx.lineCount === 1 ? "line" : "lines"}`}
+      {`${ctx.lineCount} ${ctx.t(
+        ctx.lineCount === 1 ? "modals.line" : "modals.lines"
+      )}`}
     </Text>
   ),
 

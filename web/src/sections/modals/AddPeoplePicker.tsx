@@ -10,6 +10,7 @@ import { MinimalUserSnapshot } from "@/lib/types";
 import { MinimalUserGroupSnapshot } from "@/hooks/useShareableGroups";
 import { SharePermissionMenu } from "@/sections/modals/SharePermissionMenu";
 import { PERMISSION_OPTIONS } from "@/sections/modals/shareAccessConstants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface Suggestion {
   id: string;
@@ -49,6 +50,7 @@ export function AddPeoplePicker({
   stagedUsers,
   users,
 }: AddPeoplePickerProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
 
   const stagedUserIds = useMemo(
@@ -173,7 +175,7 @@ export function AddPeoplePicker({
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               setQuery(event.target.value)
             }
-            placeholder="Add users, groups, and accounts"
+            placeholder={t("modals.addPeoplePickerPlaceholder")}
             value={query}
             variant={disabled ? "disabled" : "primary"}
           />
@@ -188,13 +190,13 @@ export function AddPeoplePicker({
                   >
                     <LineItemButton
                       description={
-                        suggestion.type === "group" ? "Group" : undefined
+                        suggestion.type === "group" ? t("modals.group") : undefined
                       }
                       icon={suggestion.type === "group" ? SvgUsers : SvgUser}
                       onClick={() => handleSelectSuggestion(suggestion)}
                       rightChildren={
                         suggestion.shared ? (
-                          <Tag color="gray" title="Shared" />
+                          <Tag color="gray" title={t("modals.shared")} />
                         ) : null
                       }
                       rounding="md"

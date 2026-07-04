@@ -121,7 +121,10 @@
     "noMoreResults": "Không còn kết quả nào khác",
     "footerSelect": "Chọn",
     "footerShowAll": "Hiển thị tất cả",
-    "footerOpen": "Mở"
+    "footerOpen": "Mở",
+    "renameProject": "Đổi tên dự án",
+    "deleteProject": "Xóa dự án",
+    "deleteProjectConfirm": "Bạn có chắc chắn muốn xóa dự án này? Thao tác này không thể hoàn tác."
   },
   "chat": {
     "placeholder": "Hỏi tôi bất cứ điều gì...",
@@ -196,7 +199,8 @@
       "removeHint": "xóa",
       "removeTooltip": "Xóa tin nhắn trong hàng đợi"
     },
-    "waitingForSession": "Đang chờ phiên sẵn sàng..."
+    "waitingForSession": "Đang chờ phiên sẵn sàng...",
+    "editPastedText": "Chỉnh sửa văn bản đã dán"
   },
   "skills": {
     "createSkillTitle": "Tạo kỹ năng",
@@ -338,7 +342,10 @@
     "patModalPermissionsDescLimited": "Giới hạn token này cho các chức năng cụ thể.",
     "patModalSelectPermissions": "Chọn quyền hạn",
     "patModalFullAccess": "Toàn quyền truy cập",
-    "patModalLimitedAccess": "Truy cập giới hạn"
+    "patModalLimitedAccess": "Truy cập giới hạn",
+    "addMemoryPlaceholder": "Thêm ghi chú cá nhân hoặc ký ức để Onyx ghi nhớ.",
+    "viewAdd": "Xem/Thêm",
+    "allMemories": "Tất cả ký ức"
   },
   "agents": {
     "title": "Trợ lý",
@@ -1705,7 +1712,9 @@
     "oauthPassthroughOidcRequired": "OAuth passthrough chỉ khả dụng nếu bạn bật xác thực OIDC hoặc OAuth.",
     "authHeadersDescShort": "Chỉ định các header tùy chỉnh cho tất cả các yêu cầu được gửi đến endpoint API của hành động này.",
     "disconnect": "Ngắt kết nối",
-    "edit": "Chỉnh sửa"
+    "edit": "Chỉnh sửa",
+    "oauthPassthrough": "OAuth chuyển tiếp (OAuth Pass-through)",
+    "failedToSaveAuth": "Không thể lưu cấu hình xác thực"
   },
   "cards": {
     "remove": "Xóa",
@@ -1733,7 +1742,8 @@
     "waitingForSession": "Đang chờ phiên sẵn sàng...",
     "editPastedText": "Chỉnh sửa văn bản đã dán",
     "replaceTileInline": "Thay thế ô này bằng toàn bộ nội dung văn bản",
-    "removeQueuedMessage": "Xóa tin nhắn đang chờ"
+    "removeQueuedMessage": "Xóa tin nhắn đang chờ",
+    "noMatchingSkills": "Không tìm thấy kỹ năng nào phù hợp"
   },
   "knowledge": {
     "recentOrNewUploads": "Tệp mới tải lên hoặc gần đây",
@@ -1901,6 +1911,21 @@
     "noLlmConfiguredUploadContactAdmin": "Vui lòng liên hệ với quản trị viên hệ thống để cấu hình nhà cung cấp LLM mặc định trước khi tải lên tệp.",
     "file": "Tệp",
     "files": "Tệp",
-    "selected": "đã chọn"
+    "selected": "đã chọn",
+    "actionsAndTools": "Hành động & Công cụ",
+    "overwriteSystemPromptsDesc": "Loại bỏ lệnh hệ thống cơ bản chứa các hướng dẫn hữu ích (ví dụ: \"Bạn có thể sử dụng bảng Markdown\"). Điều này có thể ảnh hưởng đến chất lượng phản hồi.",
+    "currentOwner": "Chủ sở hữu hiện tại",
+    "transferOwnershipTo": "Chuyển quyền sở hữu cho",
+    "line": "dòng",
+    "lines": "dòng",
+    "row": "hàng",
+    "rows": "hàng",
+    "column": "cột",
+    "columns": "cột",
+    "word": "từ",
+    "words": "từ",
+    "wordDocument": "Tài liệu Word",
+    "docxPreviewError": "Không thể xem trước tài liệu này. Hãy tải xuống tệp để xem.",
+    "legacyDocPreviewError": "Định dạng .doc cũ không thể xem trước. Hãy tải xuống tệp để xem."
   }
 }

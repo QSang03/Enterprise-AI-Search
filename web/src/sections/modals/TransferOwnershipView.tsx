@@ -7,6 +7,7 @@ import { FullAgent } from "@/lib/agents/types";
 import { MinimalUserSnapshot } from "@/lib/types";
 import { Tag, Text } from "@opal/components";
 import { SvgUser, SvgUsers } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type TransferOwnershipTarget =
   | {
@@ -36,6 +37,7 @@ export function TransferOwnershipView({
   selectedTarget,
   users,
 }: TransferOwnershipViewProps) {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
@@ -53,14 +55,14 @@ export function TransferOwnershipView({
     const userOptions = users.map((user) => ({
       value: `user-${user.id}`,
       label: user.email,
-      description: ownerUserId === user.id ? "Current Owner" : undefined,
+      description: ownerUserId === user.id ? t("modals.currentOwner") : undefined,
       disabled: ownerUserId === user.id,
     }));
 
     const groupOptions = groups.map((group) => ({
       value: `group-${group.id}`,
       label: group.name,
-      description: ownerGroupId === group.id ? "Current Owner" : undefined,
+      description: ownerGroupId === group.id ? t("modals.currentOwner") : undefined,
       disabled: ownerGroupId === group.id,
     }));
 
@@ -94,7 +96,7 @@ export function TransferOwnershipView({
     <div className="flex w-full flex-col gap-3">
       <div className="flex flex-col gap-1">
         <Text color="text-03" font="secondary-body">
-          Transfer Ownership To
+          {t("modals.transferOwnershipTo")}
         </Text>
 
         <InputComboBox
@@ -104,7 +106,7 @@ export function TransferOwnershipView({
           }}
           onValueChange={handleValueChange}
           options={options}
-          placeholder="Add a user or group"
+          placeholder={t("modals.addUserGroupPlaceholder")}
           strict
           value={inputValue}
         />
@@ -125,7 +127,7 @@ export function TransferOwnershipView({
           </div>
 
           {selectedTarget.type === "group" ? (
-            <Tag color="gray" title="Group" />
+            <Tag color="gray" title={t("modals.group")} />
           ) : null}
         </div>
       ) : null}

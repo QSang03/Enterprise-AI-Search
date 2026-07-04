@@ -70,9 +70,9 @@ class SMBConnector(LoadConnector, PollConnector):
     # ------------------------------------------------------------------
 
     def load_credentials(self, credentials: dict[str, Any]) -> dict[str, Any] | None:
-        self._username = credentials.get("smb_username", "")
-        self._password = credentials.get("smb_password", "")
-        self._domain = credentials.get("smb_domain", "")
+        self._username = credentials.get("smb_username") or ""
+        self._password = credentials.get("smb_password") or ""
+        self._domain = credentials.get("smb_domain") or ""
         return None
 
     def validate_connector_settings(self) -> None:

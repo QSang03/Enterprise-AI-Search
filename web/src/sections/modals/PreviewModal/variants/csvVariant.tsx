@@ -36,7 +36,9 @@ export const csvVariant: PreviewVariant = {
   headerDescription: (ctx) => {
     if (!ctx.fileContent) return "";
     const { rows } = parseCsv(ctx.fileContent);
-    return `CSV - ${rows.length} rows • ${ctx.fileSize}`;
+    return `CSV - ${rows.length} ${ctx.t(
+      rows.length === 1 ? "modals.row" : "modals.rows"
+    )} • ${ctx.fileSize}`;
   },
 
   renderContent: (ctx) => {
@@ -83,7 +85,7 @@ export const csvVariant: PreviewVariant = {
         </Table>
         <TextSeparator
           count={rows.length}
-          text={rows.length === 1 ? "row" : "rows"}
+          text={ctx.t(rows.length === 1 ? "modals.row" : "modals.rows")}
         />
       </Section>
     );
@@ -94,8 +96,8 @@ export const csvVariant: PreviewVariant = {
     const { headers, rows } = parseCsv(ctx.fileContent);
     return (
       <Text text03 mainUiBody className="select-none">
-        {headers.length} {headers.length === 1 ? "column" : "columns"} •{" "}
-        {rows.length} {rows.length === 1 ? "row" : "rows"}
+        {headers.length} {ctx.t(headers.length === 1 ? "modals.column" : "modals.columns")} •{" "}
+        {rows.length} {ctx.t(rows.length === 1 ? "modals.row" : "modals.rows")}
       </Text>
     );
   },

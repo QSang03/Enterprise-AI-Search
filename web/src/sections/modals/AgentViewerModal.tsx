@@ -37,6 +37,7 @@ import DocumentSetCard from "@/sections/cards/DocumentSetCard";
 import { getDisplayName } from "@/lib/languageModels/utils";
 import { useLLMProviders } from "@/lib/languageModels/hooks";
 import { Interactive } from "@opal/core";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Read-only MCP Server card for the viewer modal.
@@ -169,6 +170,7 @@ export interface AgentViewerModalProps {
   agent: FullAgent;
 }
 export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
+  const { t } = useTranslation();
   const agentViewerModal = useModal();
   const router = useRouter();
   const { allRecentFiles } = useProjectsContext();
@@ -251,7 +253,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
             {agent.is_featured && (
               <Content
                 icon={SvgStar}
-                title="Featured"
+                title={t("modals.featured")}
                 sizePreset="main-ui"
                 variant="body"
                 width="fit"
@@ -268,7 +270,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
             {agent.is_public && (
               <Content
                 icon={SvgOrganization}
-                title="Public to your organization"
+                title={t("modals.publicToOrg")}
                 sizePreset="main-ui"
                 variant="body"
                 color="muted"
@@ -284,7 +286,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
           <Divider paddingParallel="fit" paddingPerpendicular="fit" />
           <Section gap={0.5} alignItems="start">
             <Content
-              title="Knowledge"
+              title={t("modals.knowledge")}
               sizePreset="main-content"
               variant="section"
             />
@@ -306,13 +308,13 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
                 })}
               </Section>
             ) : (
-              <EmptyMessageCard sizePreset="main-ui" title="No Knowledge" />
+              <EmptyMessageCard sizePreset="main-ui" title={t("modals.noKnowledge")} />
             )}
           </Section>
 
           {/* Actions & Tools */}
           <SimpleCollapsible>
-            <SimpleCollapsible.Header title="Actions & Tools" />
+            <SimpleCollapsible.Header title={t("modals.actionsAndTools")} />
             <SimpleCollapsible.Content>
               {hasActions ? (
                 <Section gap={0.5} alignItems="start">
@@ -328,7 +330,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
                   ))}
                 </Section>
               ) : (
-                <EmptyMessageCard sizePreset="main-ui" title="No Actions" />
+                <EmptyMessageCard sizePreset="main-ui" title={t("modals.noActions")} />
               )}
             </SimpleCollapsible.Content>
           </SimpleCollapsible>
@@ -336,12 +338,12 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
           {/* More Info (Collapsible) */}
           <Divider paddingParallel="fit" paddingPerpendicular="fit" />
           <SimpleCollapsible>
-            <SimpleCollapsible.Header title="More Info" />
+            <SimpleCollapsible.Header title={t("modals.moreInfo")} />
             <SimpleCollapsible.Content>
               <Section gap={0.5} alignItems="start">
                 {agent.system_prompt && (
                   <Content
-                    title="Instructions"
+                    title={t("modals.instructions")}
                     description={agent.system_prompt}
                     sizePreset="main-ui"
                     variant="section"
@@ -349,16 +351,16 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
                 )}
                 {defaultModel && (
                   <InputHorizontal
-                    title="Default Model"
-                    description="This model will be used by Onyx by default in your chats."
+                    title={t("modals.defaultModel")}
+                    description={t("modals.defaultModelDesc")}
                   >
                     <Text>{defaultModel}</Text>
                   </InputHorizontal>
                 )}
                 {agent.search_start_date && (
                   <InputHorizontal
-                    title="Knowledge Cutoff Date"
-                    description="Documents with a last-updated date prior to this will be ignored."
+                    title={t("modals.knowledgeCutoffDate")}
+                    description={t("modals.knowledgeCutoffDateDesc")}
                   >
                     <Text mainUiMono>
                       {formatMmDdYyyy(agent.search_start_date)}
@@ -366,8 +368,8 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
                   </InputHorizontal>
                 )}
                 <InputHorizontal
-                  title="Overwrite System Prompts"
-                  description='Remove the base system prompt which includes useful instructions (e.g. "You can use Markdown tables"). This may affect response quality.'
+                  title={t("modals.overwriteSystemPrompts")}
+                  description={t("modals.overwriteSystemPromptsDesc")}
                 >
                   <Switch disabled checked={agent.replace_base_system_prompt} />
                 </InputHorizontal>
@@ -380,7 +382,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
             <>
               <Divider paddingParallel="fit" paddingPerpendicular="fit" />
               <Content
-                title="Prompt Reminders"
+                title={t("modals.promptReminders")}
                 description={agent.task_prompt}
                 sizePreset="main-content"
                 variant="section"
@@ -393,7 +395,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
             <>
               <Divider paddingParallel="fit" paddingPerpendicular="fit" />
               <Content
-                title="Conversation Starters"
+                title={t("modals.conversationStarters")}
                 sizePreset="main-content"
                 variant="section"
               />

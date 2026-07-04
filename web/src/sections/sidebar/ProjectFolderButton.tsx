@@ -127,12 +127,11 @@ const ProjectFolderButton = memo(({ project }: ProjectFolderButtonProps) => {
                 deleteProject(project.id);
               }}
             >
-              Delete
+              {t("common.delete")}
             </Button>
           }
         >
-          Are you sure you want to delete this project? This action cannot be
-          undone.
+          {t("sidebar.deleteProjectConfirm")}
         </ConfirmationModalLayout>
       )}
 

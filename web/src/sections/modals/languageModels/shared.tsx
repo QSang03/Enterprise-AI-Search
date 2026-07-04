@@ -490,10 +490,13 @@ function buildModelDescription(model: ModelConfiguration): string | undefined {
 }
 
 /** Eye marker for vision models, shown on the right of the picker row. */
-function modelRightChildren(model: ModelConfiguration): React.ReactNode {
+function modelRightChildren(
+  model: ModelConfiguration,
+  t: (key: string) => string
+): React.ReactNode {
   if (!hasModelMetadata(model) || !model.supports_image_input) return undefined;
   return (
-    <Text secondaryBody text03 title="Vision">
+    <Text secondaryBody text03 title={t("chat.vision")}>
       👁
     </Text>
   );
@@ -525,6 +528,7 @@ function ModelRow({
   onToggleVisibility,
   onRename,
 }: ModelRowProps) {
+  const { t } = useTranslation();
   const displayName =
     model.custom_display_name || model.display_name || model.name;
   // In auto mode every model is shown, so the row is always "selected" and the
@@ -562,7 +566,7 @@ function ModelRow({
               icon={() => <Checkbox checked={isSelected} />}
               title={displayName}
               description={buildModelDescription(model)}
-              rightChildren={modelRightChildren(model)}
+              rightChildren={modelRightChildren(model, t)}
               editable
               onTitleChange={(newTitle) => onRename(newTitle || undefined)}
               padding="fit"

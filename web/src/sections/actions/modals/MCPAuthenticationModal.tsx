@@ -465,7 +465,7 @@ export default function MCPAuthenticationModal({
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to save authentication configuration"
+          : t("actions.failedToSaveAuth")
       );
     } finally {
       setIsSubmitting(false);
@@ -573,7 +573,7 @@ export default function MCPAuthenticationModal({
                                 value={MCPAuthenticationType.PT_OAUTH}
                                 description="Forward the user's OAuth access token used to authenticate Onyx."
                               >
-                                OAuth Pass-through
+                                {t("actions.oauthPassthrough")}
                               </InputSelect.Item>
                             )}
                             <InputSelect.Item
@@ -760,7 +760,7 @@ export default function MCPAuthenticationModal({
                                   }
                                 >
                                   <FormField.Label>
-                                    Authorization Endpoint
+                                    {t("actions.authorizationEndpoint")}
                                   </FormField.Label>
                                   <FormField.Control asChild>
                                     <InputTypeIn
@@ -813,7 +813,7 @@ export default function MCPAuthenticationModal({
 
                                 <FormField name="oauth_scopes_override">
                                   <FormField.Label optional>
-                                    Scopes Override (comma-separated)
+                                    {t("actions.scopesOverride")}
                                   </FormField.Label>
                                   <FormField.Control asChild>
                                     <InputTypeIn
@@ -827,7 +827,7 @@ export default function MCPAuthenticationModal({
 
                                 <FormField name="oauth_additional_auth_params">
                                   <FormField.Label optional>
-                                    Additional Auth Params (JSON)
+                                    {t("actions.additionalAuthParams")}
                                   </FormField.Label>
                                   <FormField.Control asChild>
                                     <InputTypeIn

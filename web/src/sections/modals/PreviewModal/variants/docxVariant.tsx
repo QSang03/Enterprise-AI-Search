@@ -11,6 +11,7 @@ import { PreviewVariant } from "@/sections/modals/PreviewModal/interfaces";
 import { CopyButton } from "@opal/components";
 import { DownloadButton } from "@/sections/modals/PreviewModal/variants/shared";
 import { sanitizeDocxHtml } from "@/sections/modals/PreviewModal/variants/sanitizeDocxHtml";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const DOCX_MIMES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -33,6 +34,7 @@ interface DocxPreviewProps {
 }
 
 function DocxPreview({ fileUrl, onLoad }: DocxPreviewProps) {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -93,7 +95,7 @@ function DocxPreview({ fileUrl, onLoad }: DocxPreviewProps) {
         onLoadRef.current({ plainText: text, wordCount: words });
       } catch {
         setError(
-          "Could not preview this document. Download the file to view it."
+          t("modals.docxPreviewError")
         );
       } finally {
         setIsLoading(false);
@@ -143,14 +145,14 @@ export const docxVariant: PreviewVariant = {
   height: "full",
   needsTextContent: false,
   codeBackground: false,
-  headerDescription: () => {
+  headerDescription: (ctx) => {
     if (lastDocxResult) {
       const count = lastDocxResult.wordCount;
-      return `Word Document • ${count.toLocaleString()} ${
-        count === 1 ? "word" : "words"
-      }`;
+      return `${ctx.t("modals.wordDocument")} • ${count.toLocaleString()} ${ctx.t(
+        count === 1 ? "modals.word" : "modals.words"
+      )}`;
     }
-    return "Word Document";
+    return ctx.t("modals.wordDocument");
   },
 
   renderContent: (ctx: PreviewContext) => {
@@ -159,8 +161,7 @@ export const docxVariant: PreviewVariant = {
       return (
         <Section justifyContent="center" alignItems="center" padding={1.5}>
           <Text text03 mainUiBody>
-            Legacy .doc format cannot be previewed. Download the file to view
-            it.
+            {ctx.t("modals.legacyDocPreviewError")}
           </Text>
         </Section>
       );

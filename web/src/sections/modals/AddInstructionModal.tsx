@@ -58,7 +58,7 @@ export default function AddInstructionModal() {
                   type="button"
                   onClick={() => modal.toggle(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   type="submit"

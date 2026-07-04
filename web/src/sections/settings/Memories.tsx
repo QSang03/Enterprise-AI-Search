@@ -9,6 +9,7 @@ import LineItem from "@/refresh-components/buttons/LineItem";
 import { Button } from "@opal/components";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
 import { MemoryItem } from "@/lib/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface MemoriesProps {
   memories: MemoryItem[];
@@ -16,6 +17,7 @@ interface MemoriesProps {
 }
 
 export default function Memories({ memories, onSaveMemories }: MemoriesProps) {
+  const { t } = useTranslation();
   const memoriesModal = useCreateModal();
   const [targetMemoryId, setTargetMemoryId] = useState<number | null>(null);
 
@@ -24,7 +26,7 @@ export default function Memories({ memories, onSaveMemories }: MemoriesProps) {
       {memories.length === 0 ? (
         <LineItem
           skeleton
-          description="Add personal note or memory that Onyx should remember."
+          description={t("settings.addMemoryPlaceholder")}
           onClick={() => {
             setTargetMemoryId(null);
             memoriesModal.toggle(true);
@@ -55,8 +57,8 @@ export default function Memories({ memories, onSaveMemories }: MemoriesProps) {
             ))}
           </div>
           <ButtonTile
-            title="View/Add"
-            description="All Memories"
+            title={t("settings.viewAdd")}
+            description={t("settings.allMemories")}
             icon={SvgAddLines}
             onClick={() => {
               setTargetMemoryId(null);

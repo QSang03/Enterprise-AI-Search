@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   memo,
@@ -180,7 +180,7 @@ function buildMenuChildren({
     return [
       <div key="empty" className="p-2">
         <Text font="secondary-body" color="text-03">
-          No matching skills
+          {t("input.noMatchingSkills")}
         </Text>
       </div>,
     ];
