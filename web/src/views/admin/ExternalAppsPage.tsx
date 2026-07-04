@@ -264,7 +264,7 @@ function ConfiguredAppCard({
                 onClick={() => onEdit(descriptor)}
                 disabled={isMutating}
               >
-                Edit
+                {t("admin.externalApps.edit")}
               </Button>
             )
           )}

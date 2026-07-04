@@ -33,7 +33,8 @@
     "curatorPage": "Curator Page",
     "credential": "Credential",
     "connector": "Connector",
-    "advancedOptional": "Advanced (optional)"
+    "advancedOptional": "Advanced (optional)",
+    "networkError": "An error occurred"
   },
   "agentEditor": {
     "editAgent": "Edit Agent",
@@ -676,6 +677,9 @@
       "back": "Back",
       "failedLoad": "Failed to load skills",
       "failedLoadDesc": "Check the console for details and try refreshing the page.",
+      "failedUpdate": "Failed to update skill",
+      "failedDelete": "Failed to delete",
+      "failedReplace": "Failed to replace bundle",
       "builtinTitle": "Built-in skills",
       "noBuiltin": "No built-in skills registered",
       "builtinDesc": "Built-ins ship with the deploy.",
@@ -1318,7 +1322,14 @@
       "disconnectDesc": "This will remove the stored credentials for this provider.",
       "disconnectBtn": "Disconnect",
       "disconnectExplain": "**{name}** models will no longer be used for speech-to-text or text-to-speech, and it will no longer be your default. Session history will be preserved.",
-      "connectAnotherProvider": "Connect another provider to continue using voice features."
+      "connectAnotherProvider": "Connect another provider to continue using voice features.",
+      "whisperDesc": "OpenAI's general purpose speech recognition model.",
+      "azureSpeechSttDesc": "Speech to text in Microsoft Foundry Tools.",
+      "elevenlabsSttDesc": "ElevenLabs Speech to Text API.",
+      "tts1Desc": "OpenAI's text-to-speech model optimized for speed.",
+      "tts1HdDesc": "OpenAI's text-to-speech model optimized for quality.",
+      "azureSpeechTtsDesc": "Text to speech in Microsoft Foundry Tools.",
+      "elevenlabsTtsDesc": "ElevenLabs Text to Speech API."
     },
     "webSearch": {
       "title": "Web Search",
@@ -1443,7 +1454,22 @@
       "deploymentName": "Deployment Name",
       "deploymentNamePlaceholder": "my-embedding-deployment",
       "deploymentNameDesc": "The deployment name you configured for this embedding model in Azure.",
-      "modelSpecDescAzure": "A label for this model in Onyx. Azure routes requests by deployment name, so this only needs to be a unique identifier."
+      "modelSpecDescAzure": "A label for this model in Onyx. Azure routes requests by deployment name, so this only needs to be a unique identifier.",
+      "couldNotResolveProvider": "Could not resolve provider",
+      "captioningLlmUpdated": "Captioning LLM updated",
+      "failedCancelReindexing": "Failed to cancel re-indexing",
+      "reindexingCanceled": "Re-indexing canceled",
+      "couldNotFindSelectedModel": "Could not find the selected model",
+      "failedApplySettings": "Failed to apply settings",
+      "reindexingStarted": "Re-indexing started",
+      "cloudTooltip": "This setting is managed by Onyx Cloud.",
+      "apiKeyRequired": "API key is required",
+      "apiUrlRequired": "API base URL is required",
+      "invalidUrl": "Must be a valid URL",
+      "serviceAccountJsonRequired": "Service account JSON is required",
+      "invalidGoogleJson": "Must be a valid Google service account JSON file",
+      "apiVersionRequired": "API version is required",
+      "deploymentNameRequired": "Deployment name is required"
     },
     "serviceAccounts": {
       "title": "Service Accounts",

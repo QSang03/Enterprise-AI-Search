@@ -286,7 +286,7 @@ function NewCustomProviderCard({
                 setIsOpen(true);
               }}
             >
-              Set Up
+              {t("admin.llms.setUp")}
             </Button>
           }
         />

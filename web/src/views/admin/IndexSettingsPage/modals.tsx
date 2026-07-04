@@ -102,6 +102,7 @@ async function testAndSaveProviderCredentials({
   modelName = "",
   apiVersion = null,
   deploymentName = null,
+  t,
 }: {
   provider: EmbeddingProvider;
   apiKey: string | null;
@@ -109,6 +110,7 @@ async function testAndSaveProviderCredentials({
   modelName?: string;
   apiVersion?: string | null;
   deploymentName?: string | null;
+  t: any;
 }): Promise<boolean> {
   try {
     await connectEmbeddingProvider({
@@ -122,7 +124,7 @@ async function testAndSaveProviderCredentials({
     return true;
   } catch (error: unknown) {
     toast.error(
-      error instanceof Error ? error.message : "An unknown error occurred"
+      error instanceof Error ? error.message : t("common.networkError")
     );
     return false;
   }
@@ -163,13 +165,14 @@ function StandardProviderModal({
   existingCredentials,
   onSubmit,
 }: ProviderModalProps) {
+  const { t } = useTranslation();
   const isEditing = !!existingCredentials;
   const maskedApiKey = existingCredentials?.api_key ?? "";
 
   const schema = Yup.object({
     apiKey: isEditing
       ? Yup.string().trim()
-      : Yup.string().trim().required("API key is required"),
+      : Yup.string().trim().required(t("admin.indexSettings.apiKeyRequired")),
   });
 
   const initialValues: StandardFormValues = { apiKey: maskedApiKey };
@@ -182,7 +185,7 @@ function StandardProviderModal({
       onSubmit={async (values) => {
         const apiKey =
           values.apiKey === maskedApiKey ? null : values.apiKey || null;
-        if (await testAndSaveProviderCredentials({ provider, apiKey })) {
+        if (await testAndSaveProviderCredentials({ provider, apiKey, t })) {
           onSubmit();
         }
       }}
@@ -206,16 +209,17 @@ function GoogleProviderModal({
   existingCredentials,
   onSubmit,
 }: ProviderModalProps) {
+  const { t } = useTranslation();
   const isEditing = !!existingCredentials;
 
   const schema = Yup.object({
     apiKey: isEditing
       ? Yup.string()
       : Yup.string()
-          .required("Service account JSON is required")
+          .required(t("admin.indexSettings.serviceAccountJsonRequired"))
           .test(
             "service-account-json",
-            "Must be a valid Google service account JSON file",
+            t("admin.indexSettings.invalidGoogleJson"),
             (value) => {
               if (!value) return false;
               try {
@@ -244,6 +248,7 @@ function GoogleProviderModal({
           await testAndSaveProviderCredentials({
             provider,
             apiKey: values.apiKey || null,
+            t,
           })
         ) {
           onSubmit();
@@ -285,13 +290,13 @@ function AzureProviderModal({
   const schema = useMemo(() => Yup.object({
     apiUrl: Yup.string()
       .trim()
-      .required("Target URL is required")
-      .url("Must be a valid URL"),
+      .required(t("admin.indexSettings.apiUrlRequired"))
+      .url(t("admin.indexSettings.invalidUrl")),
     apiKey: isEditing
       ? Yup.string().trim()
-      : Yup.string().trim().required("API key is required"),
-    apiVersion: Yup.string().trim().required("API version is required"),
-    deploymentName: Yup.string().trim().required("Deployment name is required"),
+      : Yup.string().trim().required(t("admin.indexSettings.apiKeyRequired")),
+    apiVersion: Yup.string().trim().required(t("admin.indexSettings.apiVersionRequired")),
+    deploymentName: Yup.string().trim().required(t("admin.indexSettings.deploymentNameRequired")),
     ...getModelSpecSchemaShape(t),
   }), [isEditing, t]);
 
@@ -322,6 +327,7 @@ function AzureProviderModal({
             apiUrl: values.apiUrl,
             apiVersion: values.apiVersion,
             deploymentName: values.deploymentName,
+            t,
           })
         ) {
           onSubmit({
@@ -385,11 +391,11 @@ function LiteLLMProviderModal({
   const schema = useMemo(() => Yup.object({
     apiUrl: Yup.string()
       .trim()
-      .required("API base URL is required")
-      .url("Must be a valid URL"),
+      .required(t("admin.indexSettings.apiUrlRequired"))
+      .url(t("admin.indexSettings.invalidUrl")),
     apiKey: isEditing
       ? Yup.string().trim()
-      : Yup.string().trim().required("API key is required"),
+      : Yup.string().trim().required(t("admin.indexSettings.apiKeyRequired")),
     ...getModelSpecSchemaShape(t),
   }), [isEditing, t]);
 
@@ -417,6 +423,7 @@ function LiteLLMProviderModal({
             apiKey,
             apiUrl: values.apiUrl,
             modelName: values.modelName.trim(),
+            t,
           })
         ) {
           onSubmit({

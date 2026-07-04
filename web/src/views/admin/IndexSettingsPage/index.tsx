@@ -98,8 +98,6 @@ const route = ADMIN_ROUTES.INDEX_SETTINGS;
 
 const MODEL_TAB_CLOUD = "cloud-based";
 const MODEL_TAB_SELF = "self-hosted";
-const CLOUD_TOOLTIP = "This setting is managed by Onyx Cloud.";
-
 /**
  * Wrapper that disables its children when either:
  * 1. The app is running on Onyx Cloud (`NEXT_PUBLIC_CLOUD_ENABLED`), or
@@ -115,8 +113,9 @@ function CloudDisabled({
   tooltip: tooltipProp,
   children,
 }: CloudDisabledProps) {
+  const { t } = useTranslation();
   const isDisabled = NEXT_PUBLIC_CLOUD_ENABLED || disabled;
-  const tooltip = NEXT_PUBLIC_CLOUD_ENABLED ? CLOUD_TOOLTIP : tooltipProp;
+  const tooltip = NEXT_PUBLIC_CLOUD_ENABLED ? t("admin.indexSettings.cloudTooltip") : tooltipProp;
 
   return (
     <Disabled disabled={isDisabled} tooltip={tooltip} tooltipSide="right">
@@ -633,12 +632,12 @@ export default function IndexSettingsPage() {
         await saveAdminSettings({ ...toSettings(settings), ...updates });
         router.refresh();
         await mutate(SWR_KEYS.settings);
-        toast.success("Settings updated");
+        toast.success(t("admin.indexSettings.settingsUpdated"));
       } catch {
-        toast.error("Failed to update settings");
+        toast.error(t("admin.indexSettings.failedUpdateSettings"));
       }
     },
-    [settings, router]
+    [settings, router, t]
   );
 
   const imageProcessingEnabled =
@@ -729,7 +728,7 @@ export default function IndexSettingsPage() {
     }) => {
       const provider = llmProviders?.find((p) => p.name === providerName);
       if (!provider) {
-        toast.error("Could not resolve provider");
+        toast.error(t("admin.indexSettings.couldNotResolveProvider"));
         return;
       }
       try {
@@ -743,18 +742,18 @@ export default function IndexSettingsPage() {
         });
         if (!response.ok) {
           throw new Error(
-            (await response.json()).detail ?? "Failed to update captioning LLM"
+            (await response.json()).detail ?? t("admin.indexSettings.failedUpdateSettings")
           );
         }
         await mutate(SWR_KEYS.llmProviders);
-        toast.success("Captioning LLM updated");
+        toast.success(t("admin.indexSettings.captioningLlmUpdated"));
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "An unknown error occurred"
+          error instanceof Error ? error.message : t("common.networkError")
         );
       }
     },
-    [llmProviders]
+    [llmProviders, t]
   );
 
   // Resolve defaultVision (name-based) to a model_configuration_id for ModelSelector
@@ -804,17 +803,17 @@ export default function IndexSettingsPage() {
   const handleCancelReindex = useCallback(async () => {
     const response = await cancelNewEmbedding();
     if (!response.ok) {
-      toast.error("Failed to cancel re-indexing");
+      toast.error(t("admin.indexSettings.failedCancelReindexing"));
       return;
     }
     cancelReindexModal.toggle(false);
-    toast.success("Re-indexing canceled");
+    toast.success(t("admin.indexSettings.reindexingCanceled"));
     await Promise.all([
       mutate(SWR_KEYS.currentSearchSettings),
       mutate(SWR_KEYS.secondarySearchSettings),
       mutate(SWR_KEYS.indexingStatus),
     ]);
-  }, [cancelReindexModal]);
+  }, [cancelReindexModal, t]);
 
   if (
     isLoadingCurrentModel ||
@@ -908,12 +907,12 @@ export default function IndexSettingsPage() {
                   if (!response.ok) {
                     const errorDetail =
                       (await response.json()).detail ??
-                      "Failed to update settings";
+                      t("admin.indexSettings.failedUpdateSettings");
                     toast.error(errorDetail);
                     return;
                   }
 
-                  toast.success("Settings updated successfully");
+                  toast.success(t("admin.indexSettings.settingsUpdated"));
                   await Promise.all([
                     mutate(SWR_KEYS.currentSearchSettings),
                     mutate(SWR_KEYS.secondarySearchSettings),
@@ -922,7 +921,7 @@ export default function IndexSettingsPage() {
                   toast.error(
                     error instanceof Error
                       ? error.message
-                      : "Failed to update settings"
+                      : t("admin.indexSettings.failedUpdateSettings")
                   );
                 }
                 return;
@@ -937,7 +936,7 @@ export default function IndexSettingsPage() {
               const stagedModel =
                 values.custom_model ?? findRegistryModel(values.model_name);
               if (!stagedModel) {
-                toast.error("Could not find the selected model");
+                toast.error(t("admin.indexSettings.couldNotFindSelectedModel"));
                 return;
               }
               // A staged custom model from a no-registry cloud provider
@@ -964,11 +963,11 @@ export default function IndexSettingsPage() {
               });
 
               if (!response.ok) {
-                toast.error("Failed to apply settings");
+                toast.error(t("admin.indexSettings.failedApplySettings"));
                 return;
               }
 
-              toast.success("Re-indexing started");
+              toast.success(t("admin.indexSettings.reindexingStarted"));
               setSwitchoverType(SwitchoverType.REINDEX);
               await Promise.all([
                 mutate(SWR_KEYS.currentSearchSettings),

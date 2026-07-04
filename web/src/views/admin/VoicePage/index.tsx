@@ -118,6 +118,27 @@ interface ModelCardProps {
   onMutate: () => void;
 }
 
+const getModelSubtitle = (modelId: string, fallback: string, t: any) => {
+  switch (modelId) {
+    case "whisper":
+      return t("admin.voice.whisperDesc");
+    case "azure-speech-stt":
+      return t("admin.voice.azureSpeechSttDesc");
+    case "elevenlabs-stt":
+      return t("admin.voice.elevenlabsSttDesc");
+    case "tts-1":
+      return t("admin.voice.tts1Desc");
+    case "tts-1-hd":
+      return t("admin.voice.tts1HdDesc");
+    case "azure-speech-tts":
+      return t("admin.voice.azureSpeechTtsDesc");
+    case "elevenlabs-tts":
+      return t("admin.voice.elevenlabsTtsDesc");
+    default:
+      return fallback;
+  }
+};
+
 function ModelCard({
   model,
   mode,
@@ -128,6 +149,7 @@ function ModelCard({
   onDeselect,
   onMutate,
 }: ModelCardProps) {
+  const { t } = useTranslation();
   const setupModal = useCreateModal();
   const disconnectModal = useCreateModal();
 
@@ -164,7 +186,7 @@ function ModelCard({
         aria-label={`voice-${mode}-${model.id}`}
         icon={getVoiceProviderDetail(model.providerType).icon}
         title={model.label}
-        description={model.subtitle}
+        description={getModelSubtitle(model.id, model.subtitle, t)}
         status={status}
         onConnect={() => setupModal.toggle(true)}
         onSelect={onSelect}

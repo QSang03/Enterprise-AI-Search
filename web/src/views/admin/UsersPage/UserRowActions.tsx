@@ -125,7 +125,7 @@ export default function UserRowActions({
                   toast.success(t("admin.users.requestApproved"));
                 } catch (err) {
                   toast.error(
-                    err instanceof Error ? err.message : "An error occurred"
+                    err instanceof Error ? err.message : t("common.networkError")
                   );
                 }
               })();

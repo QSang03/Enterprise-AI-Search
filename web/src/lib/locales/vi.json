@@ -33,7 +33,8 @@
     "curatorPage": "Trang giám tuyển",
     "credential": "Thông tin xác thực",
     "connector": "Cổng kết nối",
-    "advancedOptional": "Nâng cao (tùy chọn)"
+    "advancedOptional": "Nâng cao (tùy chọn)",
+    "networkError": "Đã xảy ra lỗi"
   },
   "agentEditor": {
     "editAgent": "Chỉnh sửa trợ lý",
@@ -676,6 +677,9 @@
       "back": "Quay lại",
       "failedLoad": "Tải kỹ năng thất bại",
       "failedLoadDesc": "Kiểm tra console để biết chi tiết và thử tải lại trang.",
+      "failedUpdate": "Không thể cập nhật kỹ năng",
+      "failedDelete": "Không thể xóa",
+      "failedReplace": "Không thể thay thế gói",
       "builtinTitle": "Kỹ năng tích hợp sẵn",
       "noBuiltin": "Không có kỹ năng tích hợp sẵn nào được đăng ký",
       "builtinDesc": "Các kỹ năng mặc định đi kèm với bản triển khai hệ thống.",
@@ -1318,7 +1322,14 @@
       "disconnectDesc": "Hành động này sẽ xóa các thông tin đăng nhập đã lưu cho nhà cung cấp này.",
       "disconnectBtn": "Ngắt kết nối",
       "disconnectExplain": "Các mô hình của **{name}** sẽ không được sử dụng để chuyển giọng nói thành văn bản hoặc chuyển văn bản thành giọng nói nữa, và nó sẽ không còn là mặc định. Lịch sử phiên làm việc sẽ được giữ lại.",
-      "connectAnotherProvider": "Kết nối một nhà cung cấp khác để tiếp tục sử dụng các tính năng giọng nói."
+      "connectAnotherProvider": "Kết nối một nhà cung cấp khác để tiếp tục sử dụng các tính năng giọng nói.",
+      "whisperDesc": "Mô hình nhận dạng giọng nói đa dụng của OpenAI.",
+      "azureSpeechSttDesc": "Chuyển giọng nói thành văn bản trong công cụ Microsoft Foundry.",
+      "elevenlabsSttDesc": "API chuyển giọng nói thành văn bản của ElevenLabs.",
+      "tts1Desc": "Mô hình chuyển văn bản thành giọng nói của OpenAI được tối ưu hóa cho tốc độ.",
+      "tts1HdDesc": "Mô hình chuyển văn bản thành giọng nói của OpenAI được tối ưu hóa cho chất lượng.",
+      "azureSpeechTtsDesc": "Chuyển văn bản thành giọng nói trong công cụ Microsoft Foundry.",
+      "elevenlabsTtsDesc": "API chuyển văn bản thành giọng nói của ElevenLabs."
     },
     "webSearch": {
       "title": "Tìm kiếm Web (Web Search)",
@@ -1443,7 +1454,22 @@
       "deploymentName": "Tên triển khai",
       "deploymentNamePlaceholder": "my-embedding-deployment",
       "deploymentNameDesc": "Tên triển khai bạn đã cấu hình cho mô hình embedding này trong Azure.",
-      "modelSpecDescAzure": "Nhãn cho mô hình này trong Onyx. Azure định tuyến các yêu cầu theo tên triển khai, vì vậy đây chỉ cần là một mã định danh duy nhất."
+      "modelSpecDescAzure": "Nhãn cho mô hình này trong Onyx. Azure định tuyến các yêu cầu theo tên triển khai, vì vậy đây chỉ cần là một mã định danh duy nhất.",
+      "couldNotResolveProvider": "Không thể xác định nhà cung cấp",
+      "captioningLlmUpdated": "Đã cập nhật LLM tạo mô tả ảnh",
+      "failedCancelReindexing": "Không thể hủy quá trình lập chỉ mục lại",
+      "reindexingCanceled": "Đã hủy quá trình lập chỉ mục lại",
+      "couldNotFindSelectedModel": "Không tìm thấy mô hình đã chọn",
+      "failedApplySettings": "Áp dụng cấu hình thất bại",
+      "reindexingStarted": "Đã bắt đầu lập chỉ mục lại",
+      "cloudTooltip": "Cài đặt này được quản lý bởi Onyx Cloud.",
+      "apiKeyRequired": "Yêu cầu nhập API key",
+      "apiUrlRequired": "Yêu cầu nhập URL base API",
+      "invalidUrl": "Phải là một URL hợp lệ",
+      "serviceAccountJsonRequired": "Yêu cầu nhập JSON tài khoản dịch vụ",
+      "invalidGoogleJson": "Phải là tệp JSON tài khoản dịch vụ Google hợp lệ",
+      "apiVersionRequired": "Yêu cầu nhập phiên bản API",
+      "deploymentNameRequired": "Yêu cầu nhập tên triển khai"
     },
     "serviceAccounts": {
       "title": "Tài khoản dịch vụ",

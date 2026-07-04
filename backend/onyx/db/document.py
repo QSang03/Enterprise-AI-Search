@@ -1081,6 +1081,13 @@ def delete_documents_complete__no_commit(
         document_ids=document_ids,
     )
 
+    # Delete RAG upgrade tables metadata to prevent orphan records/unique key conflicts
+    from onyx.db.rag_upgrade_models import OcrPage, DocumentBlock, DocumentProcessingJob
+    db_session.execute(delete(OcrPage).where(OcrPage.doc_id.in_(document_ids)))
+    db_session.execute(delete(DocumentBlock).where(DocumentBlock.doc_id.in_(document_ids)))
+    db_session.execute(delete(DocumentProcessingJob).where(DocumentProcessingJob.doc_id.in_(document_ids)))
+    db_session.execute(delete(DocumentChunkV2).where(DocumentChunkV2.doc_id.in_(document_ids)))
+
     delete_documents_by_connector_credential_pair__no_commit(db_session, document_ids)
     delete_document_feedback_for_documents__no_commit(
         document_ids=document_ids, db_session=db_session

@@ -19,6 +19,7 @@ import {
   FormValues,
 } from "@/views/admin/ImageGenerationPage/forms/types";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function ImageGenFormWrapper<T extends FormValues>({
   modal,
@@ -34,6 +35,7 @@ export function ImageGenFormWrapper<T extends FormValues>({
   transformValues,
   getInitialValuesFromCredentials,
 }: ImageGenFormWrapperProps<T>) {
+  const { t } = useTranslation();
   // State management
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiStatus, setApiStatus] = useState<APIFormFieldState>("idle");
@@ -236,7 +238,7 @@ export function ImageGenFormWrapper<T extends FormValues>({
       setIsSubmitting(false);
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "Unknown error occurred";
+        error instanceof Error ? error.message : t("common.networkError");
       setApiStatus("error");
       setErrorMessage(message);
       toast.error(message);

@@ -175,7 +175,7 @@ export default function UserFilters({
       <Popover>
         <Popover.Trigger asChild>
           <FilterButton
-            aria-label="Filter by role"
+            aria-label={t("admin.users.filterByRole")}
             icon={SvgUsers}
             active={hasRoleFilter}
             onClear={() => onRolesChange([])}
@@ -225,7 +225,7 @@ export default function UserFilters({
       >
         <Popover.Trigger asChild>
           <FilterButton
-            aria-label="Filter by group"
+            aria-label={t("admin.users.filterByGroup")}
             icon={SvgUsers}
             active={hasGroupFilter}
             onClear={() => onGroupsChange([])}
@@ -280,7 +280,7 @@ export default function UserFilters({
       <Popover>
         <Popover.Trigger asChild>
           <FilterButton
-            aria-label="Filter by status"
+            aria-label={t("admin.users.filterByStatus")}
             icon={SvgUsers}
             active={hasStatusFilter}
             onClear={() => onStatusesChange([])}
