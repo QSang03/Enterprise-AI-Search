@@ -27,6 +27,7 @@ import {
 } from "@/sections/modals/languageModels/shared";
 import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const DEFAULT_API_BASE = "https://openrouter.ai/api/v1";
 
@@ -44,6 +45,7 @@ function OpenRouterModalInternals({
   existingLlmProvider,
   isOnboarding,
 }: OpenRouterModalInternalsProps) {
+  const { t } = useTranslation();
   const formikProps = useFormikContext<OpenRouterModalValues>();
 
   const isFetchDisabled =
@@ -70,8 +72,8 @@ function OpenRouterModalInternals({
   return (
     <>
       <APIBaseField
-        subDescription="Paste your OpenRouter-compatible endpoint URL or use OpenRouter API directly."
-        placeholder="Your OpenRouter base URL"
+        subDescription={t("admin.languageModels.openRouter.apiBaseDesc")}
+        placeholder={t("admin.languageModels.openRouter.apiBasePlaceholder")}
       />
 
       <APIKeyField providerName="OpenRouter" />

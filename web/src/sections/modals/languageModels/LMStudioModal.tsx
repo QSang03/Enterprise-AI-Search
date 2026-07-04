@@ -30,6 +30,7 @@ import { fetchModels } from "@/lib/languageModels/svc";
 import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
 import { useSettings } from "@/lib/settings/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface LMStudioModalValues extends BaseLLMModalValues {
   api_base: string;
@@ -47,6 +48,7 @@ function LMStudioModalInternals({
   existingLlmProvider,
   isOnboarding,
 }: LMStudioModalInternalsProps) {
+  const { t } = useTranslation();
   const formikProps = useFormikContext<LMStudioModalValues>();
   const settings = useSettings();
 
@@ -79,17 +81,17 @@ function LMStudioModalInternals({
         subDescription={
           settings.is_containerized
             ? markdown(
-                `The base URL for your LM Studio server. ${CONTAINERIZED_HOST_NOTE}`
+                `${t("admin.languageModels.lmStudio.apiBaseDesc")} ${CONTAINERIZED_HOST_NOTE}`
               )
-            : "The base URL for your LM Studio server."
+            : t("admin.languageModels.lmStudio.apiBaseDesc")
         }
-        placeholder="Your LM Studio API base URL"
+        placeholder={t("admin.languageModels.lmStudio.apiBasePlaceholder")}
       />
 
       <APIKeyField
         name="custom_config.LM_STUDIO_API_KEY"
         optional
-        subDescription="Optional API key if your LM Studio server requires authentication."
+        subDescription={t("admin.languageModels.lmStudio.apiKeyDesc")}
       />
 
       {!isOnboarding && (

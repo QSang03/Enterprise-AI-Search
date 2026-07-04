@@ -1330,7 +1330,9 @@
       "accountRoleDesc": "This controls the service account's general permissions.",
       "saveChanges": "Save Changes",
       "toastUpdated": "Service account updated",
-      "roleLimitedDesc": "For agents: chat posting and read-only access to other endpoints."
+      "roleLimitedDesc": "For agents: chat posting and read-only access to other endpoints.",
+      "upgradeTitle": "Upgrade to a paid plan to create API keys.",
+      "upgradeDesc": "Trial accounts do not include API key access — purchase a paid subscription to unlock this feature."
     },
     "languageModels": {
       "displayName": "Display Name",
@@ -1410,7 +1412,42 @@
         "gcpProjectIdDesc": "The GCP project where Vertex AI is enabled. Required because ADC cannot reliably infer the target project under service-account impersonation.",
         "authMethodRequired": "Authentication method is required",
         "credentialsRequired": "Credentials file is required",
-        "projectIdRequired": "GCP Project ID is required"
+        "projectIdRequired": "GCP Project ID is required",
+        "gcpProjectIdPlaceholder": "my-vertex-project"
+      },
+      "azure": {
+        "targetUri": "Target URI",
+        "targetUriDesc": "Paste your endpoint target URI from Azure OpenAI (including API endpoint base, deployment name, and API version)."
+      },
+      "bedrock": {
+        "awsRegion": "AWS Region",
+        "awsRegionDesc": "Region where your Amazon Bedrock models are hosted.",
+        "selectRegion": "Select a region",
+        "authMethod": "Authentication Method",
+        "authMethodDesc": "Choose how Onyx should authenticate with Bedrock.",
+        "envIamRole": "Environment IAM Role",
+        "envIamRoleDesc": "Recommended for AWS environments",
+        "accessKey": "Access Key",
+        "accessKeyDesc": "For non-AWS environments",
+        "longTermApiKey": "Long-term API Key",
+        "longTermApiKeyDesc": "For non-AWS environments",
+        "awsAccessKeyId": "AWS Access Key ID",
+        "awsAccessKeyIdPlaceholder": "AKIAIOSFODNN7EXAMPLE",
+        "awsSecretAccessKey": "AWS Secret Access Key",
+        "longTermApiKeyPlaceholder": "Your long-term API key",
+        "iamRoleNote": "Onyx will use the IAM role attached to the environment it's running in to authenticate."
+      },
+      "lmStudio": {
+        "apiBasePlaceholder": "Your LM Studio API base URL",
+        "apiBaseDesc": "The base URL for your LM Studio server.",
+        "apiKeyDesc": "Optional API key if your LM Studio server requires authentication."
+      },
+      "openAiCompatible": {
+        "description": "Connect from other cloud or self-hosted models via OpenAI-compatible endpoints."
+      },
+      "openRouter": {
+        "apiBasePlaceholder": "Your OpenRouter base URL",
+        "apiBaseDesc": "Paste your OpenRouter-compatible endpoint URL or use OpenRouter API directly."
       }
     },
     "liteModeTitle": "Indexing is unavailable in Lite mode",
@@ -1714,7 +1751,10 @@
     "disconnect": "Disconnect",
     "edit": "Edit",
     "oauthPassthrough": "OAuth Pass-through",
-    "failedToSaveAuth": "Failed to save authentication configuration"
+    "failedToSaveAuth": "Failed to save authentication configuration",
+    "oauthPassthroughDesc": "Forward the user's OAuth access token used to authenticate Onyx.",
+    "scopesPlaceholder": "e.g. repo, user",
+    "refreshToolsLabel": "Refresh tools"
   },
   "cards": {
     "remove": "Remove",
@@ -1927,5 +1967,8 @@
     "wordDocument": "Word Document",
     "docxPreviewError": "Could not preview this document. Download the file to view it.",
     "legacyDocPreviewError": "Legacy .doc format cannot be previewed. Download the file to view it."
+  },
+  "admin_list": {
+    "searchServiceAccounts": "Search service accounts..."
   }
 }

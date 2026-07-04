@@ -28,6 +28,7 @@ import {
 } from "@/sections/modals/languageModels/shared";
 import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface OpenAICompatibleModalValues extends BaseLLMFormValues {
   api_key: string;
@@ -111,6 +112,7 @@ export default function OpenAICompatibleModal({
 }: LLMProviderFormProps) {
   const isOnboarding = variant === "onboarding";
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
 
   const onClose = () => onOpenChange?.(false);
 
@@ -130,7 +132,7 @@ export default function OpenAICompatibleModal({
       llmProvider={existingLlmProvider}
       onClose={onClose}
       initialValues={initialValues}
-      description="Connect from other cloud or self-hosted models via OpenAI-compatible endpoints."
+      description={t("admin.languageModels.openAiCompatible.description")}
       validationSchema={validationSchema}
       onSubmit={async (values, { setSubmitting, setStatus }) => {
         await submitProvider({

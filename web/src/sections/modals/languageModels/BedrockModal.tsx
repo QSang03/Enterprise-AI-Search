@@ -33,6 +33,7 @@ import { Section } from "@/layouts/general-layouts";
 import { InputDivider, InputPadder, InputVertical } from "@opal/layouts";
 import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const AWS_REGION_OPTIONS = [
   { name: "us-east-1", value: "us-east-1" },
@@ -77,6 +78,7 @@ function BedrockModalInternals({
   existingLlmProvider,
   isOnboarding,
 }: BedrockModalInternalsProps) {
+  const { t } = useTranslation();
   const formikProps = useFormikContext<BedrockModalValues>();
   const authMethod = formikProps.values.custom_config?.BEDROCK_AUTH_METHOD;
 
@@ -133,11 +135,11 @@ function BedrockModalInternals({
         <Section gap={1}>
           <InputVertical
             withLabel={FIELD_AWS_REGION_NAME}
-            title="AWS Region"
-            subDescription="Region where your Amazon Bedrock models are hosted."
+            title={t("admin.languageModels.bedrock.awsRegion")}
+            subDescription={t("admin.languageModels.bedrock.awsRegionDesc")}
           >
             <InputSelectField name={FIELD_AWS_REGION_NAME}>
-              <InputSelect.Trigger placeholder="Select a region" />
+              <InputSelect.Trigger placeholder={t("admin.languageModels.bedrock.selectRegion")} />
               <InputSelect.Content>
                 {AWS_REGION_OPTIONS.map((option) => (
                   <InputSelect.Item key={option.value} value={option.value}>
@@ -150,29 +152,29 @@ function BedrockModalInternals({
 
           <InputVertical
             withLabel={FIELD_BEDROCK_AUTH_METHOD}
-            title="Authentication Method"
-            subDescription="Choose how Onyx should authenticate with Bedrock."
+            title={t("admin.languageModels.bedrock.authMethod")}
+            subDescription={t("admin.languageModels.bedrock.authMethodDesc")}
           >
             <InputSelectField name={FIELD_BEDROCK_AUTH_METHOD}>
               <InputSelect.Trigger />
               <InputSelect.Content>
                 <InputSelect.Item
                   value={AUTH_METHOD_IAM}
-                  description="Recommended for AWS environments"
+                  description={t("admin.languageModels.bedrock.envIamRoleDesc")}
                 >
-                  Environment IAM Role
+                  {t("admin.languageModels.bedrock.envIamRole")}
                 </InputSelect.Item>
                 <InputSelect.Item
                   value={AUTH_METHOD_ACCESS_KEY}
-                  description="For non-AWS environments"
+                  description={t("admin.languageModels.bedrock.accessKeyDesc")}
                 >
-                  Access Key
+                  {t("admin.languageModels.bedrock.accessKey")}
                 </InputSelect.Item>
                 <InputSelect.Item
                   value={AUTH_METHOD_LONG_TERM_API_KEY}
-                  description="For non-AWS environments"
+                  description={t("admin.languageModels.bedrock.longTermApiKeyDesc")}
                 >
-                  Long-term API Key
+                  {t("admin.languageModels.bedrock.longTermApiKey")}
                 </InputSelect.Item>
               </InputSelect.Content>
             </InputSelectField>
@@ -185,16 +187,16 @@ function BedrockModalInternals({
           <Section gap={1}>
             <InputVertical
               withLabel={FIELD_AWS_ACCESS_KEY_ID}
-              title="AWS Access Key ID"
+              title={t("admin.languageModels.bedrock.awsAccessKeyId")}
             >
               <InputTypeInField
                 name={FIELD_AWS_ACCESS_KEY_ID}
-                placeholder="AKIAIOSFODNN7EXAMPLE"
+                placeholder={t("admin.languageModels.bedrock.awsAccessKeyIdPlaceholder")}
               />
             </InputVertical>
             <InputVertical
               withLabel={FIELD_AWS_SECRET_ACCESS_KEY}
-              title="AWS Secret Access Key"
+              title={t("admin.languageModels.bedrock.awsSecretAccessKey")}
             >
               <PasswordInputTypeInField
                 name={FIELD_AWS_SECRET_ACCESS_KEY}
@@ -209,7 +211,7 @@ function BedrockModalInternals({
         <InputPadder>
           <MessageCard
             variant="info"
-            title="Onyx will use the IAM role attached to the environment it’s running in to authenticate."
+            title={t("admin.languageModels.bedrock.iamRoleNote")}
           />
         </InputPadder>
       )}
@@ -219,11 +221,11 @@ function BedrockModalInternals({
           <Section gap={0.5}>
             <InputVertical
               withLabel={FIELD_AWS_BEARER_TOKEN_BEDROCK}
-              title="Long-term API Key"
+              title={t("admin.languageModels.bedrock.longTermApiKey")}
             >
               <PasswordInputTypeInField
                 name={FIELD_AWS_BEARER_TOKEN_BEDROCK}
-                placeholder="Your long-term API key"
+                placeholder={t("admin.languageModels.bedrock.longTermApiKeyPlaceholder")}
               />
             </InputVertical>
           </Section>

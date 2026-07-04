@@ -30,6 +30,7 @@ import {
 } from "@/lib/azureTargetUri";
 import { toast } from "@/hooks/useToast";
 import { refreshLlmProviderCaches } from "@/lib/languageModels/cache";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface AzureModalValues extends BaseLLMFormValues {
   api_key: string;
@@ -105,6 +106,7 @@ export default function AzureModal({
 }: LLMProviderFormProps) {
   const isOnboarding = variant === "onboarding";
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
 
   const onClose = () => onOpenChange?.(false);
 
@@ -159,8 +161,8 @@ export default function AzureModal({
               await refreshLlmProviderCaches(mutate);
               toast.success(
                 existingLlmProvider
-                  ? "Provider updated successfully!"
-                  : "Provider enabled successfully!"
+                  ? t("admin.languageModels.providerUpdated")
+                  : t("admin.languageModels.providerEnabled")
               );
             }
           },
@@ -170,8 +172,8 @@ export default function AzureModal({
       <InputPadder>
         <InputVertical
           withLabel="target_uri"
-          title="Target URI"
-          subDescription="Paste your endpoint target URI from Azure OpenAI (including API endpoint base, deployment name, and API version)."
+          title={t("admin.languageModels.azure.targetUri")}
+          subDescription={t("admin.languageModels.azure.targetUriDesc")}
         >
           <InputTypeInField
             name="target_uri"

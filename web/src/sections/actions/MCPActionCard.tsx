@@ -258,7 +258,7 @@ export default function MCPActionCard({
           prominence="internal"
           onClick={handleRefreshTools}
           tooltip={t("actions.refreshTools")}
-          aria-label="Refresh tools"
+          aria-label={t("actions.refreshToolsLabel")}
         />
         {lastRefreshedText && (
           <Text as="p" text03 mainUiBody className="whitespace-nowrap">

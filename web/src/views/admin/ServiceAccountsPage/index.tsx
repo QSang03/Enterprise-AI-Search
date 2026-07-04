@@ -294,8 +294,8 @@ export default function ServiceAccountsPage() {
         {isTrialing && (
           <MessageCard
             variant="warning"
-            title="Upgrade to a paid plan to create API keys."
-            description="Trial accounts do not include API key access — purchase a paid subscription to unlock this feature."
+            title={t("admin.serviceAccounts.upgradeTitle")}
+            description={t("admin.serviceAccounts.upgradeDesc")}
           />
         )}
 

@@ -79,11 +79,13 @@ class SMBConnector(LoadConnector, PollConnector):
         """Try to list the root path to verify connectivity + credentials."""
         self._register_session()
         unc_root = f"\\\\{self.server}\\{self.share_name}{self.path_prefix.replace('/', '\\')}"
+        if unc_root.endswith("\\") and len(unc_root.split("\\")) > 4:
+            unc_root = unc_root.rstrip("\\")
         try:
             smbclient.listdir(unc_root)
         except Exception as exc:
             raise ConnectorValidationError(
-                f"Cannot connect to SMB share \\\\{self.server}\\{self.share_name}: {exc}"
+                f"Cannot connect to SMB share {unc_root}: {exc}"
             ) from exc
 
     # ------------------------------------------------------------------
@@ -108,12 +110,14 @@ class SMBConnector(LoadConnector, PollConnector):
 
     def _register_session(self) -> None:
         """Register SMB credentials for this server with smbclient."""
+        username = self._username
+        if self._domain and username:
+            username = f"{self._domain}\\{username}"
+
         smbclient.register_session(
             self.server,
-            username=self._username or None,
+            username=username or None,
             password=self._password or None,
-            # smbprotocol accepts an empty string for domain (workgroup)
-            domain=self._domain,
         )
 
     def _iterate_files(
@@ -177,7 +181,10 @@ class SMBConnector(LoadConnector, PollConnector):
     def _unc_path(self, rel_path: str) -> str:
         """Convert a POSIX-style relative path to a UNC path for smbclient."""
         rel_unc = rel_path.replace("/", "\\")
-        return f"\\\\{self.server}\\{self.share_name}{rel_unc}"
+        unc = f"\\\\{self.server}\\{self.share_name}{rel_unc}"
+        if unc.endswith("\\") and len(unc.split("\\")) > 4:
+            unc = unc.rstrip("\\")
+        return unc
 
     def _walk(
         self, unc_dir: str, rel_dir: str

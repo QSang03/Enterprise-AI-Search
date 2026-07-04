@@ -1330,7 +1330,9 @@
       "accountRoleDesc": "Quyết định quyền hạn chung của tài khoản dịch vụ này.",
       "saveChanges": "Lưu thay đổi",
       "toastUpdated": "Đã cập nhật tài khoản dịch vụ",
-      "roleLimitedDesc": "Dành cho trợ lý: đăng cuộc trò chuyện và quyền chỉ đọc đối với các endpoint khác."
+      "roleLimitedDesc": "Dành cho trợ lý: đăng cuộc trò chuyện và quyền chỉ đọc đối với các endpoint khác.",
+      "upgradeTitle": "Nâng cấp lên gói trả phí để tạo khóa API.",
+      "upgradeDesc": "Tài khoản dùng thử không bao gồm quyền truy cập khóa API — hãy mua gói đăng ký trả phí để mở khóa tính năng này."
     },
     "languageModels": {
       "displayName": "Tên hiển thị",
@@ -1410,7 +1412,42 @@
         "gcpProjectIdDesc": "Dự án GCP nơi Vertex AI được kích hoạt. Bắt buộc vì ADC không thể tự động suy luận dự án mục tiêu dưới cơ chế mạo danh service account một cách đáng tin cậy.",
         "authMethodRequired": "Phương thức xác thực là bắt buộc",
         "credentialsRequired": "Tệp thông tin xác thực là bắt buộc",
-        "projectIdRequired": "Project ID GCP là bắt buộc"
+        "projectIdRequired": "Project ID GCP là bắt buộc",
+        "gcpProjectIdPlaceholder": "my-vertex-project"
+      },
+      "azure": {
+        "targetUri": "Target URI",
+        "targetUriDesc": "Dán URI mục tiêu điểm cuối từ Azure OpenAI (bao gồm URL cơ sở, tên triển khai và phiên bản API)."
+      },
+      "bedrock": {
+        "awsRegion": "Vùng AWS",
+        "awsRegionDesc": "Vùng lưu trữ các mô hình Amazon Bedrock của bạn.",
+        "selectRegion": "Chọn một vùng",
+        "authMethod": "Phương thức xác thực",
+        "authMethodDesc": "Chọn cách Onyx xác thực với Bedrock.",
+        "envIamRole": "IAM Role môi trường",
+        "envIamRoleDesc": "Khuyến nghị cho môi trường AWS",
+        "accessKey": "Khóa truy cập",
+        "accessKeyDesc": "Dành cho môi trường ngoài AWS",
+        "longTermApiKey": "API Key dài hạn",
+        "longTermApiKeyDesc": "Dành cho môi trường ngoài AWS",
+        "awsAccessKeyId": "AWS Access Key ID",
+        "awsAccessKeyIdPlaceholder": "AKIAIOSFODNN7EXAMPLE",
+        "awsSecretAccessKey": "AWS Secret Access Key",
+        "longTermApiKeyPlaceholder": "API key dài hạn của bạn",
+        "iamRoleNote": "Onyx sẽ sử dụng IAM role gắn với môi trường đang chạy để xác thực."
+      },
+      "lmStudio": {
+        "apiBasePlaceholder": "URL cơ sở API LM Studio của bạn",
+        "apiBaseDesc": "URL cơ sở cho máy chủ LM Studio của bạn.",
+        "apiKeyDesc": "API key tùy chọn nếu máy chủ LM Studio yêu cầu xác thực."
+      },
+      "openAiCompatible": {
+        "description": "Kết nối từ các mô hình đám mây hoặc tự lưu trữ qua các endpoint tương thích OpenAI."
+      },
+      "openRouter": {
+        "apiBasePlaceholder": "URL cơ sở OpenRouter của bạn",
+        "apiBaseDesc": "Dán URL endpoint tương thích OpenRouter hoặc sử dụng trực tiếp OpenRouter API."
       }
     },
     "liteModeTitle": "Không khả dụng lập chỉ mục ở chế độ Lite",
@@ -1714,7 +1751,10 @@
     "disconnect": "Ngắt kết nối",
     "edit": "Chỉnh sửa",
     "oauthPassthrough": "OAuth chuyển tiếp (OAuth Pass-through)",
-    "failedToSaveAuth": "Không thể lưu cấu hình xác thực"
+    "failedToSaveAuth": "Không thể lưu cấu hình xác thực",
+    "oauthPassthroughDesc": "Chuyển tiếp token truy cập OAuth của người dùng dùng để xác thực với Onyx.",
+    "scopesPlaceholder": "vd. repo, user",
+    "refreshToolsLabel": "Làm mới công cụ"
   },
   "cards": {
     "remove": "Xóa",
@@ -1927,5 +1967,8 @@
     "wordDocument": "Tài liệu Word",
     "docxPreviewError": "Không thể xem trước tài liệu này. Hãy tải xuống tệp để xem.",
     "legacyDocPreviewError": "Định dạng .doc cũ không thể xem trước. Hãy tải xuống tệp để xem."
+  },
+  "admin_list": {
+    "searchServiceAccounts": "Tìm kiếm tài khoản dịch vụ..."
   }
 }

@@ -571,7 +571,7 @@ export default function MCPAuthenticationModal({
                             {isOAuthEnabled && (
                               <InputSelect.Item
                                 value={MCPAuthenticationType.PT_OAUTH}
-                                description="Forward the user's OAuth access token used to authenticate Onyx."
+                                description={t("actions.oauthPassthroughDesc")}
                               >
                                 {t("actions.oauthPassthrough")}
                               </InputSelect.Item>

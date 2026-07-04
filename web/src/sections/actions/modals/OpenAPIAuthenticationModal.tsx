@@ -552,7 +552,7 @@ export default function OpenAPIAuthenticationModal({
                               name="scopes"
                               value={values.scopes}
                               onChange={handleChange}
-                              placeholder="e.g. repo, user"
+                              placeholder={t("actions.scopesPlaceholder")}
                             />
                           </FormField.Control>
                           <FormField.Description>
