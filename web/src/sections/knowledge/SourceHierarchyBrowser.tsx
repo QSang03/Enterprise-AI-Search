@@ -47,6 +47,7 @@ import {
 import { AgentAttachedDocument } from "@/lib/agents/types";
 import { timeAgo } from "@opal/time";
 import { Spacer } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Compact, human-readable form of a node/document link, used as a secondary
 // label so siblings that share a display name (common for orphaned nodes that
@@ -168,6 +169,7 @@ export default function SourceHierarchyBrowser({
   initialAttachedDocuments,
   onSelectionCountChange,
 }: SourceHierarchyBrowserProps) {
+  const { t } = useTranslation();
   // State for hierarchy nodes (loaded once per source)
   const [allNodes, setAllNodes] = useState<HierarchyNodeSummary[]>([]);
   const [isLoadingNodes, setIsLoadingNodes] = useState(false);
@@ -228,7 +230,7 @@ export default function SourceHierarchyBrowser({
         setAllNodes(response.nodes);
       } catch (error) {
         setNodesError(
-          error instanceof Error ? error.message : "Failed to load folders"
+          error instanceof Error ? error.message : t("knowledge.failedToLoadFolders")
         );
       } finally {
         setIsLoadingNodes(false);
@@ -667,7 +669,7 @@ export default function SourceHierarchyBrowser({
     return (
       <GeneralLayouts.Section height="auto" padding={1}>
         <Text text03 secondaryBody>
-          Loading folders...
+          {t("knowledge.loadingFolders")}
         </Text>
       </GeneralLayouts.Section>
     );
@@ -699,7 +701,7 @@ export default function SourceHierarchyBrowser({
             searchIcon
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search..."
+            placeholder={t("common.search") + "..."}
             variant="internal"
           />
         </GeneralLayouts.Section>
@@ -714,7 +716,7 @@ export default function SourceHierarchyBrowser({
             prominence="tertiary"
             onClick={handleToggleViewSelected}
           >
-            Selected items
+            {t("knowledge.selectedItems")}
           </Button>
         </>
       ) : (
@@ -746,7 +748,7 @@ export default function SourceHierarchyBrowser({
         </TableLayouts.CheckboxCell>
         <TableLayouts.TableCell flex>
           <Text secondaryBody text03>
-            Name
+            {t("knowledge.name")}
           </Text>
         </TableLayouts.TableCell>
         <TableLayouts.TableCell width={8}>
@@ -758,14 +760,14 @@ export default function SourceHierarchyBrowser({
                   transient={sortDropdownOpen}
                   onClick={() => setSortDropdownOpen(true)}
                 >
-                  {sortField === "name" ? "Name" : "Last Updated"}
+                  {sortField === "name" ? t("knowledge.name") : t("knowledge.lastUpdated")}
                 </SelectButton>
               </div>
             </Popover.Trigger>
             <Popover.Content align="end" sideOffset={4} width="lg">
               <Popover.Menu>
                 {/* Sort by section */}
-                <Divider showTitle text="Sort by" dividerLine={false} />
+                <Divider showTitle text={t("knowledge.sortBy")} dividerLine={false} />
                 <LineItem
                   selected={sortField === "name"}
                   onClick={() => setSortField("name")}
@@ -773,7 +775,7 @@ export default function SourceHierarchyBrowser({
                     sortField === "name" ? <SvgCheck size={16} /> : undefined
                   }
                 >
-                  Name
+                  {t("knowledge.name")}
                 </LineItem>
                 <LineItem
                   selected={sortField === "last_updated"}
@@ -784,10 +786,10 @@ export default function SourceHierarchyBrowser({
                     ) : undefined
                   }
                 >
-                  Last Updated
+                  {t("knowledge.lastUpdated")}
                 </LineItem>
                 {/* Sorting Order section */}
-                <Divider showTitle text="Sorting Order" dividerLine={false} />
+                <Divider showTitle text={t("knowledge.sortingOrder")} dividerLine={false} />
                 <LineItem
                   selected={sortDirection === "desc"}
                   onClick={() => setSortDirection("desc")}
@@ -797,7 +799,7 @@ export default function SourceHierarchyBrowser({
                     ) : undefined
                   }
                 >
-                  {sortField === "name" ? "Z to A" : "Recent to Old"}
+                  {sortField === "name" ? t("knowledge.zToA") : t("knowledge.recentToOld")}
                 </LineItem>
                 <LineItem
                   selected={sortDirection === "asc"}
@@ -806,10 +808,10 @@ export default function SourceHierarchyBrowser({
                     sortDirection === "asc" ? <SvgCheck size={16} /> : undefined
                   }
                 >
-                  {sortField === "name" ? "A to Z" : "Old to Recent"}
+                  {sortField === "name" ? t("knowledge.aToZ") : t("knowledge.oldToRecent")}
                 </LineItem>
                 {/* Folders section */}
-                <Divider showTitle text="Folders" dividerLine={false} />
+                <Divider showTitle text={t("knowledge.folders")} dividerLine={false} />
                 <LineItem
                   selected={folderPosition === "on_top"}
                   onClick={() => setFolderPosition("on_top")}
@@ -819,7 +821,7 @@ export default function SourceHierarchyBrowser({
                     ) : undefined
                   }
                 >
-                  On top
+                  {t("knowledge.onTop")}
                 </LineItem>
                 <LineItem
                   selected={folderPosition === "mixed"}
@@ -830,7 +832,7 @@ export default function SourceHierarchyBrowser({
                     ) : undefined
                   }
                 >
-                  Mixed with Files
+                  {t("knowledge.mixedWithFiles")}
                 </LineItem>
               </Popover.Menu>
             </Popover.Content>
@@ -850,8 +852,8 @@ export default function SourceHierarchyBrowser({
           <GeneralLayouts.Section height="auto" padding={1}>
             <Text text03 secondaryBody>
               {path.length === 0
-                ? "Select a folder to browse documents."
-                : "No items in this folder."}
+                ? t("knowledge.selectFolderToBrowse")
+                : t("knowledge.noItemsInFolder")}
             </Text>
           </GeneralLayouts.Section>
         ) : (
@@ -905,7 +907,7 @@ export default function SourceHierarchyBrowser({
                             <CopyButton
                               size="sm"
                               getCopyText={() => item.data.link ?? ""}
-                              tooltip="Copy link"
+                              tooltip={t("knowledge.copyLink")}
                             />
                           </Hoverable.Item>
                         )}
@@ -942,7 +944,7 @@ export default function SourceHierarchyBrowser({
             {isLoadingDocuments && documents.length > 0 && (
               <GeneralLayouts.Section height="auto" padding={0.5}>
                 <Text text03 secondaryBody>
-                  Loading more...
+                  {t("knowledge.loadingMore")}
                 </Text>
               </GeneralLayouts.Section>
             )}
@@ -962,8 +964,7 @@ export default function SourceHierarchyBrowser({
             height="auto"
           >
             <Text text03 secondaryBody>
-              {currentSourceSelectedCount}{" "}
-              {currentSourceSelectedCount === 1 ? "item" : "items"} selected
+              {currentSourceSelectedCount === 1 ? t("knowledge.itemsSelectedOne", { count: String(currentSourceSelectedCount) }) : t("knowledge.itemsSelectedMany", { count: String(currentSourceSelectedCount) })}
             </Text>
             <Button
               icon={SvgEye}

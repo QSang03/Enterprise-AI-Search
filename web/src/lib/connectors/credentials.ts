@@ -286,6 +286,12 @@ export interface TestRailCredentialJson {
   testrail_api_key: string;
 }
 
+export interface SMBCredentialJson {
+  smb_username: string;
+  smb_password: string;
+  smb_domain?: string;
+}
+
 export const credentialTemplates: Record<ValidSources, any> = {
   github: { github_access_token: "" } as GithubCredentialJson,
   gitlab: {
@@ -497,6 +503,11 @@ export const credentialTemplates: Record<ValidSources, any> = {
     testrail_username: "",
     testrail_api_key: "",
   } as TestRailCredentialJson,
+  smb: {
+    smb_username: "",
+    smb_password: "",
+    smb_domain: "",
+  } as SMBCredentialJson,
 };
 
 export const credentialDisplayNames: Record<string, string> = {
@@ -669,6 +680,11 @@ export const credentialDisplayNames: Record<string, string> = {
   // Bitbucket
   bitbucket_email: "Bitbucket Account Email",
   bitbucket_api_token: "Bitbucket API Token",
+
+  // SMB Network Drive
+  smb_username: "SMB Username",
+  smb_password: "SMB Password",
+  smb_domain: "SMB Domain (optional — leave blank for workgroup)",
 };
 
 export function getDisplayNameForCredentialKey(key: string): string {

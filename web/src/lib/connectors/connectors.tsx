@@ -1368,6 +1368,41 @@ For example, specifying .*-alerts as a "channel to exclude" will cause the conne
     values: [],
     advanced_values: [],
   },
+  smb: {
+    description: "Configure SMB Network Drive connector",
+    subtext:
+      "Index files from an SMB/CIFS share (Windows Network Drive). " +
+      "Credentials are stored securely and the share is accessed directly " +
+      "over the network — no OS-level mount required.",
+    values: [
+      {
+        type: "text",
+        query: "Enter the SMB server hostname or IP:",
+        label: "Server",
+        name: "server",
+        optional: false,
+        description: "Hostname or IP address of the SMB server (e.g. 192.168.1.10 or fileserver.corp.local)",
+      },
+      {
+        type: "text",
+        query: "Enter the share name:",
+        label: "Share Name",
+        name: "share_name",
+        optional: false,
+        description: "Name of the SMB share to index (e.g. documents)",
+      },
+      {
+        type: "text",
+        query: "Enter the path prefix inside the share (optional):",
+        label: "Path Prefix",
+        name: "path_prefix",
+        optional: true,
+        description:
+          "Sub-folder to start indexing from (e.g. /projects). Leave blank to index the entire share.",
+      },
+    ],
+    advanced_values: [],
+  },
   s3: {
     description: "Configure S3 connector",
     values: [
@@ -2142,6 +2177,12 @@ export interface ZendeskConfig {
 }
 
 export interface DropboxConfig {}
+
+export interface SMBConfig {
+  server: string;
+  share_name: string;
+  path_prefix?: string;
+}
 
 export interface S3Config {
   bucket_type: "s3";

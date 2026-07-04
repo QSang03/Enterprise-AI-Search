@@ -10,6 +10,7 @@ import Text from "@/refresh-components/texts/Text";
 import { Divider } from "@opal/components";
 import type { MCPAuthFormValues } from "@/sections/actions/modals/MCPAuthenticationModal";
 import { SvgUser } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PerUserAuthConfigProps {
   values: MCPAuthFormValues;
@@ -23,6 +24,7 @@ export function PerUserAuthConfig({
   values,
   setFieldValue,
 }: PerUserAuthConfigProps) {
+  const { t } = useTranslation();
   // Use draft state for KeyValue array (like in LLMConnectionFieldsCustom)
   const [headersDraft, setHeadersDraft] = useState<KeyValue[]>(
     Object.entries(values.auth_template?.headers || {}).map(([key, value]) => ({
@@ -104,30 +106,41 @@ export function PerUserAuthConfig({
     <div className="flex flex-col gap-4 -mx-2 px-2 py-2 bg-background-tint-00 rounded-12">
       {/* Authentication Headers */}
       <FormField name="auth_template.headers" state="idle">
-        <FormField.Label>Authentication Headers</FormField.Label>
+        <FormField.Label>{t("actions.authHeaders")}</FormField.Label>
         <FormField.Control asChild>
           <InputKeyValue
-            keyTitle="Header Name"
-            valueTitle="Header Value"
+            keyTitle={t("actions.headerName")}
+            valueTitle={t("actions.headerValue")}
             items={headersDraft}
             onChange={handleHeadersChange}
             mode="fixed-line"
             layout="equal"
-            addButtonLabel="Add Header"
+            addButtonLabel={t("actions.addHeader")}
           />
         </FormField.Control>
         <FormField.Description>
-          Format headers for each user to fill in their individual credentials.
-          Use placeholders like{" "}
-          <Text text03 secondaryMono className="inline">
-            {"{api_key}"}
-          </Text>{" "}
-          or{" "}
-          <Text text03 secondaryMono className="inline">
-            {"{user_email}"}
-          </Text>
-          . Users will be prompted to provide values for placeholders (except
-          user_email).
+          {t("actions.authHeadersDesc")
+            .split("{api_key}")
+            .reduce((prev, current, i) => {
+              if (i === 0) return [current];
+              const emailSplit = current.split("{user_email}");
+              const res = [];
+              res.push(
+                <Text key={`key-${i}`} text03 secondaryMono className="inline">
+                  {"{api_key}"}
+                </Text>
+              );
+              res.push(emailSplit[0]);
+              if (emailSplit.length > 1) {
+                res.push(
+                  <Text key={`email-${i}`} text03 secondaryMono className="inline">
+                    {"{user_email}"}
+                  </Text>
+                );
+                res.push(emailSplit[1]);
+              }
+              return [...prev, ...res];
+            }, [] as React.ReactNode[])}
         </FormField.Description>
       </FormField>
 
@@ -141,11 +154,10 @@ export function PerUserAuthConfig({
               <SvgUser className="w-4 h-4 stroke-text-04 mt-0.5" />
               <div className="flex flex-col gap-1">
                 <Text text04 secondaryAction as="p">
-                  Only for your own account
+                  {t("actions.onlyForYourOwnAccount")}
                 </Text>
                 <Text text03 secondaryBody as="p">
-                  The following credentials will not be shared with your
-                  organization.
+                  {t("actions.credentialsNotSharedDesc")}
                 </Text>
               </div>
             </div>
@@ -178,7 +190,7 @@ export function PerUserAuthConfig({
                         onChange={(e) =>
                           updateUserCredential(field, e.target.value)
                         }
-                        placeholder={`Enter ${field.replace(/_/g, " ")}`}
+                        placeholder={t("actions.enterField", { field: field.replace(/_/g, " ") })}
                       />
                     </FormField.Control>
                   </FormField>

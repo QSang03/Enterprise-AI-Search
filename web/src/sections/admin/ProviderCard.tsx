@@ -12,6 +12,7 @@ import {
   SvgSettings,
   SvgUnplug,
 } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * ProviderCard — a stateful card for selecting / connecting / disconnecting
@@ -86,12 +87,14 @@ export default function ProviderCard({
   onDisconnect,
   disconnectModalOpen,
   setupModalOpen,
-  selectedLabel = "Current Default",
+  selectedLabel,
   "aria-label": ariaLabel,
 }: ProviderCardProps) {
+  const { t } = useTranslation();
   const isDisconnected = status === "disconnected";
   const isConnected = status === "connected";
   const isSelected = status === "selected";
+  const displaySelectedLabel = selectedLabel || t("admin.providers.currentDefault");
 
   return (
     <Hoverable.Root
@@ -130,7 +133,7 @@ export default function ProviderCard({
                   onConnect();
                 }}
               >
-                Connect
+                {t("actions.connect")}
               </Button>
             ) : (
               <Section alignItems="end" justifyContent="start" gap={0}>
@@ -143,7 +146,7 @@ export default function ProviderCard({
                       onSelect();
                     }}
                   >
-                    Set as Default
+                    {t("admin.providers.setAsDefault")}
                   </Button>
                 ) : isSelected ? (
                   <Button
@@ -151,7 +154,7 @@ export default function ProviderCard({
                     prominence="tertiary"
                     rightIcon={SvgCheckSquare}
                   >
-                    {selectedLabel}
+                    {displaySelectedLabel}
                   </Button>
                 ) : undefined}
                 {(onDisconnect || onEdit) && (
@@ -168,7 +171,7 @@ export default function ProviderCard({
                         >
                           <Button
                             icon={SvgUnplug}
-                            tooltip="Disconnect"
+                            tooltip={t("actions.disconnect")}
                             aria-label={`Disconnect ${title}`}
                             prominence="tertiary"
                             onClick={(e) => {
@@ -186,7 +189,7 @@ export default function ProviderCard({
                         >
                           <Button
                             icon={SvgSettings}
-                            tooltip="Edit"
+                            tooltip={t("actions.edit")}
                             aria-label={`Edit ${title}`}
                             prominence="tertiary"
                             onClick={(e) => {

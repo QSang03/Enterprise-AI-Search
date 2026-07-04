@@ -220,6 +220,10 @@ CONNECTOR_CLASS_MAP = {
         module_path="onyx.connectors.braintrust.connector",
         class_name="BraintrustConnector",
     ),
+    DocumentSource.SMB: ConnectorMapping(
+        module_path="onyx.connectors.smb.connector",
+        class_name="SMBConnector",
+    ),
     # just for integration tests
     DocumentSource.MOCK_CONNECTOR: ConnectorMapping(
         module_path="onyx.connectors.mock_connector.connector",

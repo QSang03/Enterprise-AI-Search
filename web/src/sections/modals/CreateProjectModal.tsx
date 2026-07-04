@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { Button } from "@opal/components";
@@ -13,9 +14,7 @@ import InputTypeInField from "@/refresh-components/form/InputTypeInField";
 import { toast } from "@/hooks/useToast";
 import { useTranslation } from "@/providers/LanguageProvider";
 
-const validationSchema = Yup.object({
-  projectName: Yup.string().trim().required("Project name is required"),
-});
+
 
 interface CreateProjectModalProps {
   initialProjectName?: string;
@@ -28,6 +27,12 @@ export default function CreateProjectModal({
   const modal = useModal();
   const route = useAppRouter();
   const { t } = useTranslation();
+
+  const validationSchema = useMemo(() => {
+    return Yup.object({
+      projectName: Yup.string().trim().required(t("modals.projectNameRequired")),
+    });
+  }, [t]);
 
   return (
     <Modal open={modal.isOpen} onOpenChange={modal.toggle}>
@@ -50,7 +55,7 @@ export default function CreateProjectModal({
               route({ projectId: newProject.id });
               modal.toggle(false);
             } catch {
-              toast.error(`Failed to create the project ${name}`);
+              toast.error(t("modals.createProjectFailed", { name }));
             } finally {
               setSubmitting(false);
             }
@@ -73,10 +78,10 @@ export default function CreateProjectModal({
                   type="button"
                   onClick={() => modal.toggle(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button type="submit" disabled={isSubmitting || !isValid}>
-                  Create Project
+                  {t("modals.createProject")}
                 </Button>
               </Modal.Footer>
             </Form>

@@ -13,6 +13,7 @@ import { Content, InputHorizontal } from "@opal/layouts";
 import * as TableLayouts from "@/layouts/table-layouts";
 import { Card } from "@/refresh-components/cards";
 import { Button, Divider } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 import Text from "@/refresh-components/texts/Text";
 import LineItem from "@/refresh-components/buttons/LineItem";
 import { Switch } from "@opal/components";
@@ -70,6 +71,7 @@ function KnowledgeSidebar({
   onNavigateToSource,
   vectorDbEnabled,
 }: KnowledgeSidebarProps) {
+  const { t } = useTranslation();
   return (
     <TableLayouts.SidebarLayout aria-label="knowledge-sidebar">
       <LineItem
@@ -86,7 +88,7 @@ function KnowledgeSidebar({
           ) : undefined
         }
       >
-        Your Files
+        {t("knowledge.yourFiles")}
       </LineItem>
 
       {vectorDbEnabled && (
@@ -108,7 +110,7 @@ function KnowledgeSidebar({
               ) : undefined
             }
           >
-            Document Set
+            {t("knowledge.documentSets")}
           </LineItem>
 
           <Divider paddingParallel="fit" paddingPerpendicular="fit" />
@@ -187,6 +189,9 @@ function KnowledgeTable<T>({
   emptyMessage = "No items available.",
   ariaLabelPrefix,
 }: KnowledgeTableProps<T> & { ariaLabelPrefix?: string }) {
+  const { t } = useTranslation();
+  const resolvedSearchPlaceholder = searchPlaceholder === "Search..." ? t("common.search") + "..." : searchPlaceholder;
+  const resolvedEmptyMessage = emptyMessage === "No items available." ? t("knowledge.noItems") : emptyMessage;
   return (
     <GeneralLayouts.Section gap={0} alignItems="stretch" justifyContent="start">
       {/* Header with search and actions */}
@@ -203,7 +208,7 @@ function KnowledgeTable<T>({
               searchIcon
               value={searchValue ?? ""}
               onChange={(e) => onSearchChange?.(e.target.value)}
-              placeholder={searchPlaceholder}
+              placeholder={resolvedSearchPlaceholder}
               variant="internal"
             />
           </GeneralLayouts.Section>
@@ -243,7 +248,7 @@ function KnowledgeTable<T>({
       {items.length === 0 ? (
         <GeneralLayouts.Section height="auto" padding={1}>
           <Text text03 secondaryBody>
-            {emptyMessage}
+            {resolvedEmptyMessage}
           </Text>
         </GeneralLayouts.Section>
       ) : (
@@ -300,6 +305,7 @@ function DocumentSetsTableContent({
   selectedDocumentSetIds,
   onDocumentSetToggle,
 }: DocumentSetsTableContentProps) {
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useState("");
 
   const filteredDocumentSets = useMemo(() => {
@@ -311,7 +317,7 @@ function DocumentSetsTableContent({
   const columns: KnowledgeTableColumn<DocumentSetSummary>[] = [
     {
       key: "name",
-      header: "Name",
+      header: t("knowledge.name"),
       sortable: true,
       render: (ds) => (
         <Content
@@ -324,7 +330,7 @@ function DocumentSetsTableContent({
     },
     {
       key: "sources",
-      header: "Sources",
+      header: t("knowledge.sources"),
       width: 8,
       render: (ds) => (
         <TableLayouts.SourceIconsRow>
@@ -353,8 +359,8 @@ function DocumentSetsTableContent({
       onToggleItem={(id) => onDocumentSetToggle(id as number)}
       searchValue={searchValue}
       onSearchChange={setSearchValue}
-      searchPlaceholder="Search document sets..."
-      emptyMessage="No document sets available."
+      searchPlaceholder={t("knowledge.searchDocumentSets")}
+      emptyMessage={t("knowledge.noDocumentSets")}
       ariaLabelPrefix="document-set-row"
     />
   );
@@ -426,6 +432,7 @@ function RecentFilesTableContent({
   onUploadChange,
   hasProcessingFiles,
 }: RecentFilesTableContentProps) {
+  const { t } = useTranslation();
   const [searchValue, setSearchValue] = useState("");
 
   const filteredFiles = useMemo(() => {
@@ -437,7 +444,7 @@ function RecentFilesTableContent({
   const columns: KnowledgeTableColumn<ProjectFile>[] = [
     {
       key: "name",
-      header: "Name",
+      header: t("knowledge.name"),
       sortable: true,
       render: (file) => (
         <Content
@@ -450,7 +457,7 @@ function RecentFilesTableContent({
     },
     {
       key: "lastUpdated",
-      header: "Last Updated",
+      header: t("knowledge.lastUpdated"),
       sortable: true,
       width: 8,
       render: (file) => (
@@ -480,7 +487,7 @@ function RecentFilesTableContent({
         onToggleItem={(id) => onToggleFile(id as string)}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
-        searchPlaceholder="Search files..."
+        searchPlaceholder={t("knowledge.searchFiles")}
         ariaLabelPrefix="user-file-row"
         headerActions={
           <Button
@@ -488,18 +495,16 @@ function RecentFilesTableContent({
             icon={SvgPlusCircle}
             onClick={() => fileInputRef.current?.click()}
           >
-            Add File
+            {t("knowledge.addFile")}
           </Button>
         }
-        emptyMessage="No files available. Upload files to get started."
+        emptyMessage={t("knowledge.noFiles")}
       />
 
       {hasProcessingFiles && (
         <GeneralLayouts.Section height="auto" alignItems="start">
           <Text as="p" text03 secondaryBody>
-            Onyx is still processing your uploaded files. You can create the
-            agent now, but it will not have access to all files until processing
-            completes.
+            {t("knowledge.processingOnyxNotice")}
           </Text>
         </GeneralLayouts.Section>
       )}
@@ -652,6 +657,7 @@ const KnowledgeAddView = memo(function KnowledgeAddView({
   sourceSelectionCounts,
   vectorDbEnabled,
 }: KnowledgeAddViewProps) {
+  const { t } = useTranslation();
   return (
     <GeneralLayouts.Section
       gap={0.5}
@@ -680,13 +686,13 @@ const KnowledgeAddView = memo(function KnowledgeAddView({
               ) : undefined
             }
           >
-            Document Sets
+            {t("knowledge.documentSetsPlural")}
           </LineItem>
         )}
 
         <LineItem
           icon={SvgFiles}
-          description="Recent or new uploads"
+          description={t("knowledge.recentOrNewUploads")}
           onClick={onNavigateToRecent}
           emphasized={selectedFileIds.length > 0}
           aria-label="knowledge-add-files"
@@ -698,14 +704,14 @@ const KnowledgeAddView = memo(function KnowledgeAddView({
             ) : undefined
           }
         >
-          Your Files
+          {t("knowledge.yourFiles")}
         </LineItem>
       </GeneralLayouts.Section>
 
       {vectorDbEnabled && connectedSources.length > 0 && (
         <>
           <Text as="p" text03 secondaryBody>
-            Connected Sources
+            {t("knowledge.connectedSources")}
           </Text>
           {connectedSources.map((connectedSource) => {
             const sourceMetadata = getSourceMetadata(connectedSource.source);
@@ -771,6 +777,7 @@ const KnowledgeMainContent = memo(function KnowledgeMainContent({
   onViewEdit,
   onFileClick,
 }: KnowledgeMainContentProps) {
+  const { t } = useTranslation();
   if (!hasAnyKnowledge) {
     return (
       <GeneralLayouts.Section
@@ -780,7 +787,7 @@ const KnowledgeMainContent = memo(function KnowledgeMainContent({
         height="auto"
       >
         <Text text03 secondaryBody>
-          Add documents or connected sources to use for this agent.
+          {t("knowledge.noKnowledgePrompt")}
         </Text>
         <Button
           icon={SvgPlusCircle}
@@ -808,8 +815,7 @@ const KnowledgeMainContent = memo(function KnowledgeMainContent({
       height="auto"
     >
       <Text as="p" text03 secondaryBody>
-        {totalSelected} knowledge source{totalSelected !== 1 ? "s" : ""}{" "}
-        selected
+        {totalSelected === 1 ? t("knowledge.sourcesSelectedOne", { count: String(totalSelected) }) : t("knowledge.sourcesSelectedMany", { count: String(totalSelected) })}
       </Text>
       <Button
         prominence="internal"
@@ -817,7 +823,7 @@ const KnowledgeMainContent = memo(function KnowledgeMainContent({
         onClick={onViewEdit}
         aria-label="knowledge-view-edit"
       >
-        View / Edit
+        {t("knowledge.viewEdit")}
       </Button>
     </GeneralLayouts.Section>
   );
@@ -876,6 +882,7 @@ export default function AgentKnowledgePane({
   initialHierarchyNodes,
   vectorDbEnabled = true,
 }: AgentKnowledgePaneProps) {
+  const { t } = useTranslation();
   // View state
   const [view, setView] = useState<KnowledgeView>("main");
   const [activeSource, setActiveSource] = useState<ValidSources | undefined>();
@@ -1135,8 +1142,8 @@ export default function AgentKnowledgePane({
   return (
     <GeneralLayouts.Section gap={0.5} alignItems="stretch" height="auto">
       <Content
-        title="Knowledge"
-        description="Add specific connectors and documents for this agent to use to inform its responses."
+        title={t("knowledge.knowledgeTitle")}
+        description={t("knowledge.knowledgeDesc")}
         sizePreset="main-content"
         variant="section"
       />
@@ -1144,8 +1151,8 @@ export default function AgentKnowledgePane({
       <Card>
         <GeneralLayouts.Section gap={0.5} alignItems="stretch" height="auto">
           <InputHorizontal
-            title="Use Knowledge"
-            description="Let this agent reference these documents to inform its responses."
+            title={t("knowledge.useKnowledge")}
+            description={t("knowledge.useKnowledgeDesc")}
             withLabel
           >
             <Switch

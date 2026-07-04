@@ -262,6 +262,7 @@ class DocumentSource(str, Enum):
     BITBUCKET = "bitbucket"
     TESTRAIL = "testrail"
     BRAINTRUST = "braintrust"
+    SMB = "smb"
 
     # Special case just for integration tests
     MOCK_CONNECTOR = "mock_connector"

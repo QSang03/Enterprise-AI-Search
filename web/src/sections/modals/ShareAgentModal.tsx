@@ -23,6 +23,7 @@ import { SWR_KEYS } from "@/lib/swr-keys";
 import { MinimalUserSnapshot } from "@/lib/types";
 import { useUser } from "@/providers/UserProvider";
 import { useSettings } from "@/lib/settings/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 import Modal from "@/refresh-components/Modal";
 import { Button, Divider, Text } from "@opal/components";
 import {
@@ -201,13 +202,14 @@ interface TransferTrailingButtonProps {
 }
 
 function TransferTrailingButton({ onTransfer }: TransferTrailingButtonProps) {
+  const { t } = useTranslation();
   return (
     <Button
       icon={SvgArrowExchange}
       onClick={onTransfer}
       prominence="tertiary"
       size="sm"
-      tooltip="Transfer Ownership"
+      tooltip={t("modals.transferOwnership")}
     />
   );
 }
@@ -223,6 +225,7 @@ export default function ShareAgentModal({
   onShare,
   userIds = [],
 }: ShareAgentModalProps) {
+  const { t } = useTranslation();
   const shareAgentModal = useModal();
   const { agent } = useAgent(agentId ?? null);
   const { data: shareableUsersData } = useShareableUsers({
@@ -453,9 +456,9 @@ export default function ShareAgentModal({
 
     try {
       await copyText(`${window.location.origin}/app?agentId=${agentId}`);
-      toast.success("Copied link.");
+      toast.success(t("common.copiedLink"));
     } catch {
-      toast.error("Failed to copy link.");
+      toast.error(t("common.failedToCopyLink"));
     }
   }, [agentId]);
 
@@ -484,7 +487,7 @@ export default function ShareAgentModal({
     }
 
     await refreshAgentShareCaches(agentId);
-    toast.success("Access removed.");
+    toast.success(t("modals.accessRemoved"));
     closeModal();
   }, [agentId, closeModal, currentUser, removeUserShare]);
 
@@ -541,7 +544,7 @@ export default function ShareAgentModal({
       }
 
       await refreshAgentShareCaches(agentId);
-      toast.success("Sharing updated.");
+      toast.success(t("modals.sharingUpdated"));
       closeModal();
     } finally {
       setIsSaving(false);
@@ -572,7 +575,7 @@ export default function ShareAgentModal({
       }
 
       await refreshAgentShareCaches(agentId);
-      toast.success("Ownership transferred.");
+      toast.success(t("modals.ownershipTransferred"));
       closeModal();
     } finally {
       setIsSaving(false);
@@ -667,15 +670,17 @@ export default function ShareAgentModal({
             on vacant agents this row carries the transfer affordance */}
         {agent ? (
           <ShareAccessRow
-            description={`${agent.admin_count} user${
-              agent.admin_count === 1 ? "" : "s"
-            }`}
+            description={
+              agent.admin_count === 1
+                ? t("modals.userCountOne", { count: String(agent.admin_count) })
+                : t("modals.userCountMany", { count: String(agent.admin_count) })
+            }
             icon={SvgUserManage}
             rightChildren={
               agent.ownership_vacant ? (
-                <StaticPermissionLabel icon={SvgUserManage} label="Owner" />
+                <StaticPermissionLabel icon={SvgUserManage} label={t("modals.owner")} />
               ) : (
-                <StaticPermissionLabel icon={SvgEdit} label="Edit" muted />
+                <StaticPermissionLabel icon={SvgEdit} label={t("modals.edit")} muted />
               )
             }
             trailing={
@@ -685,7 +690,7 @@ export default function ShareAgentModal({
                 />
               ) : undefined
             }
-            title="Admins"
+            title={t("modals.admins")}
           />
         ) : null}
 
@@ -696,7 +701,7 @@ export default function ShareAgentModal({
             rightChildren={
               <StaticPermissionLabel
                 icon={SvgUserManage}
-                label="Owner"
+                label={t("modals.owner")}
                 muted={!canTransfer}
               />
             }
@@ -709,7 +714,7 @@ export default function ShareAgentModal({
             }
             title={
               currentUser && agent.owner.id === currentUser.id
-                ? `${agent.owner.email} (you)`
+                ? t("modals.userEmailYou", { email: agent.owner.email })
                 : agent.owner.email
             }
           />
@@ -722,7 +727,7 @@ export default function ShareAgentModal({
             rightChildren={
               <StaticPermissionLabel
                 icon={SvgUserManage}
-                label="Owner"
+                label={t("modals.owner")}
                 muted={!canTransfer}
               />
             }
@@ -767,7 +772,7 @@ export default function ShareAgentModal({
                 />
               }
               title={
-                isCurrentUser ? `${share.user.email} (you)` : share.user.email
+                isCurrentUser ? t("modals.userEmailYou", { email: share.user.email }) : share.user.email
               }
             />
           );
@@ -812,8 +817,8 @@ export default function ShareAgentModal({
           onClose={closeModal}
           title={
             view === "transfer"
-              ? markdown(`Transfer *${agentName}*`)
-              : markdown(`Share *${agentName}*`)
+              ? markdown(t("modals.transferAgentTitle", { name: agentName }))
+              : markdown(t("modals.shareAgentTitle", { name: agentName }))
           }
         />
 
@@ -829,7 +834,7 @@ export default function ShareAgentModal({
           ) : agentId && !agent && hydratedFromAgentRef.current === false ? (
             <div className="flex w-full items-center justify-center py-6">
               <Text color="text-03" font="secondary-body">
-                Loading sharing details...
+                {t("modals.loadingSharingDetails")}
               </Text>
             </div>
           ) : (
@@ -851,7 +856,7 @@ export default function ShareAgentModal({
               }}
               prominence="secondary"
             >
-              Back
+              {t("common.back")}
             </Button>
           ) : agentId ? (
             <Button
@@ -859,7 +864,7 @@ export default function ShareAgentModal({
               onClick={handleCopyLink}
               prominence="secondary"
             >
-              Copy Link
+              {t("common.copyLink")}
             </Button>
           ) : (
             <span aria-hidden />
@@ -873,7 +878,7 @@ export default function ShareAgentModal({
                   onClick={closeModal}
                   prominence="secondary"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
               ) : null
             ) : (
@@ -882,7 +887,7 @@ export default function ShareAgentModal({
                 onClick={closeModal}
                 prominence="secondary"
               >
-                {canEditShares ? "Cancel" : "Done"}
+                {canEditShares ? t("common.cancel") : t("common.done")}
               </Button>
             )}
             {view === "transfer" ? (
@@ -890,14 +895,14 @@ export default function ShareAgentModal({
                 disabled={!transferTarget || isSaving}
                 onClick={handleTransfer}
               >
-                Transfer
+                {t("modals.transfer")}
               </Button>
             ) : canEditShares ? (
               <Button
                 disabled={!isDirty || isSaving || isRemovingSelf}
                 onClick={handleSave}
               >
-                Save
+                {t("common.save")}
               </Button>
             ) : null}
           </div>

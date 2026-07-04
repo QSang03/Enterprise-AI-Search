@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback } from "react";
 import { Button, Switch, Tag } from "@opal/components";
@@ -138,8 +138,8 @@ export default function SkillCard({
                 <Tag
                   title={
                     item.unavailable_reason
-                      ? `Unavailable — ${item.unavailable_reason}`
-                      : "Unavailable"
+                      ? t("cards.unavailableWithReason", { reason: item.unavailable_reason })
+                      : t("cards.unavailable")
                   }
                   color="amber"
                 />

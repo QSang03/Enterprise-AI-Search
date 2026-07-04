@@ -31,6 +31,7 @@ import { useLlmDefaults } from "@/lib/languageModels/hooks";
 import { Callout } from "@/components/ui/callout";
 import Link from "next/link";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function getIcon(
   file: ProjectFile,
@@ -42,12 +43,12 @@ function getIcon(
   return SvgFileText;
 }
 
-function getDescription(file: ProjectFile): string {
+function getDescription(file: ProjectFile, t: (key: string) => string): string {
   const s = String(file.status || "");
   const typeLabel = getFileExtension(file.name);
-  if (s === UserFileStatus.PROCESSING) return "Processing...";
-  if (s === UserFileStatus.UPLOADING) return "Uploading...";
-  if (s === UserFileStatus.DELETING) return "Deleting...";
+  if (s === UserFileStatus.PROCESSING) return t("cards.processing");
+  if (s === UserFileStatus.UPLOADING) return t("cards.uploading");
+  if (s === UserFileStatus.DELETING) return t("cards.deleting");
   if (s === UserFileStatus.COMPLETED) return typeLabel;
   return file.status ?? typeLabel;
 }
@@ -58,6 +59,7 @@ interface FileAttachmentProps {
   onClick?: () => void;
   onView?: () => void;
   onDelete?: () => void;
+  t: (key: string) => string;
 }
 
 function FileAttachment({
@@ -66,6 +68,7 @@ function FileAttachment({
   onClick,
   onView,
   onDelete,
+  t,
 }: FileAttachmentProps) {
   const isProcessing =
     String(file.status) === UserFileStatus.PROCESSING ||
@@ -73,7 +76,7 @@ function FileAttachment({
     String(file.status) === UserFileStatus.DELETING;
 
   const Icon = getIcon(file, isProcessing);
-  const description = getDescription(file);
+  const description = getDescription(file, t);
   const rightText = file.last_accessed_at
     ? (timeAgo(file.last_accessed_at) ?? "")
     : "";
@@ -122,6 +125,7 @@ export default function UserFilesModal({
   onPickRecent,
   onUnpickRecent,
 }: UserFilesModalProps) {
+  const { t } = useTranslation();
   const { isOpen, toggle } = useModal();
   const { isAdmin } = useUser();
   const { hasAnyLlm, isLoading: isLoadingLlm } = useLlmDefaults();
@@ -189,7 +193,7 @@ export default function UserFilesModal({
             <Section flexDirection="row" gap={0.5}>
               <InputTypeIn
                 ref={searchInputRef}
-                placeholder="Search files..."
+                placeholder={t("modals.searchFilesPlaceholder")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 searchIcon
@@ -206,7 +210,7 @@ export default function UserFilesModal({
                   onClick={triggerUploadPicker}
                   disabled={!hasAnyLlm}
                 >
-                  Add Files
+                  {t("modals.addFiles")}
                 </Button>
               )}
             </Section>
@@ -219,21 +223,21 @@ export default function UserFilesModal({
           >
             {!isLoadingLlm && !hasAnyLlm && (
               <div className="w-full px-4 mb-2">
-                <Callout type="warning" title="AI Model Not Configured">
+                <Callout type="warning" title={t("modals.aiModelNotConfigured")}>
                   {isAdmin ? (
                     <span>
-                      Please configure a default LLM model first to upload and process files.{" "}
+                      {t("modals.noLlmConfiguredUploadAdmin")}{" "}
                       <Link
                         href={ADMIN_ROUTES.LLM_MODELS.path}
                         className="underline font-bold text-amber-800 dark:text-amber-200"
                         onClick={() => toggle(false)}
                       >
-                        Configure here
+                        {t("modals.configureHere")}
                       </Link>
                     </span>
                   ) : (
                     <span>
-                      Please contact your system administrator to configure the default LLM provider before uploading files.
+                      {t("modals.noLlmConfiguredUploadContactAdmin")}
                     </span>
                   )}
                 </Callout>
@@ -241,7 +245,7 @@ export default function UserFilesModal({
             )}
             {/* File display section */}
             {filtered.length === 0 ? (
-              <Text text03>No files found</Text>
+              <Text text03>{t("modals.noFilesFound")}</Text>
             ) : (
               <ScrollIndicatorDiv className="p-2 gap-2 max-h-[70vh]">
                 {filtered.map((projectFle) => {
@@ -251,6 +255,7 @@ export default function UserFilesModal({
                       key={projectFle.id}
                       file={projectFle}
                       isSelected={isSelected}
+                      t={t}
                       onClick={
                         onPickRecent
                           ? () => {
@@ -284,7 +289,7 @@ export default function UserFilesModal({
                 {!query.trim() && !showOnlySelected && (
                   <TextSeparator
                     count={recentFiles.length}
-                    text={recentFiles.length === 1 ? "File" : "Files"}
+                    text={recentFiles.length === 1 ? t("modals.file") : t("modals.files")}
                   />
                 )}
               </ScrollIndicatorDiv>
@@ -296,8 +301,8 @@ export default function UserFilesModal({
             {onPickRecent && (
               <Section flexDirection="row" justifyContent="start" gap={0.5}>
                 <Text as="p" text03>
-                  {selectedCount} {selectedCount === 1 ? "file" : "files"}{" "}
-                  selected
+                  {selectedCount} {selectedCount === 1 ? t("modals.file") : t("modals.files")}{" "}
+                  {t("modals.selected")}
                 </Text>
                 <Button
                   icon={SvgEye}
@@ -318,7 +323,7 @@ export default function UserFilesModal({
 
             {/* Right side: Done button */}
             <Button prominence="secondary" onClick={() => toggle(false)}>
-              Done
+              {t("common.done")}
             </Button>
           </Modal.Footer>
         </Modal.Content>

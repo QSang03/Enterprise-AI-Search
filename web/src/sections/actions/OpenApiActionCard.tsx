@@ -15,6 +15,7 @@ import Modal from "@/refresh-components/layouts/ConfirmationModalLayout";
 import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface OpenApiActionCardProps {
   tool: ToolSnapshot;
@@ -35,6 +36,7 @@ export default function OpenApiActionCard({
   mutateOpenApiTools,
   onOpenDisconnectModal,
 }: OpenApiActionCardProps) {
+  const { t } = useTranslation();
   const [isToolsExpanded, setIsToolsExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [updatingStatus, setUpdatingStatus] = useState(false);
@@ -171,8 +173,8 @@ export default function OpenApiActionCard({
         <ToolsList
           isEmpty={filteredTools.length === 0}
           searchQuery={searchQuery}
-          emptyMessage="No actions defined for this OpenAPI schema"
-          emptySearchMessage="No actions match your search"
+          emptyMessage={t("actions.noActionsDefined")}
+          emptySearchMessage={t("actions.noActionsMatchSearch")}
           className="gap-2"
         >
           {filteredTools.map((method) => (
@@ -195,7 +197,7 @@ export default function OpenApiActionCard({
           icon={({ className }) => (
             <SvgTrash className={cn(className, "stroke-action-danger-05")} />
           )}
-          title="Delete OpenAPI action"
+          title={t("actions.deleteOpenApiAction")}
           onClose={() => deleteModal.toggle(false)}
           submit={
             <Button
@@ -205,17 +207,21 @@ export default function OpenApiActionCard({
                 deleteModal.toggle(false);
               }}
             >
-              Delete
+              {t("actions.delete")}
             </Button>
           }
         >
           <div className="flex flex-col gap-4">
             <Text as="p" text03>
-              This will permanently delete the OpenAPI action <b>{tool.name}</b>{" "}
-              and its configuration.
+              {t("actions.deleteOpenApiActionDesc")
+                .split("{name}")
+                .reduce((prev, current, i) => {
+                  if (i === 0) return [current];
+                  return [...prev, <b key={i}>{tool.name}</b>, current];
+                }, [] as React.ReactNode[])}
             </Text>
             <Text as="p" text03>
-              Are you sure you want to delete this OpenAPI action?
+              {t("actions.deleteOpenApiActionConfirm")}
             </Text>
           </div>
         </Modal>

@@ -235,6 +235,11 @@ export const SOURCE_METADATA_MAP: SourceMap = {
     category: SourceCategory.Storage,
     docs: `${DOCS_ADMINS_PATH}/connectors/official/r2`,
   },
+  smb: {
+    icon: SvgFileText,
+    displayName: "SMB Network Drive",
+    category: SourceCategory.Storage,
+  },
 
   // Ticketing & Task Management
   jira: {

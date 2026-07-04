@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { cn } from "@opal/utils";
@@ -53,8 +53,8 @@ const ToolsList: React.FC<ToolsListProps> = ({
   className,
 }) => {
   const { t } = useTranslation();
-  const resolvedEmptyMessage = emptyMessage ?? "No tools available";
-  const resolvedEmptySearchMessage = emptySearchMessage ?? "No tools found";
+  const resolvedEmptyMessage = emptyMessage ?? t("actions.noToolsAvailable");
+  const resolvedEmptySearchMessage = emptySearchMessage ?? t("actions.noToolsFound");
   const showFooter =
     totalCount !== undefined && enabledCount !== undefined && totalCount > 0;
 

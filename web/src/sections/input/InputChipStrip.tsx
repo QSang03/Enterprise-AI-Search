@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { cn } from "@opal/utils";
 import { Button, Text, Tooltip } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   SvgAlertCircle,
   SvgClock,
@@ -78,6 +79,7 @@ function BuildFileCard({
   file: BuildFile;
   onRemove: (id: string) => void;
 }) {
+  const { t } = useTranslation();
   const isImage = isImageFile(file.name);
   const isUploading = file.status === UploadFileStatus.UPLOADING;
   const isPending = file.status === UploadFileStatus.PENDING;
@@ -116,7 +118,7 @@ function BuildFileCard({
   }
   if (isPending) {
     return (
-      <Tooltip tooltip="Waiting for session to be ready..." side="top">
+      <Tooltip tooltip={t("chat.waitingForSession")} side="top">
         {chip}
       </Tooltip>
     );

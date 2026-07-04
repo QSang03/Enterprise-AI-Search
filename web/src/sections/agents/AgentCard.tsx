@@ -32,12 +32,14 @@ import { CardItemLayout } from "@/layouts/general-layouts";
 import { Content } from "@opal/layouts";
 import { Interactive } from "@opal/core";
 import { Card } from "@/refresh-components/cards";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface AgentCardProps {
   agent: MinimalAgent;
 }
 
 export default function AgentCard({ agent }: AgentCardProps) {
+  const { t } = useTranslation();
   const route = useAppRouter();
   const router = useRouter();
   const { pinnedAgents, togglePinnedAgent } = usePinnedAgents();
@@ -97,7 +99,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                       onClick={noProp(() =>
                         router.push(`/premium/agents/stats/${agent.id}` as Route)
                       )}
-                      tooltip="View Agent Stats"
+                      tooltip={t("agents.viewStats")}
                       className="hidden group-hover/AgentCard:flex"
                     />
                   )}
@@ -109,7 +111,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                       onClick={noProp(() =>
                         router.push(`/app/agents/edit/${agent.id}` as Route)
                       )}
-                      tooltip="Edit Agent"
+                      tooltip={t("agents.editAgent")}
                       className="hidden group-hover/AgentCard:flex"
                     />
                   )}
@@ -119,7 +121,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                       icon={SvgShare}
                       tertiary
                       onClick={noProp(() => shareAgentModal.toggle(true))}
-                      tooltip="Share Agent"
+                      tooltip={t("agents.shareAgent")}
                       className="hidden group-hover/AgentCard:flex"
                     />
                   )}
@@ -128,7 +130,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                     icon={pinned ? SvgPinned : SvgPin}
                     tertiary
                     onClick={noProp(() => togglePinnedAgent(agent, !pinned))}
-                    tooltip={pinned ? "Unpin from Sidebar" : "Pin to Sidebar"}
+                    tooltip={pinned ? t("agents.unpinFromSidebar") : t("agents.pinToSidebar")}
                     className={cn(
                       !pinned && "hidden group-hover/AgentCard:flex"
                     )}

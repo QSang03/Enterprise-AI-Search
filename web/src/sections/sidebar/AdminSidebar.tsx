@@ -19,6 +19,7 @@ import AccountPopover from "@/sections/sidebar/AccountPopover";
 import { renderAppLogo } from "@/sections/sidebar/SidebarWrapper";
 import { useShowLogoWhenFolded } from "@/lib/sidebar/hooks";
 import { markdown } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const SECTIONS = {
   UNLABELED: null,
@@ -164,6 +165,34 @@ function groupBySection(items: SidebarItemEntry[]) {
 }
 
 export default function AdminSidebar() {
+  const { t } = useTranslation();
+
+  const getRouteTranslation = (link: string, defaultName: string) => {
+    const cleanKey = link
+      .replace(/^\/admin\//, "")
+      .replace(/\//g, ".")
+      .replace(/-([a-z])/g, (_, p1) => p1.toUpperCase());
+    const localeKey = `admin.routes.${cleanKey}`;
+    const translated = t(localeKey);
+    return translated === localeKey ? defaultName : translated;
+  };
+
+  const getSectionTranslation = (section: string | null) => {
+    if (!section) return null;
+    const map: Record<string, string> = {
+      "Agents & Actions": "admin.sections.agentsAndActions",
+      "Documents & Knowledge": "admin.sections.documentsAndKnowledge",
+      "Integrations": "admin.sections.integrations",
+      "Permissions": "admin.sections.permissions",
+      "Organization": "admin.sections.organization",
+      "Usage": "admin.sections.usage",
+    };
+    const key = map[section];
+    if (!key) return section;
+    const translated = t(key);
+    return translated === key ? section : translated;
+  };
+
   const { folded, setFolded } = useSidebarState();
   const showLogoWhenFolded = useShowLogoWhenFolded();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -222,14 +251,14 @@ export default function AdminSidebar() {
               setFocusSearch(true);
             }}
           >
-            Search
+            {t("common.search")}
           </SidebarTab>
         ) : (
           <InputTypeIn
             ref={searchRef}
             variant="internal"
             searchIcon
-            placeholder="Search..."
+            placeholder={t("common.search") + "..."}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             clearButton
@@ -240,7 +269,7 @@ export default function AdminSidebar() {
       <SidebarLayouts.Body scrollKey="admin-sidebar">
         {enabledGroups.map((group, groupIndex) => (
           <React.Fragment key={groupIndex}>
-            <SidebarLayouts.Section title={group.section ?? undefined}>
+            <SidebarLayouts.Section title={getSectionTranslation(group.section) ?? undefined}>
               {group.items.map(({ link, icon, name }) => (
                 <SidebarTab
                   key={link}
@@ -248,7 +277,7 @@ export default function AdminSidebar() {
                   href={link}
                   selected={pathname.startsWith(link)}
                 >
-                  {name}
+                  {getRouteTranslation(link, name)}
                 </SidebarTab>
               ))}
             </SidebarLayouts.Section>
@@ -260,28 +289,32 @@ export default function AdminSidebar() {
             <Divider paddingPerpendicular="fit" />
             {/* Empty div here just to add spacing (via the `gap` property on `SidebarLayouts.Body`) */}
             <div />
+
+            {disabledGroups.map((group, groupIndex) => (
+              <React.Fragment key={groupIndex}>
+                <SidebarLayouts.Section
+                  title={getSectionTranslation(group.section) ?? undefined}
+                  disabled
+                >
+                  {group.items.map(({ link, icon, name, requiredTier }) => (
+                    <SidebarTab
+                      key={link}
+                      disabled
+                      icon={icon}
+                      tooltip={markdown(
+                        requiredTier === Tier.ENTERPRISE
+                          ? t("admin.enterpriseLicenseRequired")
+                          : t("admin.businessLicenseRequired")
+                      )}
+                    >
+                      {getRouteTranslation(link, name)}
+                    </SidebarTab>
+                  ))}
+                </SidebarLayouts.Section>
+              </React.Fragment>
+            ))}
           </>
         )}
-        {disabledGroups.map((group, groupIndex) => (
-          <React.Fragment key={`disabled-${groupIndex}`}>
-            <SidebarLayouts.Section title={group.section ?? undefined} disabled>
-              {group.items.map(({ link, icon, name, requiredTier }) => (
-                <SidebarTab
-                  key={link}
-                  disabled
-                  icon={icon}
-                  tooltip={markdown(
-                    requiredTier === Tier.ENTERPRISE
-                      ? "This feature requires an Enterprise license. Contact your administrator."
-                      : "This feature requires a Business or Enterprise license. Contact your administrator."
-                  )}
-                >
-                  {name}
-                </SidebarTab>
-              ))}
-            </SidebarLayouts.Section>
-          </React.Fragment>
-        ))}
       </SidebarLayouts.Body>
 
       <SidebarLayouts.Footer>
@@ -292,7 +325,7 @@ export default function AdminSidebar() {
           variant="sidebar-light"
           folded={folded}
         >
-          Exit Admin Panel
+          {t("common.exitAdminPanel")}
         </SidebarTab>
         <AccountPopover folded={folded} />
       </SidebarLayouts.Footer>

@@ -26,6 +26,7 @@ dependencies = [
     "voyageai==0.2.3",
     "brotli>=1.2.0",
     "agent-client-protocol>=0.7.1",
+    "smbprotocol>=1.16.1",
 ]
 
 [dependency-groups]

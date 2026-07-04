@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import Modal from "@/refresh-components/Modal";
@@ -20,6 +20,7 @@ import { ModalCreationInterface } from "@/refresh-components/contexts/ModalConte
 import { SvgCheckCircle, SvgServer, SvgUnplug } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface AddMCPServerModalProps {
   skipOverlay?: boolean;
@@ -32,13 +33,7 @@ interface AddMCPServerModalProps {
   mutateMcpServers?: () => Promise<void>;
 }
 
-const validationSchema = Yup.object().shape({
-  name: Yup.string().required("Server name is required"),
-  description: Yup.string(),
-  server_url: Yup.string()
-    .url("Must be a valid URL")
-    .required("Server URL is required"),
-});
+
 
 export default function AddMCPServerModal({
   skipOverlay = false,
@@ -49,6 +44,16 @@ export default function AddMCPServerModal({
   handleAuthenticate,
   mutateMcpServers,
 }: AddMCPServerModalProps) {
+  const { t } = useTranslation();
+
+  const validationSchema = useMemo(() => Yup.object().shape({
+    name: Yup.string().required(t("actions.serverNameRequired")),
+    description: Yup.string(),
+    server_url: Yup.string()
+      .url(t("actions.validUrlRequired"))
+      .required(t("actions.serverUrlRequired")),
+  }), [t]);
+
   const { isOpen, toggle } = useModal();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -80,13 +85,13 @@ export default function AddMCPServerModal({
       if (isEditMode && server) {
         // Update existing server
         await updateMCPServer(server.id, values);
-        toast.success("MCP Server updated successfully");
+        toast.success(t("actions.serverUpdatedSuccess"));
         await mutateMcpServers?.();
       } else {
         // Create new server
         const createdServer = await createMCPServer(values);
 
-        toast.success("MCP Server created successfully");
+        toast.success(t("actions.serverCreatedSuccess"));
 
         await mutateMcpServers?.();
 
@@ -106,7 +111,7 @@ export default function AddMCPServerModal({
       toast.error(
         error instanceof Error
           ? error.message
-          : `Failed to ${isEditMode ? "update" : "create"} MCP server`
+          : (isEditMode ? t("actions.failedToUpdateServer") : t("actions.failedToCreateServer"))
       );
     } finally {
       setIsSubmitting(false);
@@ -135,32 +140,32 @@ export default function AddMCPServerModal({
             <Form>
               <Modal.Header
                 icon={SvgServer}
-                title={isEditMode ? "Manage MCP Server" : "Add MCP Server"}
+                title={isEditMode ? t("actions.manageMcpServerTitle") : t("actions.addMcpServerTitle")}
                 description={
                   isEditMode
-                    ? "Update your MCP server configuration and manage authentication."
-                    : "Connect MCP (Model Context Protocol) server to add custom actions."
+                    ? t("actions.manageMcpServerDesc")
+                    : t("actions.addMcpServerDesc")
                 }
                 onClose={() => handleModalClose(false)}
               />
 
               <Modal.Body>
-                <InputVertical withLabel="name" title="Server Name">
+                <InputVertical withLabel="name" title={t("actions.serverName")}>
                   <InputTypeInField
                     name="name"
-                    placeholder="Name your MCP server"
+                    placeholder={t("actions.serverNamePlaceholder")}
                     autoFocus
                   />
                 </InputVertical>
 
                 <InputVertical
                   withLabel="description"
-                  title="Description"
+                  title={t("actions.description")}
                   suffix="optional"
                 >
                   <InputTextAreaField
                     name="description"
-                    placeholder="More details about the MCP server"
+                    placeholder={t("actions.mcpServerDescPlaceholder")}
                     rows={3}
                   />
                 </InputVertical>
@@ -169,8 +174,8 @@ export default function AddMCPServerModal({
 
                 <InputVertical
                   withLabel="server_url"
-                  title="MCP Server URL"
-                  subDescription="Only connect to servers you trust. You are responsible for actions taken with this connection and keeping your tools updated."
+                  title={t("actions.mcpServerUrl")}
+                  subDescription={t("actions.mcpServerUrlDesc")}
                 >
                   <InputTypeInField
                     name="server_url"
@@ -196,14 +201,14 @@ export default function AddMCPServerModal({
                           width="fit"
                         >
                           <SvgCheckCircle className="w-4 h-4 stroke-status-success-05" />
-                          <Text>Authenticated &amp; Connected</Text>
+                          <Text>{t("actions.authenticatedAndConnected")}</Text>
                         </Section>
                         <Text secondaryBody text03>
                           {server.auth_type === "OAUTH"
-                            ? `OAuth connected to ${server.owner}`
+                            ? t("actions.oauthConnectedTo", { owner: server.owner })
                             : server.auth_type === "API_TOKEN"
-                              ? "API token configured"
-                              : "Connected"}
+                              ? t("actions.apiTokenConfigured")
+                              : t("actions.connectedStatus")}
                         </Text>
                       </Section>
                       <Section
@@ -216,7 +221,7 @@ export default function AddMCPServerModal({
                           icon={SvgUnplug}
                           prominence="tertiary"
                           type="button"
-                          tooltip="Disconnect Server"
+                          tooltip={t("actions.disconnectServer")}
                           onClick={handleDisconnectClick}
                         />
                         <Button
@@ -228,7 +233,7 @@ export default function AddMCPServerModal({
                             handleAuthenticate(server.id);
                           }}
                         >
-                          Edit Configs
+                          {t("actions.editConfigs")}
                         </Button>
                       </Section>
                     </Section>
@@ -242,7 +247,7 @@ export default function AddMCPServerModal({
                   type="button"
                   onClick={() => handleModalClose(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   disabled={isSubmitting || !isValid || !dirty}
@@ -250,11 +255,11 @@ export default function AddMCPServerModal({
                 >
                   {isSubmitting
                     ? isEditMode
-                      ? "Saving..."
-                      : "Adding..."
+                      ? t("actions.saving")
+                      : t("actions.adding")
                     : isEditMode
-                      ? "Save Changes"
-                      : "Add Server"}
+                      ? t("actions.saveChanges")
+                      : t("actions.addServerBtn")}
                 </Button>
               </Modal.Footer>
             </Form>

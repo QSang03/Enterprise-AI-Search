@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo, useState } from "react";
 import type { ProjectFile } from "@/app/app/projects/projectsService";
@@ -147,6 +147,7 @@ export function FileCard({
   onFileClick,
   compactImages = false,
 }: FileCardProps) {
+  const { t } = useTranslation();
   const typeLabel = useMemo(() => {
     const name = String(file.name || "");
     const lastDotIndex = name.lastIndexOf(".");
@@ -204,8 +205,8 @@ export function FileCard({
             description={
               isProcessing
                 ? file.status === UserFileStatus.UPLOADING
-                  ? "Uploading..."
-                  : "Processing..."
+                  ? t("cards.uploading")
+                  : t("cards.processing")
                 : typeLabel
             }
           />

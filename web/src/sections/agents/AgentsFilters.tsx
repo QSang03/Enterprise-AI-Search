@@ -42,6 +42,7 @@ import {
   OPEN_URL_TOOL_NAME,
   SYSTEM_TOOL_ICONS,
 } from "@/app/app/components/tools/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -93,6 +94,7 @@ interface UseAgentsFiltersReturn<T extends MinimalAgent> {
 export function useAgentsFilters<T extends MinimalAgent>(
   agents: T[]
 ): UseAgentsFiltersReturn<T> {
+  const { t } = useTranslation();
   const { user } = useUser();
   const { mcpData } = useMcpServers();
   const { tools: allTools } = useAvailableTools();
@@ -194,7 +196,7 @@ export function useAgentsFilters<T extends MinimalAgent>(
       .map((id) => ({
         type: "mcp_server" as const,
         mcpServerId: id,
-        name: mcpServerNames.get(id) ?? `MCP Server ${id}`,
+        name: mcpServerNames.get(id) ?? t("agents.filter.mcpServerTitle", { id: String(id) }),
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -204,7 +206,7 @@ export function useAgentsFilters<T extends MinimalAgent>(
       .sort((a, b) => a.name.localeCompare(b.name));
 
     return [...systemItems, ...mcpItems, ...otherItems];
-  }, [allTools, mcpServerNames]);
+  }, [allTools, mcpServerNames, t]);
 
   const actionsFilter = useFilter(uniqueActions, (a) => a.name);
 
@@ -226,24 +228,24 @@ export function useAgentsFilters<T extends MinimalAgent>(
   // -- Filter button labels --------------------------------------------------
 
   const creatorFilterButtonText = useMemo(() => {
-    if (selectedCreatorIds.size === 0) return "Everyone";
+    if (selectedCreatorIds.size === 0) return t("agents.filter.everyone");
     if (selectedCreatorIds.size === 1) {
       const selectedId = Array.from(selectedCreatorIds)[0];
       const creator = uniqueCreators.find((c) => c.id === selectedId);
-      return creator ? `By ${creator.email}` : "Everyone";
+      return creator ? t("agents.filter.byCreator", { email: creator.email }) : t("agents.filter.everyone");
     }
-    return `${selectedCreatorIds.size} people`;
-  }, [selectedCreatorIds, uniqueCreators]);
+    return t("agents.filter.peopleCount", { count: String(selectedCreatorIds.size) });
+  }, [selectedCreatorIds, uniqueCreators, t]);
 
   const actionsFilterButtonText = useMemo(() => {
-    if (selectedActionKeys.size === 0) return "All Actions";
+    if (selectedActionKeys.size === 0) return t("agents.filter.allActions");
     if (selectedActionKeys.size === 1) {
       const key = Array.from(selectedActionKeys)[0];
       const item = uniqueActions.find((a) => actionFilterKey(a) === key);
-      return item?.name ?? "All Actions";
+      return item?.name ?? t("agents.filter.allActions");
     }
-    return `${selectedActionKeys.size} selected`;
-  }, [selectedActionKeys, uniqueActions]);
+    return t("agents.filter.selectedCount", { count: String(selectedActionKeys.size) });
+  }, [selectedActionKeys, uniqueActions, t]);
 
   // -- Filtered agents -------------------------------------------------------
 
@@ -297,7 +299,7 @@ export function useAgentsFilters<T extends MinimalAgent>(
             {[
               <InputTypeIn
                 key="created-by"
-                placeholder="Created by..."
+                placeholder={t("agents.filter.createdByPlaceholder")}
                 variant="internal"
                 searchIcon
                 value={creatorFilter.query}
@@ -315,7 +317,7 @@ export function useAgentsFilters<T extends MinimalAgent>(
                     selectVariant="select-heavy"
                     icon={SvgUser}
                     title={creator.email}
-                    description={isCurrentUser ? "Me" : undefined}
+                    description={isCurrentUser ? t("agents.filter.me") : undefined}
                     state={isSelected ? "selected" : "empty"}
                     onClick={() => {
                       setSelectedCreatorIds((prev) => {
@@ -352,7 +354,7 @@ export function useAgentsFilters<T extends MinimalAgent>(
             {[
               <InputTypeIn
                 key="actions"
-                placeholder="Filter actions..."
+                placeholder={t("agents.filter.filterActionsPlaceholder")}
                 variant="internal"
                 searchIcon
                 value={actionsFilter.query}

@@ -4,6 +4,7 @@ import { Button, Card } from "@opal/components";
 import { Content } from "@opal/layouts";
 import { SvgPlusCircle } from "@opal/icons";
 import { InputTypeIn } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface AdminListHeaderProps {
   /** Whether items exist — controls search bar vs empty-state card. */
@@ -54,11 +55,13 @@ export default function AdminListHeader({
   hasItems,
   searchQuery,
   onSearchQueryChange,
-  placeholder = "Search...",
+  placeholder,
   emptyStateText,
   onAction,
   actionLabel,
 }: AdminListHeaderProps) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? (t("common.search") + "...");
   // Pin the button to its label width — the flexible sibling (search input /
   // empty-state text) absorbs the row shrink; otherwise the button clips its label.
   const actionButton = (
@@ -91,7 +94,7 @@ export default function AdminListHeader({
       <InputTypeIn
         variant="internal"
         searchIcon
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         value={searchQuery}
         onChange={(e) => onSearchQueryChange(e.target.value)}
       />

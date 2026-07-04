@@ -7,6 +7,7 @@ import { useVoiceRecorder } from "@/hooks/useVoiceRecorder";
 import { useVoiceMode } from "@/providers/VoiceModeProvider";
 import { toast } from "@/hooks/useToast";
 import { ChatState } from "@/app/app/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface MicrophoneButtonProps {
   onTranscription: (text: string) => void;
@@ -59,6 +60,7 @@ function MicrophoneButton({
   onAudioLevel,
   isNewSession = false,
 }: MicrophoneButtonProps) {
+  const { t } = useTranslation();
   const {
     isTTSPlaying,
     isTTSLoading,
@@ -198,7 +200,7 @@ function MicrophoneButton({
         hasManualRecordStartRef.current = true;
       } catch (err) {
         console.error("Microphone access failed:", err);
-        toast.error("Could not access microphone");
+        toast.error(t("chat.microphoneAccessFailed"));
       }
     }
   }, [
@@ -254,7 +256,7 @@ function MicrophoneButton({
         messagePrefixRef.current = currentMessageRef.current;
         startRecording().catch((err) => {
           console.error("Auto-start microphone failed:", err);
-          toast.error("Could not auto-start microphone");
+          toast.error(t("chat.microphoneAutoStartFailed"));
         });
       }, 400);
     }
