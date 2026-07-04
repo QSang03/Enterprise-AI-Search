@@ -71,7 +71,7 @@ const Page = async (props: {
 
   const teamName = Array.isArray(searchParams?.team)
     ? searchParams?.team[0]
-    : searchParams?.team || "your team";
+    : searchParams?.team || t("auth.yourTeam");
 
   // catch cases where the backend is completely unreachable here
   // without try / catch, will just raise an exception and the page

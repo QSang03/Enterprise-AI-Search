@@ -612,7 +612,20 @@
     "invalidEmail": "Invalid email",
     "required": "Required",
     "failedImpersonate": "Failed to impersonate user",
-    "impersonateNote": "Note: This feature is only available for @onyx.app administrators"
+    "impersonateNote": "Note: This feature is only available for @onyx.app administrators",
+    "unknownError": "Unknown error",
+    "accountExists": "An account already exists with the specified email.",
+    "tooManyRequests": "Too many requests. Please try again later.",
+    "failedSignUp": "Failed to sign up - {error}",
+    "accountCreatedSuccess": "Account created successfully. Please log in.",
+    "invalidCredentials": "Invalid email or password",
+    "createAccountSetPassword": "Create an account to set a password",
+    "failedLogin": "Failed to login - {error}",
+    "yourTeam": "your team",
+    "continueGoogle": "Continue with Google",
+    "continueOidc": "Continue with OIDC SSO",
+    "continueSaml": "Continue with SAML SSO",
+    "captchaFailed": "Captcha verification failed. Please refresh your browser and try again."
   },
   "admin": {
     "agents": {

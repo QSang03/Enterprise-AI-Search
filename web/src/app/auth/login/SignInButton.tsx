@@ -33,6 +33,7 @@ import { FcGoogle } from "react-icons/fc";
 import type { IconProps } from "@opal/types";
 import { useCaptcha } from "@/lib/hooks/useCaptcha";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface SignInButtonProps {
   authorizeUrl: string;
@@ -43,6 +44,7 @@ export default function SignInButton({
   authorizeUrl,
   authType,
 }: SignInButtonProps) {
+  const { t } = useTranslation();
   const { getCaptchaToken, isCaptchaEnabled } = useCaptcha();
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,12 +53,12 @@ export default function SignInButton({
   let icon: React.FunctionComponent<IconProps> | undefined;
 
   if (authType === AuthType.GOOGLE_OAUTH || authType === AuthType.CLOUD) {
-    button = "Continue with Google";
+    button = t("auth.continueGoogle");
     icon = FcGoogle;
   } else if (authType === AuthType.OIDC) {
-    button = "Continue with OIDC SSO";
+    button = t("auth.continueOidc");
   } else if (authType === AuthType.SAML) {
-    button = "Continue with SAML SSO";
+    button = t("auth.continueSaml");
   }
 
   if (!button) {
@@ -97,7 +99,7 @@ export default function SignInButton({
           }`
         );
         setError(
-          "Captcha verification failed. Please refresh your browser and try again."
+          t("auth.captchaFailed")
         );
         return;
       }

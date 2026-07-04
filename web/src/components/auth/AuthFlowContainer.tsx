@@ -23,16 +23,20 @@ export default function AuthFlowContainer({
       </div>
       {authState === "login" && (
         <div className="text-sm mt-6 text-center w-full text-text-03 mainUiBody mx-auto">
-          {footerContent ?? (
-            <>
-              {t("auth.newToOnyx")}{" "}
-              <Link
-                href="/auth/signup"
-                className="text-text-05 mainUiAction underline transition-colors duration-200"
-              >
-                {t("auth.createAccount")}
-              </Link>
-            </>
+          {footerContent === "sso_need_access" ? (
+            t("auth.needAccess")
+          ) : (
+            footerContent ?? (
+              <>
+                {t("auth.newToOnyx")}{" "}
+                <Link
+                  href="/auth/signup"
+                  className="text-text-05 mainUiAction underline transition-colors duration-200"
+                >
+                  {t("auth.createAccount")}
+                </Link>
+              </>
+            )
           )}
         </div>
       )}

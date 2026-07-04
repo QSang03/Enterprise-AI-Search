@@ -47,7 +47,7 @@ export default function Verify({ user }: VerifyProps) {
         : "/auth/login?verified=true";
       window.location.href = loginUrl;
     } else {
-      let errorDetail = "unknown error";
+      let errorDetail = t("auth.unknownError");
       try {
         errorDetail = (await response.json()).detail;
       } catch (e) {

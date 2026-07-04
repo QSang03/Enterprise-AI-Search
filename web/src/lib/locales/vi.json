@@ -612,7 +612,20 @@
     "invalidEmail": "Email không hợp lệ",
     "required": "Bắt buộc",
     "failedImpersonate": "Không thể đóng vai người dùng",
-    "impersonateNote": "Lưu ý: Tính năng này chỉ dành cho quản trị viên @onyx.app"
+    "impersonateNote": "Lưu ý: Tính năng này chỉ dành cho quản trị viên @onyx.app",
+    "unknownError": "Lỗi không xác định",
+    "accountExists": "Tài khoản đã tồn tại với email được chỉ định.",
+    "tooManyRequests": "Quá nhiều yêu cầu. Vui lòng thử lại sau.",
+    "failedSignUp": "Đăng ký thất bại - {error}",
+    "accountCreatedSuccess": "Tạo tài khoản thành công. Vui lòng đăng nhập.",
+    "invalidCredentials": "Email hoặc mật khẩu không hợp lệ",
+    "createAccountSetPassword": "Tạo tài khoản để thiết lập mật khẩu",
+    "failedLogin": "Đăng nhập thất bại - {error}",
+    "yourTeam": "nhóm của bạn",
+    "continueGoogle": "Tiếp tục với Google",
+    "continueOidc": "Tiếp tục với OIDC SSO",
+    "continueSaml": "Tiếp tục với SAML SSO",
+    "captchaFailed": "Xác thực Captcha thất bại. Vui lòng làm mới trình duyệt và thử lại."
   },
   "admin": {
     "agents": {

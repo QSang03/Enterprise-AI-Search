@@ -10,6 +10,7 @@ from typing import Protocol
 import sentry_sdk
 from pydantic import BaseModel
 from pydantic import ConfigDict
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
 from onyx.configs.app_configs import ENABLE_CONTEXTUAL_RAG
@@ -1233,6 +1234,11 @@ def _save_rag_upgrade_metadata(
 ) -> None:
     try:
         for doc in updatable_docs:
+            db_session.execute(delete(OcrPage).where(OcrPage.doc_id == doc.id))
+            db_session.execute(delete(DocumentBlock).where(DocumentBlock.doc_id == doc.id))
+            db_session.execute(delete(DocumentProcessingJob).where(DocumentProcessingJob.doc_id == doc.id))
+            db_session.flush()
+
             has_layout = doc.additional_info and isinstance(doc.additional_info, dict) and "layout_blocks" in doc.additional_info
             parser_mode = "accurate" if has_layout else "fast"
             
@@ -1340,6 +1346,8 @@ def _save_rag_upgrade_metadata(
         
     except Exception as e:
         logger.exception(f"Failed to save RAG upgrade metadata to Postgres: {e}")
+        db_session.rollback()
+        raise e
 
 
 def _check_and_trigger_wiki_stale_detection(db_session: Session, updated_doc_ids: list[str]) -> None:
