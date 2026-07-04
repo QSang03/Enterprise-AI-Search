@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { SvgOnyxLogo } from "@opal/logos";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function AuthFlowContainer({
   children,
@@ -10,6 +13,8 @@ export default function AuthFlowContainer({
   authState?: "signup" | "login" | "join";
   footerContent?: React.ReactNode;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="p-4 flex flex-col items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md flex items-start flex-col bg-background-tint-00 rounded-16 shadow-lg shadow-box-02 p-6">
@@ -20,12 +25,12 @@ export default function AuthFlowContainer({
         <div className="text-sm mt-6 text-center w-full text-text-03 mainUiBody mx-auto">
           {footerContent ?? (
             <>
-              New to Onyx?{" "}
+              {t("auth.newToOnyx")}{" "}
               <Link
                 href="/auth/signup"
                 className="text-text-05 mainUiAction underline transition-colors duration-200"
               >
-                Create an Account
+                {t("auth.createAccount")}
               </Link>
             </>
           )}
@@ -33,12 +38,12 @@ export default function AuthFlowContainer({
       )}
       {authState === "signup" && (
         <div className="text-sm mt-6 text-center w-full text-text-03 mainUiBody mx-auto">
-          Already have an account?{" "}
+          {t("auth.alreadyHaveAccount")}{" "}
           <Link
             href="/auth/login?autoRedirectToSignup=false"
             className="text-text-05 mainUiAction underline transition-colors duration-200"
           >
-            Sign In
+            {t("auth.signIn")}
           </Link>
         </div>
       )}

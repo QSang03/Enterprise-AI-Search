@@ -6,19 +6,21 @@ import Text from "@/refresh-components/texts/Text";
 import StepSidebar from "@/sections/sidebar/StepSidebarWrapper";
 import { useUser } from "@/providers/UserProvider";
 import { SvgSettings } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function Sidebar() {
+  const { t } = useTranslation();
   const { formStep, setFormStep, connector, allowAdvanced, allowCreate } =
     useFormContext();
   const noCredential = credentialTemplates[connector] == null;
 
   const { isAdmin } = useUser();
-  const buttonName = isAdmin ? "Admin Page" : "Curator Page";
+  const buttonName = isAdmin ? t("common.adminPage") : t("common.curatorPage");
 
   const settingSteps = [
-    ...(!noCredential ? ["Credential"] : []),
-    "Connector",
-    ...(connector == "file" ? [] : ["Advanced (optional)"]),
+    ...(!noCredential ? [t("common.credential")] : []),
+    t("common.connector"),
+    ...(connector == "file" ? [] : [t("common.advancedOptional")]),
   ];
 
   return (

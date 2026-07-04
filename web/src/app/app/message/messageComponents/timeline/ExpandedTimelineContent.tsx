@@ -19,6 +19,7 @@ import {
   isPythonToolPackets,
   isCodingAgentPackets,
 } from "@/app/app/message/messageComponents/timeline/packetHelpers";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // =============================================================================
 // TimelineStep Component - Memoized to prevent re-renders
@@ -116,6 +117,7 @@ export const ExpandedTimelineContent = React.memo(
     showStoppedStep,
     hasDoneIndicator,
   }: ExpandedTimelineContentProps) {
+    const { t } = useTranslation();
     return (
       <div className="w-full">
         {turnGroups.map((turnGroup, turnIdx) => {
@@ -169,7 +171,7 @@ export const ExpandedTimelineContent = React.memo(
         {showDoneStep && (
           <StepContainer
             stepIcon={SvgCheckCircle}
-            header="Done"
+            header={t("chat.done")}
             isLastStep={true}
             isFirstStep={false}
           >
@@ -181,7 +183,7 @@ export const ExpandedTimelineContent = React.memo(
         {showStoppedStep && (
           <StepContainer
             stepIcon={SvgStopCircle}
-            header="Stopped"
+            header={t("chat.stopped")}
             isLastStep={true}
             isFirstStep={false}
           >

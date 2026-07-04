@@ -4,6 +4,7 @@ import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { noProp } from "@/lib/utils";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface StoppedHeaderProps {
   totalSteps: number;
@@ -19,6 +20,7 @@ export const StoppedHeader = React.memo(function StoppedHeader({
   isExpanded,
   onToggle,
 }: StoppedHeaderProps) {
+  const { t } = useTranslation();
   const isInteractive = collapsible && totalSteps > 0;
 
   return (
@@ -33,7 +35,7 @@ export const StoppedHeader = React.memo(function StoppedHeader({
     >
       <div className="px-(--timeline-header-text-padding-x) py-(--timeline-header-text-padding-y)">
         <Text as="p" mainUiAction text03>
-          Interrupted Thinking
+          {t("chat.interruptedThinking")}
         </Text>
       </div>
 
@@ -43,10 +45,10 @@ export const StoppedHeader = React.memo(function StoppedHeader({
           size="md"
           onClick={noProp(onToggle)}
           rightIcon={isExpanded ? SvgFold : SvgExpand}
-          aria-label={isExpanded ? "Collapse timeline" : "Expand timeline"}
+          aria-label={isExpanded ? t("chat.collapseTimeline_aria") : t("chat.expandTimeline_aria")}
           aria-expanded={isExpanded}
         >
-          {`${totalSteps} ${totalSteps === 1 ? "step" : "steps"}`}
+          {`${totalSteps} ${totalSteps === 1 ? t("chat.step") : t("chat.steps")}`}
         </Button>
       )}
     </div>

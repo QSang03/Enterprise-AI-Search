@@ -15,6 +15,7 @@ import {
   mutedTextMarkdownComponents,
   collapsedMarkdownComponents,
 } from "@/app/app/message/messageComponents/timeline/renderers/sharedMarkdownComponents";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Renderer for deep research plan packets.
@@ -24,6 +25,7 @@ export const DeepResearchPlanRenderer: MessageRenderer<
   DeepResearchPlanPacket,
   FullChatState
 > = ({ packets, stopPacketSeen, children }) => {
+  const { t } = useTranslation();
   const isComplete = packets.some((p) => p.obj.type === PacketType.SECTION_END);
 
   const fullContent = useMemo(
@@ -57,7 +59,7 @@ export const DeepResearchPlanRenderer: MessageRenderer<
 
   const planContent = (
     <ExpandableTextDisplay
-      title="Research Plan"
+      title={t("chat.researchPlan")}
       content={fullContent}
       renderContent={renderMarkdown}
       isStreaming={!isComplete}

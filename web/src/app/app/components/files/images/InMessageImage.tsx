@@ -6,6 +6,7 @@ import { buildImgUrl } from "@/app/app/components/files/images/utils";
 import { Button } from "@opal/components";
 import { Hoverable } from "@opal/core";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const DEFAULT_SHAPE: ImageShape = "square";
 
@@ -39,6 +40,7 @@ export const InMessageImage = memo(function InMessageImage({
   fileName,
   shape = DEFAULT_SHAPE,
 }: InMessageImageProps) {
+  const { t } = useTranslation();
   const [fullImageShowing, setFullImageShowing] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(loadedImages.has(fileId));
 
@@ -86,7 +88,7 @@ export const InMessageImage = memo(function InMessageImage({
           <img
             width={1200}
             height={1200}
-            alt="Chat Message Image"
+            alt={t("chat.chatMessageImage")}
             onLoad={() => {
               loadedImages.add(fileId);
               setImageLoaded(true);
@@ -106,7 +108,7 @@ export const InMessageImage = memo(function InMessageImage({
             <Hoverable.Item group="messageImage" variant="appear-on-hover">
               <Button
                 icon={SvgDownload}
-                tooltip="Download"
+                tooltip={t("chat.downloadFile")}
                 onClick={handleDownload}
               />
             </Hoverable.Item>

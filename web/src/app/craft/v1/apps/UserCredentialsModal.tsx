@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Modal from "@/refresh-components/Modal";
 import { Button, MessageCard, Text } from "@opal/components";
 import PasswordInputTypeIn from "@/refresh-components/inputs/PasswordInputTypeIn";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   ExternalAppUserResponse,
   getAppTypeLogo,
@@ -38,6 +39,7 @@ export default function UserCredentialsModal({
   onSaved,
   userApp,
 }: UserCredentialsModalProps) {
+  const { t } = useTranslation();
   const [values, setValues] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,8 +81,8 @@ export default function UserCredentialsModal({
       <Modal.Content width="md">
         <Modal.Header
           icon={Logo}
-          title={`Connect ${userApp.name}`}
-          description="Enter your credentials to authorize this app for your account."
+          title={t("craft.connectApp", { appName: userApp.name })}
+          description={t("craft.connectAppDesc")}
         />
         <Modal.Body>
           <div className="flex flex-col gap-4 w-full">
@@ -102,7 +104,7 @@ export default function UserCredentialsModal({
             {error && (
               <MessageCard
                 variant="error"
-                title="Couldn't connect"
+                title={t("craft.couldNotConnect")}
                 description={error}
               />
             )}
@@ -115,10 +117,10 @@ export default function UserCredentialsModal({
               onClick={onClose}
               disabled={isSaving}
             >
-              Cancel
+              {t("craft.cancel")}
             </Button>
             <Button onClick={save} disabled={!canSave}>
-              {isSaving ? "Connecting…" : "Connect"}
+              {isSaving ? t("craft.connecting") : t("craft.connect")}
             </Button>
           </div>
         </Modal.Footer>

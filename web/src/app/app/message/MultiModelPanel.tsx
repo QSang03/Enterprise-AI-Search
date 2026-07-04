@@ -12,6 +12,7 @@ import AgentMessage, {
 import { ErrorBanner } from "@/app/app/message/Resubmit";
 import { cn } from "@opal/utils";
 import { markdown } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface MultiModelPanelProps {
   /** Provider name for icon lookup */
@@ -78,7 +79,7 @@ export default function MultiModelPanel({
   isGenerating,
 }: MultiModelPanelProps) {
   const ModelIcon = getModelIcon(provider, modelName);
-
+  const { t } = useTranslation();
   const canSelect = !isHidden && !isPreferred && !isGenerating;
 
   const handlePanelClick = useCallback(() => {
@@ -118,7 +119,7 @@ export default function MultiModelPanel({
                       e.stopPropagation();
                       onDeselect();
                     }}
-                    tooltip="Deselect preferred response"
+                    tooltip={t("chat.deselectPreferred")}
                   />
                 )}
               </>

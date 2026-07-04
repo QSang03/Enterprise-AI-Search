@@ -8,6 +8,7 @@ import { Button } from "@opal/components";
 import { cn } from "@opal/utils";
 import { useUser } from "@/providers/UserProvider";
 import { useTheme } from "next-themes";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   CHAT_BACKGROUND_OPTIONS,
   CHAT_BACKGROUND_NONE,
@@ -96,6 +97,7 @@ export const SettingsPanel = ({
 }) => {
   const { useOnyxAsNewTab } = useNRFPreferences();
   const { theme, setTheme } = useTheme();
+  const { t } = useTranslation();
   const { user, updateUserChatBackground, updateUserThemePreference } =
     useUser();
 
@@ -152,7 +154,7 @@ export const SettingsPanel = ({
                 <SvgSettings className="w-5 h-5 stroke-text-03" />
               </div>
               <Text headingH3 text04>
-                Settings
+                {t("settings.settingsTitle")}
               </Text>
             </div>
             <div className="flex items-center gap-3">
@@ -161,13 +163,13 @@ export const SettingsPanel = ({
                 icon={isDark ? SvgMoon : SvgSun}
                 onClick={toggleTheme}
                 prominence="tertiary"
-                tooltip={`Switch to ${isDark ? "light" : "dark"} theme`}
+                tooltip={isDark ? t("settings.switchToLight") : t("settings.switchToDark")}
               />
               <Button
                 icon={SvgX}
                 onClick={toggleSettings}
                 prominence="tertiary"
-                tooltip="Close settings"
+                tooltip={t("nrf.closeSettings")}
               />
             </div>
           </div>
@@ -177,10 +179,10 @@ export const SettingsPanel = ({
           {/* General Section */}
           <section className="flex flex-col gap-3">
             <Text secondaryAction text03 className="uppercase tracking-wider">
-              General
+              {t("settings.general")}
             </Text>
             <div className="flex flex-col gap-1 bg-background-tint-01 rounded-2xl px-4">
-              <SettingRow label="Use Onyx as new tab page">
+              <SettingRow label={t("nrf.useAsNewTab")}>
                 <Switch
                   checked={useOnyxAsNewTab}
                   onCheckedChange={handleUseOnyxToggle}
@@ -192,7 +194,7 @@ export const SettingsPanel = ({
           {/* Background Section */}
           <section className="flex flex-col gap-3">
             <Text secondaryAction text03 className="uppercase tracking-wider">
-              Background
+              {t("settings.background")}
             </Text>
             <div className="grid grid-cols-3 gap-2">
               {CHAT_BACKGROUND_OPTIONS.map((bg) => (

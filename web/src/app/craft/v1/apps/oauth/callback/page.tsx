@@ -10,10 +10,12 @@ import { SvgPlug } from "@opal/icons";
 import { CRAFT_APPS_PATH } from "@/app/craft/v1/constants";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { completeExternalAppOAuthCallback } from "@/app/craft/services/externalAppsService";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 type Status = "exchanging" | "success" | "error";
 
 export default function ExternalAppsOAuthCallbackPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const params = useSearchParams();
   const code = params?.get("code") ?? null;
@@ -60,25 +62,25 @@ export default function ExternalAppsOAuthCallbackPage() {
     <SettingsLayouts.Root width="sm">
       <SettingsLayouts.Header
         icon={SvgPlug}
-        title="Connecting your app"
-        description="Finishing the OAuth handshake…"
+        title={t("craft.connectingAppHeader")}
+        description={t("craft.finishingOAuth")}
       />
       <SettingsLayouts.Body>
         <Card background="light" border="solid" rounding="lg">
           <div className="flex flex-col gap-2">
             {status === "exchanging" && (
               <Text font="main-content-body">
-                Exchanging authorization code…
+                {t("craft.exchangingAuthCode")}
               </Text>
             )}
             {status === "success" && (
               <Text font="main-content-body">
-                Connected. Redirecting back to your apps…
+                {t("craft.connectedRedirecting")}
               </Text>
             )}
             {status === "error" && (
               <>
-                <Text font="main-content-body">Connection failed.</Text>
+                <Text font="main-content-body">{t("craft.connectionFailed")}</Text>
                 {errorMessage && (
                   <Text font="secondary-body" color="text-03">
                     {errorMessage}
@@ -86,7 +88,7 @@ export default function ExternalAppsOAuthCallbackPage() {
                 )}
                 <div className="pt-2">
                   <Button onClick={() => router.push(CRAFT_APPS_PATH as Route)}>
-                    Back to My Apps
+                    {t("craft.backToMyApps")}
                   </Button>
                 </div>
               </>

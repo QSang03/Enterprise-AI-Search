@@ -19,6 +19,7 @@ import { UNNAMED_CHAT } from "@/lib/constants";
 import Text from "@/refresh-components/texts/Text";
 import useOnMount from "@/hooks/useOnMount";
 import SharedAppInputBar from "@/sections/input/SharedAppInputBar";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface SharedChatDisplayProps {
   chatSession: BackendChatSession | null;
@@ -33,6 +34,7 @@ export default function SharedChatDisplay({
     useState<MinimalOnyxDocument | null>(null);
 
   const isMounted = useOnMount();
+  const { t } = useTranslation();
 
   if (!chatSession) {
     return (
@@ -40,11 +42,11 @@ export default function SharedChatDisplay({
         <Section flexDirection="column" alignItems="center" gap={1}>
           <IllustrationContent
             illustration={SvgNotFound}
-            title="Shared chat not found"
-            description="Did not find a shared chat with the specified ID."
+            title={t("chat.sharedChatNotFound")}
+            description={t("chat.sharedChatNotFoundDesc")}
           />
           <Button href="/app" prominence="secondary">
-            Start a new chat
+            {t("chat.startNewChat")}
           </Button>
         </Section>
       </div>
@@ -63,11 +65,11 @@ export default function SharedChatDisplay({
         <Section flexDirection="column" alignItems="center" gap={1}>
           <IllustrationContent
             illustration={SvgNotFound}
-            title="Shared chat not found"
-            description="No messages found in shared chat."
+            title={t("chat.sharedChatNotFound")}
+            description={t("chat.noMessagesFound")}
           />
           <Button href="/app" prominence="secondary">
-            Start a new chat
+            {t("chat.startNewChat")}
           </Button>
         </Section>
       </div>
@@ -91,11 +93,11 @@ export default function SharedChatDisplay({
             </Text>
             <div className="flex flex-col items-end">
               <Text as="p" text03 secondaryBody>
-                Shared on {humanReadableFormat(chatSession.time_created)}
+                {t("chat.sharedOn", { date: humanReadableFormat(chatSession.time_created) })}
               </Text>
               {chatSession.owner_name && (
                 <Text as="p" text03 secondaryBody>
-                  by {chatSession.owner_name}
+                  {t("chat.sharedBy", { name: chatSession.owner_name })}
                 </Text>
               )}
             </div>

@@ -16,6 +16,7 @@ import { IconProps } from "@opal/types";
 import { Tooltip } from "@opal/components";
 import ShareButton from "@/app/craft/components/ShareButton";
 import type { SharingScope } from "@/app/craft/types/streamingTypes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /** SvgLoader wrapped with animate-spin so it can be passed as a Button leftIcon */
 const SpinningLoader: React.FunctionComponent<IconProps> = (props) => (
@@ -72,6 +73,7 @@ export default function UrlBar({
   sharingScope = "private",
   onScopeChange,
 }: UrlBarProps) {
+  const { t } = useTranslation();
   const [copiedUrl, setCopiedUrl] = React.useState<string | null>(null);
   const [copyFeedbackKey, setCopyFeedbackKey] = React.useState(0);
   const isDisplayUrlCopyable = React.useMemo(() => {
@@ -130,7 +132,7 @@ export default function UrlBar({
                   ? "hover:bg-background-tint-03 text-text-03"
                   : "text-text-02 cursor-not-allowed"
               )}
-              aria-label="Go back"
+              aria-label={t("craft.goBack")}
             >
               <SvgArrowLeft size={16} />
             </button>
@@ -143,7 +145,7 @@ export default function UrlBar({
                   ? "hover:bg-background-tint-03 text-text-03"
                   : "text-text-02 cursor-not-allowed"
               )}
-              aria-label="Go forward"
+              aria-label={t("craft.goForward")}
             >
               <SvgArrowRight size={16} />
             </button>
@@ -151,7 +153,7 @@ export default function UrlBar({
               <button
                 onClick={onRefresh}
                 className="p-1.5 rounded-full transition-colors hover:bg-background-tint-03 text-text-03"
-                aria-label="Refresh"
+                aria-label={t("craft.refresh")}
               >
                 <SvgRevert size={14} className="-scale-x-100" />
               </button>
@@ -177,11 +179,11 @@ export default function UrlBar({
           )}
           {/* Open in new tab button - only shown for Preview tab with valid URL */}
           {previewUrl && (
-            <Tooltip tooltip="open in a new tab" delayDuration={200}>
+            <Tooltip tooltip={t("craft.openInNewTab")} delayDuration={200}>
               <button
                 onClick={handleOpenInNewTab}
                 className="shrink-0 p-0.5 rounded-sm transition-colors hover:bg-background-tint-03 text-text-03"
-                aria-label="open in a new tab"
+                aria-label={t("craft.openInNewTab")}
                 data-copy-state={isUrlCopied ? "copied" : "idle"}
               >
                 {isUrlCopied ? (

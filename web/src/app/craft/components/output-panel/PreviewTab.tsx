@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PreviewTabProps {
   webappUrl: string | null;
@@ -17,7 +18,9 @@ interface PreviewTabProps {
  * - Has webapp URL: Shows iframe with crossfade from blank background
  */
 export default function PreviewTab({ webappUrl, refreshKey }: PreviewTabProps) {
+  const { t } = useTranslation();
   const [iframeLoaded, setIframeLoaded] = useState(false);
+
 
   // Reset loaded state when URL or refreshKey changes
   useEffect(() => {
@@ -49,7 +52,7 @@ export default function PreviewTab({ webappUrl, refreshKey }: PreviewTabProps) {
               iframeLoaded ? "opacity-100" : "opacity-0"
             )}
             sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-            title="Web App Preview"
+            title={t("craft.webAppPreview")}
           />
         )}
       </div>

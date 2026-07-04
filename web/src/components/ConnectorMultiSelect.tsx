@@ -9,6 +9,7 @@ import Text from "@/refresh-components/texts/Text";
 import { InputTypeIn } from "@opal/components";
 import { SvgX } from "@opal/icons";
 import { Button } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ConnectorMultiSelectProps {
   name: string;
@@ -28,9 +29,11 @@ export const ConnectorMultiSelect = ({
   selectedIds,
   onChange,
   disabled = false,
-  placeholder = "Search connectors...",
+  placeholder,
   showError = false,
 }: ConnectorMultiSelectProps) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t("components.connectorMultiSelect.searchPlaceholder");
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -103,8 +106,8 @@ export const ConnectorMultiSelect = ({
   };
 
   const effectivePlaceholder = allConnectorsSelected
-    ? "All connectors selected"
-    : placeholder;
+    ? t("components.connectorMultiSelect.allSelected")
+    : resolvedPlaceholder;
 
   const isInputDisabled = disabled;
 
@@ -117,8 +120,7 @@ export const ConnectorMultiSelect = ({
       )}
 
       <Text as="p" mainUiMuted text03>
-        All documents indexed by the selected connectors will be part of this
-        document set.
+        {t("components.connectorMultiSelect.desc")}
       </Text>
       <div className="relative">
         <InputTypeIn
@@ -147,18 +149,17 @@ export const ConnectorMultiSelect = ({
             {allConnectorsSelected ? (
               <div className="py-4 px-3">
                 <Text as="p" text03 className="text-center text-xs">
-                  All available connectors have been selected. Remove connectors
-                  below to add different ones.
+                  {t("components.connectorMultiSelect.allAvailableSelected")}
                 </Text>
               </div>
             ) : filteredUnselectedConnectors.length === 0 ? (
               <div className="py-4 px-3">
                 <Text as="p" text03 className="text-center text-xs">
                   {searchQuery
-                    ? "No matching connectors found"
+                    ? t("components.connectorMultiSelect.noMatching")
                     : connectors.length === 0
-                      ? "No private connectors available. Create a private connector first."
-                      : "No more connectors available"}
+                      ? t("components.connectorMultiSelect.noPrivateAvailable")
+                      : t("components.connectorMultiSelect.noMoreAvailable")}
                 </Text>
               </div>
             ) : (
@@ -209,8 +210,8 @@ export const ConnectorMultiSelect = ({
                   prominence="tertiary"
                   size="sm"
                   type="button"
-                  aria-label="Remove connector"
-                  tooltip="Remove connector"
+                  aria-label={t("components.connectorMultiSelect.removeTooltip")}
+                  tooltip={t("components.connectorMultiSelect.removeTooltip")}
                   onClick={() => removeConnector(connector.cc_pair_id)}
                   icon={SvgX}
                 />
@@ -220,7 +221,7 @@ export const ConnectorMultiSelect = ({
         </div>
       ) : (
         <div className="mt-3 p-3 border border-dashed border-border-02 rounded-12 bg-background-neutral-01 text-text-03 text-xs">
-          No connectors selected. Search and select connectors above.
+          {t("components.connectorMultiSelect.noneSelected")}
         </div>
       )}
 

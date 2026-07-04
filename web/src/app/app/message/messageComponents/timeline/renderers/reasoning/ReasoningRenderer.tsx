@@ -22,6 +22,7 @@ import {
   collapsedMarkdownComponents,
 } from "@/app/app/message/messageComponents/timeline/renderers/sharedMarkdownComponents";
 import { SvgCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const THINKING_MIN_DURATION_MS = 500; // 0.5 second minimum for "Thinking" state
 
@@ -93,6 +94,7 @@ export const ReasoningRenderer: MessageRenderer<
   ReasoningPacket,
   FullChatState
 > = ({ packets, onComplete, animate, children }) => {
+  const { t } = useTranslation();
   const { hasStart, hasEnd, content } = useMemo(
     () => constructCurrentReasoningState(packets),
     [packets]
@@ -182,7 +184,7 @@ export const ReasoningRenderer: MessageRenderer<
   const reasoningContent = (
     <div className="pl-(--timeline-common-text-padding)">
       <ExpandableTextDisplay
-        title="Full text"
+        title={t("chat.fullText")}
         content={content}
         displayContent={displayContent}
         renderContent={renderMarkdown}

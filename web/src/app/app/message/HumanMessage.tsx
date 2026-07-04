@@ -12,6 +12,7 @@ import { Button } from "@opal/components";
 import { SvgEdit } from "@opal/icons";
 import { Hoverable } from "@opal/core";
 import FileDisplay from "./FileDisplay";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface MessageEditingProps {
   content: string;
@@ -140,6 +141,7 @@ const HumanMessage = React.memo(function HumanMessage({
 
   const [isEditing, setIsEditing] = useState(false);
   const { isMobile } = useScreenSize();
+  const { t } = useTranslation();
 
   // Use nodeId for switching (finding position in siblings)
   const indexInSiblings = otherMessagesCanSwitchTo?.indexOf(nodeId);
@@ -183,7 +185,7 @@ const HumanMessage = React.memo(function HumanMessage({
           <Button
             icon={SvgEdit}
             prominence="tertiary"
-            tooltip="Edit"
+            tooltip={t("chat.editMessage")}
             onClick={() => setIsEditing(true)}
             data-testid="HumanMessage/edit-button"
           />

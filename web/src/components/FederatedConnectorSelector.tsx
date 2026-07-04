@@ -11,6 +11,7 @@ import Text from "@/refresh-components/texts/Text";
 import { InputTypeIn } from "@opal/components";
 import { SvgX } from "@opal/icons";
 import { Button } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface FederatedConnectorSelectorProps {
   name: string;
@@ -30,9 +31,11 @@ export const FederatedConnectorSelector = ({
   selectedConfigs,
   onChange,
   disabled = false,
-  placeholder = "Search federated connectors...",
+  placeholder,
   showError = false,
 }: FederatedConnectorSelectorProps) => {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t("components.federatedConnectorSelector.searchPlaceholder");
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -121,8 +124,8 @@ export const FederatedConnectorSelector = ({
   };
 
   const effectivePlaceholder = allConnectorsSelected
-    ? "All federated connectors selected"
-    : placeholder;
+    ? t("components.federatedConnectorSelector.allSelected")
+    : resolvedPlaceholder;
 
   const isInputDisabled = disabled || allConnectorsSelected;
 
@@ -135,8 +138,7 @@ export const FederatedConnectorSelector = ({
       )}
 
       <Text as="p" mainUiMuted text03>
-        Documents from selected federated connectors will be searched in
-        real-time during queries.
+        {t("components.federatedConnectorSelector.desc")}
       </Text>
       <div className="relative">
         <InputTypeIn
@@ -165,8 +167,8 @@ export const FederatedConnectorSelector = ({
             {filteredUnselectedConnectors.length === 0 ? (
               <div className="py-4 text-center text-xs text-text-03">
                 {searchQuery
-                  ? "No matching federated connectors found"
-                  : "No more federated connectors available"}
+                  ? t("components.federatedConnectorSelector.noMatching")
+                  : t("components.federatedConnectorSelector.noMoreAvailable")}
               </div>
             ) : (
               <div>
@@ -225,7 +227,7 @@ export const FederatedConnectorSelector = ({
                     {hasEntitiesConfigured && (
                       <div
                         className="ml-1 w-2 h-2 bg-green-500 rounded-full shrink-0"
-                        title="Entities configured"
+                        title={t("components.federatedConnectorSelector.entitiesConfigured")}
                       />
                     )}
                   </div>
@@ -234,8 +236,8 @@ export const FederatedConnectorSelector = ({
                       prominence="tertiary"
                       size="sm"
                       type="button"
-                      aria-label="Remove connector"
-                      tooltip="Remove connector"
+                      aria-label={t("components.federatedConnectorSelector.removeTooltip")}
+                      tooltip={t("components.federatedConnectorSelector.removeTooltip")}
                       onClick={() => removeConnector(connector.id)}
                       icon={SvgX}
                     />
@@ -247,7 +249,7 @@ export const FederatedConnectorSelector = ({
         </div>
       ) : (
         <div className="mt-3 p-3 border border-dashed border-border-02 rounded-12 bg-background-neutral-01 text-text-03 text-xs">
-          No federated connectors selected. Search and select connectors above.
+          {t("components.federatedConnectorSelector.noneSelected")}
         </div>
       )}
 

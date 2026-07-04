@@ -17,6 +17,7 @@ import hljs from "highlight.js/lib/core";
 import python from "highlight.js/lib/languages/python";
 import { SvgTerminal } from "@opal/icons";
 import FadingEdgeContainer from "@/refresh-components/FadingEdgeContainer";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Register Python language for highlighting
 hljs.registerLanguage("python", python);
@@ -109,6 +110,7 @@ export const PythonToolRenderer: MessageRenderer<PythonToolPacket, {}> = ({
     isComplete,
     hasError,
   } = constructCurrentPythonState(packets);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isComplete) {
@@ -118,19 +120,19 @@ export const PythonToolRenderer: MessageRenderer<PythonToolPacket, {}> = ({
 
   const status = useMemo(() => {
     if (isStreaming) {
-      return "Writing code...";
+      return t("chat.writingCode");
     }
     if (isExecuting) {
-      return "Executing Python code...";
+      return t("chat.executingCode");
     }
     if (hasError) {
-      return "Python execution failed";
+      return t("chat.pythonFailed");
     }
     if (isComplete) {
-      return "Python execution completed";
+      return t("chat.pythonCompleted");
     }
-    return "Python execution";
-  }, [isStreaming, isComplete, isExecuting, hasError]);
+    return t("chat.pythonExecution");
+  }, [isStreaming, isComplete, isExecuting, hasError, t]);
 
   // Shared content for all states - used by both FULL and compact modes
   const content = (
@@ -149,7 +151,7 @@ export const PythonToolRenderer: MessageRenderer<PythonToolPacket, {}> = ({
               style={{ animationDelay: "0.2s" }}
             ></div>
           </div>
-          <span>{isStreaming ? "Writing code..." : "Running code..."}</span>
+          <span>{isStreaming ? t("chat.writingCode") : t("chat.runningCode")}</span>
         </div>
       )}
 
@@ -165,7 +167,7 @@ export const PythonToolRenderer: MessageRenderer<PythonToolPacket, {}> = ({
       {/* Output */}
       {stdout && (
         <div className="rounded-md bg-background-neutral-02 p-3">
-          <div className="text-xs font-semibold mb-1 text-text-03">Output:</div>
+          <div className="text-xs font-semibold mb-1 text-text-03">{t("chat.output")}</div>
           <pre className="text-sm whitespace-pre-wrap font-mono text-text-01 overflow-x-auto">
             {stdout}
           </pre>
@@ -195,7 +197,7 @@ export const PythonToolRenderer: MessageRenderer<PythonToolPacket, {}> = ({
       {isComplete && !stdout && !stderr && (
         <div className="py-2 text-center text-text-04">
           <SvgTerminal className="w-4 h-4 mx-auto mb-1 opacity-50" />
-          <p className="text-xs">No output</p>
+          <p className="text-xs">{t("chat.noOutput")}</p>
         </div>
       )}
     </div>

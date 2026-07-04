@@ -10,6 +10,7 @@ import {
 import { MessageRenderer, RenderType } from "../interfaces";
 import { InMessageImage } from "../../../components/files/images/InMessageImage";
 import GeneratingImageDisplay from "../../../components/tools/GeneratingImageDisplay";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Helper function to construct current image state
 function constructCurrentImageState(packets: ImageGenerationToolPacket[]) {
@@ -45,6 +46,7 @@ export const ImageToolRenderer: MessageRenderer<
   ImageGenerationToolPacket,
   {}
 > = ({ packets, onComplete, renderType, children }) => {
+  const { t } = useTranslation();
   const { prompt, images, isGenerating, isComplete, error } =
     constructCurrentImageState(packets);
 
@@ -59,10 +61,10 @@ export const ImageToolRenderer: MessageRenderer<
       return `Generated ${images.length} image${images.length > 1 ? "s" : ""}`;
     }
     if (isGenerating) {
-      return "Generating image...";
+      return t("chat.generatingImage");
     }
     return null;
-  }, [isComplete, isGenerating, images.length]);
+  }, [isComplete, isGenerating, images.length, t]);
 
   // Render based on renderType
   if (renderType === RenderType.FULL) {
@@ -72,7 +74,7 @@ export const ImageToolRenderer: MessageRenderer<
       return children([
         {
           icon: SvgImage,
-          status: "Generating images...",
+          status: t("chat.generatingImage"),
           supportsCollapsible: false,
           content: (
             <div className="flex flex-col">
@@ -115,7 +117,7 @@ export const ImageToolRenderer: MessageRenderer<
               ) : (
                 <div className="py-4 text-center text-gray-500 dark:text-gray-400 ml-7">
                   <SvgImage className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No images generated</p>
+                  <p className="text-sm">{t("chat.noImagesGenerated")}</p>
                 </div>
               )}
             </div>
@@ -140,7 +142,7 @@ export const ImageToolRenderer: MessageRenderer<
     return children([
       {
         icon: SvgImage,
-        status: "Generating image...",
+        status: t("chat.generatingImage"),
         supportsCollapsible: false,
         content: (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -155,7 +157,7 @@ export const ImageToolRenderer: MessageRenderer<
                 style={{ animationDelay: "0.2s" }}
               ></div>
             </div>
-            <span>Generating image...</span>
+            <span>{t("chat.generatingImage")}</span>
           </div>
         ),
       },
@@ -166,11 +168,11 @@ export const ImageToolRenderer: MessageRenderer<
     return children([
       {
         icon: SvgImage,
-        status: "Image generation failed",
+        status: t("chat.imageGenerationFailed"),
         supportsCollapsible: false,
         content: (
           <div className="text-sm text-red-600 dark:text-red-400">
-            Image generation failed
+            {t("chat.imageGenerationFailed")}
           </div>
         ),
       },
@@ -198,10 +200,10 @@ export const ImageToolRenderer: MessageRenderer<
   return children([
     {
       icon: SvgImage,
-      status: "Image generation",
+      status: t("chat.imageGeneration"),
       supportsCollapsible: false,
       content: (
-        <div className="text-sm text-muted-foreground">Image generation</div>
+        <div className="text-sm text-muted-foreground">{t("chat.imageGeneration")}</div>
       ),
     },
   ]);

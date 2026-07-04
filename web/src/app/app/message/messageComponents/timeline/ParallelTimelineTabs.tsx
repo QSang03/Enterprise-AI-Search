@@ -20,6 +20,7 @@ import { TimelineRow } from "@/app/app/message/messageComponents/timeline/primit
 import { TimelineSurface } from "@/app/app/message/messageComponents/timeline/primitives/TimelineSurface";
 import { TimelineTopSpacer } from "@/app/app/message/messageComponents/timeline/primitives/TimelineTopSpacer";
 import { TimelineStepComposer } from "./TimelineStepComposer";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ParallelTimelineTabsProps {
   /** Turn group containing parallel steps */
@@ -44,6 +45,7 @@ export function ParallelTimelineTabs({
   isLastTurnGroup,
   isFirstTurnGroup,
 }: ParallelTimelineTabsProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(turnGroup.steps[0]?.key ?? "");
   const [isExpanded, setIsExpanded] = useState(true);
   const [isHover, setIsHover] = useState(false);
@@ -134,6 +136,7 @@ export function ParallelTimelineTabs({
                     size="sm"
                     onClick={handleToggle}
                     icon={isExpanded ? SvgFold : SvgExpand}
+                    aria-label={isExpanded ? t("chat.collapseTimeline_aria") : t("chat.expandTimeline_aria")}
                   />
                 }
               >
@@ -145,7 +148,7 @@ export function ParallelTimelineTabs({
                   >
                     <span className="flex items-center gap-1.5">
                       {getToolIcon(step.packets)}
-                      {getToolName(step.packets)}
+                      {getToolName(step.packets, t)}
                     </span>
                   </Tabs.Trigger>
                 ))}

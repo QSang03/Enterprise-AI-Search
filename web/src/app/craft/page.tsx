@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CRAFT_PATH } from "@/app/craft/v1/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Build Page - Redirects to the new Build V1 page
@@ -12,6 +13,7 @@ import { CRAFT_PATH } from "@/app/craft/v1/constants";
  */
 export default function BuildPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   useEffect(() => {
     router.replace(CRAFT_PATH);
@@ -19,7 +21,7 @@ export default function BuildPage() {
 
   return (
     <div className="flex items-center justify-center h-screen">
-      <div className="animate-pulse text-text-03">Redirecting...</div>
+      <div className="animate-pulse text-text-03">{t("craft.redirecting")}</div>
     </div>
   );
 }

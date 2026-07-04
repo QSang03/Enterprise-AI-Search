@@ -6,6 +6,7 @@ import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { useStreamingDuration } from "../hooks/useStreamingDuration";
 import { formatDurationSeconds } from "@opal/time";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface StreamingHeaderProps {
   headerText: string;
@@ -36,6 +37,7 @@ export const StreamingHeader = React.memo(function StreamingHeader({
   );
   const showElapsedTime =
     isExpanded && streamingStartTime && elapsedSeconds > 0;
+  const { t } = useTranslation();
 
   return (
     <>
@@ -62,7 +64,7 @@ export const StreamingHeader = React.memo(function StreamingHeader({
             size="md"
             onClick={onToggle}
             rightIcon={SvgFold}
-            aria-label="Collapse timeline"
+            aria-label={t("chat.collapseTimeline")}
             aria-expanded={true}
           >
             {formatDurationSeconds(elapsedSeconds)}
@@ -73,7 +75,7 @@ export const StreamingHeader = React.memo(function StreamingHeader({
             size="md"
             onClick={onToggle}
             icon={isExpanded ? SvgFold : SvgExpand}
-            aria-label={isExpanded ? "Collapse timeline" : "Expand timeline"}
+            aria-label={isExpanded ? t("chat.collapseTimeline") : t("chat.expandTimeline")}
             aria-expanded={isExpanded}
           />
         ))}

@@ -12,6 +12,7 @@ import ModelPickerButton from "@/app/craft/components/ModelPickerButton";
 import SuggestedPrompts from "@/app/craft/components/SuggestedPrompts";
 import ConnectDataBanner from "@/app/craft/components/ConnectDataBanner";
 import { BuildLlmSelection } from "@/app/craft/onboarding/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BuildWelcomeProps {
   onSubmit: (
@@ -34,6 +35,7 @@ export default function BuildWelcome({
   isRunning,
   sandboxInitializing = false,
 }: BuildWelcomeProps) {
+  const { t } = useTranslation();
   const inputBarRef = useRef<CraftInputBarHandle>(null);
   const [selectedModel, setSelectedModel] = useState<BuildLlmSelection | null>(
     null
@@ -93,7 +95,7 @@ export default function BuildWelcome({
               onSubmit(message, files, selectedModel)
             }
             isRunning={isRunning}
-            placeholder="Analyze my data and create a dashboard..."
+            placeholder={t("craft.welcomePlaceholder")}
             sandboxInitializing={sandboxInitializing}
           />
         </div>

@@ -48,7 +48,9 @@ def insert_user_group(
     # Add cc_pairs
     if cc_pair_ids:
         for cc_id in cc_pair_ids:
-            cc_pair = db_session.get(ConnectorCredentialPair, cc_id)
+            cc_pair = db_session.scalar(
+                select(ConnectorCredentialPair).where(ConnectorCredentialPair.id == cc_id)
+            )
             if cc_pair:
                 db_session.add(UserGroup__ConnectorCredentialPair(
                     user_group_id=new_group.id,
@@ -91,7 +93,9 @@ def update_user_group(
         )
         # Add new cc_pairs
         for cc_id in cc_pair_ids:
-            cc_pair = db_session.get(ConnectorCredentialPair, cc_id)
+            cc_pair = db_session.scalar(
+                select(ConnectorCredentialPair).where(ConnectorCredentialPair.id == cc_id)
+            )
             if cc_pair:
                 db_session.add(UserGroup__ConnectorCredentialPair(
                     user_group_id=user_group_id,

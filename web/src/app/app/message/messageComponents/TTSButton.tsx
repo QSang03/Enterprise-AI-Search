@@ -6,6 +6,7 @@ import { Button } from "@opal/components";
 import { useVoicePlayback } from "@/hooks/useVoicePlayback";
 import { useVoiceMode } from "@/providers/VoiceModeProvider";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface TTSButtonProps {
   text: string;
@@ -14,6 +15,7 @@ interface TTSButtonProps {
 }
 
 function TTSButton({ text, voice, speed }: TTSButtonProps) {
+  const { t } = useTranslation();
   const { isPlaying, isLoading, error, play, pause, stop } = useVoicePlayback();
   const { isTTSPlaying, isTTSLoading, isAwaitingAutoPlaybackStart, stopTTS } =
     useVoiceMode();
@@ -39,7 +41,7 @@ function TTSButton({ text, voice, speed }: TTSButtonProps) {
         await play(text, voice, speed);
       } catch (err) {
         console.error("TTS playback failed:", err);
-        toast.error("Could not play audio");
+        toast.error(t("chat.couldNotPlayAudio"));
       }
     }
   }, [
@@ -69,10 +71,10 @@ function TTSButton({ text, voice, speed }: TTSButtonProps) {
       : SvgPlayCircle;
 
   const tooltip = isButtonPlaying
-    ? "Stop playback"
+    ? t("chat.stopPlayback")
     : isButtonLoading
-      ? "Loading..."
-      : "Read aloud";
+      ? t("chat.loading")
+      : t("chat.readAloud");
 
   return (
     <Button

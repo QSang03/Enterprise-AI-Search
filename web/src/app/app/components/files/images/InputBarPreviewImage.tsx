@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { buildImgUrl } from "./utils";
 import { FullImageModal } from "./FullImageModal";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function InputBarPreviewImage({ fileId }: { fileId: string }) {
+  const { t } = useTranslation();
   const [fullImageShowing, setFullImageShowing] = useState(false);
 
   return (
@@ -29,7 +31,7 @@ export function InputBarPreviewImage({ fileId }: { fileId: string }) {
       `}
       >
         <img
-          alt="preview"
+          alt={t("chat.preview")}
           onClick={() => setFullImageShowing(true)}
           className="h-6 w-6 object-cover rounded-lg bg-background cursor-pointer"
           src={buildImgUrl(fileId)}

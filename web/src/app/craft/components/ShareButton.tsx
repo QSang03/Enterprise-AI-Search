@@ -8,6 +8,7 @@ import type { SharingScope } from "@/app/craft/types/streamingTypes";
 import { cn } from "@opal/utils";
 import { Section } from "@/layouts/general-layouts";
 import { ContentAction } from "@opal/layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ShareButtonProps {
   sessionId: string;
@@ -39,6 +40,7 @@ export default function ShareButton({
   sharingScope: initialScope,
   onScopeChange,
 }: ShareButtonProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [sharingScope, setSharingScope] = useState<SharingScope>(initialScope);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
@@ -98,9 +100,9 @@ export default function ShareButton({
             variant="action"
             prominence={isShared ? "primary" : "tertiary"}
             icon={SvgLink}
-            aria-label="Share webapp"
+            aria-label={t("craft.shareWebapp")}
           >
-            {isShared ? "Shared" : "Share"}
+            {isShared ? t("craft.shared") : t("craft.share")}
           </Button>
         </Popover.Trigger>
         <Popover.Content side="bottom" align="end" width="lg" sideOffset={4}>
@@ -113,32 +115,36 @@ export default function ShareButton({
           >
             {/* Scope options */}
             <Section alignItems="stretch" gap={0.25} width="full">
-              {SCOPE_OPTIONS.map((opt) => (
-                <div
-                  key={opt.value}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleSelect(opt.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && handleSelect(opt.value)
-                  }
-                  aria-disabled={isLoading}
-                  className={cn(
-                    "cursor-pointer rounded-08 transition-colors",
-                    sharingScope === opt.value
-                      ? "bg-background-tint-03"
-                      : "hover:bg-background-tint-02"
-                  )}
-                >
-                  <ContentAction
-                    title={opt.label}
-                    description={opt.description}
-                    sizePreset="main-ui"
-                    variant="section"
-                    padding="sm"
-                  />
-                </div>
-              ))}
+              {SCOPE_OPTIONS.map((opt) => {
+                const label = opt.value === "private" ? t("craft.private") : t("craft.organization");
+                const description = opt.value === "private" ? t("craft.privateDesc") : t("craft.organizationDesc");
+                return (
+                  <div
+                    key={opt.value}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleSelect(opt.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleSelect(opt.value)
+                    }
+                    aria-disabled={isLoading}
+                    className={cn(
+                      "cursor-pointer rounded-08 transition-colors",
+                      sharingScope === opt.value
+                        ? "bg-background-tint-03"
+                        : "hover:bg-background-tint-02"
+                    )}
+                  >
+                    <ContentAction
+                      title={label}
+                      description={description}
+                      sizePreset="main-ui"
+                      variant="section"
+                      padding="sm"
+                    />
+                  </div>
+                );
+              })}
             </Section>
 
             {/* Copy link — shown when not private */}
@@ -169,7 +175,7 @@ export default function ShareButton({
                           : SvgCopy
                     }
                     onClick={handleCopy}
-                    aria-label="Copy link"
+                    aria-label={t("craft.copyLink")}
                   />
                 </Section>
               </div>

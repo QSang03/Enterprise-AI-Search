@@ -14,6 +14,7 @@ import {
   QUERIES_PER_EXPANSION,
 } from "./searchStateUtils";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const queryToSourceInfo = (query: string, index: number): SourceInfo => ({
   id: `query-${index}`,
@@ -41,19 +42,20 @@ export const WebSearchToolRenderer: MessageRenderer<SearchToolPacket, {}> = ({
   renderType,
   children,
 }) => {
+  const { t } = useTranslation();
   const searchState = constructCurrentSearchState(packets);
   const { queries } = searchState;
 
   const isHighlight = renderType === RenderType.HIGHLIGHT;
   const isInline = renderType === RenderType.INLINE;
 
-  const queriesHeader = "Searching the web";
+  const queriesHeader = t("chat.searchingWeb");
 
   if (queries.length === 0) {
     return children([
       {
         icon: SvgGlobe,
-        status: "Searching the web",
+        status: t("chat.searchingWeb"),
         content: <div />,
         supportsCollapsible: false,
         timelineLayout: "timeline",
@@ -118,7 +120,7 @@ export const WebSearchToolRenderer: MessageRenderer<SearchToolPacket, {}> = ({
   return children([
     {
       icon: SvgGlobe,
-      status: "Searching the web",
+      status: t("chat.searchingWeb"),
       content: (
         <SearchChipList
           items={queries}

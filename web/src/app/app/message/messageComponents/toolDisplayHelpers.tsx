@@ -87,40 +87,44 @@ export function parseToolKey(key: string): {
   };
 }
 
-export function getToolName(packets: Packet[]): string {
+export function getToolName(packets: Packet[], t?: any): string {
   const firstPacket = packets[0];
-  if (!firstPacket) return "Tool";
+  if (!firstPacket) return t ? t("tools.tool") : "Tool";
 
   switch (firstPacket.obj.type) {
     case PacketType.SEARCH_TOOL_START: {
       const searchState = constructCurrentSearchState(
         packets as SearchToolPacket[]
       );
-      return searchState.isInternetSearch ? "Web Search" : "Internal Search";
+      if (searchState.isInternetSearch) {
+        return t ? t("tools.webSearch") : "Web Search";
+      }
+      return t ? t("tools.internalSearch") : "Internal Search";
     }
     case PacketType.PYTHON_TOOL_START:
-      return "Code Interpreter";
+      return t ? t("tools.codeInterpreter") : "Code Interpreter";
     case PacketType.FETCH_TOOL_START:
-      return "Open URLs";
+      return t ? t("tools.openUrls") : "Open URLs";
     case PacketType.CUSTOM_TOOL_START:
       return (
-        (firstPacket.obj as { tool_name?: string }).tool_name || "Custom Tool"
+        (firstPacket.obj as { tool_name?: string }).tool_name ||
+        (t ? t("tools.customTool") : "Custom Tool")
       );
     case PacketType.IMAGE_GENERATION_TOOL_START:
-      return "Generate Image";
+      return t ? t("tools.generateImage") : "Generate Image";
     case PacketType.DEEP_RESEARCH_PLAN_START:
-      return "Generate plan";
+      return t ? t("tools.generatePlan") : "Generate plan";
     case PacketType.RESEARCH_AGENT_START:
-      return "Research agent";
+      return t ? t("tools.researchAgent") : "Research agent";
     case PacketType.CODING_AGENT_START:
-      return "Coding agent";
+      return t ? t("tools.codingAgent") : "Coding agent";
     case PacketType.REASONING_START:
-      return "Thinking";
+      return t ? t("tools.thinking") : "Thinking";
     case PacketType.MEMORY_TOOL_START:
     case PacketType.MEMORY_TOOL_NO_ACCESS:
-      return "Memory";
+      return t ? t("tools.memory") : "Memory";
     default:
-      return "Tool";
+      return t ? t("tools.tool") : "Tool";
   }
 }
 

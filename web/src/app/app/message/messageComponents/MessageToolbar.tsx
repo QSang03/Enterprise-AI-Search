@@ -30,6 +30,7 @@ import TTSButton from "@/app/app/message/messageComponents/TTSButton";
 import { useVoiceMode } from "@/providers/VoiceModeProvider";
 import { useVoiceStatus } from "@/hooks/useVoiceStatus";
 import { findModelConfigId } from "@/lib/languageModels/options";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface SouurcesTagWrapperProps {
   citations: StreamingCitation[];
@@ -76,10 +77,11 @@ const SourcesTagWrapper = React.memo(function SourcesTagWrapper({
 
   if (sources.length === 0) return null;
 
+  const { t: tSrc } = useTranslation();
   return (
     <SourceTag
       variant="button"
-      displayName="Sources"
+      displayName={tSrc("chat.sources")}
       sources={sources}
       onSourceClick={handleSourceClick}
       toggleSource
@@ -137,6 +139,7 @@ export default function MessageToolbar({
   citations,
   documentMap,
 }: MessageToolbarProps) {
+  const { t } = useTranslation();
   // Document sidebar state - managed internally to reduce prop drilling
   const documentSidebarVisible = useDocumentSidebarVisible();
   const selectedMessageForDocDisplay = useSelectedNodeForDocDisplay();
@@ -268,7 +271,7 @@ export default function MessageToolbar({
               variant="select-light"
               state={isFeedbackTransient("like") ? "selected" : "empty"}
               tooltip={
-                currentFeedback === "like" ? "Remove Like" : "Good Response"
+                currentFeedback === "like" ? t("chat.removeLike") : t("chat.goodResponse")
               }
               data-testid="AgentMessage/like-button"
             />
@@ -279,8 +282,8 @@ export default function MessageToolbar({
               state={isFeedbackTransient("dislike") ? "selected" : "empty"}
               tooltip={
                 currentFeedback === "dislike"
-                  ? "Remove Dislike"
-                  : "Bad Response"
+                  ? t("chat.removeDislike")
+                  : t("chat.badResponse")
               }
               data-testid="AgentMessage/dislike-button"
             />

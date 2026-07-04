@@ -13,6 +13,7 @@ import { BlinkingBar } from "@/app/app/message/BlinkingBar";
 import { Section } from "@/layouts/general-layouts";
 import Card from "@/refresh-components/cards/Card";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface FileReaderState {
   fileName: string | null;
@@ -54,18 +55,13 @@ function constructFileReaderState(
   };
 }
 
-function formatCharRange(
-  startChar: number,
-  endChar: number,
-  totalChars: number
-): string {
-  return `chars ${startChar.toLocaleString()}\u2013${endChar.toLocaleString()} of ${totalChars.toLocaleString()}`;
-}
+// Note: formatCharRange helper removed from module level and defined inside component to use translation hook
 
 export const FileReaderToolRenderer: MessageRenderer<
   FileReaderToolPacket,
   {}
 > = ({ packets, onComplete, stopPacketSeen, renderType, children }) => {
+  const { t } = useTranslation();
   const state = constructFileReaderState(packets);
 
   useEffect(() => {
@@ -74,13 +70,24 @@ export const FileReaderToolRenderer: MessageRenderer<
     }
   }, [state.isComplete, onComplete]);
 
+  const formatCharRange = (
+    startChar: number,
+    endChar: number,
+    totalChars: number
+  ): string => {
+    return t("chat.charRange", {
+      start: startChar.toLocaleString(),
+      end: endChar.toLocaleString(),
+      total: totalChars.toLocaleString(),
+    });
+  };
+
   const statusText = state.fileName
-    ? `Read ${state.fileName} (${formatCharRange(
-        state.startChar,
-        state.endChar,
-        state.totalChars
-      )})`
-    : "Reading file";
+    ? t("chat.readSuccess", {
+        fileName: state.fileName,
+        range: formatCharRange(state.startChar, state.endChar, state.totalChars),
+      })
+    : t("chat.readingFile");
 
   const isCompact = renderType === RenderType.COMPACT;
 

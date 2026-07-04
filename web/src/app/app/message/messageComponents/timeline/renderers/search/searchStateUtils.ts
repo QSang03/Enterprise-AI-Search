@@ -45,8 +45,8 @@ export interface SearchState {
  */
 const MAX_HEADER_SOURCES = 3;
 
-export const formatSearchHeader = (sourceFilters: string[]): string => {
-  if (sourceFilters.length === 0) return "Searching internal documents";
+export const formatSearchHeader = (sourceFilters: string[], t?: any): string => {
+  if (sourceFilters.length === 0) return t ? t("chat.searchingInternal") : "Searching internal documents";
   const names = sourceFilters.map((source) =>
     isValidSource(source)
       ? getSourceDisplayName(source as ValidSources)
@@ -55,8 +55,12 @@ export const formatSearchHeader = (sourceFilters: string[]): string => {
   const shown = names.slice(0, MAX_HEADER_SOURCES);
   const overflow = names.length - shown.length;
   const label =
-    overflow > 0 ? `${shown.join(", ")} +${overflow} more` : shown.join(", ");
-  return `Searching ${label}`;
+    overflow > 0
+      ? t
+        ? `${shown.join(", ")} ${t("chat.moreCount", { count: overflow })}`
+        : `${shown.join(", ")} +${overflow} more`
+      : shown.join(", ");
+  return t ? t("chat.searchingLabel", { label }) : `Searching ${label}`;
 };
 
 /** Constructs the current search state from search tool packets. */

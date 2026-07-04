@@ -26,6 +26,7 @@ import { CodeBlock } from "@/app/app/message/CodeBlock";
 import ExpandableTextDisplay from "@/refresh-components/texts/ExpandableTextDisplay";
 import { Text } from "@opal/components";
 import { IoBlockLabel } from "@/app/app/message/messageComponents/IoBlockLabel";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function ensureBashHljsRegistered() {
   if (!hljs.listLanguages().includes("bash")) {
@@ -132,10 +133,11 @@ interface ThinkingStepProps {
 }
 
 function ThinkingStep({ step, isLastStep, isHover }: ThinkingStepProps) {
+  const { t } = useTranslation();
   return (
     <StepContainer
       stepIcon={SvgSparkle}
-      header="Thinking"
+      header={t("chat.thinking")}
       isLastStep={isLastStep}
       isHover={isHover}
       collapsible={true}
@@ -150,10 +152,10 @@ function ThinkingStep({ step, isLastStep, isHover }: ThinkingStepProps) {
   );
 }
 
-function bashStepHeader(call: BashStepView): string {
-  if (!call.isComplete) return "Bash · running…";
-  if (call.timed_out) return "Bash · timed out";
-  return `Bash · exit ${call.exit_code ?? 0}`;
+function bashStepHeader(call: BashStepView, t: any): string {
+  if (!call.isComplete) return t("chat.bashRunning");
+  if (call.timed_out) return t("chat.bashTimedOut");
+  return t("chat.bashExit", { code: call.exit_code ?? 0 });
 }
 
 function bashStepIcon(call: BashStepView) {
@@ -163,6 +165,7 @@ function bashStepIcon(call: BashStepView) {
 }
 
 function BashStepBody({ call }: { call: BashStepView }) {
+  const { t } = useTranslation();
   const hasStdout = call.stdout.length > 0;
   const hasStderr = call.stderr.length > 0;
   const hasResponse = hasStdout || hasStderr || call.isComplete;
@@ -170,7 +173,7 @@ function BashStepBody({ call }: { call: BashStepView }) {
   return (
     <div className="flex flex-col gap-3 pl-(--timeline-common-text-padding)">
       <div>
-        <IoBlockLabel label="Request" />
+        <IoBlockLabel label={t("chat.request")} />
         <div className="prose max-w-full">
           <CodeBlock
             className="font-secondary-mono"
@@ -184,24 +187,24 @@ function BashStepBody({ call }: { call: BashStepView }) {
 
       {hasResponse && (
         <div className="flex flex-col gap-2">
-          <IoBlockLabel label="Response" />
+          <IoBlockLabel label={t("chat.response")} />
           {hasStdout && (
             <ExpandableTextDisplay
-              title="stdout"
+              title={t("chat.stdout")}
               content={call.stdout}
               maxLines={3}
             />
           )}
           {hasStderr && (
             <ExpandableTextDisplay
-              title="stderr"
+              title={t("chat.stderr")}
               content={call.stderr}
               maxLines={3}
             />
           )}
           {!hasStdout && !hasStderr && call.isComplete && (
             <Text as="p" font="main-ui-muted" color="text-04">
-              No output
+              {t("chat.noOutput")}
             </Text>
           )}
         </div>
@@ -217,10 +220,11 @@ interface BashCallStepProps {
 }
 
 function BashCallStep({ call, isLastStep, isHover }: BashCallStepProps) {
+  const { t } = useTranslation();
   return (
     <StepContainer
       stepIcon={bashStepIcon(call)}
-      header={bashStepHeader(call)}
+      header={bashStepHeader(call, t)}
       isLastStep={isLastStep}
       isHover={isHover}
       collapsible={true}
@@ -266,10 +270,11 @@ function CodingTaskStep({
   isLastStep,
   isHover,
 }: CodingTaskStepProps) {
+  const { t } = useTranslation();
   return (
     <StepContainer
       stepIcon={SvgCircle}
-      header="Coding Task"
+      header={t("chat.codingTask")}
       collapsible={true}
       isLastStep={isLastStep}
       isFirstStep={true}
@@ -291,10 +296,11 @@ interface ResponseStepProps {
 }
 
 function ResponseStep({ answer, isLastStep, isHover }: ResponseStepProps) {
+  const { t } = useTranslation();
   return (
     <StepContainer
       stepIcon={SvgCheckCircle}
-      header="Response"
+      header={t("chat.response")}
       isLastStep={isLastStep}
       isHover={isHover}
       collapsible={true}
@@ -316,6 +322,7 @@ export const CodingAgentRenderer: MessageRenderer<CodingAgentPacket, {}> = ({
   isHover = false,
   children,
 }) => {
+  const { t } = useTranslation();
   const startPacket = packets.find(
     (p) => p.obj.type === PacketType.CODING_AGENT_START
   )?.obj as CodingAgentStart | undefined;
@@ -331,7 +338,7 @@ export const CodingAgentRenderer: MessageRenderer<CodingAgentPacket, {}> = ({
 
   const taskText = startPacket
     ? startPacket.repo
-      ? `${startPacket.query}\n\nRepository: ${startPacket.repo}`
+      ? `${startPacket.query}\n\n${t("chat.repository")}: ${startPacket.repo}`
       : startPacket.query
     : "";
 
@@ -355,24 +362,24 @@ export const CodingAgentRenderer: MessageRenderer<CodingAgentPacket, {}> = ({
     let body: JSX.Element | null = null;
 
     if (finalPacket) {
-      header = "Response";
+      header = t("chat.response");
       body = (
         <Text as="p" font="main-ui-muted" color="text-02">
           {finalPacket.answer}
         </Text>
       );
     } else if (latestStep?.kind === "bash") {
-      header = bashStepHeader(latestStep);
+      header = bashStepHeader(latestStep, t);
       body = <BashStepBody call={latestStep} />;
     } else if (latestStep?.kind === "thinking") {
-      header = "Thinking";
+      header = t("chat.thinking");
       body = (
         <Text as="p" font="main-ui-muted" color="text-02">
           {latestStep.content}
         </Text>
       );
     } else if (taskText) {
-      header = "Coding Task";
+      header = t("chat.codingTask");
       body = (
         <Text as="p" font="main-ui-muted" color="text-03">
           {taskText}

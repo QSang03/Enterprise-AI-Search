@@ -1,6 +1,7 @@
 import React, { JSX, useState, useEffect, useRef, useMemo } from "react";
 import { SourceTag, SourceInfo } from "@/refresh-components/buttons/source-tag";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type { SourceInfo };
 
@@ -35,6 +36,7 @@ export function SearchChipList<T>({
   showDetailsCard,
   isQuery,
 }: SearchChipListProps<T>): JSX.Element {
+  const { t } = useTranslation();
   const [visibleCount, setVisibleCount] = useState(initialCount);
   const animatedKeysRef = useRef<Set<string>>(new Set());
 
@@ -104,11 +106,11 @@ export function SearchChipList<T>({
                 onSourceClick={onClick ? () => onClick(entry.item) : undefined}
                 showDetailsCard={showDetailsCard}
                 isQuery={isQuery}
-                tooltipText={isQuery ? "View Full Search Term" : undefined}
+                tooltipText={isQuery ? t("chat.viewFullSearchTerm") : undefined}
               />
             ) : (
               <SourceTag
-                displayName={`+${remainingCount} more`}
+                displayName={t("chat.moreCount", { count: remainingCount })}
                 sources={remainingItems.map((item, i) =>
                   toSourceInfo(item, chipCount + i)
                 )}

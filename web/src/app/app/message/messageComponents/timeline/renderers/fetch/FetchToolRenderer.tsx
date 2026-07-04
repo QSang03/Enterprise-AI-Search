@@ -15,6 +15,7 @@ import {
 } from "./fetchStateUtils";
 import Text from "@/refresh-components/texts/Text";
 import { SvgCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const urlToSourceInfo = (url: string, index: number): SourceInfo => ({
   id: `url-${index}`,
@@ -54,6 +55,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
   renderType,
   children,
 }) => {
+  const { t } = useTranslation();
   const fetchState = constructCurrentFetchState(packets);
   const { urls, documents, hasStarted, isLoading, isComplete } = fetchState;
   const isCompact = renderType === RenderType.COMPACT;
@@ -63,7 +65,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
     return children([
       {
         icon: SvgCircle,
-        status: "Reading",
+        status: t("chat.reading"),
         content: <div />,
         supportsCollapsible: false,
         timelineLayout: "timeline",
@@ -85,7 +87,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
         content: (
           <div className="flex flex-col">
             <Text as="p" text02 className="text-sm mb-1">
-              Reading
+              {t("chat.reading")}
             </Text>
             {displayDocuments ? (
               <SearchChipList
@@ -121,7 +123,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
   return children([
     {
       icon: SvgCircle,
-      status: "Reading",
+      status: t("chat.reading"),
       supportsCollapsible: false,
       timelineLayout: "timeline",
       content: (

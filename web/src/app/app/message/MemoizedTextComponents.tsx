@@ -19,6 +19,7 @@ import {
 } from "@/refresh-components/buttons/source-tag/sourceTagUtils";
 import { openDocument } from "@/lib/search/utils";
 import { ensureHrefProtocol } from "@/lib/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface DocumentCardProps {
   document: LoadedOnyxDocument;
@@ -142,6 +143,7 @@ export const MemoizedLink = memo(
     node?: any;
     [key: string]: any;
   }) => {
+    const { t } = useTranslation();
     const value = rest.children;
 
     // Convert document to SourceInfo for SourceTag
@@ -175,7 +177,7 @@ export const MemoizedLink = memo(
 
       const displayName = document
         ? getDisplayNameForSource(document as OnyxDocument)
-        : question?.question || "Question";
+        : question?.question || t("chat.question");
 
       return (
         <SourceTag
@@ -195,7 +197,7 @@ export const MemoizedLink = memo(
     const isChatFile = url?.includes("/api/chat/file/");
     if (isChatFile && updatePresentingDocument) {
       const fileId = url!.split("/api/chat/file/")[1]?.split(/[?#]/)[0] || "";
-      const filename = value?.toString() || "download";
+      const filename = value?.toString() || t("chat.downloadFile");
       return (
         <a
           href="#"

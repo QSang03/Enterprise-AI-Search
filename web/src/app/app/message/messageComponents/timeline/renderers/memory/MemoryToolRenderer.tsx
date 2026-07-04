@@ -13,6 +13,7 @@ import { cn } from "@opal/utils";
 import { Button } from "@opal/components";
 import MemoriesModal from "@/refresh-components/modals/MemoriesModal";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * MemoryToolRenderer - Renders memory tool execution steps
@@ -30,6 +31,7 @@ export const MemoryToolRenderer: MessageRenderer<MemoryToolPacket, {}> = ({
   children,
 }) => {
   const memoryState = constructCurrentMemoryState(packets);
+  const { t } = useTranslation();
   const {
     hasStarted,
     noAccess,
@@ -119,7 +121,7 @@ export const MemoryToolRenderer: MessageRenderer<MemoryToolPacket, {}> = ({
               prominence="tertiary"
               size="md"
               icon={SvgMaximize2}
-              tooltip="View Memories"
+              tooltip={t("chat.viewMemories")}
               onClick={(e) => {
                 e.stopPropagation();
                 memoriesModal.toggle(true);

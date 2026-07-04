@@ -54,6 +54,7 @@ import { useBuildContext } from "@/app/craft/contexts/BuildContext";
 import useScreenSize from "@/hooks/useScreenSize";
 import { cn } from "@opal/utils";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BuildChatPanelProps {
   /** Session ID from URL - used to prevent welcome flash while loading */
@@ -92,6 +93,7 @@ export default function BuildChatPanel({
     useBuildContext();
   const { isMobile } = useScreenSize();
   const toggleOutputPanel = useToggleOutputPanel();
+  const { t } = useTranslation();
 
   const { llmProviders } = useLLMProviders();
   // Picker shows the session's stored model unless the user picks another.
@@ -712,7 +714,7 @@ export default function BuildChatPanel({
                   {/* Scroll to bottom button - shown when user has scrolled away */}
                   {showScrollButton && (
                     <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-10">
-                      <Tooltip tooltip="Scroll to bottom" delayDuration={200}>
+                      <Tooltip tooltip={t("craft.scrollToBottom")} delayDuration={200}>
                         <button
                           onClick={scrollToBottom}
                           className={cn(
@@ -723,7 +725,7 @@ export default function BuildChatPanel({
                             "transition-all duration-200",
                             "hover:bg-background-tint-inverted-01"
                           )}
-                          aria-label="Scroll to bottom"
+                          aria-label={t("craft.scrollToBottom")}
                         >
                           <SvgChevronDown
                             size={20}

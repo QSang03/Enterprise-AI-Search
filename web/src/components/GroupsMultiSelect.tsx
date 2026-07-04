@@ -4,6 +4,7 @@ import { useUserGroups } from "@/lib/hooks";
 import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { GenericMultiSelect } from "@/components/GenericMultiSelect";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type GroupsMultiSelectFormType = {
   groups: number[];
@@ -19,11 +20,14 @@ interface GroupsMultiSelectProps<T extends GroupsMultiSelectFormType> {
 
 export function GroupsMultiSelect<T extends GroupsMultiSelectFormType>({
   formikProps,
-  label = "User Groups",
-  subtext = "Select which user groups can access this resource",
+  label,
+  subtext,
   disabled = false,
   disabledMessage,
 }: GroupsMultiSelectProps<T>) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t("components.groupsMultiSelect.label");
+  const resolvedSubtext = subtext ?? t("components.groupsMultiSelect.subtext");
   const {
     data: userGroups,
     isLoading: userGroupsIsLoading,
@@ -35,7 +39,7 @@ export function GroupsMultiSelect<T extends GroupsMultiSelectFormType>({
   if (userGroupsIsLoading || businessTier === undefined) {
     return (
       <div className="mb-4">
-        <Label>{label}</Label>
+        <Label>{resolvedLabel}</Label>
         <div className="animate-pulse bg-background-200 h-10 w-full rounded-lg mt-2"></div>
       </div>
     );
@@ -49,12 +53,12 @@ export function GroupsMultiSelect<T extends GroupsMultiSelectFormType>({
     <GenericMultiSelect
       formikProps={formikProps}
       fieldName="groups"
-      label={label}
-      subtext={subtext}
+      label={resolvedLabel}
+      subtext={resolvedSubtext}
       items={userGroups}
       isLoading={false}
       error={error}
-      emptyMessage="No user groups available. Please create a user group first."
+      emptyMessage={t("components.groupsMultiSelect.emptyMessage")}
       disabled={disabled}
       disabledMessage={disabledMessage}
     />

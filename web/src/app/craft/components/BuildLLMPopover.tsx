@@ -24,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BuildLLMPopoverProps {
   currentSelection: BuildLlmSelection | null;
@@ -52,6 +53,7 @@ export function BuildLLMPopover({
   children,
   disabled = false,
 }: BuildLLMPopoverProps) {
+  const { t } = useTranslation();
   // Well-known options expose unconfigured providers (admin-only; non-admins
   // get nothing here and just see their configured providers).
   const { llmProviderOptions } = useLLMProviderOptions();
@@ -342,7 +344,7 @@ export function BuildLLMPopover({
                           ) : (
                             <div className="flex items-center justify-between px-2 py-2">
                               <Text font="secondary-body" color="text-03">
-                                Not configured
+                                {t("craft.notConfigured")}
                               </Text>
                               <button
                                 onClick={() =>
@@ -353,7 +355,7 @@ export function BuildLLMPopover({
                                 className="flex items-center gap-1 px-2 py-1 text-xs rounded-08 bg-background-02 hover:bg-background-03 transition-colors"
                               >
                                 <SvgPlug className="w-3 h-3" />
-                                <span>Connect</span>
+                                <span>{t("craft.connect")}</span>
                               </button>
                             </div>
                           )}
@@ -406,7 +408,7 @@ export function BuildLLMPopover({
                                       className="flex items-center gap-1 px-2 py-0.5 mr-1 text-xs rounded-08 bg-background-02 hover:bg-background-03 transition-colors"
                                     >
                                       <SvgPlug className="w-3 h-3" />
-                                      <span>Connect</span>
+                                      <span>{t("craft.connect")}</span>
                                     </button>
                                   )}
                                   <div className="flex items-center justify-center size-6 shrink-0">
@@ -429,7 +431,7 @@ export function BuildLLMPopover({
                                           font="secondary-body"
                                           color="text-03"
                                         >
-                                          Not configured
+                                          {t("craft.notConfigured")}
                                         </Text>
                                       </div>
                                     )}

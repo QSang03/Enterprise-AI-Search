@@ -594,9 +594,10 @@ function GeneralSettings() {
                       onClick={() => applyBackground(bg)}
                       className="relative overflow-hidden rounded-lg transition-all w-[90px] h-[68px] cursor-pointer border-none p-0 bg-transparent group"
                       title={bg.label}
-                      aria-label={`${bg.label} background${
-                        isSelected ? " (selected)" : ""
-                      }`}
+                      aria-label={t("settings.backgroundAriaLabel", {
+                        label: bg.label,
+                        status: isSelected ? t("settings.selectedParentheses") : "",
+                      })}
                     >
                       {isNone ? (
                         <div className="absolute inset-0 bg-background flex items-center justify-center">
@@ -666,6 +667,7 @@ interface LocalShortcut extends InputPrompt {
 }
 
 function PromptShortcuts() {
+  const { t } = useTranslation();
   const { promptShortcuts, isLoading, error, refresh } = usePromptShortcuts();
   const [shortcuts, setShortcuts] = useState<LocalShortcut[]>([]);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -701,8 +703,8 @@ function PromptShortcuts() {
   // Show error popup if fetch fails
   useEffect(() => {
     if (!error) return;
-    toast.error("Failed to load shortcuts");
-  }, [error]);
+    toast.error(t("settings.failedLoadShortcuts"));
+  }, [error, t]);
 
   const handleUpdateShortcut = useCallback(
     (index: number, field: "prompt" | "content", value: string) => {
@@ -774,12 +776,12 @@ function PromptShortcuts() {
         if (response.ok) {
           setShortcuts((prev) => prev.filter((_, i) => i !== index));
           await refresh();
-          toast.success("Shortcut deleted");
+          toast.success(t("settings.shortcutDeleted"));
         } else {
           throw new Error("Failed to delete shortcut");
         }
       } catch (error) {
-        toast.error("Failed to delete shortcut");
+        toast.error(t("settings.failedDeleteShortcut"));
       }
     },
     [shortcuts, refresh]
@@ -789,7 +791,7 @@ function PromptShortcuts() {
     async (index: number) => {
       const shortcut = shortcuts[index];
       if (!shortcut || !shortcut.prompt.trim() || !shortcut.content.trim()) {
-        toast.error("Both shortcut and expansion are required");
+        toast.error(t("settings.shortcutRequired"));
         return;
       }
 
@@ -809,7 +811,7 @@ function PromptShortcuts() {
 
           if (response.ok) {
             await refresh();
-            toast.success("Shortcut created");
+            toast.success(t("settings.shortcutCreated"));
           } else {
             throw new Error("Failed to create shortcut");
           }
@@ -828,13 +830,13 @@ function PromptShortcuts() {
 
           if (response.ok) {
             await refresh();
-            toast.success("Shortcut updated");
+            toast.success(t("settings.shortcutUpdated"));
           } else {
             throw new Error("Failed to update shortcut");
           }
         }
       } catch (error) {
-        toast.error("Failed to save shortcut");
+        toast.error(t("settings.failedSaveShortcut"));
       }
     },
     [shortcuts, refresh]
@@ -880,7 +882,7 @@ function PromptShortcuts() {
               >
                 <InputTypeIn
                   prefixText="/"
-                  placeholder="Summarize"
+                  placeholder={t("settings.placeholderSummarize")}
                   value={shortcut.prompt}
                   onChange={(e) =>
                     handleUpdateShortcut(index, "prompt", e.target.value)
@@ -904,16 +906,16 @@ function PromptShortcuts() {
                     icon={SvgMinusCircle}
                     onClick={() => void handleRemoveShortcut(index)}
                     prominence="tertiary"
-                    aria-label="Remove shortcut"
+                    aria-label={t("settings.removeShortcut")}
                     tooltip={
                       shortcut.is_public
-                        ? "Cannot delete public prompt-shortcuts."
+                        ? t("settings.cannotDeletePublic")
                         : undefined
                     }
                   />
                 </Section>
                 <InputTextArea
-                  placeholder="Provide a concise 1–2 sentence summary of the following:"
+                  placeholder={t("settings.placeholderConciseSummary")}
                   value={shortcut.content}
                   onChange={(e) =>
                     handleUpdateShortcut(index, "content", e.target.value)
@@ -1659,7 +1661,7 @@ function AccountsAccessSettings() {
               description={t("settings.emailDesc")}
               center
             >
-              <Text color="text-05">{user?.email ?? "anonymous"}</Text>
+              <Text color="text-05">{user?.email ?? t("settings.anonymous")}</Text>
             </InputHorizontal>
 
             {showPasswordSection && (
@@ -1802,6 +1804,7 @@ interface IndexedConnectorCardProps {
 }
 
 function IndexedConnectorCard({ source, isActive }: IndexedConnectorCardProps) {
+  const { t } = useTranslation();
   const sourceMetadata = getSourceMetadata(source);
 
   return (
@@ -1809,7 +1812,7 @@ function IndexedConnectorCard({ source, isActive }: IndexedConnectorCardProps) {
       <Content
         icon={sourceMetadata.icon}
         title={sourceMetadata.displayName}
-        description={isActive ? "Connected" : "Paused"}
+        description={isActive ? t("settings.connected") : t("settings.paused")}
         sizePreset="main-content"
         variant="section"
       />
@@ -1826,6 +1829,7 @@ function FederatedConnectorCard({
   connector,
   onDisconnectSuccess,
 }: FederatedConnectorCardProps) {
+  const { t } = useTranslation();
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [showDisconnectConfirmation, setShowDisconnectConfirmation] =
     useState(false);
@@ -1840,25 +1844,25 @@ function FederatedConnectorCard({
       );
 
       if (response.ok) {
-        toast.success("Disconnected successfully");
+        toast.success(t("settings.disconnectSuccess"));
         setShowDisconnectConfirmation(false);
         onDisconnectSuccess();
       } else {
         throw new Error("Failed to disconnect");
       }
     } catch (error) {
-      toast.error("Failed to disconnect");
+      toast.error(t("settings.failedDisconnect"));
     } finally {
       setIsDisconnecting(false);
     }
-  }, [connector.federated_connector_id, onDisconnectSuccess]);
+  }, [connector.federated_connector_id, onDisconnectSuccess, t]);
 
   return (
     <>
       {showDisconnectConfirmation && (
         <ConfirmationModalLayout
           icon={SvgUnplug}
-          title={markdown(`Disconnect *${sourceMetadata.displayName}*`)}
+          title={markdown(t("settings.disconnectTitle", { name: sourceMetadata.displayName }))}
           onClose={() => setShowDisconnectConfirmation(false)}
           submit={
             <Button
@@ -1866,16 +1870,16 @@ function FederatedConnectorCard({
               variant="danger"
               onClick={() => void handleDisconnect()}
             >
-              {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+              {isDisconnecting ? t("settings.disconnecting") : t("settings.disconnect")}
             </Button>
           }
         >
           <Section gap={0.5} alignItems="start">
             <Text color="text-05">
-              {`Onyx will no longer be able to access or search content from your ${sourceMetadata.displayName} account.`}
+              {t("settings.disconnectDesc1", { name: sourceMetadata.displayName })}
             </Text>
             <Text color="text-05">
-              {`You can still continue existing sessions referencing ${sourceMetadata.displayName} content.`}
+              {t("settings.disconnectDesc2", { name: sourceMetadata.displayName })}
             </Text>
           </Section>
         </ConfirmationModalLayout>
@@ -1886,7 +1890,7 @@ function FederatedConnectorCard({
           icon={sourceMetadata.icon}
           title={sourceMetadata.displayName}
           description={
-            connector.has_oauth_token ? "Connected" : "Not connected"
+            connector.has_oauth_token ? t("settings.connected") : t("settings.notConnected")
           }
           sizePreset="main-content"
           variant="section"
@@ -1907,7 +1911,7 @@ function FederatedConnectorCard({
                 target="_blank"
                 rightIcon={SvgArrowExchange}
               >
-                Connect
+                {t("settings.connect")}
               </Button>
             ) : undefined
           }

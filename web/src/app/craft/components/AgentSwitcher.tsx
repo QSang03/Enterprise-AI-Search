@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Popover, PopoverMenu, Text, LineItemButton } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   SvgChevronDown,
   SvgCpu,
@@ -51,6 +52,7 @@ export default function AgentSwitcher() {
   const viewSubagent = useBuildSessionStore((s) => s.viewSubagent);
   const returnToMainAgent = useBuildSessionStore((s) => s.returnToMainAgent);
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   const sorted = useMemo(() => {
     return Array.from(subagents.values()).sort((a, b) => {
@@ -114,7 +116,7 @@ export default function AgentSwitcher() {
       <Popover.Trigger asChild>
         <button
           type="button"
-          aria-label="Switch agent"
+          aria-label={t("craft.switchAgent")}
           className={cn(
             "flex items-center gap-1 min-w-0 px-1.5 py-1 rounded-08",
             "transition-colors hover:bg-background-tint-01",
@@ -134,7 +136,7 @@ export default function AgentSwitcher() {
               variant="section"
               state={!isViewingSubagent ? "selected" : "empty"}
               onClick={selectMainAgent}
-              title={titleLabel ?? "Main agent"}
+              title={titleLabel ?? t("craft.mainAgent")}
             />,
             ...sorted.map((s) => (
               <LineItemButton

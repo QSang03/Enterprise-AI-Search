@@ -13,6 +13,7 @@ import { transformLinkUri } from "@/lib/utils";
 import { SvgAlertCircle } from "@opal/icons";
 import { SvgOnyxLogo } from "@opal/logos";
 import type { IconProps } from "@opal/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const ALL_USERS_INITIAL_POPUP_FLOW_COMPLETED =
   "allUsersInitialPopupFlowCompleted";
@@ -27,6 +28,7 @@ const CustomLogoHeaderIcon = ({ className, size = 24 }: IconProps) => (
 );
 
 export function AppPopup() {
+  const { t } = useTranslation();
   const [completedFlow, setCompletedFlow] = useState(true);
   const [showConsentError, setShowConsentError] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
@@ -76,7 +78,7 @@ export function AppPopup() {
       <Modal.Content width="sm" height="lg">
         <Modal.Header
           icon={headerIcon}
-          title={popupTitle || "Welcome to Onyx!"}
+          title={popupTitle || t("chat.welcomeToOnyx")}
         />
         <Modal.Body>
           <div className="overflow-y-auto text-left">
@@ -123,7 +125,7 @@ export function AppPopup() {
                 <div className="flex items-center gap-1">
                   <FormField.Control>
                     <Checkbox
-                      aria-label="Consent checkbox"
+                      aria-label={t("chat.consentCheckbox")}
                       checked={consentChecked}
                       onCheckedChange={(checked) => {
                         setConsentChecked(checked);
@@ -170,8 +172,7 @@ export function AppPopup() {
                 </div>
                 <FormField.Message
                   messages={{
-                    error:
-                      "You need to agree to the terms to access the application.",
+                    error: t("chat.consentError"),
                   }}
                 />
               </FormField>
@@ -192,7 +193,7 @@ export function AppPopup() {
               setCompletedFlow(true);
             }}
           >
-            Start
+            {t("chat.start")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

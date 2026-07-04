@@ -12,6 +12,7 @@ import { formatDurationSeconds } from "@opal/time";
 import { noProp } from "@/lib/utils";
 import MemoriesModal from "@/refresh-components/modals/MemoriesModal";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // =============================================================================
 // MemoryTagWithTooltip
@@ -30,10 +31,11 @@ function MemoryTagWithTooltip({
   memoryId,
   memoryIndex,
 }: MemoryTagWithTooltipProps) {
+  const { t } = useTranslation();
   const memoriesModal = useCreateModal();
 
   const operationLabel =
-    memoryOperation === "add" ? "Added to memories" : "Updated memory";
+    memoryOperation === "add" ? t("chat.addedToMemories") : t("chat.updatedMemory");
 
   const tag = <Tag icon={SvgAddLines} label={operationLabel} />;
 
@@ -128,6 +130,7 @@ export const CompletedHeader = React.memo(function CompletedHeader({
   memoryId = null,
   memoryIndex = null,
 }: CompletedHeaderProps) {
+  const { t } = useTranslation();
   if (isMemoryOnly) {
     return (
       <div className="flex w-full justify-between">
@@ -145,10 +148,10 @@ export const CompletedHeader = React.memo(function CompletedHeader({
             size="md"
             onClick={noProp(onToggle)}
             rightIcon={isExpanded ? SvgFold : SvgExpand}
-            aria-label="Expand timeline"
+            aria-label={t("chat.expandTimeline")}
             aria-expanded={isExpanded}
           >
-            {`${totalSteps} ${totalSteps === 1 ? "step" : "steps"}`}
+            {`${totalSteps} ${totalSteps === 1 ? t("chat.step") : t("chat.steps")}`}
           </Button>
         )}
       </div>
@@ -156,14 +159,14 @@ export const CompletedHeader = React.memo(function CompletedHeader({
   }
 
   const durationText = processingDurationSeconds
-    ? `Thought for ${formatDurationSeconds(processingDurationSeconds)}`
-    : "Thought for some time";
+    ? t("chat.thoughtDuration", { duration: formatDurationSeconds(processingDurationSeconds) })
+    : t("chat.thoughtSomeTime");
 
   const imageText =
     generatedImageCount > 0
-      ? `Generated ${generatedImageCount} ${
-          generatedImageCount === 1 ? "image" : "images"
-        }`
+      ? generatedImageCount === 1
+        ? t("chat.generatedImageSingle")
+        : t("chat.generatedImagePlural", { count: generatedImageCount })
       : null;
 
   return (
@@ -192,10 +195,10 @@ export const CompletedHeader = React.memo(function CompletedHeader({
           size="md"
           onClick={noProp(onToggle)}
           rightIcon={isExpanded ? SvgFold : SvgExpand}
-          aria-label="Expand timeline"
+          aria-label={t("chat.expandTimeline")}
           aria-expanded={isExpanded}
         >
-          {`${totalSteps} ${totalSteps === 1 ? "step" : "steps"}`}
+          {`${totalSteps} ${totalSteps === 1 ? t("chat.step") : t("chat.steps")}`}
         </Button>
       )}
     </div>

@@ -18,6 +18,7 @@ import {
   getMetadataTags,
 } from "./searchStateUtils";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const queryToSourceInfo = (query: string, index: number): SourceInfo => ({
   id: `query-${index}`,
@@ -61,6 +62,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
   renderType,
   children,
 }) => {
+  const { t } = useTranslation();
   const searchState = constructCurrentSearchState(packets);
   const { queries, results, sourceFilters, isComplete } = searchState;
 
@@ -71,7 +73,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
   const hasResults = results.length > 0;
 
   // A source filter overrides the header with the connector(s) it scoped to.
-  const queriesHeader = formatSearchHeader(sourceFilters);
+  const queriesHeader = formatSearchHeader(sourceFilters, t);
 
   if (queries.length === 0) {
     return children([
@@ -116,7 +118,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
                   <BlinkingBar />
                 ) : (
                   <Text as="p" text04 mainUiMuted>
-                    No results found
+                    {t("chat.noResultsFound")}
                   </Text>
                 )
               }
@@ -157,7 +159,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
     return children([
       {
         icon: null,
-        status: "Reading",
+        status: t("chat.reading"),
         supportsCollapsible: true,
         timelineLayout: "content",
         content: (
@@ -179,7 +181,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
                 <BlinkingBar />
               ) : (
                 <Text as="p" text04 mainUiMuted>
-                  No results found
+                  {t("chat.noResultsFound")}
                 </Text>
               )
             }
@@ -215,7 +217,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
             <>
               {!isCompact && (
                 <Text as="p" mainUiMuted text04>
-                  Reading
+                  {t("chat.reading")}
                 </Text>
               )}
               <SearchChipList
@@ -236,7 +238,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
                     <BlinkingBar />
                   ) : (
                     <Text as="p" text03 mainUiMuted>
-                      No results found
+                      {t("chat.noResultsFound")}
                     </Text>
                   )
                 }

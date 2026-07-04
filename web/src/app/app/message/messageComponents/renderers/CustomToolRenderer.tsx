@@ -17,6 +17,7 @@ import hljs from "highlight.js/lib/core";
 import json from "highlight.js/lib/languages/json";
 import FadingEdgeContainer from "@/refresh-components/FadingEdgeContainer";
 import { IoBlockLabel } from "@/app/app/message/messageComponents/IoBlockLabel";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Lazy registration for hljs JSON language
 function ensureHljsRegistered() {
@@ -94,6 +95,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
   renderType,
   children,
 }) => {
+  const { t } = useTranslation();
   const {
     toolName,
     toolArgs,
@@ -115,16 +117,16 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
     if (isComplete) {
       if (error) {
         return error.is_auth_error
-          ? `${toolName} authentication failed (HTTP ${error.status_code})`
-          : `${toolName} failed (HTTP ${error.status_code})`;
+          ? t("chat.toolAuthFailed", { tool: toolName, code: error.status_code })
+          : t("chat.toolFailed", { tool: toolName, code: error.status_code });
       }
-      if (responseType === "image") return `${toolName} returned images`;
-      if (responseType === "csv") return `${toolName} returned a file`;
-      return `${toolName} completed`;
+      if (responseType === "image") return t("chat.toolReturnedImages", { tool: toolName });
+      if (responseType === "csv") return t("chat.toolReturnedFile", { tool: toolName });
+      return t("chat.toolCompleted", { tool: toolName });
     }
-    if (isRunning) return `${toolName} running...`;
+    if (isRunning) return t("chat.toolRunning", { tool: toolName });
     return null;
-  }, [toolName, responseType, error, isComplete, isRunning]);
+  }, [toolName, responseType, error, isComplete, isRunning, t]);
 
   const icon = SvgActions;
 
@@ -161,7 +163,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
                 ></div>
               </div>
               <Text text03 secondaryBody>
-                Waiting for response...
+                {t("chat.waitingForResponse")}
               </Text>
             </div>
           )}
@@ -169,7 +171,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
         {/* Tool arguments */}
         {toolArgsJson && (
           <div>
-            <IoBlockLabel label="Request" />
+            <IoBlockLabel label={t("chat.request")} />
             <div className="prose max-w-full">
               <CodeBlock
                 className="font-secondary-mono"
@@ -197,7 +199,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
             {fileIds.map((fid, idx) => (
               <div key={fid} className="flex items-center gap-2 flex-wrap">
                 <Text text03 secondaryBody className="whitespace-nowrap">
-                  File {idx + 1}
+                  {t("chat.fileNum", { num: idx + 1 })}
                 </Text>
                 <a
                   href={buildImgUrl(fid)}
@@ -205,14 +207,14 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 text-xs text-action-link-01 hover:underline whitespace-nowrap"
                 >
-                  <SvgExternalLink className="w-3 h-3" /> Open
+                  <SvgExternalLink className="w-3 h-3" /> {t("chat.openFile")}
                 </a>
                 <a
                   href={buildImgUrl(fid)}
                   download
                   className="inline-flex items-center gap-1 text-xs text-action-link-01 hover:underline whitespace-nowrap"
                 >
-                  <SvgDownload className="w-3 h-3" /> Download
+                  <SvgDownload className="w-3 h-3" /> {t("chat.downloadFile")}
                 </a>
               </div>
             ))}
@@ -222,7 +224,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
         {/* JSON/Text responses */}
         {!error && data !== undefined && data !== null && (
           <div>
-            <IoBlockLabel label="Response" />
+            <IoBlockLabel label={t("chat.response")} />
             <div className="prose max-w-full">
               {dataJson ? (
                 <CodeBlock
@@ -246,7 +248,7 @@ export const CustomToolRenderer: MessageRenderer<CustomToolPacket, {}> = ({
         )}
       </div>
     ),
-    [toolArgsJson, dataJson, data, fileIds, error, isRunning]
+    [toolArgsJson, dataJson, data, fileIds, error, isRunning, t]
   );
 
   // Auth error: always render FULL with error surface

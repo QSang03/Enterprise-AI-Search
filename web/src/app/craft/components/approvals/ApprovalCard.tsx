@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 
 import { Button, Text, Tooltip } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { cn } from "@opal/utils";
 import {
   SvgAlertCircle,
@@ -80,6 +81,7 @@ export default function ApprovalCard({
   defaultDecision = null,
 }: ApprovalCardProps) {
   const { mutate } = useSWRConfig();
+  const { t } = useTranslation();
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -103,7 +105,7 @@ export default function ApprovalCard({
   const decided = decision !== null;
   const approved = decision === "APPROVED";
   const headline = approvalHeadline(approval);
-  const headerText = decided ? headline : `Approval required: ${headline}`;
+  const headerText = decided ? headline : t("craft.approvalRequired", { headline });
 
   async function submitDecision(
     next: ApprovalSubmitDecision,
@@ -232,12 +234,12 @@ export default function ApprovalCard({
                     postApprovalDecision(approval.approval_id, "APPROVED")
                   )
                 }
-                aria-label="Approve this action once"
+                aria-label={t("craft.approveOnce")}
               >
-                Approve once
+                {t("craft.approveOnceShort")}
               </Button>
               <Tooltip
-                tooltip="Approve matching actions for this session"
+                tooltip={t("craft.approveSession")}
                 delayDuration={200}
               >
                 <Button
@@ -251,9 +253,9 @@ export default function ApprovalCard({
                       0
                     )
                   }
-                  aria-label="Approve matching actions for this session"
+                  aria-label={t("craft.approveSession")}
                 >
-                  Approve for session
+                  {t("craft.approveSessionShort")}
                 </Button>
               </Tooltip>
               <Button
@@ -265,9 +267,9 @@ export default function ApprovalCard({
                     postApprovalDecision(approval.approval_id, "REJECTED")
                   )
                 }
-                aria-label="Reject this action"
+                aria-label={t("craft.rejectAction")}
               >
-                Reject
+                {t("craft.rejectShort")}
               </Button>
             </div>
           )}
