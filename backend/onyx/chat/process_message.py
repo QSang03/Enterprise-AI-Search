@@ -23,6 +23,7 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from onyx.auth.schemas import UserRole
 from onyx.cache.factory import get_cache_backend
 from onyx.chat.chat_processing_checker import set_processing_status
 from onyx.chat.chat_state import AvailableFiles
