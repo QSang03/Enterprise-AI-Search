@@ -2683,7 +2683,14 @@
     "toastTokenRegenerated": "Đã tạo lại token thành công",
     "toastSomethingWentWrong": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
     "toastTokenCopied": "Đã sao chép token vào bộ nhớ tạm",
-    "toastTokenCopyFailed": "Sao chép token thất bại"
+    "toastTokenCopyFailed": "Sao chép token thất bại",
+    "title": "Đồng bộ SCIM",
+    "description": "Kết nối nhà cung cấp danh tính của bạn để nhập và đồng bộ người dùng và nhóm.",
+    "regenerateToken": "Tạo lại Token",
+    "generateScimToken": "Tạo Token SCIM",
+    "connected": "Đã kết nối",
+    "waitingConnection": "Đang chờ kết nối",
+    "provideKeyDesc": "Cung cấp khóa SCIM cho nhà cung cấp danh tính của bạn để bắt đầu đồng bộ hóa người dùng và nhóm."
   },
   "adminScoreEditor": {
     "toastScoreMustBeNumber": "Điểm số phải là một con số",
@@ -2856,15 +2863,6 @@
     "documentId": "ID Tài liệu:",
     "confidence": "Độ tin cậy:"
   },
-  "indexingStatus": {
-    "nameHeader": "Tên",
-    "lastIndexedHeader": "Lần lập chỉ mục cuối",
-    "statusHeader": "Trạng thái",
-    "permissionsAccessHeader": "Quyền hạn / Quyền truy cập",
-    "totalDocsHeader": "Tổng số tài liệu",
-    "indexed": "Đã lập chỉ mục",
-    "federatedAccess": "Truy cập Liên kết"
-  },
   "wikiGraph": {
     "description": "Khám phá các thực thể ngữ nghĩa tự động trích xuất, quan hệ thực thể và các bài viết kiến thức kiểu wiki được tạo tự động.",
     "generateAutoWiki": "Tạo Auto-Wiki",
@@ -3008,6 +3006,31 @@
     "badgeStatus": "Trạng thái: {statuses}",
     "badgeDocs": "Tài liệu {operator} {value}",
     "badgeDocsAny": "Tài liệu {operator} bất kỳ",
-    "clearBtn": "Xóa"
+    "clearBtn": "Xóa",
+    "nameHeader": "Tên",
+    "lastIndexedHeader": "Lập chỉ mục lần cuối",
+    "statusHeader": "Trạng thái",
+    "permissionsAccessHeader": "Quyền / Truy cập",
+    "totalDocsHeader": "Tổng tài liệu",
+    "indexed": "Đã lập chỉ mục",
+    "federatedAccess": "Truy cập liên kết",
+    "totalConnectors": "Tổng kết nối",
+    "activeConnectors": "Kết nối đang hoạt động",
+    "publicConnectors": "Kết nối công khai",
+    "totalDocsIndexed": "Tổng tài liệu được lập chỉ mục",
+    "organizationPublic": "Công khai trong tổ chức",
+    "inheritedFrom": "Kế thừa từ {source}",
+    "manageConnectorTooltip": "Quản lý kết nối",
+    "manageFederatedConnectorTooltip": "Quản lý kết nối liên kết",
+    "allCaughtUp": "Đã hiển thị tất cả! Không còn kết nối nào để hiển thị"
+  },
+  "systeminfo": {
+    "title": "Phiên bản",
+    "backendVersion": "Phiên bản Backend:",
+    "webVersion": "Phiên bản Web:"
+  },
+  "anonymous": {
+    "redirecting": "Đang chuyển hướng bạn đến trang trò chuyện...",
+    "pleaseWait": "Vui lòng chờ trong khi chúng tôi thiết lập phiên ẩn danh của bạn."
   }
 }

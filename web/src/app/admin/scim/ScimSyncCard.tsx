@@ -5,6 +5,7 @@ import Card from "@/refresh-components/cards/Card";
 import { Button, Divider } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { timeAgo } from "@opal/time";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -33,11 +34,13 @@ export default function ScimSyncCard({
   onGenerate,
   onRegenerate,
 }: ScimSyncCardProps) {
+  const { t } = useTranslation();
+
   return (
     <Card gap={0.75}>
       <ContentAction
-        title="SCIM Sync"
-        description="Connect your identity provider to import and sync users and groups."
+        title={t("scim.title")}
+        description={t("scim.description")}
         sizePreset="main-ui"
         variant="section"
         padding="fit"
@@ -49,7 +52,7 @@ export default function ScimSyncCard({
               onClick={onRegenerate}
               icon={SvgRefreshCw}
             >
-              Regenerate Token
+              {t("scim.regenerateToken")}
             </Button>
           ) : (
             <Button
@@ -57,7 +60,7 @@ export default function ScimSyncCard({
               rightIcon={SvgKey}
               onClick={onGenerate}
             >
-              Generate SCIM Token
+              {t("scim.generateScimToken")}
             </Button>
           )
         }
@@ -80,7 +83,7 @@ export default function ScimSyncCard({
                 <SvgClock size={15} className="text-theme-amber-05" />
               )}
               <Text as="p" mainUiBody text04>
-                {isConnected ? "Connected" : "Waiting for Connection"}
+                {isConnected ? t("scim.connected") : t("scim.waitingConnection")}
               </Text>
             </Section>
 
@@ -103,8 +106,7 @@ export default function ScimSyncCard({
                   text03
                   className="max-w-[240px] text-right"
                 >
-                  Provide the SCIM key to your identity provider to begin
-                  syncing users and groups.
+                  {t("scim.provideKeyDesc")}
                 </Text>
               )}
             </Section>

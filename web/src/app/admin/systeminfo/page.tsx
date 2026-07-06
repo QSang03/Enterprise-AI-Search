@@ -1,5 +1,5 @@
 import { getWebVersion, getBackendVersion } from "@/lib/version";
-import { SvgBook } from "@opal/icons";
+import SystemInfoClient from "./SystemInfoClient";
 
 const Page = async () => {
   let web_version: string | null = null;
@@ -14,27 +14,10 @@ const Page = async () => {
   }
 
   return (
-    <div>
-      <div className="border-solid border-background-600 border-b pb-2 mb-4 flex">
-        <SvgBook size={32} />
-        <h1 className="text-3xl font-bold pl-2">Version</h1>
-      </div>
-
-      <div>
-        <div className="flex mb-2">
-          <p className="my-auto mr-1">Backend Version: </p>
-          <p className="text-base my-auto text-slate-400 italic">
-            {backend_version}
-          </p>
-        </div>
-        <div className="flex mb-2">
-          <p className="my-auto mr-1">Web Version: </p>
-          <p className="text-base my-auto text-slate-400 italic">
-            {web_version}
-          </p>
-        </div>
-      </div>
-    </div>
+    <SystemInfoClient
+      webVersion={web_version}
+      backendVersion={backend_version}
+    />
   );
 };
 

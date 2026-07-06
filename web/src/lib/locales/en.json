@@ -2683,7 +2683,14 @@
     "toastTokenRegenerated": "Token regenerated",
     "toastSomethingWentWrong": "Something went wrong. Please try again.",
     "toastTokenCopied": "Token copied to clipboard",
-    "toastTokenCopyFailed": "Failed to copy token"
+    "toastTokenCopyFailed": "Failed to copy token",
+    "title": "SCIM Sync",
+    "description": "Connect your identity provider to import and sync users and groups.",
+    "regenerateToken": "Regenerate Token",
+    "generateScimToken": "Generate SCIM Token",
+    "connected": "Connected",
+    "waitingConnection": "Waiting for Connection",
+    "provideKeyDesc": "Provide the SCIM key to your identity provider to begin syncing users and groups."
   },
   "adminScoreEditor": {
     "toastScoreMustBeNumber": "Score must be a number",
@@ -2856,15 +2863,6 @@
     "documentId": "Document ID:",
     "confidence": "Confidence:"
   },
-  "indexingStatus": {
-    "nameHeader": "Name",
-    "lastIndexedHeader": "Last Indexed",
-    "statusHeader": "Status",
-    "permissionsAccessHeader": "Permissions / Access",
-    "totalDocsHeader": "Total Docs",
-    "indexed": "Indexed",
-    "federatedAccess": "Federated Access"
-  },
   "wikiGraph": {
     "description": "Explore automatically extracted semantic entities, entity relations, and generated wiki-style knowledge articles.",
     "generateAutoWiki": "Generate Auto-Wiki",
@@ -3008,6 +3006,31 @@
     "badgeStatus": "Status: {statuses}",
     "badgeDocs": "Docs {operator} {value}",
     "badgeDocsAny": "Docs {operator} any",
-    "clearBtn": "Clear"
+    "clearBtn": "Clear",
+    "nameHeader": "Name",
+    "lastIndexedHeader": "Last Indexed",
+    "statusHeader": "Status",
+    "permissionsAccessHeader": "Permissions / Access",
+    "totalDocsHeader": "Total Docs",
+    "indexed": "Indexed",
+    "federatedAccess": "Federated Access",
+    "totalConnectors": "Total Connectors",
+    "activeConnectors": "Active Connectors",
+    "publicConnectors": "Public Connectors",
+    "totalDocsIndexed": "Total Docs Indexed",
+    "organizationPublic": "Organization Public",
+    "inheritedFrom": "Inherited from {source}",
+    "manageConnectorTooltip": "Manage Connector",
+    "manageFederatedConnectorTooltip": "Manage Federated Connector",
+    "allCaughtUp": "All caught up! No more connectors to show"
+  },
+  "systeminfo": {
+    "title": "Version",
+    "backendVersion": "Backend Version:",
+    "webVersion": "Web Version:"
+  },
+  "anonymous": {
+    "redirecting": "Redirecting you to the chat page...",
+    "pleaseWait": "Please wait while we set up your anonymous session."
   }
 }

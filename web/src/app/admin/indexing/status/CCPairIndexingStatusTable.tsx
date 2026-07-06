@@ -76,6 +76,7 @@ function SummaryRow({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
 
   return (
@@ -99,14 +100,14 @@ function SummaryRow({
 
       <TableCell>
         <div className="text-sm text-neutral-500 dark:text-neutral-300">
-          Total Connectors
+          {t("indexingStatus.totalConnectors")}
         </div>
         <div className="text-xl font-semibold">{summary.total_connectors}</div>
       </TableCell>
 
       <TableCell>
         <div className="text-sm text-neutral-500 dark:text-neutral-300">
-          Active Connectors
+          {t("indexingStatus.activeConnectors")}
         </div>
         <p className="flex text-xl mx-auto font-semibold items-center text-lg mt-1">
           {summary.active_connectors}/{summary.total_connectors}
@@ -116,7 +117,7 @@ function SummaryRow({
       {businessTier && (
         <TableCell>
           <div className="text-sm text-neutral-500 dark:text-neutral-300">
-            Public Connectors
+            {t("indexingStatus.publicConnectors")}
           </div>
           <p className="flex text-xl mx-auto font-semibold items-center text-lg mt-1">
             {summary.public_connectors}/{summary.total_connectors}
@@ -126,7 +127,7 @@ function SummaryRow({
 
       <TableCell>
         <div className="text-sm text-neutral-500 dark:text-neutral-300">
-          Total Docs Indexed
+          {t("indexingStatus.totalDocsIndexed")}
         </div>
         <div className="text-xl font-semibold">
           {summary.total_docs_indexed.toLocaleString()}
@@ -147,6 +148,7 @@ function ConnectorRow({
   invisible?: boolean;
   isEditable: boolean;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
 
@@ -190,19 +192,20 @@ function ConnectorRow({
         <TableCell>
           {ccPairsIndexingStatus.access_type === "public" ? (
             <Badge variant={isEditable ? "success" : "default"} icon={FiUnlock}>
-              Organization Public
+              {t("indexingStatus.organizationPublic")}
             </Badge>
           ) : ccPairsIndexingStatus.access_type === "sync" ? (
             <Badge
               variant={isEditable ? "auto-sync" : "default"}
               icon={FiRefreshCw}
             >
-              Inherited from{" "}
-              {getSourceDisplayName(ccPairsIndexingStatus.source)}
+              {t("indexingStatus.inheritedFrom", {
+                source: getSourceDisplayName(ccPairsIndexingStatus.source) || ccPairsIndexingStatus.source
+              })}
             </Badge>
           ) : (
             <Badge variant={isEditable ? "private" : "default"} icon={FiLock}>
-              Private
+              {t("indexingStatus.private")}
             </Badge>
           )}
         </TableCell>
@@ -210,7 +213,7 @@ function ConnectorRow({
       <TableCell>{ccPairsIndexingStatus.docs_indexed}</TableCell>
       <TableCell>
         {isEditable && (
-          <Tooltip tooltip="Manage Connector">
+          <Tooltip tooltip={t("indexingStatus.manageConnectorTooltip")}>
             <Button icon={SvgSettings} prominence="tertiary" />
           </Tooltip>
         )}
@@ -270,7 +273,7 @@ function FederatedConnectorRow({
             e.stopPropagation();
             navigateWithModifier(e, federatedUrl, router);
           }}
-          tooltip="Manage Federated Connector"
+          tooltip={t("indexingStatus.manageFederatedConnectorTooltip")}
         />
       </TableCell>
     </TableRow>
@@ -405,28 +408,28 @@ export function CCPairIndexingStatusTable({
                             }
                           >
                             {isLastDummyRow ? (
-                              <TableCell
-                                colSpan={
-                                  businessTier
-                                    ? NUMBER_OF_COLUMNS
-                                    : NUMBER_OF_COLUMNS - 1
-                                }
-                                className="h-[56px] text-center text-sm text-gray-400 dark:text-gray-500 border-b border-r border-l border-border dark:border-neutral-700"
-                              >
-                                <span className="italic">
-                                  All caught up! No more connectors to show
-                                </span>
-                              </TableCell>
-                            ) : (
-                              <>
-                                <TableCell className="h-[56px]"></TableCell>
-                                <TableCell></TableCell>
-                                <TableCell></TableCell>
-                                {businessTier && <TableCell></TableCell>}
-                                <TableCell></TableCell>
-                                <TableCell></TableCell>
-                              </>
-                            )}
+                                <TableCell
+                                  colSpan={
+                                    businessTier
+                                      ? NUMBER_OF_COLUMNS
+                                      : NUMBER_OF_COLUMNS - 1
+                                  }
+                                  className="h-[56px] text-center text-sm text-gray-400 dark:text-gray-500 border-b border-r border-l border-border dark:border-neutral-700"
+                                >
+                                  <span className="italic">
+                                    {t("indexingStatus.allCaughtUp")}
+                                  </span>
+                                </TableCell>
+                              ) : (
+                                <>
+                                  <TableCell className="h-[56px]"></TableCell>
+                                  <TableCell></TableCell>
+                                  <TableCell></TableCell>
+                                  {businessTier && <TableCell></TableCell>}
+                                  <TableCell></TableCell>
+                                  <TableCell></TableCell>
+                                </>
+                              )}
                           </TableRow>
                         );
                       })}
