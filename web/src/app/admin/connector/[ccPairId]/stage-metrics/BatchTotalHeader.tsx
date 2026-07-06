@@ -3,6 +3,7 @@
 import { Text } from "@opal/components";
 import { IndexAttemptStageMetric } from "@/lib/types";
 import { formatDurationMs } from "@opal/time";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BatchTotalHeaderProps {
   batchTotal: IndexAttemptStageMetric | null;
@@ -11,10 +12,12 @@ interface BatchTotalHeaderProps {
 export default function BatchTotalHeader({
   batchTotal,
 }: BatchTotalHeaderProps) {
+  const { t } = useTranslation();
+
   if (!batchTotal || batchTotal.event_count === 0) {
     return (
       <Text font="main-ui-action" color="text-04">
-        No completed batches yet
+        {t("stageMetrics.noCompletedBatches")}
       </Text>
     );
   }
@@ -30,9 +33,14 @@ export default function BatchTotalHeader({
 
   return (
     <Text font="main-ui-action" color="text-05">
-      {`Average batch: ${avgLabel}, ${batchTotal.event_count} ${
-        batchTotal.event_count === 1 ? "batch" : "batches"
-      } — distribution shown below.`}
+      {t("stageMetrics.averageBatchText", {
+        avgLabel,
+        count: batchTotal.event_count,
+        batchLabel:
+          batchTotal.event_count === 1
+            ? t("stageMetrics.batchSingle")
+            : t("stageMetrics.batchPlural"),
+      })}
     </Text>
   );
 }

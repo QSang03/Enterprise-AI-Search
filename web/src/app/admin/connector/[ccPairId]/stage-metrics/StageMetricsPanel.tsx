@@ -8,6 +8,7 @@ import { SortMode } from "./interfaces";
 import BatchTotalHeader from "./BatchTotalHeader";
 import PerBatchSection from "./PerBatchSection";
 import AttemptOverhead from "./AttemptOverhead";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface StageMetricsPanelProps {
   indexAttemptId: number;
@@ -16,6 +17,7 @@ interface StageMetricsPanelProps {
 export default function StageMetricsPanel({
   indexAttemptId,
 }: StageMetricsPanelProps) {
+  const { t } = useTranslation();
   const [sortMode, setSortMode] = useState<SortMode>("pipeline");
 
   const { data, error, isLoading } =
@@ -38,7 +40,7 @@ export default function StageMetricsPanel({
   if (isLoading) {
     return (
       <Text font="secondary-body" color="text-03">
-        Loading stage metrics…
+        {t("stageMetrics.loading")}
       </Text>
     );
   }
@@ -47,8 +49,8 @@ export default function StageMetricsPanel({
     return (
       <MessageCard
         variant="warning"
-        title="Failed to load stage metrics"
-        description="Stage timing data could not be loaded for this attempt. The pipeline runs even when metric recording is unavailable, so this does not indicate a problem with the indexing run itself."
+        title={t("stageMetrics.failedLoad")}
+        description={t("stageMetrics.failedLoadDesc")}
       />
     );
   }
@@ -56,9 +58,7 @@ export default function StageMetricsPanel({
   if (!data || data.stages.length === 0) {
     return (
       <Text font="secondary-body" color="text-03">
-        No stage timing data has been recorded for this attempt yet. Older
-        attempts that ran before stage instrumentation was deployed will not
-        have metrics.
+        {t("stageMetrics.noData")}
       </Text>
     );
   }

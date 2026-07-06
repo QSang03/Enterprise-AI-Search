@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   createTableColumns,
   EmptyMessageCard,
@@ -13,8 +14,6 @@ import { localizeAndPrettify } from "@opal/time";
 import ExceptionTraceModal from "@/sections/modals/PreviewModal/ExceptionTraceModal";
 import { PermissionSyncStatusBadge } from "./PermissionSyncStatusBadge";
 import type { ExternalGroupSyncAttemptSnapshot } from "./types";
-
-const ERROR_MODAL_TITLE = "Group Membership Sync Error";
 
 /**
  * Renders one page of `ExternalGroupPermissionSyncAttempt` rows for the
@@ -55,10 +54,13 @@ const tc = createTableColumns<ExternalGroupSyncAttemptSnapshot>();
 //
 // `Time Started` is bumped to 26 so `localizeAndPrettify` (e.g.
 // "5/3/2026, 12:00:00 PM") stays on a single line.
-function buildColumns(onErrorClick: (errorMessage: string) => void) {
+function buildColumns(
+  onErrorClick: (errorMessage: string) => void,
+  t: (key: string) => string
+) {
   return [
     tc.column("time_started", {
-      header: "Time Started",
+      header: t("connectorCCPair.timeStartedHeader"),
       weight: 26,
       enableSorting: false,
       cell: (value) => (
@@ -68,7 +70,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("status", {
-      header: "Status",
+      header: t("connectorCCPair.tableHeaderStatus"),
       weight: 14,
       enableSorting: false,
       cell: (value, row) => (
@@ -79,7 +81,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("total_users_processed", {
-      header: "Users",
+      header: t("connectorCCPair.usersHeader"),
       weight: 10,
       enableSorting: false,
       cell: (value) => (
@@ -89,7 +91,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("total_groups_processed", {
-      header: "Groups",
+      header: t("connectorCCPair.groupsHeader"),
       weight: 10,
       enableSorting: false,
       cell: (value) => (
@@ -99,7 +101,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("total_group_memberships_synced", {
-      header: "Memberships",
+      header: t("connectorCCPair.membershipsHeader"),
       weight: 12,
       enableSorting: false,
       cell: (value) => (
@@ -109,7 +111,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("error_message", {
-      header: "Error Message",
+      header: t("connectorCCPair.errorMessageHeader"),
       weight: 28,
       enableSorting: false,
       cell: (value, row) => (
@@ -148,6 +150,7 @@ function ErrorMessageCell({
   modalContent,
   onErrorClick,
 }: ErrorMessageCellProps) {
+  const { t } = useTranslation();
   if (!errorMessage) {
     return (
       <Text as="span" font="secondary-body" color="text-03">
@@ -159,7 +162,7 @@ function ErrorMessageCell({
     <button
       type="button"
       onClick={() => onErrorClick(modalContent ?? errorMessage)}
-      aria-label="View full error message"
+      aria-label={t("connectorCCPair.viewFullError")}
       className="text-left w-full cursor-pointer hover:underline"
     >
       <Text as="span" font="secondary-body" color="text-03" maxLines={2}>
@@ -183,22 +186,23 @@ export function ExternalGroupSyncAttemptsTable({
   totalPages,
   onPageChange,
 }: ExternalGroupSyncAttemptsTableProps) {
+  const { t } = useTranslation();
   const [openErrorMessage, setOpenErrorMessage] = useState<string | null>(null);
   const handleErrorClick = useCallback(
     (errorMessage: string) => setOpenErrorMessage(errorMessage),
     []
   );
   const columns = useMemo(
-    () => buildColumns(handleErrorClick),
-    [handleErrorClick]
+    () => buildColumns(handleErrorClick, t),
+    [handleErrorClick, t]
   );
 
   if (!attempts.length) {
     return (
       <EmptyMessageCard
         sizePreset="main-ui"
-        title="No group membership sync attempts yet"
-        description="Group-membership sync runs are scheduled in the background. They may take some time to appear — try refreshing in ~30 seconds."
+        title={t("connectorCCPair.noGroupSyncAttemptsTitle")}
+        description={t("connectorCCPair.noGroupSyncAttemptsDesc")}
       />
     );
   }
@@ -209,7 +213,7 @@ export function ExternalGroupSyncAttemptsTable({
         <ExceptionTraceModal
           onOutsideClick={() => setOpenErrorMessage(null)}
           exceptionTrace={openErrorMessage}
-          title={ERROR_MODAL_TITLE}
+          title={t("connectorCCPair.groupMembershipSyncErrorTitle")}
         />
       )}
 

@@ -15,6 +15,7 @@ import type {
   ExternalGroupSyncAttemptSnapshot,
 } from "./types";
 import useSyncAttemptsPaginatedFetch from "./useSyncAttemptsPaginatedFetch";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Three-way tabbed view of attempt history for a permission-synced
@@ -46,10 +47,6 @@ import useSyncAttemptsPaginatedFetch from "./useSyncAttemptsPaginatedFetch";
 
 const ITEMS_PER_PAGE = 8;
 const PAGES_PER_BATCH = 4;
-const NOT_APPLICABLE_DOC_PERMISSIONS_MESSAGE =
-  "This connector does not use a separate document-permission syncing job.";
-const NOT_APPLICABLE_GROUP_MEMBERSHIP_MESSAGE =
-  "This connector does not use a separate group-membership syncing job.";
 
 enum SyncAttemptsTab {
   INDEXING = "indexing",
@@ -77,6 +74,7 @@ export function SyncAttemptsTabs({
   indexTotalPages,
   onIndexPageChange,
 }: SyncAttemptsTabsProps) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<SyncAttemptsTab>(SyncAttemptsTab.INDEXING);
 
   return (
@@ -85,12 +83,14 @@ export function SyncAttemptsTabs({
       onValueChange={(value) => setTab(value as SyncAttemptsTab)}
     >
       <Tabs.List>
-        <Tabs.Trigger value={SyncAttemptsTab.INDEXING}>Indexing</Tabs.Trigger>
+        <Tabs.Trigger value={SyncAttemptsTab.INDEXING}>
+          {t("connectorCCPair.indexingTitle")}
+        </Tabs.Trigger>
         <Tabs.Trigger value={SyncAttemptsTab.DOC_PERMISSIONS}>
-          Document Permission Sync
+          {t("connectorCCPair.docPermSyncTab")}
         </Tabs.Trigger>
         <Tabs.Trigger value={SyncAttemptsTab.GROUP_MEMBERSHIP}>
-          Group Membership Sync
+          {t("connectorCCPair.groupMembershipSyncTab")}
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -116,6 +116,7 @@ export function SyncAttemptsTabs({
 }
 
 function DocPermissionsTabBody({ ccPairId }: { ccPairId: number }) {
+  const { t } = useTranslation();
   const result =
     useSyncAttemptsPaginatedFetch<DocPermissionSyncAttemptSnapshot>({
       endpoint: SWR_KEYS.ccPairPermissionSyncAttempts(ccPairId),
@@ -124,7 +125,7 @@ function DocPermissionsTabBody({ ccPairId }: { ccPairId: number }) {
       pagesPerBatch: PAGES_PER_BATCH,
     });
 
-  const gate = renderTabGate(result, NOT_APPLICABLE_DOC_PERMISSIONS_MESSAGE);
+  const gate = renderTabGate(result, t("connectorCCPair.notApplicableDocPermMsg"), t);
   if (gate !== null) return gate;
 
   return (
@@ -138,6 +139,7 @@ function DocPermissionsTabBody({ ccPairId }: { ccPairId: number }) {
 }
 
 function GroupMembershipTabBody({ ccPairId }: { ccPairId: number }) {
+  const { t } = useTranslation();
   const result =
     useSyncAttemptsPaginatedFetch<ExternalGroupSyncAttemptSnapshot>({
       endpoint: SWR_KEYS.ccPairExternalGroupSyncAttempts(ccPairId),
@@ -146,7 +148,7 @@ function GroupMembershipTabBody({ ccPairId }: { ccPairId: number }) {
       pagesPerBatch: PAGES_PER_BATCH,
     });
 
-  const gate = renderTabGate(result, NOT_APPLICABLE_GROUP_MEMBERSHIP_MESSAGE);
+  const gate = renderTabGate(result, t("connectorCCPair.notApplicableGroupMsg"), t);
   if (gate !== null) return gate;
 
   return (
@@ -175,7 +177,8 @@ interface TabGateInputs {
  */
 function renderTabGate(
   inputs: TabGateInputs,
-  notApplicableMessage: string
+  notApplicableMessage: string,
+  t: (key: string) => string
 ): React.ReactElement | null {
   const {
     applicable,
@@ -190,7 +193,7 @@ function renderTabGate(
     return (
       <MessageCard
         variant="error"
-        title="Failed to load sync attempts"
+        title={t("connectorCCPair.failedLoadSyncAttempts")}
         description={applicableError.message}
       />
     );
@@ -202,7 +205,7 @@ function renderTabGate(
     return (
       <MessageCard
         variant="info"
-        title="Not applicable"
+        title={t("connectorCCPair.notApplicable")}
         description={notApplicableMessage}
       />
     );
@@ -214,7 +217,7 @@ function renderTabGate(
     return (
       <MessageCard
         variant="error"
-        title="Failed to load sync attempts"
+        title={t("connectorCCPair.failedLoadSyncAttempts")}
         description={error.message}
       />
     );

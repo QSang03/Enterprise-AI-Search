@@ -3,6 +3,7 @@
 import { Button, Text } from "@opal/components";
 import { Section } from "@/layouts/general-layouts";
 import { SortMode } from "./interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface SortToggleProps {
   sortMode: SortMode;
@@ -10,6 +11,8 @@ interface SortToggleProps {
 }
 
 export default function SortToggle({ sortMode, onChange }: SortToggleProps) {
+  const { t } = useTranslation();
+
   return (
     <Section
       flexDirection="row"
@@ -20,21 +23,21 @@ export default function SortToggle({ sortMode, onChange }: SortToggleProps) {
       gap={0.5}
     >
       <Text font="secondary-body" color="text-03">
-        Sort:
+        {t("stageMetrics.sortLabel")}
       </Text>
       <Button
         prominence={sortMode === "pipeline" ? "secondary" : "tertiary"}
         size="sm"
         onClick={() => onChange("pipeline")}
       >
-        Pipeline order
+        {t("stageMetrics.pipelineOrder")}
       </Button>
       <Button
         prominence={sortMode === "time-taken" ? "secondary" : "tertiary"}
         size="sm"
         onClick={() => onChange("time-taken")}
       >
-        Time taken
+        {t("stageMetrics.timeTaken")}
       </Button>
     </Section>
   );

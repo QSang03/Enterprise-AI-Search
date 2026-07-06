@@ -6,6 +6,7 @@ import { IndexAttemptStageMetric } from "@/lib/types";
 import { SortMode } from "./interfaces";
 import SortToggle from "./SortToggle";
 import PerBatchTable from "./PerBatchTable";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PerBatchSectionProps {
   perBatchStages: IndexAttemptStageMetric[];
@@ -18,10 +19,12 @@ export default function PerBatchSection({
   sortMode,
   onSortModeChange,
 }: PerBatchSectionProps) {
+  const { t } = useTranslation();
+
   if (perBatchStages.length === 0) {
     return (
       <Text font="secondary-body" color="text-03">
-        No per-batch stage data recorded.
+        {t("stageMetrics.noPerBatch")}
       </Text>
     );
   }

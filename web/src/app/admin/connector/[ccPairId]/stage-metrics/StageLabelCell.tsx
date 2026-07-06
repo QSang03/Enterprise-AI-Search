@@ -5,14 +5,16 @@ import { SvgInfoSmall } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import { IndexAttemptStage } from "@/lib/types";
 import { cn } from "@opal/utils";
-import { STAGE_DESCRIPTIONS, STAGE_LABELS } from "./constants";
 import { colorClassForStage } from "./utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface StageLabelCellProps {
   stage: IndexAttemptStage;
 }
 
 export default function StageLabelCell({ stage }: StageLabelCellProps) {
+  const { t } = useTranslation();
+
   return (
     <Section
       flexDirection="row"
@@ -32,13 +34,13 @@ export default function StageLabelCell({ stage }: StageLabelCellProps) {
         )}
       />
       <Text font="secondary-body" color="text-05" nowrap>
-        {STAGE_LABELS[stage]}
+        {t(`stageMetrics.labels.${stage}`)}
       </Text>
       <Button
         icon={SvgInfoSmall}
         prominence="tertiary"
         size="sm"
-        tooltip={STAGE_DESCRIPTIONS[stage]}
+        tooltip={t(`stageMetrics.descriptions.${stage}`)}
       />
     </Section>
   );

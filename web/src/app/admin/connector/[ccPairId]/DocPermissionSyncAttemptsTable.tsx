@@ -15,8 +15,6 @@ import ExceptionTraceModal from "@/sections/modals/PreviewModal/ExceptionTraceMo
 import { PermissionSyncStatusBadge } from "./PermissionSyncStatusBadge";
 import type { DocPermissionSyncAttemptSnapshot } from "./types";
 
-const ERROR_MODAL_TITLE = "Document Permission Sync Error";
-
 /**
  * Renders one page of `DocPermissionSyncAttempt` rows for the
  * connector-detail "Document Permissions" tab.
@@ -40,10 +38,13 @@ const tc = createTableColumns<DocPermissionSyncAttemptSnapshot>();
 // (e.g. "5/3/2026, 12:00:00 PM") stays on a single line at standard
 // 800px-wide admin layouts; the difference is taken from `Status` and
 // `Docs Synced`, which both render short content.
-function buildColumns(onErrorClick: (errorMessage: string) => void) {
+function buildColumns(
+  onErrorClick: (errorMessage: string) => void,
+  t: (key: string) => string
+) {
   return [
     tc.column("time_started", {
-      header: "Time Started",
+      header: t("connectorCCPair.timeStartedHeader"),
       weight: 28,
       enableSorting: false,
       cell: (value) => (
@@ -53,7 +54,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("status", {
-      header: "Status",
+      header: t("connectorCCPair.tableHeaderStatus"),
       weight: 14,
       enableSorting: false,
       cell: (value, row) => (
@@ -64,7 +65,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("total_docs_synced", {
-      header: "Docs Synced",
+      header: t("connectorCCPair.docsSyncedHeader"),
       weight: 12,
       enableSorting: false,
       cell: (value) => (
@@ -74,7 +75,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("docs_with_permission_errors", {
-      header: "Permission Errors",
+      header: t("connectorCCPair.permissionErrorsHeader"),
       weight: 18,
       enableSorting: false,
       cell: (value) => (
@@ -84,7 +85,7 @@ function buildColumns(onErrorClick: (errorMessage: string) => void) {
       ),
     }),
     tc.column("error_message", {
-      header: "Error Message",
+      header: t("connectorCCPair.errorMessageHeader"),
       weight: 28,
       enableSorting: false,
       cell: (value, row) => (
@@ -166,8 +167,8 @@ export function DocPermissionSyncAttemptsTable({
     []
   );
   const columns = useMemo(
-    () => buildColumns(handleErrorClick),
-    [handleErrorClick]
+    () => buildColumns(handleErrorClick, t),
+    [handleErrorClick, t]
   );
 
   if (!attempts.length) {
@@ -186,7 +187,7 @@ export function DocPermissionSyncAttemptsTable({
         <ExceptionTraceModal
           onOutsideClick={() => setOpenErrorMessage(null)}
           exceptionTrace={openErrorMessage}
-          title={ERROR_MODAL_TITLE}
+          title={t("connectorCCPair.docPermSyncErrorTitle")}
         />
       )}
 

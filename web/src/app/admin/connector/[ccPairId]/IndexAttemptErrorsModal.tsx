@@ -14,6 +14,7 @@ import Text from "@/refresh-components/texts/Text";
 import { PageSelector } from "@/components/PageSelector";
 import { useMemo } from "react";
 import { SvgAlertTriangle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface IndexAttemptErrorsModalProps {
   errors: {
@@ -37,6 +38,7 @@ export default function IndexAttemptErrorsModal({
   onResolveAll,
   supportsTargetedReindex,
 }: IndexAttemptErrorsModalProps) {
+  const { t } = useTranslation();
   const hasUnresolvedErrors = useMemo(
     () => errors.items.some((error) => !error.is_resolved),
     [errors.items]
@@ -53,20 +55,19 @@ export default function IndexAttemptErrorsModal({
       <Modal.Content width="full" height="full">
         <Modal.Header
           icon={SvgAlertTriangle}
-          title="Indexing Errors"
+          title={t("connectorCCPair.indexingErrorsTitle")}
           onClose={onClose}
           height="fit"
         />
         <Modal.Body height="full">
           <div className="flex flex-col gap-2 shrink-0">
             <Text as="p">
-              Below are the errors encountered during indexing. Each row
-              represents a failed document or entity.
+              {t("connectorCCPair.indexingErrorsDesc")}
             </Text>
             <Text as="p">
               {supportsTargetedReindex
-                ? "Click the button below to re-fetch only the failing documents. Much faster than a full re-index."
-                : "Click the button below to kick off a full re-index to try and resolve these errors. This full re-index may take much longer than a normal update."}
+                ? t("connectorCCPair.indexingErrorsTargetedReindexDesc")
+                : t("connectorCCPair.indexingErrorsFullReindexDesc")}
             </Text>
           </div>
 
@@ -74,10 +75,10 @@ export default function IndexAttemptErrorsModal({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Document ID</TableHead>
-                  <TableHead className="w-1/2">Error Message</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("connectorCCPair.timeHeader")}</TableHead>
+                  <TableHead>{t("connectorCCPair.documentIdHeader")}</TableHead>
+                  <TableHead className="w-1/2">{t("connectorCCPair.errorMessageHeader")}</TableHead>
+                  <TableHead>{t("connectorCCPair.tableHeaderStatus")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -95,10 +96,10 @@ export default function IndexAttemptErrorsModal({
                             rel="noopener noreferrer"
                             className="text-link hover:underline"
                           >
-                            {error.document_id || error.entity_id || "Unknown"}
+                            {error.document_id || error.entity_id || t("connectorCCPair.unknownDocument")}
                           </a>
                         ) : (
-                          error.document_id || error.entity_id || "Unknown"
+                          error.document_id || error.entity_id || t("connectorCCPair.unknownDocument")
                         )}
                       </TableCell>
                       <TableCell>
@@ -114,7 +115,9 @@ export default function IndexAttemptErrorsModal({
                               : "bg-status-error-02 text-status-error-05"
                           }`}
                         >
-                          {error.is_resolved ? "Resolved" : "Unresolved"}
+                          {error.is_resolved
+                            ? t("connectorCCPair.resolvedStatus")
+                            : t("connectorCCPair.unresolvedStatus")}
                         </span>
                       </TableCell>
                     </TableRow>
@@ -125,7 +128,7 @@ export default function IndexAttemptErrorsModal({
                       colSpan={4}
                       className="text-center py-8 text-text-03"
                     >
-                      No errors found on this page
+                      {t("connectorCCPair.noErrorsOnPage")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -147,7 +150,7 @@ export default function IndexAttemptErrorsModal({
           {hasUnresolvedErrors && (
             // TODO(@raunakab): migrate to opal Button once className/iconClassName is resolved
             <Button onClick={onResolveAll} className="ml-4 whitespace-nowrap">
-              Resolve All
+              {t("connectorCCPair.resolveAllBtn")}
             </Button>
           )}
         </Modal.Footer>

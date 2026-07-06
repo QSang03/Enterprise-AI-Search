@@ -8,6 +8,7 @@ import { SortMode } from "./interfaces";
 import { sortPerBatchStages } from "./utils";
 import StageLabelCell from "./StageLabelCell";
 import AvgTimeCell from "./AvgTimeCell";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PerBatchTableProps {
   perBatchStages: IndexAttemptStageMetric[];
@@ -34,6 +35,8 @@ export default function PerBatchTable({
   perBatchStages,
   sortMode,
 }: PerBatchTableProps) {
+  const { t } = useTranslation();
+
   const sorted = useMemo(
     () => sortPerBatchStages(perBatchStages, sortMode),
     [perBatchStages, sortMode]
@@ -59,13 +62,13 @@ export default function PerBatchTable({
     () => [
       tc.displayColumn({
         id: "stage",
-        header: "Stage",
+        header: t("stageMetrics.stageHeader"),
         width: { weight: 32, minWidth: 220 },
         cell: (row) => <StageLabelCell stage={row.stage} />,
       }),
       tc.displayColumn({
         id: "avg",
-        header: "Avg time",
+        header: t("stageMetrics.avgTimeHeader"),
         // The Modal "lg" width minus body padding is ~768px. Other columns'
         // minWidths sum to 580, so capping avg at 170 keeps the total minWidth
         // under the modal's inner width and prevents a horizontal scrollbar.
@@ -76,7 +79,7 @@ export default function PerBatchTable({
       }),
       tc.displayColumn({
         id: "total",
-        header: "Total time",
+        header: t("stageMetrics.totalTimeHeader"),
         width: { weight: 14, minWidth: 110 },
         cell: (row) => (
           <TextCell>{formatDurationMs(row.total_duration_ms)}</TextCell>
@@ -84,13 +87,13 @@ export default function PerBatchTable({
       }),
       tc.displayColumn({
         id: "calls",
-        header: "Calls",
+        header: t("stageMetrics.callsHeader"),
         width: { weight: 8, minWidth: 70 },
         cell: (row) => <TextCell>{row.event_count}</TextCell>,
       }),
       tc.displayColumn({
         id: "min",
-        header: "Min",
+        header: t("stageMetrics.minHeader"),
         width: { weight: 8, minWidth: 90 },
         cell: (row) => (
           <TextCell>{formatOptionalMs(row.min_duration_ms)}</TextCell>
@@ -98,14 +101,14 @@ export default function PerBatchTable({
       }),
       tc.displayColumn({
         id: "max",
-        header: "Max",
+        header: t("stageMetrics.maxHeader"),
         width: { weight: 8, minWidth: 90 },
         cell: (row) => (
           <TextCell>{formatOptionalMs(row.max_duration_ms)}</TextCell>
         ),
       }),
     ],
-    [maxAvgMs]
+    [maxAvgMs, t]
   );
 
   // Use the default `cards` variant (matches the Agents page table) for
