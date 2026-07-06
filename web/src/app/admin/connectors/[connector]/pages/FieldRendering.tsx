@@ -15,6 +15,7 @@ import { Content, InputVertical } from "@opal/layouts";
 import CheckboxField from "@/refresh-components/form/LabeledCheckboxField";
 import InputTextAreaField from "@/refresh-components/form/InputTextAreaField";
 import Text from "@/refresh-components/texts/Text";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Define a general type for form values
 type FormValues = Record<string, any>;
@@ -32,6 +33,7 @@ const TabsField: FC<TabsFieldProps> = ({
   connector,
   currentCredential,
 }) => {
+  const { t } = useTranslation();
   const { setFieldValue } = useFormikContext<FormValues>();
 
   const resolvedLabel =
@@ -57,7 +59,7 @@ const TabsField: FC<TabsFieldProps> = ({
       {/* Ensure there's at least one tab before rendering */}
       {tabField.tabs.length === 0 ? (
         <Text text03 secondaryBody>
-          No tabs to display.
+          {t("addConnector.noTabsDisplay")}
         </Text>
       ) : (
         <Tabs
@@ -127,6 +129,7 @@ export const RenderField: FC<RenderFieldProps> = ({
   connector,
   currentCredential,
 }) => {
+  const { t } = useTranslation();
   const { setFieldValue } = useFormikContext<FormValues>(); // Get Formik's context functions
 
   const label =
@@ -256,7 +259,7 @@ export const RenderField: FC<RenderFieldProps> = ({
           </Text>
         </GeneralLayouts.Section>
       ) : (
-        <>INVALID FIELD TYPE</>
+        <>{t("addConnector.invalidFieldType")}</>
       )}
     </>
   );

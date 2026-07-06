@@ -9,6 +9,7 @@ import { ConfigurableSources } from "@/lib/types";
 import { Credential } from "@/lib/connectors/credentials";
 import { RenderField } from "./FieldRendering";
 import { useFormikContext } from "formik";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface DynamicConnectionFormProps {
   config: ConnectionConfiguration;
@@ -23,6 +24,7 @@ export default function DynamicConnectionForm({
   connector,
   currentCredential,
 }: DynamicConnectionFormProps) {
+  const { t } = useTranslation();
   const { setFieldValue } = useFormikContext<any>(); // Get Formik's context functions
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
@@ -50,9 +52,9 @@ export default function DynamicConnectionForm({
       )}
 
       <TextFormField
-        subtext="A descriptive name for the connector."
+        subtext={t("addConnector.connectorNameSubtext")}
         type={"text"}
-        label={"Connector Name"}
+        label={t("addConnector.connectorNameLabel")}
         name={"name"}
       />
 

@@ -2612,6 +2612,18 @@
     "hoursText": "{count} {unit}",
     "minutesText": "{count} {unit}",
     "daysText": "{count} {unit}",
+    "noIndexAttemptsTitle": "Chưa có lượt lập chỉ mục nào được lên lịch",
+    "noIndexAttemptsDesc": "Các lượt lập chỉ mục được lên lịch ở nền và có thể mất một chút thời gian để xuất hiện. Hãy thử làm mới trang sau khoảng 30 giây!",
+    "newDocsHeader": "Tài liệu mới",
+    "totalDocsHeader": "Tổng tài liệu",
+    "totalDocsTooltip": "Tổng số tài liệu được thay thế trong chỉ mục trong lượt lập chỉ mục này",
+    "docsPerMinText": "{count} tài liệu / phút",
+    "noAdditionalDocs": "Không có tài liệu nào được xử lý thêm",
+    "removedDocsNote": "(đã xóa thêm {count} tài liệu được phát hiện là đã bị xóa trong nguồn)",
+    "viewFullTrace": "Xem trace đầy đủ",
+    "viewStageMetrics": "Xem số liệu giai đoạn",
+    "reindexTooltipInProgress": "Lượt lập chỉ mục này đang là một lần lập chỉ mục lại toàn bộ. Tất cả các tài liệu từ nguồn đang được đồng bộ vào hệ thống.",
+    "reindexTooltipDone": "Lượt lập chỉ mục này là một lần lập chỉ mục lại toàn bộ. Tất cả các tài liệu từ nguồn đã được đồng bộ vào hệ thống.",
     "statusSucceeded": "Thành công",
     "statusCompletedWithErrors": "Hoàn thành với lỗi",
     "statusFailed": "Thất bại",
@@ -2647,7 +2659,23 @@
     "toastFilesUploaded": "Tải lên tệp tin thành công!",
     "toastGoogleSiteCreated": "Tạo kết nối Google Site thành công!",
     "toastNoFilePathReturned": "Tải lên tệp tin thành công, nhưng không có đường dẫn tệp nào được trả về. Không thể tạo kết nối.",
-    "toastFilePathUndefined": "Tải lên tệp tin thành công, nhưng đường dẫn tệp không xác định. Không thể tạo kết nối."
+    "toastFilePathUndefined": "Tải lên tệp tin thành công, nhưng đường dẫn tệp không xác định. Không thể tạo kết nối.",
+    "previousBtn": "Trước",
+    "createConnectorBtn": "Tạo kết nối",
+    "continueBtn": "Tiếp tục",
+    "advancedNavBtn": "Nâng cao",
+    "advancedConfigTitle": "Cấu hình nâng cao",
+    "pruneFreqLabel": "Tần suất dọn dẹp (giờ)",
+    "pruneFreqDesc": "Kiểm tra tất cả tài liệu với nguồn để xóa những tài liệu không còn tồn tại. Lưu ý: Quá trình này kiểm tra mọi tài liệu, vì vậy hãy thận trọng khi tăng tần suất. Mặc định là {default} giờ ({days} ngày). Hỗ trợ giờ thập phân (ví dụ: 0.1 giờ = 6 phút). Nhập 0 để tắt tính năng dọn dẹp cho kết nối này.",
+    "refreshFreqLabel": "Tần suất làm mới (phút)",
+    "refreshFreqDesc": "Đây là tần suất chúng tôi lấy tài liệu mới từ nguồn (tính bằng phút). Nếu bạn nhập 0, chúng tôi sẽ không bao giờ lấy tài liệu mới cho kết nối này.",
+    "indexingStartLabel": "Ngày bắt đầu lập chỉ mục",
+    "indexingStartSubtext": "Tài liệu trước ngày này sẽ không được lấy vào",
+    "resetBtn": "Đặt lại",
+    "connectorNameLabel": "Tên kết nối",
+    "connectorNameSubtext": "Tên mô tả cho kết nối.",
+    "noTabsDisplay": "Không có tab nào để hiển thị.",
+    "invalidFieldType": "LOẠI TRƯỜNG KHÔNG HỢP LỆ"
   },
   "scim": {
     "toastFailedLoadToken": "Không thể tải trạng thái token SCIM.",
@@ -2662,7 +2690,16 @@
     "toastUpdatedScoreSuccess": "Cập nhật điểm số thành công!"
   },
   "tokenRateLimits": {
-    "toastLimitCreated": "Đã tạo giới hạn định mức token thành công!"
+    "toastLimitCreated": "Đã tạo giới hạn định mức token thành công!",
+    "toastFetchUserGroupsFailed": "Tải danh sách nhóm người dùng thất bại: {error}",
+    "validation": {
+      "timeWindowRequired": "Khoảng thời gian là trường bắt buộc",
+      "timeWindowMin": "Khoảng thời gian phải từ ít nhất 1 giờ",
+      "tokenBudgetRequired": "Ngân sách Token là trường bắt buộc",
+      "tokenBudgetMin": "Ngân sách Token phải từ ít nhất 1",
+      "targetScopeRequired": "Phạm vi mục tiêu là trường bắt buộc",
+      "userGroupRequired": "Nhóm người dùng là trường bắt buộc"
+    }
   },
   "googleCredentials": {
     "toastAppCredsUploaded": "Tải lên thông tin xác thực ứng dụng thành công",
@@ -2944,5 +2981,33 @@
     "confirmAdd": "📥 {count} tệp tin sẽ được thêm vào",
     "confirmAddDesc": "Các tệp mới sẽ được tải lên, phân đoạn, tạo nhúng và lập chỉ mục trong chỉ mục tài liệu",
     "confirmSaveBtn": "Xác nhận & Lưu"
+  },
+  "indexingStatus": {
+    "errorLoadingStatus": "Lỗi khi tải trạng thái lập chỉ mục.",
+    "noConnectorsSetup": "Có vẻ như bạn chưa thiết lập kết nối nào. Hãy truy cập trang [Thêm kết nối](/admin/add-connector) để bắt đầu!",
+    "toastConnectorCreated": "Tạo kết nối thành công",
+    "addConnectorBtn": "Thêm kết nối",
+    "filterConnectorsTitle": "Lọc kết nối",
+    "accessTypeLabel": "Loại truy cập",
+    "public": "Công khai",
+    "private": "Riêng tư",
+    "autoSync": "Tự động đồng bộ",
+    "lastStatusLabel": "Trạng thái cuối",
+    "success": "Thành công",
+    "failed": "Thất bại",
+    "inProgress": "Đang xử lý",
+    "notStarted": "Chưa bắt đầu",
+    "completedWithErrors": "Hoàn thành với lỗi",
+    "documentCountLabel": "Số lượng tài liệu",
+    "countPlaceholder": "Số lượng",
+    "applyBtn": "Áp dụng",
+    "searchPlaceholder": "Tìm kiếm kết nối",
+    "collapseAll": "Thu gọn tất cả",
+    "expandAll": "Mở rộng tất cả",
+    "badgeAccess": "Quyền truy cập: {types}",
+    "badgeStatus": "Trạng thái: {statuses}",
+    "badgeDocs": "Tài liệu {operator} {value}",
+    "badgeDocsAny": "Tài liệu {operator} bất kỳ",
+    "clearBtn": "Xóa"
   }
 }

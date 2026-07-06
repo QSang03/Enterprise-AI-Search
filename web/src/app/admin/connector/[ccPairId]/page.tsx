@@ -17,7 +17,7 @@ import { credentialTemplates } from "@/lib/connectors/credentials";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import Title from "@/components/ui/title";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, use } from "react";
+import { useCallback, useEffect, useRef, useState, use, useMemo } from "react";
 import useSWR, { mutate } from "swr";
 import {
   AdvancedConfigDisplay,
@@ -71,31 +71,30 @@ import { UserRole } from "@/lib/types";
 import { useUser } from "@/providers/UserProvider";
 import { resolveAllErrorsForCCPair } from "@/lib/targeted_reindex";
 import { SWR_KEYS } from "@/lib/swr-keys";
-// synchronize these validations with the SQLAlchemy connector class until we have a
-// centralized schema for both frontend and backend
-const RefreshFrequencySchema = Yup.object().shape({
-  propertyValue: Yup.number()
-    .typeError("Property value must be a valid number")
-    .integer("Property value must be an integer")
-    .min(1, "Property value must be greater than or equal to 1 minute")
-    .required("Property value is required"),
-});
-
-const PruneFrequencySchema = Yup.object().shape({
-  propertyValue: Yup.number()
-    .typeError("Property value must be a valid number")
-    .min(
-      0.083,
-      "Property value must be greater than or equal to 0.083 hours (5 minutes)"
-    )
-    .required("Property value is required"),
-});
 
 const ITEMS_PER_PAGE = 8;
 const PAGES_PER_BATCH = 8;
 
 function Main({ ccPairId }: { ccPairId: number }) {
   const { t } = useTranslation();
+  const RefreshFrequencySchema = useMemo(() => Yup.object().shape({
+    propertyValue: Yup.number()
+      .typeError(t("connectorCCPair.invalidNumber"))
+      .integer(t("connectorCCPair.invalidInteger"))
+      .min(1, t("connectorCCPair.refreshMinError"))
+      .required(t("connectorCCPair.propertyRequired")),
+  }), [t]);
+
+  const PruneFrequencySchema = useMemo(() => Yup.object().shape({
+    propertyValue: Yup.number()
+      .typeError(t("connectorCCPair.invalidNumber"))
+      .min(
+        0.083,
+        t("connectorCCPair.pruneMinError")
+      )
+      .required(t("connectorCCPair.propertyRequired")),
+  }), [t]);
+
   const router = useRouter();
   const { user } = useUser();
 
@@ -223,18 +222,22 @@ function Main({ ccPairId }: { ccPairId: number }) {
 
       if (result.success) {
         toast.success(
-          `${
-            fromBeginning ? "Complete re-indexing" : "Indexing update"
-          } started successfully`
+          t("connectorCCPair.toastReIndexStarted", {
+            type: fromBeginning
+              ? t("connectorCCPair.typeComplete")
+              : t("connectorCCPair.typeUpdate"),
+          })
         );
       } else {
-        toast.error(result.message || "Failed to start indexing");
+        toast.error(
+          t("connectorCCPair.toastReIndexStartedFailed", {
+            error: result.message || t("connectorCCPair.unknownError"),
+          })
+        );
       }
     } catch (error) {
       console.error("Failed to trigger indexing:", error);
-      toast.error(
-        "An unexpected error occurred while trying to start indexing"
-      );
+      toast.error(t("connectorCCPair.toastReIndexUnexpectedError"));
     } finally {
       setShowIsResolvingKickoffLoader(false);
     }

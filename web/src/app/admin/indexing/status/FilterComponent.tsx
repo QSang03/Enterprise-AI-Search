@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { AccessType, ValidStatuses } from "@/lib/types";
 import { Button } from "@opal/components";
 import { SvgFilter } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export interface FilterOptions {
   accessType: AccessType[] | null;
   docsCountFilter: {
@@ -32,6 +34,7 @@ export const FilterComponent = forwardRef<
   { resetFilters: () => void },
   FilterComponentProps
 >(({ onFilterChange }, ref) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     accessType: null,
@@ -140,14 +143,14 @@ export const FilterComponent = forwardRef<
         >
           <div className="flex items-center justify-between px-2 py-1.5">
             <DropdownMenuLabel className="text-base font-medium">
-              Filter Connectors
+              {t("indexingStatus.filterConnectorsTitle")}
             </DropdownMenuLabel>
           </div>
           <DropdownMenuSeparator />
 
           <DropdownMenuGroup>
             <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground">
-              Access Type
+              {t("indexingStatus.accessTypeLabel")}
             </DropdownMenuLabel>
             <div onClick={(e) => e.stopPropagation()}>
               <DropdownMenuCheckboxItem
@@ -156,7 +159,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Public
+                {t("indexingStatus.public")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedAccessTypes.includes("private")}
@@ -164,7 +167,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Private
+                {t("indexingStatus.private")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedAccessTypes.includes("sync")}
@@ -172,7 +175,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Auto-Sync
+                {t("indexingStatus.autoSync")}
               </DropdownMenuCheckboxItem>
             </div>
           </DropdownMenuGroup>
@@ -181,7 +184,7 @@ export const FilterComponent = forwardRef<
 
           <DropdownMenuGroup>
             <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground">
-              Last Status
+              {t("indexingStatus.lastStatusLabel")}
             </DropdownMenuLabel>
             <div onClick={(e) => e.stopPropagation()}>
               <DropdownMenuCheckboxItem
@@ -190,7 +193,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Success
+                {t("indexingStatus.success")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedStatuses.includes("failed")}
@@ -198,7 +201,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Failed
+                {t("indexingStatus.failed")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedStatuses.includes("in_progress")}
@@ -206,7 +209,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                In Progress
+                {t("indexingStatus.inProgress")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedStatuses.includes("not_started")}
@@ -214,7 +217,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Not Started
+                {t("indexingStatus.notStarted")}
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedStatuses.includes("completed_with_errors")}
@@ -224,7 +227,7 @@ export const FilterComponent = forwardRef<
                 className="flex items-center justify-between"
                 onSelect={(e) => e.preventDefault()}
               >
-                Completed with Errors
+                {t("indexingStatus.completedWithErrors")}
               </DropdownMenuCheckboxItem>
             </div>
           </DropdownMenuGroup>
@@ -233,7 +236,7 @@ export const FilterComponent = forwardRef<
 
           <DropdownMenuGroup>
             <DropdownMenuLabel className="px-2 py-1.5 text-xs text-muted-foreground">
-              Document Count
+              {t("indexingStatus.documentCountLabel")}
             </DropdownMenuLabel>
             <div
               className="flex items-center px-2 py-2 gap-2"
@@ -276,7 +279,7 @@ export const FilterComponent = forwardRef<
               </div>
               <Input
                 type="number"
-                placeholder="Count"
+                placeholder={t("indexingStatus.countPlaceholder")}
                 value={docsValue}
                 onChange={(e) => setDocsValue(e.target.value)}
                 className="h-8 w-full"
@@ -293,7 +296,7 @@ export const FilterComponent = forwardRef<
                 }}
                 type="button"
               >
-                Apply
+                {t("indexingStatus.applyBtn")}
               </Button>
             </div>
           </DropdownMenuGroup>

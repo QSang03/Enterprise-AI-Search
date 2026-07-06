@@ -19,10 +19,12 @@ import Cookies from "js-cookie";
 import { TOGGLED_CONNECTORS_COOKIE_NAME } from "@/lib/constants";
 import { ConnectorStaggeredSkeleton } from "./ConnectorRowSkeleton";
 import { IndexingStatusRequest } from "@/lib/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.INDEXING_STATUS;
 
 function Main() {
+  const { t } = useTranslation();
   const { vectorDbEnabled } = useSettings();
 
   // State for filter management
@@ -157,7 +159,7 @@ function Main() {
     return (
       <div className="text-error">
         {ccPairsIndexingStatusesError?.info?.detail ||
-          "Error loading indexing status."}
+          t("indexingStatus.errorLoadingStatus")}
       </div>
     );
   }
@@ -190,9 +192,7 @@ function Main() {
         <div>
           <Spacer rem={3} />
           <Text as="p">
-            {markdown(
-              "It looks like you don't have any connectors setup yet. Visit the [Add Connector](/admin/add-connector) page to get started!"
-            )}
+            {markdown(t("indexingStatus.noConnectorsSetup"))}
           </Text>
         </div>
       ) : (
@@ -209,9 +209,11 @@ function Main() {
 }
 
 export default function Status() {
+  const { t } = useTranslation();
+
   useToastFromQuery({
     "connector-created": {
-      message: "Connector created successfully",
+      message: t("indexingStatus.toastConnectorCreated"),
       type: "success",
     },
   });
@@ -222,7 +224,7 @@ export default function Status() {
         icon={route.icon}
         title={route.title}
         rightChildren={
-          <Button href="/admin/add-connector">Add Connector</Button>
+          <Button href="/admin/add-connector">{t("indexingStatus.addConnectorBtn")}</Button>
         }
         divider
       />

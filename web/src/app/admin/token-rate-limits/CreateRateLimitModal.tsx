@@ -11,6 +11,7 @@ import { Scope } from "./types";
 import { toast } from "@/hooks/useToast";
 import { SvgSettings } from "@opal/icons";
 import { useTranslation } from "@/providers/LanguageProvider";
+
 interface CreateRateLimitModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -49,14 +50,14 @@ export default function CreateRateLimitModal({
         setModalUserGroups(options);
         setShouldFetchUserGroups(false);
       } catch (error) {
-        toast.error(`Failed to fetch user groups: ${error}`);
+        toast.error(t("tokenRateLimits.toastFetchUserGroupsFailed", { error: String(error) }));
       }
     };
 
     if (shouldFetchUserGroups) {
       fetchData();
     }
-  }, [shouldFetchUserGroups]);
+  }, [shouldFetchUserGroups, t]);
 
   return (
     <Modal open={isOpen} onOpenChange={() => setIsOpen(false)}>
@@ -76,17 +77,17 @@ export default function CreateRateLimitModal({
           }}
           validationSchema={Yup.object().shape({
             period_hours: Yup.number()
-              .required("Time Window is a required field")
-              .min(1, "Time Window must be at least 1 hour"),
+              .required(t("tokenRateLimits.validation.timeWindowRequired"))
+              .min(1, t("tokenRateLimits.validation.timeWindowMin")),
             token_budget: Yup.number()
-              .required("Token Budget is a required field")
-              .min(1, "Token Budget must be at least 1"),
+              .required(t("tokenRateLimits.validation.tokenBudgetRequired"))
+              .min(1, t("tokenRateLimits.validation.tokenBudgetMin")),
             target_scope: Yup.string().required(
-              "Target Scope is a required field"
+              t("tokenRateLimits.validation.targetScopeRequired")
             ),
             user_group_id: Yup.string().test(
               "user_group_id",
-              "User Group is a required field",
+              t("tokenRateLimits.validation.userGroupRequired"),
               (value, context) => {
                 return (
                   context.parent.target_scope !== "user_group" ||
@@ -115,9 +116,9 @@ export default function CreateRateLimitModal({
                     name="target_scope"
                     label={t("rateLimits.targetScopeLabel")}
                     options={[
-                      { name: "Global", value: Scope.GLOBAL },
-                      { name: "User", value: Scope.USER },
-                      { name: "User Group", value: Scope.USER_GROUP },
+                      { name: t("rateLimits.globalTab"), value: Scope.GLOBAL },
+                      { name: t("rateLimits.userTab"), value: Scope.USER },
+                      { name: t("rateLimits.userGroupsTab"), value: Scope.USER_GROUP },
                     ]}
                     includeDefault={false}
                     onSelect={(selected) => {

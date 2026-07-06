@@ -1,6 +1,7 @@
 import { useFormContext } from "@/components/context/FormContext";
 import { Button } from "@opal/components";
 import { SvgArrowLeft, SvgArrowRight, SvgPlusCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const NavigationRow = ({
   noAdvanced,
@@ -15,6 +16,7 @@ const NavigationRow = ({
   noCredentials: boolean;
   activatedCredential: boolean;
 }) => {
+  const { t } = useTranslation();
   const { formStep, prevFormStep, nextFormStep } = useFormContext();
 
   return (
@@ -27,7 +29,7 @@ const NavigationRow = ({
             onClick={prevFormStep}
             icon={SvgArrowLeft}
           >
-            Previous
+            {t("addConnector.previousBtn")}
           </Button>
         )}
       </div>
@@ -38,7 +40,7 @@ const NavigationRow = ({
             rightIcon={SvgPlusCircle}
             onClick={onSubmit}
           >
-            Create Connector
+            {t("addConnector.createConnectorBtn")}
           </Button>
         )}
       </div>
@@ -50,7 +52,7 @@ const NavigationRow = ({
             rightIcon={SvgArrowRight}
             onClick={() => nextFormStep()}
           >
-            Continue
+            {t("addConnector.continueBtn")}
           </Button>
         )}
         {!noAdvanced && formStep === 1 && (
@@ -60,7 +62,7 @@ const NavigationRow = ({
             rightIcon={SvgArrowRight}
             onClick={() => nextFormStep()}
           >
-            Advanced
+            {t("addConnector.advancedNavBtn")}
           </Button>
         )}
       </div>

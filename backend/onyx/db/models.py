@@ -6252,8 +6252,8 @@ class DocumentProcessingJob(Base):
     __tablename__ = "document_processing_jobs"
     
     job_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
-    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
-    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
+    file_name: Mapped[str] = mapped_column(String(1024), nullable=False)
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     parser_mode: Mapped[str] = mapped_column(String(20), nullable=False)
     ocr_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
@@ -6288,7 +6288,7 @@ class OcrPage(Base):
     __tablename__ = "ocr_pages"
     
     page_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
     ocr_text: Mapped[str] = mapped_column(Text, nullable=False)
     ocr_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
@@ -6306,7 +6306,7 @@ class DocumentBlock(Base):
     __tablename__ = "document_blocks"
     
     block_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
-    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
     page_number: Mapped[int] = mapped_column(Integer, nullable=False)
     block_type: Mapped[str] = mapped_column(String(20), nullable=False)
     text_raw: Mapped[str] = mapped_column(Text, nullable=False)
@@ -6328,7 +6328,7 @@ class DocumentChunkV2(Base):
     __tablename__ = "document_chunks_v2"
     
     chunk_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
-    doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
     parent_chunk_id: Mapped[UUID | None] = mapped_column(PGUUID, ForeignKey("document_chunks_v2.chunk_id", ondelete="SET NULL"), nullable=True)
     sibling_order: Mapped[int] = mapped_column(Integer, nullable=False)
     text_raw: Mapped[str] = mapped_column(Text, nullable=False)
@@ -6360,7 +6360,7 @@ class EvalQuestion(Base):
     question_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True)
     question: Mapped[str] = mapped_column(Text, nullable=False)
     gold_answer: Mapped[str] = mapped_column(Text, nullable=False)
-    gold_doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    gold_doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
     gold_page: Mapped[int | None] = mapped_column(Integer, nullable=True)
     gold_chunk_id: Mapped[UUID | None] = mapped_column(PGUUID, nullable=True)
     category: Mapped[str] = mapped_column(String(50), nullable=False)
@@ -6433,7 +6433,7 @@ class WikiStaleEvent(Base):
     event_id: Mapped[UUID] = mapped_column(PGUUID, primary_key=True, server_default=func.gen_random_uuid())
     wiki_id: Mapped[UUID] = mapped_column(PGUUID, nullable=False)
     wiki_version: Mapped[int] = mapped_column(Integer, nullable=False)
-    trigger_doc_id: Mapped[str] = mapped_column(String(255), nullable=False)
+    trigger_doc_id: Mapped[str] = mapped_column(String(2048), nullable=False)
     conflict_type: Mapped[str] = mapped_column(String(50), nullable=False)
     conflict_description: Mapped[str] = mapped_column(Text, nullable=False)
     resolved: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

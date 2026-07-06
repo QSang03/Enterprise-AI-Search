@@ -2612,6 +2612,18 @@
     "hoursText": "{count} {unit}",
     "minutesText": "{count} {unit}",
     "daysText": "{count} {unit}",
+    "noIndexAttemptsTitle": "No indexing attempts scheduled yet",
+    "noIndexAttemptsDesc": "Index attempts are scheduled in the background, and may take some time to appear. Try refreshing the page in ~30 seconds!",
+    "newDocsHeader": "New Docs",
+    "totalDocsHeader": "Total Docs",
+    "totalDocsTooltip": "Total number of documents replaced in the index during this indexing attempt",
+    "docsPerMinText": "{count} docs / min",
+    "noAdditionalDocs": "No additional docs processed",
+    "removedDocsNote": "(also removed {count} docs that were detected as deleted in the source)",
+    "viewFullTrace": "View full trace",
+    "viewStageMetrics": "View stage metrics",
+    "reindexTooltipInProgress": "This index attempt is a full re-index. All documents from the source are being synced into the system.",
+    "reindexTooltipDone": "This index attempt was a full re-index. All documents from the source were synced into the system.",
     "statusSucceeded": "Succeeded",
     "statusCompletedWithErrors": "Completed with errors",
     "statusFailed": "Failed",
@@ -2647,7 +2659,23 @@
     "toastFilesUploaded": "Successfully uploaded files!",
     "toastGoogleSiteCreated": "Successfully created Google Site connector!",
     "toastNoFilePathReturned": "File upload was successful, but no file path was returned. Cannot create connector.",
-    "toastFilePathUndefined": "File upload was successful, but file path is undefined. Cannot create connector."
+    "toastFilePathUndefined": "File upload was successful, but file path is undefined. Cannot create connector.",
+    "previousBtn": "Previous",
+    "createConnectorBtn": "Create Connector",
+    "continueBtn": "Continue",
+    "advancedNavBtn": "Advanced",
+    "advancedConfigTitle": "Advanced Configuration",
+    "pruneFreqLabel": "Prune Frequency (hours)",
+    "pruneFreqDesc": "Checks all documents against the source to delete those that no longer exist. Note: This process checks every document, so be cautious when increasing frequency. Default is {default} hours ({days} days). Decimal hours are supported (e.g., 0.1 hours = 6 minutes). Enter 0 to disable pruning for this connector.",
+    "refreshFreqLabel": "Refresh Frequency (minutes)",
+    "refreshFreqDesc": "This is how frequently we pull new documents from the source (in minutes). If you input 0, we will never pull new documents for this connector.",
+    "indexingStartLabel": "Indexing Start Date",
+    "indexingStartSubtext": "Documents prior to this date will not be pulled in",
+    "resetBtn": "Reset",
+    "connectorNameLabel": "Connector Name",
+    "connectorNameSubtext": "A descriptive name for the connector.",
+    "noTabsDisplay": "No tabs to display.",
+    "invalidFieldType": "INVALID FIELD TYPE"
   },
   "scim": {
     "toastFailedLoadToken": "Failed to load SCIM token status.",
@@ -2662,7 +2690,16 @@
     "toastUpdatedScoreSuccess": "Updated score!"
   },
   "tokenRateLimits": {
-    "toastLimitCreated": "Token rate limit created!"
+    "toastLimitCreated": "Token rate limit created successfully!",
+    "toastFetchUserGroupsFailed": "Failed to fetch user groups: {error}",
+    "validation": {
+      "timeWindowRequired": "Time Window is a required field",
+      "timeWindowMin": "Time Window must be at least 1 hour",
+      "tokenBudgetRequired": "Token Budget is a required field",
+      "tokenBudgetMin": "Token Budget must be at least 1",
+      "targetScopeRequired": "Target Scope is a required field",
+      "userGroupRequired": "User Group is a required field"
+    }
   },
   "googleCredentials": {
     "toastAppCredsUploaded": "Successfully uploaded app credentials",
@@ -2944,5 +2981,33 @@
     "confirmAdd": "📥 {count} file(s) will be added",
     "confirmAddDesc": "New files will be uploaded, chunked, embedded, and indexed in the Document Index",
     "confirmSaveBtn": "Confirm & Save"
+  },
+  "indexingStatus": {
+    "errorLoadingStatus": "Error loading indexing status.",
+    "noConnectorsSetup": "It looks like you don't have any connectors setup yet. Visit the [Add Connector](/admin/add-connector) page to get started!",
+    "toastConnectorCreated": "Connector created successfully",
+    "addConnectorBtn": "Add Connector",
+    "filterConnectorsTitle": "Filter Connectors",
+    "accessTypeLabel": "Access Type",
+    "public": "Public",
+    "private": "Private",
+    "autoSync": "Auto-Sync",
+    "lastStatusLabel": "Last Status",
+    "success": "Success",
+    "failed": "Failed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "completedWithErrors": "Completed with Errors",
+    "documentCountLabel": "Document Count",
+    "countPlaceholder": "Count",
+    "applyBtn": "Apply",
+    "searchPlaceholder": "Search Connectors",
+    "collapseAll": "Collapse All",
+    "expandAll": "Expand All",
+    "badgeAccess": "Access: {types}",
+    "badgeStatus": "Status: {statuses}",
+    "badgeDocs": "Docs {operator} {value}",
+    "badgeDocsAny": "Docs {operator} any",
+    "clearBtn": "Clear"
   }
 }
