@@ -35,6 +35,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { CheckboxField } from "@/refresh-components/form/LabeledCheckboxField";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface SlackChannelConfigFormFieldsProps {
   isUpdate: boolean;
@@ -57,6 +58,7 @@ export function SlackChannelConfigFormFields({
   slack_bot_id,
   formikProps,
 }: SlackChannelConfigFormFieldsProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { values, setFieldValue } = useFormikContext<any>();
   const [viewUnselectableSets, setViewUnselectableSets] = useState(false);
@@ -189,7 +191,7 @@ export function SlackChannelConfigFormFields({
             <div className="mt-4 p-4 bg-background rounded-md border border-neutral-300">
               <CheckboxField
                 name="disabled"
-                label="Disable Default Configuration"
+                label={t("slackBots.disableDefaultConfig")}
                 labelClassName="text-text"
               />
               <p className="mt-2 text-sm italic">
@@ -204,14 +206,14 @@ export function SlackChannelConfigFormFields({
           <>
             <TextFormField
               name="channel_name"
-              label="Slack Channel Name"
-              placeholder="Enter channel name (e.g., general, support)"
-              subtext="Enter the name of the Slack channel (without the # symbol)"
+              label={t("slackBots.slackChannelName")}
+              placeholder={t("slackBots.channelNamePlaceholder")}
+              subtext={t("slackBots.channelNameSubtext")}
             />
           </>
         )}
         <div className="space-y-2 mt-4">
-          <Label>Knowledge Source</Label>
+          <Label>{t("slackBots.knowledgeSource")}</Label>
           <RadioGroup
             className="flex flex-col gap-y-4"
             value={values.knowledge_source}
@@ -222,28 +224,28 @@ export function SlackChannelConfigFormFields({
             <RadioGroupItemField
               value="all_public"
               id="all_public"
-              label="All Public Knowledge"
-              sublabel="Let OnyxBot respond based on information from all public connectors"
+              label={t("slackBots.allPublicKnowledge")}
+              sublabel={t("slackBots.allPublicKnowledgeSublabel")}
             />
             {selectableSets.length + unselectableSets.length > 0 && (
               <RadioGroupItemField
                 value="document_sets"
                 id="document_sets"
-                label="Specific Document Sets"
-                sublabel="Control which documents to use for answering questions"
+                label={t("slackBots.specificDocumentSets")}
+                sublabel={t("slackBots.specificDocumentSetsSublabel")}
               />
             )}
             <RadioGroupItemField
               value="assistant"
               id="assistant"
-              label="Search Agent"
-              sublabel="Control both the documents and the prompt to use for answering questions"
+              label={t("slackBots.searchAgent")}
+              sublabel={t("slackBots.searchAgentSublabel")}
             />
             <RadioGroupItemField
               value="non_search_agent"
               id="non_search_agent"
-              label="Non-Search Agent"
-              sublabel="Chat with an agent that does not use documents"
+              label={t("slackBots.nonSearchAgent")}
+              sublabel={t("slackBots.nonSearchAgentSublabel")}
             />
           </RadioGroup>
         </div>
@@ -451,15 +453,15 @@ export function SlackChannelConfigFormFields({
         {values.knowledge_source !== "non_search_agent" && (
           <AccordionItem value="search-options">
             <AccordionTrigger className="text-text">
-              Search Configuration
+              {t("slackBots.searchConfiguration")}
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-4 pb-3">
                 <div className="w-64">
                   <SelectorFormField
                     name="response_type"
-                    label="Answer Type"
-                    tooltip="Controls the format of OnyxBot's responses."
+                    label={t("slackBots.answerType")}
+                    tooltip={t("slackBots.answerTypeTooltip")}
                     options={[
                       { name: "Standard", value: "citations" },
                       { name: "Detailed", value: "quotes" },
@@ -468,8 +470,8 @@ export function SlackChannelConfigFormFields({
                 </div>
                 <CheckboxField
                   name="answer_validity_check_enabled"
-                  label="Only respond if citations found"
-                  tooltip="If set, will only answer questions where the model successfully produces citations"
+                  label={t("slackBots.citationsOnly")}
+                  tooltip={t("slackBots.citationsOnlyTooltip")}
                 />
               </div>
             </AccordionContent>
@@ -477,13 +479,13 @@ export function SlackChannelConfigFormFields({
         )}
 
         <AccordionItem className="mt-4" value="general-options">
-          <AccordionTrigger>General Configuration</AccordionTrigger>
+          <AccordionTrigger>{t("slackBots.generalConfiguration")}</AccordionTrigger>
           <AccordionContent className="overflow-visible">
             <div className="space-y-4">
               <CheckboxField
                 name="show_continue_in_web_ui"
-                label="Show Continue in Web UI button"
-                tooltip="If set, will show a button at the bottom of the response that allows the user to continue the conversation in the Onyx Web UI"
+                label={t("slackBots.showContinueWebUI")}
+                tooltip={t("slackBots.showContinueWebUITooltip")}
               />
 
               <CheckboxField
@@ -494,66 +496,58 @@ export function SlackChannelConfigFormFields({
                     setFieldValue("follow_up_tags", []);
                   }
                 }}
-                label={'Give a "Still need help?" button'}
-                tooltip={`OnyxBot's response will include a button at the bottom
-                      of the response that asks the user if they still need help.`}
+                label={t("slackBots.stillNeedHelp")}
+                tooltip={t("slackBots.stillNeedHelpTooltip")}
               />
               {values.still_need_help_enabled && (
-                <CollapsibleSection prompt="Configure Still Need Help Button">
+                <CollapsibleSection prompt={t("slackBots.configureStillNeedHelp")}>
                   <TextArrayField
                     name="follow_up_tags"
-                    label="(Optional) Users / Groups to Tag"
+                    label={t("slackBots.usersGroupsToTag")}
                     values={values}
                     subtext={
                       <div>
-                        The Slack users / groups we should tag if the user
-                        clicks the &quot;Still need help?&quot; button. If no
-                        emails are provided, we will not tag anyone and will
-                        just react with a 🆘 emoji to the original message.
+                        {t("slackBots.usersGroupsToTagSubtext")}
                       </div>
                     }
-                    placeholder="User email or user group name..."
+                    placeholder={t("slackBots.userEmailPlaceholder")}
                   />
                 </CollapsibleSection>
               )}
 
               <CheckboxField
                 name="questionmark_prefilter_enabled"
-                label="Only respond to questions"
-                tooltip="If set, OnyxBot will only respond to messages that contain a question mark"
+                label={t("slackBots.onlyRespondQuestions")}
+                tooltip={t("slackBots.onlyRespondQuestionsTooltip")}
               />
               <CheckboxField
                 name="respond_tag_only"
-                label="Respond to @OnyxBot Only"
-                tooltip="If set, OnyxBot will only respond when directly tagged"
+                label={t("slackBots.respondTagOnly")}
+                tooltip={t("slackBots.respondTagOnlyTooltip")}
               />
               <CheckboxField
                 name="respond_to_bots"
-                label="Respond to Bot messages"
-                tooltip="If not set, OnyxBot will always ignore messages from Bots"
+                label={t("slackBots.respondBotMessages")}
+                tooltip={t("slackBots.respondBotMessagesTooltip")}
               />
               <CheckboxField
                 name="is_ephemeral"
-                label="Respond to user in a private (ephemeral) message"
-                tooltip="If set, OnyxBot will respond only to the user in a private (ephemeral) message. If you also
-                chose 'Search' Agent above, selecting this option will make documents that are private to the user
-                available for their queries."
+                label={t("slackBots.respondPrivate")}
+                tooltip={t("slackBots.respondPrivateTooltip")}
               />
 
               <TextArrayField
                 name="respond_member_group_list"
-                label="(Optional) Respond to Certain Users / Groups"
+                label={t("slackBots.respondCertainUsers")}
                 subtext={
-                  "If specified, only these users / groups can invoke " +
-                  "OnyxBot in this channel, and responses are visible only " +
-                  "to them."
+                  t("slackBots.respondCertainUsersSubtext")
                 }
                 values={values}
-                placeholder="User email or user group name..."
+                placeholder={t("slackBots.userEmailPlaceholder")}
                 disabled={values.is_ephemeral}
                 tooltip={
                   values.is_ephemeral
-                    ? "Disabled while 'Respond to user in a private (ephemeral) message' is on — ephemeral responses target a single user only."
+                    ? t("slackBots.respondCertainUsersTooltipDisabled")
                     : undefined
                 }
               />

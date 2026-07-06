@@ -20,6 +20,7 @@ import { useDocumentSets } from "./hooks";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { deleteDocumentSet } from "./lib";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import {
@@ -157,6 +158,7 @@ const DocumentSetTable = ({
   refresh,
   refreshEditable,
 }: DocumentFeedbackTableProps) => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
 
   // sort by name for consistent ordering
@@ -179,15 +181,15 @@ const DocumentSetTable = ({
 
   return (
     <div>
-      <Title>Existing Document Sets</Title>
+      <Title>{t("documents.existingDocSets")}</Title>
       <Table className="overflow-visible mt-2">
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Connectors</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Public</TableHead>
-            <TableHead>Delete</TableHead>
+            <TableHead>{t("documents.nameHeader")}</TableHead>
+            <TableHead>{t("documents.connectorsHeader")}</TableHead>
+            <TableHead>{t("documents.statusHeader")}</TableHead>
+            <TableHead>{t("documents.publicHeader")}</TableHead>
+            <TableHead>{t("documents.deleteHeader")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -313,12 +315,12 @@ const DocumentSetTable = ({
                           );
                           if (response.ok) {
                             toast.success(
-                              `Document set "${documentSet.name}" scheduled for deletion`
+                              t("documents.toastScheduledDelete", { name: documentSet.name })
                             );
                           } else {
                             const errorMsg = (await response.json()).detail;
                             toast.error(
-                              `Failed to schedule document set for deletion - ${errorMsg}`
+                              t("documents.toastScheduledDeleteFailed", { error: errorMsg })
                             );
                           }
                           refresh();
@@ -349,6 +351,7 @@ const DocumentSetTable = ({
 };
 
 function Main() {
+  const { t } = useTranslation();
   const {
     data: documentSets,
     isLoading: isDocumentSetsLoading,
@@ -383,7 +386,7 @@ function Main() {
     <div className="mb-8">
       <Text as="p">
         {markdown(
-          "**Document Sets** allow you to group logically connected documents into a single bundle. These can then be used as a filter when performing searches to control the scope of information Onyx searches over."
+          t("documents.desc")
         )}
       </Text>
       <Spacer rem={0.75} />
@@ -396,7 +399,7 @@ function Main() {
           prominence="secondary"
           href="/admin/documents/sets/new"
         >
-          New Document Set
+          {t("documents.newDocSet")}
         </Button>
       </div>
 

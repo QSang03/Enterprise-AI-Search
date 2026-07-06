@@ -18,6 +18,7 @@ import { Checkbox } from "@opal/components";
 import { TableHeader } from "@/components/ui/table";
 import { Text } from "@opal/components";
 import { Spacer } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 type TokenRateLimitTableArgs = {
   tokenRateLimits: TokenRateLimitDisplay[];
@@ -36,6 +37,7 @@ export const TokenRateLimitTable = ({
   hideHeading,
   isAdmin,
 }: TokenRateLimitTableArgs) => {
+  const { t } = useTranslation();
   const shouldRenderGroupName = () =>
     tokenRateLimits.length > 0 &&
     tokenRateLimits[0] !== undefined &&
@@ -76,7 +78,7 @@ export const TokenRateLimitTable = ({
           </>
         )}
         {!hideHeading && <Spacer rem={2} />}
-        <Text as="p">No token rate limits set!</Text>
+        <Text as="p">{t("rateLimits.noRateLimits")}</Text>
         {!hideHeading && <Spacer rem={2} />}
       </div>
     );
@@ -99,11 +101,11 @@ export const TokenRateLimitTable = ({
       >
         <TableHeader>
           <TableRow>
-            <TableHead>Enabled</TableHead>
-            {shouldRenderGroupName() && <TableHead>Group Name</TableHead>}
-            <TableHead>Time Window (Hours)</TableHead>
-            <TableHead>Token Budget (Thousands)</TableHead>
-            {isAdmin && <TableHead>Delete</TableHead>}
+            <TableHead>{t("rateLimits.enabledHeader")}</TableHead>
+            {shouldRenderGroupName() && <TableHead>{t("rateLimits.groupNameHeader")}</TableHead>}
+            <TableHead>{t("rateLimits.timeWindowHeader")}</TableHead>
+            <TableHead>{t("rateLimits.tokenBudgetHeader")}</TableHead>
+            {isAdmin && <TableHead>{t("rateLimits.deleteHeader")}</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -187,6 +189,7 @@ export const GenericTokenRateLimitTable = ({
   responseMapper?: (data: any) => TokenRateLimitDisplay[];
   isAdmin?: boolean;
 }) => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useSWR<TokenRateLimitDisplay[]>(
     fetchUrl,
     errorHandlingFetcher
@@ -197,7 +200,7 @@ export const GenericTokenRateLimitTable = ({
   }
 
   if (!isLoading && error) {
-    return <Text as="p">Failed to load token rate limits</Text>;
+    return <Text as="p">{t("rateLimits.failedLoad")}</Text>;
   }
 
   let processedData = data;

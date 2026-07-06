@@ -27,17 +27,7 @@ const GLOBAL_TOKEN_FETCH_URL = SWR_KEYS.globalTokenRateLimits;
 const USER_TOKEN_FETCH_URL = SWR_KEYS.userTokenRateLimits;
 const USER_GROUP_FETCH_URL = SWR_KEYS.userGroupTokenRateLimits;
 
-const GLOBAL_DESCRIPTION =
-  "Global rate limits apply to all users, user groups, and API keys. When the global \
-  rate limit is reached, no more tokens can be spent.";
-const USER_DESCRIPTION =
-  "User rate limits apply to individual users. When a user reaches a limit, they will \
-  be temporarily blocked from spending tokens.";
-const USER_GROUP_DESCRIPTION =
-  "User group rate limits apply to all users in a group. When a group reaches a limit, \
-  all users in the group will be temporarily blocked from spending tokens, regardless \
-  of their individual limits. If a user is in multiple groups, the most lenient limit \
-  will apply.";
+// Descriptions are localized dynamically in the component
 
 const handleCreateTokenRateLimit = async (
   target_scope: Scope,
@@ -107,35 +97,31 @@ function Main() {
   return (
     <Section alignItems="stretch" justifyContent="start" height="auto">
       <Text as="p">
-        Token rate limits enable you control how many tokens can be spent in a
-        given time period. With token rate limits, you can:
+        {t("rateLimits.pageIntro")}
       </Text>
 
       <ul className="list-disc ml-4">
         <li>
           <Text as="p">
-            Set a global rate limit to control your team&apos;s overall token
-            spend.
+            {t("rateLimits.introGlobalLimit")}
           </Text>
         </li>
         {enterpriseTier && (
           <>
             <li>
               <Text as="p">
-                Set rate limits for users to ensure that no single user can
-                spend too many tokens.
+                {t("rateLimits.introUserLimit")}
               </Text>
             </li>
             <li>
               <Text as="p">
-                Set rate limits for user groups to control token spend for your
-                teams.
+                {t("rateLimits.introUserGroupLimit")}
               </Text>
             </li>
           </>
         )}
         <li>
-          <Text as="p">Enable and disable rate limits on the fly.</Text>
+          <Text as="p">{t("rateLimits.pageDesc")}</Text>
         </li>
       </ul>
 
@@ -144,42 +130,42 @@ function Main() {
         prominence="secondary"
         onClick={() => setModalIsOpen(true)}
       >
-        Create a Token Rate Limit
+        {t("rateLimits.createRateLimitTitle")}
       </Button>
 
       {enterpriseTier ? (
         <SimpleTabs
           tabs={{
             "0": {
-              name: "Global",
+              name: t("rateLimits.globalTab"),
               icon: SvgGlobe,
               content: (
                 <GenericTokenRateLimitTable
                   fetchUrl={GLOBAL_TOKEN_FETCH_URL}
-                  title={"Global Token Rate Limits"}
-                  description={GLOBAL_DESCRIPTION}
+                  title={t("rateLimits.globalTitle")}
+                  description={t("rateLimits.globalDesc")}
                 />
               ),
             },
             "1": {
-              name: "User",
+              name: t("rateLimits.userTab"),
               icon: SvgUser,
               content: (
                 <GenericTokenRateLimitTable
                   fetchUrl={USER_TOKEN_FETCH_URL}
-                  title={"User Token Rate Limits"}
-                  description={USER_DESCRIPTION}
+                  title={t("rateLimits.userTitle")}
+                  description={t("rateLimits.userDesc")}
                 />
               ),
             },
             "2": {
-              name: "User Groups",
+              name: t("rateLimits.userGroupsTab"),
               icon: SvgUsers,
               content: (
                 <GenericTokenRateLimitTable
                   fetchUrl={USER_GROUP_FETCH_URL}
-                  title={"User Group Token Rate Limits"}
-                  description={USER_GROUP_DESCRIPTION}
+                  title={t("rateLimits.userGroupTitle")}
+                  description={t("rateLimits.userGroupDesc")}
                   responseMapper={(data: Record<string, TokenRateLimit[]>) =>
                     Object.entries(data).flatMap(([group_name, elements]) =>
                       elements.map((element) => ({
@@ -198,8 +184,8 @@ function Main() {
       ) : (
         <GenericTokenRateLimitTable
           fetchUrl={GLOBAL_TOKEN_FETCH_URL}
-          title={"Global Token Rate Limits"}
-          description={GLOBAL_DESCRIPTION}
+          title={t("rateLimits.globalTitle")}
+          description={t("rateLimits.globalDesc")}
         />
       )}
 

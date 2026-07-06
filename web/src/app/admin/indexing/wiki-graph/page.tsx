@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import useSWR from "swr";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Button } from "@opal/components";
 import {
   SvgGlobe,
@@ -28,6 +29,7 @@ const route = ADMIN_ROUTES.WIKI_GRAPH;
 type TabType = "wikis" | "entities" | "relations";
 
 export default function WikiAndGraphDashboard() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>("wikis");
   
   // Wikis SWR
@@ -187,7 +189,7 @@ export default function WikiAndGraphDashboard() {
       <SettingsLayouts.Header
         icon={route.icon}
         title={route.title}
-        description="Explore automatically extracted semantic entities, entity relations, and generated wiki-style knowledge articles."
+        description={t("wikiGraph.description")}
       />
 
       <SettingsLayouts.Body>
@@ -315,7 +317,7 @@ export default function WikiAndGraphDashboard() {
               {isGeneratingFlow ? (
                 <div className="flex-1 flex flex-col">
                   <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
-                    <h4 className="text-sm font-extrabold text-text">Generate Auto-Wiki</h4>
+                    <h4 className="text-sm font-extrabold text-text">{t("wikiGraph.generateAutoWiki")}</h4>
                     <button
                       onClick={() => {
                         setIsGeneratingFlow(false);
@@ -418,7 +420,7 @@ export default function WikiAndGraphDashboard() {
               ) : (
                 <div className="flex flex-col items-center justify-center flex-1 text-center py-20">
                   <SvgFileText className="w-12 h-12 text-text-subtle mb-3" />
-                  <h4 className="text-sm font-bold text-text mb-1">No Article Selected</h4>
+                  <h4 className="text-sm font-bold text-text mb-1">{t("wikiGraph.noArticleSelected")}</h4>
                   <p className="text-xs text-text-subtle max-w-[260px]">
                     Select a wiki article from the list to preview its contents.
                   </p>
@@ -434,10 +436,10 @@ export default function WikiAndGraphDashboard() {
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 bg-background-strong p-4 rounded-xl border border-border">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">Search Entities</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.searchEntities")}</label>
                 <input
                   type="text"
-                  placeholder="Filter by entity name or description..."
+                  placeholder={t("wikiGraph.filterEntityPlaceholder")}
                   value={entitySearch}
                   onChange={(e) => setEntitySearch(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
@@ -445,13 +447,13 @@ export default function WikiAndGraphDashboard() {
               </div>
 
               <div className="w-full md:w-56">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">Entity Type</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.entityType")}</label>
                 <select
                   value={selectedEntityType}
                   onChange={(e) => setSelectedEntityType(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
                 >
-                  <option value="">All Types</option>
+                  <option value="">{t("wikiGraph.allTypes")}</option>
                   {entityTypes.map((type) => (
                     <option key={type} value={type}>
                       {type}
@@ -509,10 +511,10 @@ export default function WikiAndGraphDashboard() {
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 bg-background-strong p-4 rounded-xl border border-border">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">Search Relationships</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.searchRelationships")}</label>
                 <input
                   type="text"
-                  placeholder="Filter by entity name, relation type, or description..."
+                  placeholder={t("wikiGraph.filterRelationPlaceholder")}
                   value={relationSearch}
                   onChange={(e) => setRelationSearch(e.target.value)}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"

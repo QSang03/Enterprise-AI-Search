@@ -19,6 +19,7 @@ import { deleteSlackChannelConfig, isPersonaASlackBotPersona } from "./lib";
 import { Card } from "@/components/ui/card";
 import { Button } from "@opal/components";
 import { SvgPlusCircle, SvgSettings, SvgTrash } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 const numToDisplay = 50;
 
 export interface SlackChannelConfigsTableProps {
@@ -32,6 +33,7 @@ export default function SlackChannelConfigsTable({
   slackChannelConfigs,
   refresh,
 }: SlackChannelConfigsTableProps) {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
 
   const defaultConfig = slackChannelConfigs.find((config) => config.is_default);
@@ -49,27 +51,27 @@ export default function SlackChannelConfigsTable({
           }}
           icon={SvgSettings}
         >
-          Edit Default Configuration
+          {t("slackBots.editDefaultConfig")}
         </Button>
         <Button
           icon={SvgPlusCircle}
           prominence="secondary"
           href={`/admin/bots/${slackBotId}/channels/new`}
         >
-          New Channel Configuration
+          {t("slackBots.newChannelConfig")}
         </Button>
       </div>
 
       <div>
-        <h2 className="text-2xl font- mb-4">Channel-Specific Configurations</h2>
+        <h2 className="text-2xl font- mb-4">{t("slackBots.channelSpecificConfigs")}</h2>
         <Card>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Channel</TableHead>
-                <TableHead>Assistant</TableHead>
-                <TableHead>Document Sets</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>{t("slackBots.channelHeader")}</TableHead>
+                <TableHead>{t("slackBots.assistantHeader")}</TableHead>
+                <TableHead>{t("slackBots.documentSetsHeader")}</TableHead>
+                <TableHead>{t("slackBots.actionsHeader")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

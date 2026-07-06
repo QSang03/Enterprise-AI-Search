@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   createTableColumns,
   EmptyMessageCard,
@@ -122,6 +123,7 @@ function ErrorMessageCell({
   modalContent,
   onErrorClick,
 }: ErrorMessageCellProps) {
+  const { t } = useTranslation();
   if (!errorMessage) {
     return (
       <Text as="span" font="secondary-body" color="text-03">
@@ -133,7 +135,7 @@ function ErrorMessageCell({
     <button
       type="button"
       onClick={() => onErrorClick(modalContent ?? errorMessage)}
-      aria-label="View full error message"
+      aria-label={t("connectorCCPair.viewFullError")}
       className="text-left w-full cursor-pointer hover:underline"
     >
       <Text as="span" font="secondary-body" color="text-03" maxLines={2}>
@@ -157,6 +159,7 @@ export function DocPermissionSyncAttemptsTable({
   totalPages,
   onPageChange,
 }: DocPermissionSyncAttemptsTableProps) {
+  const { t } = useTranslation();
   const [openErrorMessage, setOpenErrorMessage] = useState<string | null>(null);
   const handleErrorClick = useCallback(
     (errorMessage: string) => setOpenErrorMessage(errorMessage),
@@ -171,8 +174,8 @@ export function DocPermissionSyncAttemptsTable({
     return (
       <EmptyMessageCard
         sizePreset="main-ui"
-        title="No document permission sync attempts yet"
-        description="Document-permission sync runs are scheduled in the background. They may take some time to appear — try refreshing in ~30 seconds."
+        title={t("connectorCCPair.noPermissionSyncAttemptsTitle")}
+        description={t("connectorCCPair.noPermissionSyncAttemptsDesc")}
       />
     );
   }

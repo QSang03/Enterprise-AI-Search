@@ -23,6 +23,7 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { IsPublicGroupSelector } from "@/components/IsPublicGroupSelector";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useUser } from "@/providers/UserProvider";
 import { ConnectorMultiSelect } from "@/components/ConnectorMultiSelect";
 import { NonSelectableConnectors } from "@/components/NonSelectableConnectors";
@@ -42,6 +43,7 @@ export const DocumentSetCreationForm = ({
   onClose,
   existingDocumentSet,
 }: SetCreationPopupProps) => {
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const isUpdate = existingDocumentSet !== undefined;
   const [localCcPairs, setLocalCcPairs] = useState(ccPairs);
@@ -179,13 +181,13 @@ export const DocumentSetCreationForm = ({
               <div className="space-y-4 w-full">
                 <TextFormField
                   name="name"
-                  label="Name:"
-                  placeholder="A name for the document set"
+                  label={t("documents.nameLabel")}
+                  placeholder={t("documents.namePlaceholder")}
                 />
                 <TextFormField
                   name="description"
-                  label="Description:"
-                  placeholder="Describe what the document set represents"
+                  label={t("documents.descriptionLabel")}
+                  placeholder={t("documents.descriptionPlaceholder")}
                   optional={true}
                 />
 
@@ -214,7 +216,7 @@ export const DocumentSetCreationForm = ({
                       onChange={(selectedIds) => {
                         props.setFieldValue("cc_pair_ids", selectedIds);
                       }}
-                      placeholder="Search for connectors..."
+                      placeholder={t("documents.searchConnectors")}
                     />
 
                     <NonSelectableConnectors
@@ -226,19 +228,19 @@ export const DocumentSetCreationForm = ({
                             } you have selected`
                           : "group you curate"
                       }`}
-                      description="Only connectors that are directly assigned to the group you are trying to add the document set to will be available."
+                      description={t("documents.connectorsNotAvailableDesc")}
                     />
                   </>
                 ) : (
                   <ConnectorMultiSelect
                     name="cc_pair_ids"
-                    label="Pick your connectors"
+                    label={t("documents.pickConnectorsLabel")}
                     connectors={visibleCcPairs}
                     selectedIds={props.values.cc_pair_ids}
                     onChange={(selectedIds) => {
                       props.setFieldValue("cc_pair_ids", selectedIds);
                     }}
-                    placeholder="Search for connectors..."
+                    placeholder={t("documents.searchConnectors")}
                   />
                 )}
 
@@ -248,7 +250,7 @@ export const DocumentSetCreationForm = ({
                     <div className="my-4 border-t border-border-02" />
                     <FederatedConnectorSelector
                       name="federated_connectors"
-                      label="Federated Connectors"
+                      label={t("documents.federatedConnectorsLabel")}
                       federatedConnectors={federatedConnectors}
                       selectedConfigs={props.values.federated_connectors}
                       onChange={(selectedConfigs) => {
@@ -257,7 +259,7 @@ export const DocumentSetCreationForm = ({
                           selectedConfigs
                         );
                       }}
-                      placeholder="Search for federated connectors..."
+                      placeholder={t("documents.searchFederatedConnectors")}
                     />
                   </>
                 )}

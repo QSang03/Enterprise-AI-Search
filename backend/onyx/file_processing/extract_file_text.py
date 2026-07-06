@@ -980,31 +980,37 @@ def _extract_text_and_images(
     file.seek(0)
 
     if is_document_intelligence_enabled():
-        try:
-            client = DocumentIntelligenceClient()
-            res = client.parse_file(file, file_name, parser_mode="accurate")
-            
-            if image_callback:
-                for img_bytes, img_name in res.embedded_images:
-                    image_callback(img_bytes, img_name)
-                embedded_images = []
-            else:
-                embedded_images = res.embedded_images
+        extension = get_file_ext(file_name)
+        if (
+            extension == ".pdf"
+            or extension in OnyxFileExtensions.IMAGE_EXTENSIONS
+            or extension in {".bmp", ".tiff"}
+        ):
+            try:
+                client = DocumentIntelligenceClient()
+                res = client.parse_file(file, file_name, parser_mode="accurate")
                 
-            metadata = dict(res.metadata)
-            metadata["__layout_blocks__"] = res.layout_blocks
-            
-            return ExtractionResult(
-                text_content=res.text_content,
-                embedded_images=embedded_images,
-                metadata=metadata
-            )
-        except Exception as e:
-            logger.error(
-                "Document Intelligence Service failed: %s. Falling back to default extraction.",
-                str(e)
-            )
-            file.seek(0)
+                if image_callback:
+                    for img_bytes, img_name in res.embedded_images:
+                        image_callback(img_bytes, img_name)
+                    embedded_images = []
+                else:
+                    embedded_images = res.embedded_images
+                    
+                metadata = dict(res.metadata)
+                metadata["__layout_blocks__"] = res.layout_blocks
+                
+                return ExtractionResult(
+                    text_content=res.text_content,
+                    embedded_images=embedded_images,
+                    metadata=metadata
+                )
+            except Exception as e:
+                logger.error(
+                    "Document Intelligence Service failed: %s. Falling back to default extraction.",
+                    str(e)
+                )
+                file.seek(0)
 
     if get_unstructured_api_key():
         try:
@@ -1029,67 +1035,99 @@ def _extract_text_and_images(
     # Default processing
     try:
         extension = get_file_ext(file_name)
+        result: ExtractionResult
+        
         # docx example for embedded images
         if extension == ".docx":
             text_content, images = read_docx_file(
                 file, file_name, extract_images=True, image_callback=image_callback
             )
-            return ExtractionResult(
+            result = ExtractionResult(
                 text_content=text_content, embedded_images=images, metadata={}
             )
 
         # PDF example: we do not show complicated PDF image extraction here
         # so we simply extract text for now and skip images.
-        if extension == ".pdf":
+        elif extension == ".pdf":
             text_content, pdf_metadata, images = read_pdf_file(
                 file,
                 pdf_pass,
                 extract_images=get_image_extraction_and_analysis_enabled(),
                 image_callback=image_callback,
             )
-            return ExtractionResult(
+            result = ExtractionResult(
                 text_content=text_content, embedded_images=images, metadata=pdf_metadata
             )
 
-        if extension == ".pptx":
+        elif extension == ".pptx":
             text_content, images = read_pptx_file(
                 file, file_name, extract_images=True, image_callback=image_callback
             )
-            return ExtractionResult(
+            result = ExtractionResult(
                 text_content=text_content, embedded_images=images, metadata={}
             )
 
-        if extension == ".xlsx":
-            return ExtractionResult(
+        elif extension == ".xlsx":
+            result = ExtractionResult(
                 text_content=xlsx_to_text(file, file_name=file_name),
                 embedded_images=[],
                 metadata={},
             )
 
-        if extension == ".eml":
-            return ExtractionResult(
+        elif extension == ".eml":
+            result = ExtractionResult(
                 text_content=eml_to_text(file), embedded_images=[], metadata={}
             )
 
-        if extension == ".epub":
-            return ExtractionResult(
+        elif extension == ".epub":
+            result = ExtractionResult(
                 text_content=epub_to_text(file), embedded_images=[], metadata={}
             )
 
-        if extension == ".html":
-            return ExtractionResult(
+        elif extension == ".html":
+            result = ExtractionResult(
                 text_content=parse_html_page_basic(file),
                 embedded_images=[],
                 metadata={},
             )
 
         # If we reach here and it's a recognized text extension
-        if extension in OnyxFileExtensions.PLAIN_TEXT_EXTENSIONS:
-            return extract_result_from_text_file(file)
+        elif extension in OnyxFileExtensions.PLAIN_TEXT_EXTENSIONS:
+            result = extract_result_from_text_file(file)
 
         # If it's an image file or something else, we do not parse embedded images from them
         # just return empty text
-        return ExtractionResult(text_content="", embedded_images=[], metadata={})
+        else:
+            result = ExtractionResult(text_content="", embedded_images=[], metadata={})
+
+        # Run OCR on embedded images if Document Intelligence is enabled
+        if is_document_intelligence_enabled() and result.embedded_images:
+            from io import BytesIO
+            client = DocumentIntelligenceClient()
+            ocr_texts = []
+            for img_bytes, img_name in result.embedded_images:
+                try:
+                    img_ext = get_file_ext(img_name)
+                    if (
+                        img_ext in OnyxFileExtensions.IMAGE_EXTENSIONS
+                        or img_ext in {".bmp", ".tiff"}
+                    ):
+                        res = client.parse_file(
+                            BytesIO(img_bytes), img_name, parser_mode="accurate"
+                        )
+                        if res.text_content.strip():
+                            ocr_texts.append(
+                                f"\n\n[Embedded Image {img_name} OCR Content]:\n{res.text_content.strip()}"
+                            )
+                except Exception as img_err:
+                    logger.warning("Failed to OCR embedded image %s: %s", img_name, img_err)
+            
+            if ocr_texts:
+                result = result._replace(
+                    text_content=result.text_content + "".join(ocr_texts)
+                )
+                
+        return result
 
     except Exception as e:
         logger.exception("Failed to extract text/images from %s: %s", file_name, e)

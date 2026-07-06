@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Button } from "@opal/components";
 import { SvgActivity, SvgTerminal, SvgFileText, SvgFiles } from "@opal/icons";
 
@@ -15,6 +16,7 @@ const fetcher = (url: string) => fetch(url).then((res) => {
 const route = ADMIN_ROUTES.PROCESSING_JOBS;
 
 export default function DocumentProcessingDashboard() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
   const [parserFilter, setParserFilter] = useState("");
@@ -44,14 +46,14 @@ export default function DocumentProcessingDashboard() {
       <SettingsLayouts.Header
         icon={route.icon}
         title={route.title}
-        description="Monitor custom ingestion pipeline layout parser blocks, OCR confidence, and processing error stack traces."
+        description={t("processingJobs.description")}
       />
 
       <SettingsLayouts.Body>
         {/* Filters and Controls */}
         <div className="flex flex-col md:flex-row gap-4 mb-6 bg-background-strong p-4 rounded-xl border border-border">
           <div className="flex-1">
-            <label className="block text-xs font-semibold text-text-subtle mb-1">Search Document ID</label>
+            <label className="block text-xs font-semibold text-text-subtle mb-1">{t("processingJobs.searchDocId")}</label>
             <input
               type="text"
               placeholder="e.g. qd_mvp_rag_spec_doc_001"
@@ -65,7 +67,7 @@ export default function DocumentProcessingDashboard() {
           </div>
 
           <div className="w-full md:w-48">
-            <label className="block text-xs font-semibold text-text-subtle mb-1">Parser Mode</label>
+            <label className="block text-xs font-semibold text-text-subtle mb-1">{t("processingJobs.parserMode")}</label>
             <select
               value={parserFilter}
               onChange={(e) => {
@@ -74,14 +76,14 @@ export default function DocumentProcessingDashboard() {
               }}
               className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
             >
-              <option value="">All Modes</option>
-              <option value="accurate">Accurate (AI OCR)</option>
-              <option value="fast">Fast (Native Text)</option>
+              <option value="">{t("processingJobs.allModes")}</option>
+              <option value="accurate">{t("processingJobs.accurate")}</option>
+              <option value="fast">{t("processingJobs.fast")}</option>
             </select>
           </div>
 
           <div className="w-full md:w-48">
-            <label className="block text-xs font-semibold text-text-subtle mb-1">Status</label>
+            <label className="block text-xs font-semibold text-text-subtle mb-1">{t("processingJobs.status")}</label>
             <select
               value={statusFilter}
               onChange={(e) => {
@@ -91,9 +93,9 @@ export default function DocumentProcessingDashboard() {
               }}
               className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
             >
-              <option value="">All Statuses</option>
-              <option value="completed">Completed</option>
-              <option value="failed">Failed</option>
+              <option value="">{t("processingJobs.allStatuses")}</option>
+              <option value="completed">{t("processingJobs.completed")}</option>
+              <option value="failed">{t("processingJobs.failed")}</option>
             </select>
           </div>
         </div>
@@ -211,23 +213,23 @@ export default function DocumentProcessingDashboard() {
             {!selectedJobId ? (
               <div className="flex flex-col items-center justify-center flex-1 text-center py-20">
                 <SvgFiles className="w-12 h-12 text-text-subtle mb-3 animate-pulse" />
-                <h4 className="text-sm font-bold text-text mb-1">No Job Selected</h4>
+                <h4 className="text-sm font-bold text-text mb-1">{t("processingJobs.noJobSelected")}</h4>
                 <p className="text-xs text-text-subtle max-w-[260px]">
-                  Select an ingestion run from the list to inspect OCR pages, parsed layout blocks, and stack traces.
+                  {t("processingJobs.selectIngestionRun")}
                 </p>
               </div>
             ) : detailError ? (
               <div className="p-3 bg-error-light text-error text-sm rounded-lg border border-error">
-                Failed to load job details.
+                {t("processingJobs.failedLoadJobDetails")}
               </div>
             ) : detailLoading ? (
               <div className="flex flex-col items-center justify-center flex-1 py-20">
                 <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mb-3" />
-                <span className="text-xs text-text-subtle">Fetching parsing artifacts...</span>
+                <span className="text-xs text-text-subtle">{t("processingJobs.fetchingParsingArtifacts")}</span>
               </div>
             ) : !detailData?.job ? (
               <div className="text-center py-10 text-text-subtle text-sm">
-                No detail data returned for this job.
+                {t("processingJobs.noDetailData")}
               </div>
             ) : (
               <div className="flex-1 flex flex-col">
@@ -237,7 +239,7 @@ export default function DocumentProcessingDashboard() {
                     {detailData.job.file_name}
                   </h4>
                   <div className="text-2xs text-text-subtle flex flex-col gap-1">
-                    <div>Document ID: <code className="bg-background-strong px-1 py-0.5 rounded text-accent-blue">{detailData.job.doc_id}</code></div>
+                    <div>{t("processingJobs.documentId")} <code className="bg-background-strong px-1 py-0.5 rounded text-accent-blue">{detailData.job.doc_id}</code></div>
                     <div>Started: {new Date(detailData.job.created_at).toLocaleString()}</div>
                     {detailData.job.updated_at && (
                       <div>Completed: {new Date(detailData.job.updated_at).toLocaleString()}</div>
@@ -330,7 +332,7 @@ export default function DocumentProcessingDashboard() {
                                 <span className="text-xs font-bold text-text">Page {page.page_number}</span>
                                 {score !== null && (
                                   <div className="flex items-center gap-2">
-                                    <span className="text-2xs font-bold text-text-subtle">Confidence:</span>
+                                    <span className="text-2xs font-bold text-text-subtle">{t("processingJobs.confidence")}</span>
                                     <div className="w-16 h-2 bg-border rounded-full overflow-hidden">
                                       <div
                                         className={`h-full ${

@@ -13,6 +13,7 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import type { StandardAnswerCategoryResponse } from "@/components/standardAnswers/getStandardAnswerCategoriesIfEE";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function NewChannelConfigContent({ slackBotId }: { slackBotId: number }) {
   const enterpriseTier = useTierAtLeast(Tier.ENTERPRISE);
@@ -87,6 +88,7 @@ function NewChannelConfigContent({ slackBotId }: { slackBotId: number }) {
 }
 
 export default function Page(props: { params: Promise<{ "bot-id": string }> }) {
+  const { t } = useTranslation();
   const unwrappedParams = use(props.params);
   const router = useRouter();
 
@@ -109,7 +111,7 @@ export default function Page(props: { params: Promise<{ "bot-id": string }> }) {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgSlack}
-        title="Configure OnyxBot for Slack Channel"
+        title={t("slackBots.configureSlackChannel")}
         divider
         backButton
       />

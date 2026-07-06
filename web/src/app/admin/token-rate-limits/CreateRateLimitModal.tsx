@@ -10,6 +10,7 @@ import { UserGroup } from "@/lib/types";
 import { Scope } from "./types";
 import { toast } from "@/hooks/useToast";
 import { SvgSettings } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 interface CreateRateLimitModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -30,6 +31,7 @@ export default function CreateRateLimitModal({
   forSpecificScope,
   forSpecificUserGroup,
 }: CreateRateLimitModalProps) {
+  const { t } = useTranslation();
   const [modalUserGroups, setModalUserGroups] = useState([]);
   const [shouldFetchUserGroups, setShouldFetchUserGroups] = useState(
     forSpecificScope === Scope.USER_GROUP
@@ -61,7 +63,7 @@ export default function CreateRateLimitModal({
       <Modal.Content width="sm" height="sm">
         <Modal.Header
           icon={SvgSettings}
-          title="Create a Token Rate Limit"
+          title={t("rateLimits.createRateLimitTitle")}
           onClose={() => setIsOpen(false)}
         />
         <Formik
@@ -111,7 +113,7 @@ export default function CreateRateLimitModal({
                 {!forSpecificScope && (
                   <SelectorFormField
                     name="target_scope"
-                    label="Target Scope"
+                    label={t("rateLimits.targetScopeLabel")}
                     options={[
                       { name: "Global", value: Scope.GLOBAL },
                       { name: "User", value: Scope.USER },
@@ -130,27 +132,27 @@ export default function CreateRateLimitModal({
                   values.target_scope === Scope.USER_GROUP && (
                     <SelectorFormField
                       name="user_group_id"
-                      label="User Group"
+                      label={t("rateLimits.userGroupLabel")}
                       options={modalUserGroups}
                       includeDefault={false}
                     />
                   )}
                 <TextFormField
                   name="period_hours"
-                  label="Time Window (Hours)"
+                  label={t("rateLimits.timeWindowHeader")}
                   type="number"
                   placeholder=""
                 />
                 <TextFormField
                   name="token_budget"
-                  label="Token Budget (Thousands)"
+                  label={t("rateLimits.tokenBudgetHeader")}
                   type="number"
                   placeholder=""
                 />
               </Modal.Body>
               <Modal.Footer>
                 <Button disabled={isSubmitting} type="submit">
-                  Create
+                  {t("common.create")}
                 </Button>
               </Modal.Footer>
             </Form>

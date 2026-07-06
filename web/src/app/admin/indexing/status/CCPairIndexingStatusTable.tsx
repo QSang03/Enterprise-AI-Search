@@ -20,6 +20,7 @@ import {
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import Truncated from "@/refresh-components/texts/Truncated";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   FiChevronDown,
   FiChevronRight,
@@ -226,6 +227,7 @@ function FederatedConnectorRow({
   invisible?: boolean;
 }) {
   const router = useRouter();
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
 
   const federatedUrl = `/admin/federated/${federatedConnector.id}`;
@@ -250,12 +252,12 @@ function FederatedConnectorRow({
       </TableCell>
       <TableCell>N/A</TableCell>
       <TableCell>
-        <Badge variant="success">Indexed</Badge>
+        <Badge variant="success">{t("indexingStatus.indexed")}</Badge>
       </TableCell>
       {businessTier && (
         <TableCell>
           <Badge variant="secondary" icon={FiRefreshCw}>
-            Federated Access
+            {t("indexingStatus.federatedAccess")}
           </Badge>
         </TableCell>
       )}
@@ -288,6 +290,7 @@ export function CCPairIndexingStatusTable({
   onPageChange: (source: ValidSources, newPage: number) => void;
   sourceLoadingStates?: Record<ValidSources, boolean>;
 }) {
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
 
   return (
@@ -338,13 +341,13 @@ export function CCPairIndexingStatusTable({
                 {!sourceLoadingStates[ccPairStatus.source] && (
                   <>
                     <TableRow className="border border-border dark:border-neutral-700">
-                      <TableHead>Name</TableHead>
-                      <TableHead>Last Indexed</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>{t("indexingStatus.nameHeader")}</TableHead>
+                      <TableHead>{t("indexingStatus.lastIndexedHeader")}</TableHead>
+                      <TableHead>{t("indexingStatus.statusHeader")}</TableHead>
                       {businessTier && (
-                        <TableHead>Permissions / Access</TableHead>
+                        <TableHead>{t("indexingStatus.permissionsAccessHeader")}</TableHead>
                       )}
-                      <TableHead>Total Docs</TableHead>
+                      <TableHead>{t("indexingStatus.totalDocsHeader")}</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                     {ccPairStatus.indexing_statuses.map((indexingStatus) => {
