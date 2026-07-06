@@ -3,6 +3,7 @@
 import { Label, SubLabel } from "@/components/Field";
 import { toast } from "@/hooks/useToast";
 import { useCustomAnalyticsScript } from "@/lib/analytics/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Button, Text } from "@opal/components";
 import { markdown } from "@opal/utils";
 import { useState } from "react";
@@ -10,6 +11,7 @@ import InputTextArea from "@/refresh-components/inputs/InputTextArea";
 import { Spacer } from "@opal/components";
 
 export default function CustomAnalyticsUpdateForm() {
+  const { t } = useTranslation();
   const customAnalyticsScript = useCustomAnalyticsScript();
 
   const [newCustomAnalyticsScript, setNewCustomAnalyticsScript] =
@@ -36,11 +38,11 @@ export default function CustomAnalyticsUpdateForm() {
             }
           );
           if (response.ok) {
-            toast.success("Custom analytics script updated successfully!");
+            toast.success(t("customAnalytics.toastUpdatedSuccess"));
           } else {
             const errorMsg = (await response.json()).detail;
             toast.error(
-              `Failed to update custom analytics script: "${errorMsg}"`
+              t("customAnalytics.toastUpdatedFailed", { error: errorMsg })
             );
           }
           setSecretKey("");

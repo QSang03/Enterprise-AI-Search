@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { useUser } from "@/providers/UserProvider";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { AuthType } from "@/lib/constants";
 import AppInputBar, { AppInputBarHandle } from "@/sections/input/AppInputBar";
 import { Button } from "@opal/components";
@@ -59,6 +60,7 @@ interface NRFPageProps {
 const AVAILABLE_CONTEXT_TOKENS = Number(DEFAULT_CONTEXT_TOKENS) * 0.5;
 
 export default function NRFPage({ isSidePanel = false }: NRFPageProps) {
+  const { t } = useTranslation();
   const { setUseOnyxAsNewTab } = useNRFPreferences();
 
   const searchParams = useSearchParams();
@@ -86,12 +88,12 @@ export default function NRFPage({ isSidePanel = false }: NRFPageProps) {
       const names = lastFailedFiles.map((f) => f.name).join(", ");
       toast.error(
         lastFailedFiles.length === 1
-          ? `File failed and was removed: ${names}`
-          : `Files failed and were removed: ${names}`
+          ? t("chat.fileFailedAndRemovedSingle", { name: names })
+          : t("chat.fileFailedAndRemovedPlural", { names })
       );
       clearLastFailedFiles();
     }
-  }, [lastFailedFiles, clearLastFailedFiles]);
+  }, [lastFailedFiles, clearLastFailedFiles, t]);
 
   // Assistant controller
   const { selectedAgent, setSelectedAgentFromId, liveAgent } =
@@ -360,7 +362,7 @@ export default function NRFPage({ isSidePanel = false }: NRFPageProps) {
       .reverse()
       .find((m) => m.type === "user");
     if (!lastUserMsg) {
-      toast.error("No previously-submitted user message found.");
+      toast.error(t("chat.noPrevUserMsg"));
       return;
     }
 

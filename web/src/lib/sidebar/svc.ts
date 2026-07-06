@@ -3,6 +3,7 @@
 import { toast } from "@/hooks/useToast";
 import { moveChatSession } from "@/app/app/projects/projectsService";
 import type { MoveOperationParams } from "@/lib/sidebar/utils";
+import { translateOutsideReact } from "@/providers/LanguageProvider";
 
 /**
  * Moves a chat session to the given project, then refreshes all stale data.
@@ -28,7 +29,7 @@ export const handleMoveOperation = async ({
     await Promise.all([refreshChatSessions(), projectRefreshPromise]);
   } catch (error) {
     console.error("Failed to perform move operation:", error);
-    toast.error("Failed to move chat. Please try again.");
+    toast.error(translateOutsideReact("chat.failedMoveChat"));
     throw error;
   }
 };

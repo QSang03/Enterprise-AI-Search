@@ -1,5 +1,6 @@
 import { toast } from "@/hooks/useToast";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useSWRConfig } from "swr";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,7 @@ import { cn } from "@opal/utils";
 type GoogleDriveCredentialJsonTypes = "authorized_user" | "service_account";
 
 export const DriveJsonUpload = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const { t } = useTranslation();
   const { mutate } = useSWRConfig();
   const [isUploading, setIsUploading] = useState(false);
   const [fileName, setFileName] = useState<string | undefined>();
@@ -59,7 +61,7 @@ export const DriveJsonUpload = ({ onSuccess }: { onSuccess?: () => void }) => {
           );
         }
       } catch (e) {
-        toast.error(`Invalid file provided - ${e}`);
+        toast.error(t("googleCredentials.toastInvalidFile", { error: String(e) }));
         setIsUploading(false);
         return;
       }
@@ -76,14 +78,14 @@ export const DriveJsonUpload = ({ onSuccess }: { onSuccess?: () => void }) => {
           }
         );
         if (response.ok) {
-          toast.success("Successfully uploaded app credentials");
+          toast.success(t("googleCredentials.toastAppCredsUploaded"));
           mutate(SWR_KEYS.googleConnectorAppCredential("google-drive"));
           if (onSuccess) {
             onSuccess();
           }
         } else {
           const errorMsg = await response.text();
-          toast.error(`Failed to upload app credentials - ${errorMsg}`);
+          toast.error(t("googleCredentials.toastFailedUploadAppCreds", { error: errorMsg }));
         }
       }
 
@@ -99,14 +101,14 @@ export const DriveJsonUpload = ({ onSuccess }: { onSuccess?: () => void }) => {
           }
         );
         if (response.ok) {
-          toast.success("Successfully uploaded service account key");
+          toast.success(t("googleCredentials.toastServiceAccountKeyUploaded"));
           mutate(SWR_KEYS.googleConnectorServiceAccountKey("google-drive"));
           if (onSuccess) {
             onSuccess();
           }
         } else {
           const errorMsg = await response.text();
-          toast.error(`Failed to upload service account key - ${errorMsg}`);
+          toast.error(t("googleCredentials.toastFailedUploadServiceAccountKey", { error: errorMsg }));
         }
       }
       setIsUploading(false);
@@ -150,7 +152,7 @@ export const DriveJsonUpload = ({ onSuccess }: { onSuccess?: () => void }) => {
       ) {
         handleFileUpload(file);
       } else {
-        toast.error("Please upload a JSON file");
+        toast.error(t("googleCredentials.toastPleaseUploadJson"));
       }
     }
   };
@@ -389,18 +391,16 @@ async function handleRevokeAccess(
   existingCredential:
     | Credential<GoogleDriveCredentialJson>
     | Credential<GoogleDriveServiceAccountCredentialJson>,
-  refreshCredentials: () => void
+  refreshCredentials: () => void,
+  t: (key: string, replacements?: Record<string, string | number>) => string
 ) {
   if (connectorAssociated) {
-    const message =
-      "Cannot revoke the Google Drive credential while any connector is still associated with the credential. " +
-      "Please delete all associated connectors, then try again.";
-    toast.error(message);
+    toast.error(t("googleCredentials.toastCannotRevokeAssociated"));
     return;
   }
 
   await adminDeleteCredential(existingCredential.id);
-  toast.success("Successfully revoked the Google Drive credential!");
+  toast.success(t("googleCredentials.toastRevokedGDrive"));
 
   refreshCredentials();
 }
@@ -414,6 +414,7 @@ export const DriveAuthSection = ({
   connectorAssociated,
   user,
 }: DriveCredentialSectionProps) => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [localServiceAccountData, setLocalServiceAccountData] = useState(
@@ -468,7 +469,8 @@ export const DriveAuthSection = ({
               handleRevokeAccess(
                 connectorAssociated,
                 existingCredential,
-                refreshCredentials
+                refreshCredentials,
+                t
               );
             }}
           >

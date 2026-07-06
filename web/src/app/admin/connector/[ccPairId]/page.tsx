@@ -6,6 +6,7 @@ import { PageLoader } from "@/refresh-components/PageLoader";
 import { SourceIcon } from "@/components/SourceIcon";
 import { CCPairStatus, PermissionSyncStatus } from "@/components/Status";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import CredentialSection from "@/components/credentials/CredentialSection";
 import Text from "@/refresh-components/texts/Text";
 import {
@@ -94,6 +95,7 @@ const ITEMS_PER_PAGE = 8;
 const PAGES_PER_BATCH = 8;
 
 function Main({ ccPairId }: { ccPairId: number }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useUser();
 
@@ -176,11 +178,11 @@ function Main({ ccPairId }: { ccPairId: number }) {
 
     deleteCCPair(ccPair.connector.id, ccPair.credential.id).catch((error) => {
       toast.error(
-        "Failed to schedule deletion of connector - " + error.message
+        t("connectorCCPair.failedScheduleDeletion", { error: error.message })
       );
     });
     finishConnectorDeletion();
-  }, [ccPair, finishConnectorDeletion]);
+  }, [ccPair, finishConnectorDeletion, t]);
 
   const latestIndexAttempt = indexAttempts?.[0];
   const canManageInlineFileConnectorFiles =
@@ -273,9 +275,9 @@ function Main({ ccPairId }: { ccPairId: number }) {
         throw new Error(await response.text());
       }
       mutate(buildCCPairInfoUrl(ccPairId));
-      toast.success("Connector name updated successfully");
+      toast.success(t("connectorCCPair.nameUpdatedSuccess"));
     } catch (error) {
-      toast.error("Failed to update connector name");
+      toast.error(t("connectorCCPair.nameUpdatedFailed"));
     }
   };
 
@@ -294,7 +296,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
     const parsedRefreshFreqMinutes = parseInt(propertyValue, 10);
 
     if (isNaN(parsedRefreshFreqMinutes)) {
-      toast.error("Invalid refresh frequency: must be an integer");
+      toast.error(t("connectorCCPair.invalidRefreshFreq"));
       return;
     }
 
@@ -311,9 +313,9 @@ function Main({ ccPairId }: { ccPairId: number }) {
         throw new Error(await response.text());
       }
       mutate(buildCCPairInfoUrl(ccPairId));
-      toast.success("Connector refresh frequency updated successfully");
+      toast.success(t("connectorCCPair.refreshFreqUpdatedSuccess"));
     } catch (error) {
-      toast.error("Failed to update connector refresh frequency");
+      toast.error(t("connectorCCPair.refreshFreqUpdatedFailed"));
     }
   };
 
@@ -324,7 +326,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
     const parsedFreqHours = parseFloat(propertyValue);
 
     if (isNaN(parsedFreqHours)) {
-      toast.error("Invalid pruning frequency: must be a valid number");
+      toast.error(t("connectorCCPair.invalidPruneFreq"));
       return;
     }
 
@@ -341,9 +343,9 @@ function Main({ ccPairId }: { ccPairId: number }) {
         throw new Error(await response.text());
       }
       mutate(buildCCPairInfoUrl(ccPairId));
-      toast.success("Connector pruning frequency updated successfully");
+      toast.success(t("connectorCCPair.pruneFreqUpdatedSuccess"));
     } catch (error) {
-      toast.error("Failed to update connector pruning frequency");
+      toast.error(t("connectorCCPair.pruneFreqUpdatedFailed"));
     }
   };
 
@@ -354,11 +356,11 @@ function Main({ ccPairId }: { ccPairId: number }) {
   if (!ccPair || (!hasLoadedOnce && ccPairError)) {
     return (
       <ErrorCallout
-        errorTitle={`Failed to fetch info on Connector with ID ${ccPairId}`}
+        errorTitle={t("connectorCCPair.failedFetchInfo", { id: ccPairId })}
         errorMsg={
           ccPairError?.info?.detail ||
           ccPairError?.toString() ||
-          "Unknown error"
+          t("connectorCCPair.unknownError")
         }
       />
     );
@@ -381,9 +383,9 @@ function Main({ ccPairId }: { ccPairId: number }) {
       {showDeleteConnectorConfirmModal && (
         <ConfirmEntityModal
           danger
-          entityType="connector"
+          entityType={t("connectorCCPair.deleteConnectorConfirmTitle")}
           entityName={ccPair.name}
-          additionalDetails="Deleting this connector schedules a deletion job that removes its indexed documents and deletes it for every user."
+          additionalDetails={t("connectorCCPair.deleteConnectorConfirmDesc")}
           onClose={() => {
             setShowDeleteConnectorConfirmModal(false);
           }}
@@ -393,8 +395,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
 
       {editingRefreshFrequency && (
         <EditPropertyModal
-          propertyTitle="Refresh Frequency"
-          propertyDetails="How often the connector should refresh (in minutes)"
+          propertyTitle={t("connectorCCPair.refreshFrequencyTitle")}
+          propertyDetails={t("connectorCCPair.refreshFrequencyDesc")}
           propertyName="refresh_frequency"
           propertyValue={String(Math.round((refreshFreq || 0) / 60))}
           validationSchema={RefreshFrequencySchema}
@@ -405,8 +407,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
 
       {editingPruningFrequency && (
         <EditPropertyModal
-          propertyTitle="Pruning Frequency"
-          propertyDetails="How often the connector should be pruned (in hours)"
+          propertyTitle={t("connectorCCPair.pruningFrequencyTitle")}
+          propertyDetails={t("connectorCCPair.pruningFrequencyDesc")}
           propertyName="pruning_frequency"
           propertyValue={String(
             ((pruneFreq || 0) / 3600).toFixed(3).replace(/\.?0+$/, "")
@@ -435,12 +437,15 @@ function Main({ ccPairId }: { ccPairId: number }) {
             try {
               const result = await resolveAllErrorsForCCPair(ccPairId);
               if (result.total_error_ids === 0) {
-                toast.success("No unresolved errors to retry.");
+                toast.success(t("connectorCCPair.noUnresolvedErrors"));
               } else {
                 toast.success(
-                  `Targeted reindex submitted for ${result.total_error_ids} ${
-                    result.total_error_ids === 1 ? "document" : "documents"
-                  }. Errors will clear from the list as documents finish reindexing.`
+                  t("connectorCCPair.targetedReindexSuccess", {
+                    count: result.total_error_ids,
+                    unit: result.total_error_ids === 1
+                      ? t("connectorCCPair.documentUnitSingle")
+                      : t("connectorCCPair.documentUnitPlural")
+                  })
                 );
               }
               mutate(
@@ -450,7 +455,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
               );
             } catch (err) {
               const message = err instanceof Error ? err.message : String(err);
-              toast.error(`Targeted reindex failed: ${message}`);
+              toast.error(t("connectorCCPair.targetedReindexFailed", { error: message }));
             } finally {
               setShowIsResolvingKickoffLoader(false);
             }
@@ -488,7 +493,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button prominence="secondary" icon={SvgSettings}>
-                  Manage
+                  {t("connectorCCPair.manageBtn")}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -510,17 +515,17 @@ function Main({ ccPairId }: { ccPairId: number }) {
                   className="flex items-center gap-x-2 cursor-pointer px-3 py-2"
                   tooltip={
                     ccPair.indexing
-                      ? "Cannot re-index while indexing is already in progress"
+                      ? t("connectorCCPair.cannotReIndexInProgress")
                       : ccPair.status === ConnectorCredentialPairStatus.PAUSED
-                        ? "Resume the connector before re-indexing"
+                        ? t("connectorCCPair.resumeBeforeReIndex")
                         : ccPair.status ===
                             ConnectorCredentialPairStatus.INVALID
-                          ? "Fix the connector configuration before re-indexing"
+                          ? t("connectorCCPair.fixConfigBeforeReIndex")
                           : undefined
                   }
                 >
                   <RefreshCwIcon className="h-4 w-4" />
-                  <span>Re-Index</span>
+                  <span>{t("connectorCCPair.reIndexBtn")}</span>
                 </DropdownMenuItemWithTooltip>
                 {!isDeleting && (
                   <DropdownMenuItemWithTooltip
@@ -534,7 +539,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
                     disabled={isStatusUpdating}
                     className="flex items-center gap-x-2 cursor-pointer px-3 py-2"
                     tooltip={
-                      isStatusUpdating ? "Status update in progress" : undefined
+                      isStatusUpdating ? t("connectorCCPair.statusUpdateInProgress") : undefined
                     }
                   >
                     {statusIsNotCurrentlyActive(ccPair.status) ? (
@@ -544,8 +549,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
                     )}
                     <span>
                       {statusIsNotCurrentlyActive(ccPair.status)
-                        ? "Resume"
-                        : "Pause"}
+                        ? t("connectorCCPair.resumeBtn")
+                        : t("connectorCCPair.pauseBtn")}
                     </span>
                   </DropdownMenuItemWithTooltip>
                 )}
@@ -558,12 +563,12 @@ function Main({ ccPairId }: { ccPairId: number }) {
                     className="flex items-center gap-x-2 cursor-pointer px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     tooltip={
                       !statusIsNotCurrentlyActive(ccPair.status)
-                        ? "Pause the connector before deleting"
+                        ? t("connectorCCPair.pauseBeforeDelete")
                         : undefined
                     }
                   >
                     <Trash2Icon className="h-4 w-4" />
-                    <span>Delete</span>
+                    <span>{t("connectorCCPair.deleteBtn")}</span>
                   </DropdownMenuItemWithTooltip>
                 )}
               </DropdownMenuContent>
@@ -584,9 +589,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
 
       {ccPair.status === ConnectorCredentialPairStatus.INVALID && (
         <div className="mt-6">
-          <Callout type="warning" title="Invalid Connector State">
-            This connector is in an invalid state. Please update your
-            credentials or create a new connector before re-indexing.
+          <Callout type="warning" title={t("connectorCCPair.invalidStateTitle")}>
+            {t("connectorCCPair.invalidStateDesc")}
           </Callout>
         </div>
       )}
@@ -595,23 +599,23 @@ function Main({ ccPairId }: { ccPairId: number }) {
         <Alert className="border-alert bg-yellow-50 dark:bg-yellow-800 my-2 mt-6">
           <AlertCircle className="h-4 w-4 text-yellow-700 dark:text-yellow-500" />
           <AlertTitle className="text-yellow-950 dark:text-yellow-200 font-semibold">
-            Some documents failed to index
+            {t("connectorCCPair.failedIndexAlertTitle")}
           </AlertTitle>
           <AlertDescription className="text-yellow-900 dark:text-yellow-300">
             {isResolvingErrors ? (
               <span>
                 <span className="text-sm text-yellow-700 dark:text-yellow-400 da animate-pulse">
-                  Resolving failures
+                  {t("connectorCCPair.resolvingFailures")}
                 </span>
               </span>
             ) : (
               <>
-                We ran into some issues while processing some documents.{" "}
+                {t("connectorCCPair.failedIndexAlertDesc")}
                 <b
                   className="text-link cursor-pointer dark:text-blue-300"
                   onClick={() => setShowIndexAttemptErrors(true)}
                 >
-                  View details.
+                  {t("connectorCCPair.viewDetails")}
                 </b>
               </>
             )}
@@ -620,13 +624,13 @@ function Main({ ccPairId }: { ccPairId: number }) {
       )}
 
       <Title className="mb-2 mt-6" size="md">
-        Indexing
+        {t("connectorCCPair.indexingTitle")}
       </Title>
 
       <Card className="px-8 py-12">
         <div className="flex">
           <div className="w-[200px]">
-            <div className="text-sm font-medium mb-1">Status</div>
+            <div className="text-sm font-medium mb-1">{t("connectorCCPair.tableHeaderStatus")}</div>
             <CCPairStatus
               ccPairStatus={ccPair.status}
               inRepeatedErrorState={ccPair.in_repeated_error_state}
@@ -635,7 +639,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
           </div>
 
           <div className="w-[200px]">
-            <div className="text-sm font-medium mb-1">Documents Indexed</div>
+            <div className="text-sm font-medium mb-1">{t("connectorCCPair.tableHeaderDocsIndexed")}</div>
             <div className="text-sm text-text-default flex items-center gap-x-1">
               {ccPair.num_docs_indexed.toLocaleString()}
               {ccPair.status ===
@@ -643,14 +647,14 @@ function Main({ ccPairId }: { ccPairId: number }) {
                 ccPair.overall_indexing_speed !== null &&
                 ccPair.num_docs_indexed > 0 && (
                   <div className="ml-0.5 text-xs font-medium">
-                    ({ccPair.overall_indexing_speed.toFixed(1)} docs / min)
+                    {t("connectorCCPair.docsPerMin", { speed: ccPair.overall_indexing_speed.toFixed(1) })}
                   </div>
                 )}
             </div>
           </div>
 
           <div className="w-[200px]">
-            <div className="text-sm font-medium mb-1">Last Indexed</div>
+            <div className="text-sm font-medium mb-1">{t("connectorCCPair.tableHeaderLastIndexed")}</div>
             <div className="text-sm text-text-default">
               {timeAgo(ccPair?.last_indexed) ?? "-"}
             </div>
@@ -661,7 +665,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
               <div className="w-[200px]">
                 {/* TODO: Remove className and switch to text03 once Text is fully integrated across this page */}
                 <Text as="p" className="text-sm font-medium mb-1">
-                  Permission Syncing
+                  {t("connectorCCPair.tableHeaderPermissionSyncing")}
                 </Text>
                 {ccPair.permission_syncing ||
                 ccPair.last_permission_sync_attempt_status ? (
@@ -677,7 +681,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
               <div className="w-[200px]">
                 {/* TODO: Remove className and switch to text03 once Text is fully integrated across this page */}
                 <Text as="p" className="text-sm font-medium mb-1">
-                  Last Synced
+                  {t("connectorCCPair.tableHeaderLastSynced")}
                 </Text>
                 <Text as="p" className="text-sm text-text-default">
                   {ccPair.last_permission_sync_attempt_finished
@@ -694,7 +698,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
         ccPair.is_editable_for_current_user && (
           <>
             <Title size="md" className="mt-10 mb-2">
-              Credential
+              {t("connectorCCPair.credentialTitle")}
             </Title>
 
             <div className="mt-2">
@@ -711,7 +715,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
         Object.keys(ccPair.connector.connector_specific_config).length > 0 && (
           <>
             <Title size="md" className="mt-10 mb-2">
-              Connector Configuration
+              {t("connectorCCPair.connectorConfigTitle")}
             </Title>
 
             <Card className="px-8 py-4">
@@ -740,7 +744,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
           <AdvancedOptionsToggle
             showAdvancedOptions={showAdvancedOptions}
             setShowAdvancedOptions={setShowAdvancedOptions}
-            title="Advanced"
+            title={t("connectorCCPair.advancedBtn")}
           />
         </div>
         {showAdvancedOptions && (
@@ -748,7 +752,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
             {(pruneFreq || indexingStart || refreshFreq) && (
               <>
                 <Title size="md" className="mt-3 mb-2">
-                  Advanced Configuration
+                  {t("connectorCCPair.advancedConfigTitle")}
                 </Title>
                 <Card className="px-8 py-4">
                   <div>
@@ -778,7 +782,7 @@ function Main({ ccPairId }: { ccPairId: number }) {
               ) : (
                 <>
                   <Title size="md" className="mt-6 mb-2">
-                    Indexing Attempts
+                    {t("connectorCCPair.indexingAttemptsTitle")}
                   </Title>
                   <IndexAttemptsTable
                     ccPair={ccPair}

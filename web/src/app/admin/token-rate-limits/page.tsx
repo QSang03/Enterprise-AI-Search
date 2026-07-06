@@ -14,6 +14,7 @@ import { GenericTokenRateLimitTable } from "./TokenRateLimitTables";
 import { mutate } from "swr";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import CreateRateLimitModal from "./CreateRateLimitModal";
 import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
@@ -62,6 +63,7 @@ const handleCreateTokenRateLimit = async (
 };
 
 function Main() {
+  const { t } = useTranslation();
   const [tabIndex, setTabIndex] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -94,7 +96,7 @@ function Main() {
     )
       .then(() => {
         setModalIsOpen(false);
-        toast.success("Token rate limit created!");
+        toast.success(t("tokenRateLimits.toastLimitCreated"));
         updateTable(target_scope);
       })
       .catch((error) => {

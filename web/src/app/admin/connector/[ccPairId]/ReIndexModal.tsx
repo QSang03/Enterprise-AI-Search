@@ -7,12 +7,14 @@ import { triggerIndexing } from "@/app/admin/connector/[ccPairId]/lib";
 import Modal from "@/refresh-components/Modal";
 import Text from "@/refresh-components/texts/Text";
 import { SvgRefreshCw } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 // Hook to handle re-indexing functionality
 export function useReIndexModal(
   connectorId: number | null,
   credentialId: number | null,
   ccPairId: number | null
 ) {
+  const { t } = useTranslation();
   const [reIndexPopupVisible, setReIndexPopupVisible] = useState(false);
 
   const showReIndexModal = () => {
@@ -42,18 +44,22 @@ export function useReIndexModal(
       // Show appropriate notification based on result
       if (result.success) {
         toast.success(
-          `${
-            fromBeginning ? "Complete re-indexing" : "Indexing update"
-          } started successfully`
+          t("connectorCCPair.toastReIndexStarted", {
+            type: fromBeginning
+              ? t("connectorCCPair.typeComplete")
+              : t("connectorCCPair.typeUpdate"),
+          })
         );
       } else {
-        toast.error(result.message || "Failed to start indexing");
+        toast.error(
+          t("connectorCCPair.toastReIndexStartedFailed", {
+            error: result.message || t("connectorCCPair.unknownError"),
+          })
+        );
       }
     } catch (error) {
       console.error("Failed to trigger indexing:", error);
-      toast.error(
-        "An unexpected error occurred while trying to start indexing"
-      );
+      toast.error(t("connectorCCPair.toastReIndexUnexpectedError"));
     }
   };
 
@@ -77,6 +83,7 @@ export interface ReIndexModalProps {
 }
 
 export default function ReIndexModal({ hide, onRunIndex }: ReIndexModalProps) {
+  const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleRunIndex = async (fromBeginning: boolean) => {
@@ -86,9 +93,11 @@ export default function ReIndexModal({ hide, onRunIndex }: ReIndexModalProps) {
     try {
       // First show immediate feedback with a toast
       toast.info(
-        `Starting ${
-          fromBeginning ? "complete re-indexing" : "indexing update"
-        }...`
+        t("connectorCCPair.toastReIndexStartingFeedback", {
+          type: fromBeginning
+            ? t("connectorCCPair.typeComplete")
+            : t("connectorCCPair.typeUpdate"),
+        })
       );
 
       // Then close the modal
@@ -99,7 +108,7 @@ export default function ReIndexModal({ hide, onRunIndex }: ReIndexModalProps) {
     } catch (error) {
       console.error("Error starting indexing:", error);
       // Show error in toast if needed
-      toast.error("Failed to start indexing process");
+      toast.error(t("connectorCCPair.toastReIndexProcessFailed"));
     } finally {
       setIsProcessing(false);
     }
@@ -108,29 +117,26 @@ export default function ReIndexModal({ hide, onRunIndex }: ReIndexModalProps) {
   return (
     <Modal open onOpenChange={hide}>
       <Modal.Content width="sm" height="sm">
-        <Modal.Header icon={SvgRefreshCw} title="Run Indexing" onClose={hide} />
+        <Modal.Header icon={SvgRefreshCw} title={t("connectorCCPair.reIndexModalTitle")} onClose={hide} />
         <Modal.Body>
           <Text as="p">
-            This will pull in and index all documents that have changed and/or
-            have been added since the last successful indexing run.
+            {t("connectorCCPair.reIndexModalUpdateDesc")}
           </Text>
           <Button disabled={isProcessing} onClick={() => handleRunIndex(false)}>
-            Run Update
+            {t("connectorCCPair.reIndexModalRunUpdateBtn")}
           </Button>
 
           <Divider />
 
           <Text as="p">
-            This will cause a complete re-indexing of all documents from the
-            source.
+            {t("connectorCCPair.reIndexModalCompleteDesc")}
           </Text>
           <Text as="p">
-            <strong>NOTE:</strong> depending on the number of documents stored
-            in the source, this may take a long time.
+            {t("connectorCCPair.reIndexModalNote")}
           </Text>
 
           <Button disabled={isProcessing} onClick={() => handleRunIndex(true)}>
-            Run Complete Re-Indexing
+            {t("connectorCCPair.reIndexModalRunCompleteBtn")}
           </Button>
         </Modal.Body>
       </Modal.Content>

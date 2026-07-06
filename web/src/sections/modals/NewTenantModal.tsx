@@ -4,6 +4,7 @@ import { useState } from "react";
 import Modal, { BasicModalFooter } from "@/refresh-components/Modal";
 import { Button } from "@opal/components";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { SvgArrowRight, SvgUsers, SvgX } from "@opal/icons";
 import { logout } from "@/lib/user";
 import { useUser } from "@/providers/UserProvider";
@@ -26,6 +27,7 @@ export default function NewTenantModal({
   isInvite = false,
   onClose,
 }: NewTenantModalProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -51,14 +53,14 @@ export default function NewTenantModal({
           throw new Error(
             errorData.detail ||
               errorData.message ||
-              "Failed to accept invitation"
+              t("tenants.failedAcceptInvite")
           );
         }
 
-        toast.success("You have accepted the invitation.");
+        toast.success(t("tenants.toastAcceptInvite"));
       } else {
         // For non-invite flow, just show success message
-        toast.success("Processing your team join request...");
+        toast.success(t("tenants.toastJoinRequest"));
       }
 
       // Common logout and redirect for both flows
@@ -69,7 +71,7 @@ export default function NewTenantModal({
       const message =
         error instanceof Error
           ? error.message
-          : "Failed to join the team. Please try again.";
+          : t("tenants.failedJoinTeam");
 
       setError(message);
       toast.error(message);

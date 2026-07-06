@@ -1,6 +1,7 @@
 import { toast } from "@/hooks/useToast";
 import Button from "@/refresh-components/buttons/Button";
 import { useRef, useState } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { DateRange } from "../../../../../components/dateRangeSelectors/AdminDateRangeSelector";
 import { withRequestId, withDateRange } from "./utils";
 import {
@@ -22,6 +23,7 @@ export default function KickoffCSVExport({
 }: {
   dateRange: DateRange;
 }) {
+  const { t } = useTranslation();
   const timerIdRef = useRef<null | number>(null);
   const retryCount = useRef<number>(0);
   const [, rerender] = useState<void>();
@@ -36,7 +38,7 @@ export default function KickoffCSVExport({
     retryCount.current = 0;
 
     if (failure) {
-      toast.error("Failed to download the query-history.");
+      toast.error(t("queryHistory.toastDownloadFailed"));
     }
 
     rerender();
@@ -51,7 +53,7 @@ export default function KickoffCSVExport({
 
     setSpinnerStatus("spinning");
     toast.info(
-      `Generating CSV report. Click the '${PREVIOUS_CSV_TASK_BUTTON_NAME}' button to see all jobs.`
+      t("queryHistory.toastGeneratingCsv", { buttonName: PREVIOUS_CSV_TASK_BUTTON_NAME })
     );
     const response = await fetch(withDateRange(dateRange), {
       method: "POST",
@@ -124,7 +126,7 @@ export default function KickoffCSVExport({
             : SvgPlayCircle
         }
       >
-        {spinnerStatus === "spinning" ? "Cancel" : "Kickoff Export"}
+        {spinnerStatus === "spinning" ? t("queryHistory.cancelBtn") : t("queryHistory.kickoffExportBtn")}
       </Button>
     </div>
   );

@@ -7,7 +7,10 @@ import { SlackTokensForm } from "./SlackTokensForm";
 import { SettingsLayouts } from "@opal/layouts";
 import { SvgSlack } from "@opal/logos";
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export function NewSlackBotForm() {
+  const { t } = useTranslation();
   const [formValues] = useState({
     name: "",
     enabled: true,
@@ -21,7 +24,7 @@ export function NewSlackBotForm() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgSlack}
-        title="New Slack Bot"
+        title={t("slackBots.newSlackBot")}
         divider
         backButton
       />

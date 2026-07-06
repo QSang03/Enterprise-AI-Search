@@ -8,6 +8,7 @@ import { Button, Divider } from "@opal/components";
 import { useEffect } from "react";
 import { DOCS_ADMINS_PATH } from "@/lib/constants";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export const SlackTokensForm = ({
   isUpdate,
@@ -24,6 +25,7 @@ export const SlackTokensForm = ({
   router: any;
   onValuesChange?: (values: any) => void;
 }) => {
+  const { t } = useTranslation();
   useEffect(() => {
     if (onValuesChange) {
       onValuesChange(initialValues);
@@ -59,8 +61,8 @@ export const SlackTokensForm = ({
           const botId = isUpdate ? existingSlackBotId : responseJson.id;
           toast.success(
             isUpdate
-              ? "Successfully updated Slack Bot!"
-              : "Successfully created Slack Bot!"
+              ? t("slackBots.toastUpdateSuccess")
+              : t("slackBots.toastCreateSuccess")
           );
           router.push(`/admin/bots/${encodeURIComponent(botId)}`);
         } else {
@@ -68,14 +70,14 @@ export const SlackTokensForm = ({
           let errorMsg = responseJson.detail || responseJson.message;
 
           if (errorMsg.includes("Invalid bot token:")) {
-            errorMsg = "Slack Bot Token is invalid";
+            errorMsg = t("slackBots.invalidBotToken");
           } else if (errorMsg.includes("Invalid app token:")) {
-            errorMsg = "Slack App Token is invalid";
+            errorMsg = t("slackBots.invalidAppToken");
           }
           toast.error(
             isUpdate
-              ? `Error updating Slack Bot - ${errorMsg}`
-              : `Error creating Slack Bot - ${errorMsg}`
+              ? t("slackBots.toastUpdateError", { error: errorMsg })
+              : t("slackBots.toastCreateError", { error: errorMsg })
           );
         }
       }}
@@ -87,7 +89,7 @@ export const SlackTokensForm = ({
             <div className="">
               <TextFormField
                 name="name"
-                label="Name This Slack Bot:"
+                label={t("slackBots.formNameLabel")}
                 type="text"
               />
             </div>
@@ -96,33 +98,33 @@ export const SlackTokensForm = ({
           {!isUpdate && (
             <div className="mt-4">
               <Divider />
-              Please refer to our{" "}
+              {t("slackBots.formGuideStart")}
               <a
                 className="text-blue-500 hover:underline"
                 href={`${DOCS_ADMINS_PATH}/getting_started/slack_bot_setup`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                guide
-              </a>{" "}
-              if you are not sure how to get these tokens!
+                {t("slackBots.formGuideLink")}
+              </a>
+              {t("slackBots.formGuideEnd")}
             </div>
           )}
           <TextFormField
             name="bot_token"
-            label="Slack Bot Token"
+            label={t("slackBots.formBotTokenLabel")}
             type="password"
           />
           <TextFormField
             name="app_token"
-            label="Slack App Token"
+            label={t("slackBots.formAppTokenLabel")}
             type="password"
           />
           <TextFormField
             name="user_token"
-            label="Slack User Token (Optional)"
+            label={t("slackBots.formUserTokenLabel")}
             type="password"
-            subtext="Optional: User OAuth token for enhanced private channel access"
+            subtext={t("slackBots.formUserTokenSubtext")}
           />
           <div className="flex justify-end w-full mt-4">
             <Button
@@ -134,7 +136,7 @@ export const SlackTokensForm = ({
               }
               type="submit"
             >
-              {isUpdate ? "Update" : "Create"}
+              {isUpdate ? t("slackBots.formUpdateBtn") : t("slackBots.formCreateBtn")}
             </Button>
           </div>
         </Form>

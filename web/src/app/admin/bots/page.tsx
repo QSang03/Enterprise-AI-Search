@@ -10,10 +10,12 @@ import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { Button } from "@opal/components";
 import { SvgPlusCircle } from "@opal/icons";
 import { DOCS_ADMINS_PATH } from "@/lib/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.SLACK_BOTS;
 
 function Main() {
+  const { t } = useTranslation();
   const {
     data: slackBots,
     isLoading: isSlackBotsLoading,
@@ -28,46 +30,44 @@ function Main() {
     const errorMsg =
       slackBotsError?.info?.message ||
       slackBotsError?.info?.detail ||
-      "An unknown error occurred";
+      t("slackBots.unknownError");
 
     return (
-      <ErrorCallout errorTitle="Error loading apps" errorMsg={`${errorMsg}`} />
+      <ErrorCallout errorTitle={t("slackBots.errorLoadingApps")} errorMsg={`${errorMsg}`} />
     );
   }
 
   return (
     <div className="mb-8">
       <p className="mb-2 text-sm text-muted-foreground">
-        Setup Slack bots that connect to Onyx. Once setup, you will be able to
-        ask questions to Onyx directly from Slack. Additionally, you can:
+        {t("slackBots.description")}
       </p>
 
       <div className="mb-2">
         <ul className="list-disc mt-2 ml-4 text-sm text-muted-foreground">
           <li>
-            Setup OnyxBot to automatically answer questions in certain channels.
+            {t("slackBots.featureAutoAnswer")}
           </li>
           <li>
-            Choose which document sets OnyxBot should answer from, depending on
-            the channel the question is being asked.
+            {t("slackBots.featureChooseDocSets")}
           </li>
           <li>
-            Directly message OnyxBot to search just as you would in the web UI.
+            {t("slackBots.featureDirectMessage")}
           </li>
         </ul>
       </div>
 
       <p className="mb-6 text-sm text-muted-foreground">
-        Follow the{" "}
+        {t("slackBots.followGuideStart")}
         <a
           className="text-blue-500 hover:underline"
           href={`${DOCS_ADMINS_PATH}/getting_started/slack_bot_setup`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          guide{" "}
+          {t("slackBots.followGuideLink")}
         </a>
-        found in the Onyx documentation to get started!
+        {t("slackBots.followGuideEnd")}
       </p>
 
       <Button
@@ -75,7 +75,7 @@ function Main() {
         prominence="secondary"
         href="/admin/bots/new"
       >
-        New Slack Bot
+        {t("slackBots.newSlackBot")}
       </Button>
 
       <SlackBotTable slackBots={slackBots} />

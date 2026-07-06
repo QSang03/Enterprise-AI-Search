@@ -5,6 +5,7 @@ import { FaNewspaper, FaTrash } from "react-icons/fa";
 import { TextFormField, TypedFileUploadFormField } from "@/components/Field";
 import { Form, Formik, FormikHelpers } from "formik";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   Credential,
   getDisplayNameForCredentialKey,
@@ -28,6 +29,7 @@ export default function EditCredential({
   onClose,
   onUpdate,
 }: EditCredentialProps) {
+  const { t } = useTranslation();
   const validationSchema = createEditingValidationSchema(
     credential.credential_json
   );
@@ -42,7 +44,7 @@ export default function EditCredential({
       await onUpdate(credential, values, onClose);
     } catch (error) {
       console.error("Error updating credential:", error);
-      toast.error("Error updating credential");
+      toast.error(t("credentials.toastUpdateError"));
     } finally {
       formikHelpers.setSubmitting(false);
     }

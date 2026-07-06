@@ -44,6 +44,7 @@ import { SEARCH_PARAM_NAMES } from "@/app/app/services/searchParams";
 import { useAppRouter } from "@/hooks/appNavigation";
 import { ChatFileType } from "@/app/app/interfaces";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useProjects } from "@/lib/hooks/useProjects";
 import { useSettings } from "@/lib/settings/hooks";
 
@@ -132,6 +133,7 @@ interface ProjectsProviderProps {
 }
 
 export function ProjectsProvider({ children }: ProjectsProviderProps) {
+  const { t } = useTranslation();
   // Use SWR hook for projects list - no more SSR initial data
   const { projects, refreshProjects } = useProjects();
   const [recentFiles, setRecentFiles] = useState<ProjectFile[]>([]);
@@ -466,7 +468,7 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
 
           removeOptimisticFilesByTempIds(optimisticTempIds, projectId);
 
-          toast.error("Failed to upload files");
+          toast.error(t("chat.failedUploadFiles"));
 
           onFailure?.(Array.from(optimisticTempIds));
         })

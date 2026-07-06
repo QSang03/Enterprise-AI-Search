@@ -13,6 +13,7 @@ import {
 import LineItem from "@/refresh-components/buttons/LineItem";
 import IconButton from "@/refresh-components/buttons/IconButton";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useProjectsContext } from "@/providers/ProjectsContext";
 import { useLlmDefaults } from "@/lib/languageModels/hooks";
 import Text from "@/refresh-components/texts/Text";
@@ -191,6 +192,7 @@ export default function FilePickerPopover({
   trigger,
   selectedFileIds,
 }: FilePickerPopoverProps) {
+  const { t } = useTranslation();
   const { allRecentFiles } = useProjectsContext();
   const { hasAnyLlm } = useLlmDefaults();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -221,7 +223,7 @@ export default function FilePickerPopover({
     deleteUserFile(file.id)
       .then((result) => {
         if (!result.has_associations) {
-          toast.success("File deleted successfully");
+          toast.success(t("files.toastFileDeleted"));
           setCurrentMessageFiles((prev) =>
             prev.filter((f) => f.id !== file.id)
           );
@@ -235,15 +237,15 @@ export default function FilePickerPopover({
           );
           let projects = result.project_names.join(", ");
           let assistants = result.assistant_names.join(", ");
-          let message = "Cannot delete file. It is associated with";
+          let message = t("files.cannotDeleteAssociated");
           if (projects) {
-            message += ` projects: ${projects}`;
+            message += t("files.projectsText", { projects });
           }
           if (projects && assistants) {
-            message += " and ";
+            message += t("files.andText");
           }
           if (assistants) {
-            message += `assistants: ${assistants}`;
+            message += t("files.assistantsText", { assistants });
           }
 
           toast.error(message);
@@ -254,7 +256,7 @@ export default function FilePickerPopover({
         setRecentFilesSnapshot((prev) =>
           prev.map((f) => (f.id === file.id ? { ...f, status: lastStatus } : f))
         );
-        toast.error("Failed to delete file. Please try again.");
+        toast.error(t("files.toastDeleteFailed"));
         // Useful for debugging; safe in client components
         console.error("Failed to delete file", error);
       });

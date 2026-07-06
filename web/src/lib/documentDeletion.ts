@@ -1,5 +1,6 @@
 import { toast } from "@/hooks/useToast";
 import { DeletionAttemptSnapshot } from "./types";
+import { translateOutsideReact } from "@/providers/LanguageProvider";
 
 export async function scheduleDeletionJobForConnector(
   connectorId: number,
@@ -36,7 +37,7 @@ export async function deleteCCPair(
   if (deletionScheduleError) {
     throw new Error(deletionScheduleError);
   }
-  toast.success("Scheduled deletion of connector!");
+  toast.success(translateOutsideReact("connectorCCPair.toastScheduledDeletion"));
   onCompletion?.();
 }
 

@@ -10,6 +10,7 @@ import OpenAPIAuthenticationModal, {
 import AddOpenAPIActionModal from "./modals/AddOpenAPIActionModal";
 import AdminListHeader from "@/sections/admin/AdminListHeader";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import OpenApiActionCard from "./OpenApiActionCard";
 import { createOAuthConfig, updateOAuthConfig } from "@/lib/oauth/api";
 import { updateCustomTool, deleteCustomTool } from "@/lib/tools/openApiService";
@@ -19,6 +20,7 @@ import ActionCardSkeleton from "./skeleton/ActionCardSkeleton";
 import useOpenApiTools from "@/hooks/useOpenApiTools";
 
 export default function OpenApiPageContent() {
+  const { t } = useTranslation();
   const {
     openApiTools,
     mutateOpenApiTools,
@@ -291,14 +293,14 @@ export default function OpenApiPageContent() {
         if (response.error) {
           throw new Error(response.error);
         }
-        toast.success("OpenAPI action renamed successfully");
+        toast.success(t("customActions.toastOpenApiRenamed"));
         await mutateOpenApiTools();
       } catch (error) {
         console.error("Error renaming tool:", error);
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to rename OpenAPI action"
+            : t("customActions.toastOpenApiRenameFailed")
         );
         throw error; // Re-throw so ButtonRenaming can handle it
       }

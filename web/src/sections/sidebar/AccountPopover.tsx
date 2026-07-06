@@ -70,7 +70,7 @@ function SettingsPopover({
     logout()
       .then((response) => {
         if (!response?.ok) {
-          alert("Failed to logout");
+          alert(t("common.failedToLogout"));
           return;
         }
 
@@ -86,7 +86,7 @@ function SettingsPopover({
       })
 
       .catch(() => {
-        toast.error("Failed to logout");
+        toast.error(t("common.failedToLogout"));
       });
   };
 

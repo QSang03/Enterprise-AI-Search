@@ -1,6 +1,7 @@
 import { LLMProviderName, LLMProviderView } from "@/lib/languageModels/types";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { toast } from "@/hooks/useToast";
+import { translateOutsideReact } from "@/providers/LanguageProvider";
 import isEqual from "lodash/isEqual";
 import { parseAzureTargetUri } from "@/lib/azureTargetUri";
 import {
@@ -186,7 +187,7 @@ export async function submitProvider<T extends BaseLLMFormValues>({
         model: testModelName,
         id: existingLlmProvider?.id,
       },
-      "An error occurred while testing the provider."
+      translateOutsideReact("languageModels.testError")
     );
     setStatus({ isTesting: false });
 
@@ -216,8 +217,8 @@ export async function submitProvider<T extends BaseLLMFormValues>({
   if (!response.ok) {
     const errorMsg = (await response.json()).detail;
     const fullErrorMsg = existingLlmProvider
-      ? `Failed to update provider: ${errorMsg}`
-      : `Failed to enable provider: ${errorMsg}`;
+      ? translateOutsideReact("languageModels.failedUpdateProvider", { error: errorMsg })
+      : translateOutsideReact("languageModels.failedEnableProvider", { error: errorMsg });
     toast.error(fullErrorMsg);
     setSubmitting(false);
     return;
@@ -238,13 +239,13 @@ export async function submitProvider<T extends BaseLLMFormValues>({
         });
         if (!setDefaultResponse.ok) {
           const err = await setDefaultResponse.json().catch(() => ({}));
-          toast.error(err?.detail ?? "Failed to set provider as default");
+          toast.error(err?.detail ?? translateOutsideReact("languageModels.failedSetDefault"));
           setSubmitting(false);
           return;
         }
       }
     } catch {
-      toast.error("Failed to set new provider as default");
+      toast.error(translateOutsideReact("languageModels.failedSetNewDefault"));
     }
   }
 

@@ -7,6 +7,7 @@ import { submitCredential } from "@/components/admin/connectors/CredentialForm";
 import { TextFormField } from "@/components/Field";
 import { Form, Formik, FormikHelpers } from "formik";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import GDriveMain from "@/app/admin/connectors/[connector]/pages/gdrive/GoogleDrivePage";
 import { Connector } from "@/lib/connectors/connectors";
 import { Credential, credentialTemplates } from "@/lib/connectors/credentials";
@@ -87,6 +88,7 @@ export default function CreateCredential({
   // Mutating parent state
   refresh?: () => void;
 }) {
+  const { t } = useTranslation();
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [authMethod, setAuthMethod] = useState<string>();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
@@ -143,7 +145,7 @@ export default function CreateCredential({
         if (action === "createAndSwap") {
           onSwap(credential, swapConnector.id, accessType);
         } else {
-          toast.success("Created new credential!");
+          toast.success(t("credentials.toastCreatedNewCredential"));
         }
         onClose();
       } else {
@@ -164,7 +166,7 @@ export default function CreateCredential({
       }
     } catch (error) {
       console.error("Error submitting credential:", error);
-      toast.error("Error submitting credential");
+      toast.error(t("credentials.toastSubmitError"));
     } finally {
       formikHelpers.setSubmitting(false);
     }

@@ -8,7 +8,8 @@ export const submitFiles = async (
   selectedFiles: File[],
   name: string,
   access_type: string,
-  groups?: number[]
+  groups: number[] | undefined,
+  t: (key: string, replacements?: Record<string, string | number>) => string
 ) => {
   const formData = new FormData();
 
@@ -22,7 +23,7 @@ export const submitFiles = async (
   });
   const responseJson = await response.json();
   if (!response.ok) {
-    toast.error(`Unable to upload files - ${responseJson.detail}`);
+    toast.error(t("addConnector.toastUnableUpload", { error: responseJson.detail }));
     return;
   }
 
@@ -46,7 +47,7 @@ export const submitFiles = async (
     groups: groups,
   });
   if (connectorErrorMsg || !connector) {
-    toast.error(`Unable to create connector - ${connectorErrorMsg}`);
+    toast.error(t("addConnector.toastUnableCreateConnector", { error: connectorErrorMsg || "" }));
     return;
   }
 
@@ -64,7 +65,7 @@ export const submitFiles = async (
   });
   if (!createCredentialResponse.ok) {
     const errorMsg = await createCredentialResponse.text();
-    toast.error(`Error creating credential for CC Pair - ${errorMsg}`);
+    toast.error(t("addConnector.toastErrorCreatingCredential", { error: errorMsg }));
     return false;
   }
   const credentialId = (await createCredentialResponse.json()).id;
@@ -79,17 +80,17 @@ export const submitFiles = async (
   if (!credentialResponse.ok) {
     const credentialResponseJson = await credentialResponse.json();
     toast.error(
-      `Unable to link connector to credential - ${credentialResponseJson.detail}`
+      t("addConnector.toastUnableLink", { error: credentialResponseJson.detail })
     );
     return false;
   }
 
   const runConnectorErrorMsg = await runConnector(connector.id, [0]);
   if (runConnectorErrorMsg) {
-    toast.error(`Unable to run connector - ${runConnectorErrorMsg}`);
+    toast.error(t("addConnector.toastUnableRun", { error: runConnectorErrorMsg }));
     return false;
   }
 
-  toast.success("Successfully uploaded files!");
+  toast.success(t("addConnector.toastFilesUploaded"));
   return true;
 };

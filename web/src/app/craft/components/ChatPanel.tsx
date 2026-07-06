@@ -408,7 +408,7 @@ export default function BuildChatPanel({
       }
 
       if (scheduledRunInFlight) {
-        toast.error("Please wait for the scheduled run to finish.");
+        toast.error(t("chat.waitScheduledRun"));
         return;
       }
 
@@ -423,7 +423,7 @@ export default function BuildChatPanel({
         // Existing session flow
         // Check if response is still streaming - show toast like main chat does
         if (isRunning) {
-          toast.error("Please wait for the current operation to complete.");
+          toast.error(t("chat.waitCurrentOperation"));
           return;
         }
 
@@ -444,7 +444,7 @@ export default function BuildChatPanel({
         if (!newSessionId) {
           // This should not happen if UI properly disables input until ready
           console.error("[ChatPanel] No pre-provisioned session available");
-          toast.error("Please wait for sandbox to initialize");
+          toast.error(t("chat.waitSandboxInit"));
           return;
         }
 

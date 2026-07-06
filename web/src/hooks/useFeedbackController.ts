@@ -6,6 +6,7 @@ import { FeedbackType } from "@/app/app/interfaces";
 import { handleChatFeedback, removeChatFeedback } from "@/app/app/services/lib";
 import { getMessageByMessageId } from "@/app/app/services/messageTree";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Hook for managing chat message feedback (like/dislike)
@@ -28,6 +29,7 @@ import { toast } from "@/hooks/useToast";
  * ```
  */
 export default function useFeedbackController() {
+  const { t } = useTranslation();
   const updateCurrentMessageFeedback = useChatSessionStore(
     (state) => state.updateCurrentMessageFeedback
   );
@@ -80,9 +82,9 @@ export default function useFeedbackController() {
             updateCurrentMessageFeedback(messageId, previousFeedback);
             const errorData = await response.json();
             toast.error(
-              `Failed to submit feedback - ${
-                errorData.detail || errorData.message
-              }`
+              t("chat.failedSubmitFeedback", {
+                error: String(errorData.detail || errorData.message || ""),
+              })
             );
             return false;
           }
@@ -91,7 +93,7 @@ export default function useFeedbackController() {
       } catch (error) {
         // Rollback on network error
         updateCurrentMessageFeedback(messageId, previousFeedback);
-        toast.error("Failed to submit feedback - network error");
+        toast.error(t("chat.failedSubmitFeedbackNetwork"));
         return false;
       }
     },

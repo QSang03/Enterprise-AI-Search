@@ -545,12 +545,12 @@ export default function AgentEditorPage({
       await refreshAgents();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to toggle visibility"
+        error instanceof Error ? error.message : t("agentEditor.failedToggleVisibility")
       );
     } finally {
       setIsTogglingListed(false);
     }
-  }, [existingAgent, refreshAgent, refreshAgents]);
+  }, [existingAgent, refreshAgent, refreshAgents, t]);
 
   // Hooks for Knowledge section
   const { allRecentFiles, beginUpload } = useProjectsContext();
@@ -920,10 +920,12 @@ export default function AgentEditorPage({
 
       // Handle response
       if (!personaResponse || !personaResponse.ok) {
-        const prefix = `Failed to ${existingAgent ? "update" : "create"} agent`;
+        const prefix = existingAgent
+          ? t("agentEditor.failedUpdateAgent")
+          : t("agentEditor.failedCreateAgent");
         const detail = personaResponse
-          ? await parseErrorDetail(personaResponse, "unknown error")
-          : "no response received";
+          ? await parseErrorDetail(personaResponse, t("agentEditor.unknownError"))
+          : t("agentEditor.noResponseReceived");
         toast.error(`${prefix} - ${detail}`);
         return;
       }
@@ -952,13 +954,13 @@ export default function AgentEditorPage({
           businessTier
         );
         if (shareError) {
-          toast.error(`Agent created, but sharing failed: ${shareError}`);
+          toast.error(t("agentEditor.agentCreatedSharingFailed", { error: shareError }));
         }
       }
       toast.success(
-        `Agent "${agent.name}" ${
-          existingAgent ? "updated" : "created"
-        } successfully`
+        existingAgent
+          ? t("agentEditor.agentUpdatedSuccess", { name: agent.name })
+          : t("agentEditor.agentCreatedSuccess", { name: agent.name })
       );
 
       // Refresh agents list and the specific agent
@@ -971,7 +973,7 @@ export default function AgentEditorPage({
       appRouter({ agentId: agent.id });
     } catch (error) {
       console.error("Submit error:", error);
-      toast.error(`An error occurred: ${error}`);
+      toast.error(t("agentEditor.anErrorOccurred", { error: String(error) }));
     }
   }
 
@@ -981,16 +983,16 @@ export default function AgentEditorPage({
 
     try {
       await deleteAgent(existingAgent.id);
-      toast.success("Agent deleted successfully");
+      toast.success(t("agentEditor.agentDeletedSuccess"));
       deleteAgentModal.toggle(false);
       await refreshAgents();
       router.push("/app/agents");
     } catch (e) {
       console.error("Delete agent error:", e);
       toast.error(
-        `Failed to delete agent: ${
-          e instanceof Error ? e.message : "Unknown error"
-        }`
+        t("agentEditor.failedDeleteAgent", {
+          error: e instanceof Error ? e.message : t("agentEditor.unknown"),
+        })
       );
     }
   }

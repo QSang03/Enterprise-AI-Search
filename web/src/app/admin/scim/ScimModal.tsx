@@ -9,6 +9,7 @@ import Modal, { BasicModalFooter } from "@/refresh-components/Modal";
 import ConfirmationModalLayout from "@/refresh-components/layouts/ConfirmationModalLayout";
 import { toast } from "@/hooks/useToast";
 import { downloadFile } from "@/lib/download";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 import type { ScimModalView } from "./interfaces";
 
@@ -27,12 +28,12 @@ interface ScimModalProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-async function copyToClipboard(text: string) {
+async function copyToClipboard(text: string, t: (key: string) => string) {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success("Token copied to clipboard");
+    toast.success(t("scim.toastTokenCopied"));
   } catch {
-    toast.error("Failed to copy token");
+    toast.error(t("scim.toastTokenCopyFailed"));
   }
 }
 
@@ -46,6 +47,7 @@ export default function ScimModal({
   onRegenerate,
   onClose,
 }: ScimModalProps) {
+  const { t } = useTranslation();
   switch (view.kind) {
     case "regenerate":
       return (
@@ -86,7 +88,7 @@ export default function ScimModal({
             <Modal.Body>
               <Hoverable.Root group="token">
                 <Interactive.Stateless
-                  onClick={() => copyToClipboard(view.rawToken)}
+                  onClick={() => copyToClipboard(view.rawToken, t)}
                 >
                   <InputTextArea
                     value={view.rawToken}
@@ -124,7 +126,7 @@ export default function ScimModal({
                 submit={
                   <Button
                     autoFocus
-                    onClick={() => copyToClipboard(view.rawToken)}
+                    onClick={() => copyToClipboard(view.rawToken, t)}
                   >
                     Copy Token
                   </Button>

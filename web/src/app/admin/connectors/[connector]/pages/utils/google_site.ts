@@ -12,6 +12,7 @@ export const submitGoogleSite = async (
   indexingStart: Date,
   access_type: string,
   groups: number[],
+  t: (key: string, replacements?: Record<string, string | number>) => string,
   name?: string
 ) => {
   const uploadCreateAndTriggerConnector = async () => {
@@ -30,23 +31,19 @@ export const submitGoogleSite = async (
     );
     const responseJson = await response.json();
     if (!response.ok) {
-      toast.error(`Unable to upload files - ${responseJson.detail}`);
+      toast.error(t("addConnector.toastUnableUpload", { error: responseJson.detail }));
       return false;
     }
 
     const filePaths = responseJson.file_paths as string[];
     if (!filePaths || filePaths.length === 0) {
-      toast.error(
-        "File upload was successful, but no file path was returned. Cannot create connector."
-      );
+      toast.error(t("addConnector.toastNoFilePathReturned"));
       return false;
     }
 
     const filePath = filePaths[0];
     if (filePath === undefined) {
-      toast.error(
-        "File upload was successful, but file path is undefined. Cannot create connector."
-      );
+      toast.error(t("addConnector.toastFilePathUndefined"));
       return false;
     }
 
@@ -65,7 +62,7 @@ export const submitGoogleSite = async (
         indexing_start: indexingStart,
       });
     if (connectorErrorMsg || !connector) {
-      toast.error(`Unable to create connector - ${connectorErrorMsg}`);
+      toast.error(t("addConnector.toastUnableCreateConnector", { error: connectorErrorMsg || "" }));
       return false;
     }
 
@@ -79,17 +76,17 @@ export const submitGoogleSite = async (
     if (!credentialResponse.ok) {
       const credentialResponseJson = await credentialResponse.json();
       toast.error(
-        `Unable to link connector to credential - ${credentialResponseJson.detail}`
+        t("addConnector.toastUnableLink", { error: credentialResponseJson.detail })
       );
       return false;
     }
 
     const runConnectorErrorMsg = await runConnector(connector.id, [0]);
     if (runConnectorErrorMsg) {
-      toast.error(`Unable to run connector - ${runConnectorErrorMsg}`);
+      toast.error(t("addConnector.toastUnableRun", { error: runConnectorErrorMsg }));
       return false;
     }
-    toast.success("Successfully created Google Site connector!");
+    toast.success(t("addConnector.toastGoogleSiteCreated"));
     return true;
   };
 

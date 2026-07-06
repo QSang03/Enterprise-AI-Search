@@ -66,12 +66,12 @@ export default function UserSkillsPage() {
     setPendingId(target.id);
     try {
       await replaceUserSkillBundle(target.id, file);
-      toast.success(`Replaced bundle for "${target.name}"`);
+      toast.success(t("admin.skills.replaceSuccess", { name: target.name }));
       refresh();
     } catch (err) {
       console.error("Failed to replace skill bundle", err);
       toast.error(
-        err instanceof Error ? err.message : "Failed to replace bundle"
+        err instanceof Error ? err.message : t("admin.skills.failedReplace")
       );
     } finally {
       setPendingId(null);
@@ -85,11 +85,15 @@ export default function UserSkillsPage() {
     setPendingId(item.id);
     try {
       await patchUserSkill(item.id, enabled);
-      toast.success(`${enabled ? "Enabled" : "Disabled"} "${item.name}"`);
+      toast.success(
+        enabled
+          ? t("admin.skills.enabledSuccess", { name: item.name })
+          : t("admin.skills.disabledSuccess", { name: item.name })
+      );
       refresh();
     } catch (err) {
       console.error("Failed to toggle skill", err);
-      toast.error(err instanceof Error ? err.message : "Failed to toggle");
+      toast.error(err instanceof Error ? err.message : t("admin.skills.failedUpdate"));
     } finally {
       setPendingId(null);
     }
@@ -103,11 +107,11 @@ export default function UserSkillsPage() {
     setPendingId(target.id);
     try {
       await deleteUserSkill(target.id);
-      toast.success(`Deleted "${target.name}"`);
+      toast.success(t("admin.skills.deleteSuccess", { name: target.name }));
       refresh();
     } catch (err) {
       console.error("Failed to delete skill", err);
-      toast.error(err instanceof Error ? err.message : "Failed to delete");
+      toast.error(err instanceof Error ? err.message : t("admin.skills.failedDelete"));
     } finally {
       setPendingId(null);
     }

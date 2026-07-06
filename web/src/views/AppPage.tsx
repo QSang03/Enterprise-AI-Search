@@ -307,8 +307,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       const names = lastFailedFiles.map((f) => f.name).join(", ");
       toast.error(
         lastFailedFiles.length === 1
-          ? `File failed and was removed: ${names}`
-          : `Files failed and were removed: ${names}`
+          ? t("chat.fileFailedAndRemovedSingle", { name: names })
+          : t("chat.fileFailedAndRemovedPlural", { names })
       );
       clearLastFailedFiles();
     }
@@ -601,7 +601,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       .reverse()
       .find((m) => m.type === "user");
     if (!lastUserMsg) {
-      toast.error("No previously-submitted user message found.");
+      toast.error(t("chat.noPrevUserMsg"));
       return;
     }
 

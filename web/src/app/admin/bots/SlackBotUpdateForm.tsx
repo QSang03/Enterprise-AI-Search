@@ -13,6 +13,7 @@ import GenericConfirmModal from "@/sections/modals/GenericConfirmModal";
 import { Button } from "@opal/components";
 import { cn } from "@opal/utils";
 import { SvgChevronDownSmall, SvgTrash } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function Checkbox({
   label,
@@ -43,6 +44,7 @@ export const ExistingSlackBotForm = ({
   existingSlackBot: SlackBot;
   refreshSlackBot?: () => void;
 }) => {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [formValues, setFormValues] = useState(existingSlackBot);
   const router = useRouter();
@@ -62,9 +64,9 @@ export const ExistingSlackBotForm = ({
       if (!response.ok) {
         throw new Error(await response.text());
       }
-      toast.success(`Connector ${field} updated successfully`);
+      toast.success(t("slackBots.connectorFieldUpdated", { field }));
     } catch (error) {
-      toast.error(`Failed to update connector ${field}`);
+      toast.error(t("slackBots.connectorFieldFailed", { field }));
     }
     setFormValues((prev) => ({ ...prev, [field]: value }));
   };
@@ -111,14 +113,14 @@ export const ExistingSlackBotForm = ({
               )}
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              Update Tokens
+              {t("slackBots.updateTokens")}
             </Button>
             <Button
               variant="danger"
               onClick={() => setShowDeleteModal(true)}
               icon={SvgTrash}
             >
-              Delete
+              {t("slackBots.delete")}
             </Button>
           </div>
 
@@ -141,16 +143,16 @@ export const ExistingSlackBotForm = ({
       <div className="mt-2">
         <div className="inline-block border rounded-lg border-background-200 p-2">
           <Checkbox
-            label="Enabled"
+            label={t("slackBots.enabled")}
             checked={formValues.enabled}
             onChange={(e) => handleUpdateField("enabled", e.target.checked)}
           />
         </div>
         {showDeleteModal && (
           <GenericConfirmModal
-            title="Delete Slack Bot"
-            message="Are you sure you want to delete this Slack bot? This action cannot be undone."
-            confirmText="Delete"
+            title={t("slackBots.deleteBotTitle")}
+            message={t("slackBots.deleteBotConfirm")}
+            confirmText={t("slackBots.delete")}
             onClose={() => setShowDeleteModal(false)}
             onConfirm={async () => {
               try {
@@ -158,10 +160,10 @@ export const ExistingSlackBotForm = ({
                 if (!response.ok) {
                   throw new Error(await response.text());
                 }
-                toast.success("Slack bot deleted successfully");
+                toast.success(t("slackBots.deleteBotSuccess"));
                 router.push("/admin/bots");
               } catch (error) {
-                toast.error("Failed to delete Slack bot");
+                toast.error(t("slackBots.deleteBotFailed"));
               }
               setShowDeleteModal(false);
             }}

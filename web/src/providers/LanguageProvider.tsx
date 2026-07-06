@@ -100,3 +100,52 @@ export function useTranslation() {
   }
   return context;
 }
+
+export function translateOutsideReact(key: string, replacements?: Record<string, string | number>): string {
+  let lang: Language = "vi";
+  try {
+    const saved = Cookies.get("app_lang");
+    if (saved === "en" || saved === "vi") {
+      lang = saved;
+    }
+  } catch {
+    // fallback
+  }
+  const dict = dictionaries[lang];
+  const keys = key.split(".");
+  let value: any = dict;
+
+  for (const k of keys) {
+    if (value && typeof value === "object" && k in value) {
+      value = value[k];
+    } else {
+      let fallbackValue: any = dictionaries.en;
+      for (const fk of keys) {
+        if (fallbackValue && typeof fallbackValue === "object" && fk in fallbackValue) {
+          fallbackValue = fallbackValue[fk];
+        } else {
+          fallbackValue = null;
+          break;
+        }
+      }
+      if (typeof fallbackValue === "string") {
+        value = fallbackValue;
+      } else {
+        return key;
+      }
+      break;
+    }
+  }
+
+  if (typeof value !== "string") {
+    return key;
+  }
+
+  if (replacements) {
+    return Object.entries(replacements).reduce((acc, [k, v]) => {
+      return acc.replaceAll(`{${k}}`, String(v));
+    }, value);
+  }
+
+  return value;
+}

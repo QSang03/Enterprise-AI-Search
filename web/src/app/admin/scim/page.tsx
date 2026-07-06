@@ -5,6 +5,7 @@ import { useState } from "react";
 import { SvgUserSync } from "@opal/icons";
 import { toast } from "@/hooks/useToast";
 import { useScimToken } from "@/hooks/useScimToken";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useCreateModal } from "@/refresh-components/contexts/ModalContext";
 import { SettingsLayouts } from "@opal/layouts";
 import Text from "@/refresh-components/texts/Text";
@@ -20,6 +21,7 @@ import ScimModal from "./ScimModal";
 // ---------------------------------------------------------------------------
 
 function ScimContent() {
+  const { t } = useTranslation();
   const { data: token, error: tokenError, isLoading, mutate } = useScimToken();
 
   const modal = useCreateModal();
@@ -37,7 +39,7 @@ function ScimContent() {
   if (tokenError) {
     return (
       <Text as="p" text03>
-        Failed to load SCIM token status.
+        {t("scim.toastFailedLoadToken")}
       </Text>
     );
   }
@@ -68,15 +70,15 @@ function ScimContent() {
         } catch {
           detail = await response.text();
         }
-        toast.error(`Failed to generate token: ${detail}`);
+        toast.error(t("scim.toastFailedGenerateToken", { detail }));
         return;
       }
       const created: ScimTokenCreatedResponse = await response.json();
       await mutate();
       openModal({ kind: "token", rawToken: created.raw_token });
-      if (hasToken) toast.success("Token regenerated");
+      if (hasToken) toast.success(t("scim.toastTokenRegenerated"));
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("scim.toastSomethingWentWrong"));
     } finally {
       setIsSubmitting(false);
     }

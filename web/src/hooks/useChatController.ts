@@ -53,6 +53,7 @@ import {
 } from "@/app/app/services/currentMessageFIFO";
 import { buildFilters } from "@/lib/search/utils";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   ReadonlyURLSearchParams,
   usePathname,
@@ -143,6 +144,7 @@ export default function useChatController({
   resetInputBar,
   setSelectedAgentFromId,
 }: UseChatControllerProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -466,9 +468,9 @@ export default function useChatController({
 
       if (currentChatState != "input") {
         if (currentChatState == "uploading") {
-          toast.error("Please wait for the content to upload");
+          toast.error(t("chat.waitContentUpload"));
         } else {
-          toast.error("Please wait for the response to complete");
+          toast.error(t("chat.waitResponseComplete"));
         }
 
         return;
@@ -1434,7 +1436,7 @@ export default function useChatController({
         router.push(data.redirect_url);
       } catch (error) {
         console.error("Error seeding chat from Slack:", error);
-        toast.error("Failed to load chat from Slack");
+        toast.error(t("chat.failedLoadSlack"));
       }
     };
 

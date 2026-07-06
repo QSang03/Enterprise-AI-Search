@@ -23,6 +23,7 @@ import {
 } from "@/app/admin/discord-bot/lib";
 import { toast } from "@/hooks/useToast";
 import { ConfirmEntityModal } from "@/sections/modals/ConfirmEntityModal";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface Props {
   guilds: DiscordGuildConfig[];
@@ -30,6 +31,7 @@ interface Props {
 }
 
 export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [guildToDelete, setGuildToDelete] = useState<DiscordGuildConfig | null>(
     null
@@ -42,10 +44,10 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
     try {
       await deleteGuildConfig(guildId);
       onRefresh();
-      toast.success("Server configuration deleted");
+      toast.success(t("discordBots.toastDeleteSuccess"));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to delete server config"
+        err instanceof Error ? err.message : t("discordBots.toastDeleteFailed")
       );
     } finally {
       setGuildToDelete(null);
@@ -54,7 +56,7 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
 
   const handleToggleEnabled = async (guild: DiscordGuildConfig) => {
     if (!guild.guild_id) {
-      toast.error("Server must be registered before it can be enabled");
+      toast.error(t("discordBots.toastMustRegister"));
       return;
     }
 
@@ -65,10 +67,14 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
         default_persona_id: guild.default_persona_id,
       });
       onRefresh();
-      toast.success(`Server ${!guild.enabled ? "enabled" : "disabled"}`);
+      toast.success(
+        t("discordBots.toastUpdateSuccess", {
+          status: !guild.enabled ? t("discordBots.enabledStatus") : t("discordBots.disabledStatus")
+        })
+      );
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to update server"
+        err instanceof Error ? err.message : t("discordBots.toastUpdateFailed")
       );
     } finally {
       setUpdatingGuildIds((prev) => {
@@ -84,8 +90,8 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
       <EmptyMessageCard
         sizePreset="main-ui"
         icon={SvgServer}
-        title="No Discord servers configured yet"
-        description="Create a server configuration to get started."
+        title={t("discordBots.emptyTitle")}
+        description={t("discordBots.emptyDesc")}
       />
     );
   }
@@ -95,21 +101,21 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
       {guildToDelete && (
         <ConfirmEntityModal
           danger
-          entityType="Discord server configuration"
+          entityType={t("discordBots.confirmDeleteTitle")}
           entityName={guildToDelete.guild_name || `Server #${guildToDelete.id}`}
           onClose={() => setGuildToDelete(null)}
           onSubmit={() => handleDelete(guildToDelete.id)}
-          additionalDetails="This will remove all settings for this Discord server."
+          additionalDetails={t("discordBots.confirmDeleteDesc")}
         />
       )}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Server</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Registered</TableHead>
-            <TableHead>Enabled</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t("discordBots.tableHeaderServer")}</TableHead>
+            <TableHead>{t("discordBots.tableHeaderStatus")}</TableHead>
+            <TableHead>{t("discordBots.tableHeaderRegistered")}</TableHead>
+            <TableHead>{t("discordBots.tableHeaderEnabled")}</TableHead>
+            <TableHead>{t("discordBots.tableHeaderActions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -127,9 +133,9 @@ export function DiscordGuildsTable({ guilds, onRefresh }: Props) {
               </TableCell>
               <TableCell>
                 {guild.guild_id ? (
-                  <Badge variant="success">Registered</Badge>
+                  <Badge variant="success">{t("discordBots.badgeRegistered")}</Badge>
                 ) : (
-                  <Badge variant="secondary">Pending</Badge>
+                  <Badge variant="secondary">{t("discordBots.badgePending")}</Badge>
                 )}
               </TableCell>
               <TableCell>

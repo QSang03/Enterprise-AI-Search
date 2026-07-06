@@ -1,6 +1,7 @@
 import { toast } from "@/hooks/useToast";
 import { updateBoost } from "./lib";
 import { EditableValue } from "@/components/EditableValue";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export const ScoreSection = ({
   documentId,
@@ -13,10 +14,12 @@ export const ScoreSection = ({
   refresh: () => void;
   consistentWidth?: boolean;
 }) => {
+  const { t } = useTranslation();
+
   const onSubmit = async (value: string) => {
     const numericScore = Number(value);
     if (isNaN(numericScore)) {
-      toast.error("Score must be a number");
+      toast.error(t("adminScoreEditor.toastScoreMustBeNumber"));
       return false;
     }
 
@@ -25,7 +28,7 @@ export const ScoreSection = ({
       toast.error(errorMsg);
       return false;
     } else {
-      toast.success("Updated score!");
+      toast.success(t("adminScoreEditor.toastUpdatedScoreSuccess"));
       refresh();
     }
 

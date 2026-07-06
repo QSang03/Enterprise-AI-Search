@@ -10,6 +10,7 @@ import {
 import { useRef, useState } from "react";
 import { useSettings } from "@/lib/settings/hooks";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { EnterpriseSettings } from "@/lib/settings/types";
@@ -29,6 +30,7 @@ const CHAR_LIMITS = {
 };
 
 export default function ThemePage() {
+  const { t } = useTranslation();
   const settings = useSettings();
   const enterpriseSettings = settings.enterprise;
   const [selectedLogo, setSelectedLogo] = useState<File | null>(null);
@@ -53,7 +55,7 @@ export default function ThemePage() {
       return true;
     } else {
       const errorMsg = (await response.json()).detail;
-      alert(`Failed to update settings. ${errorMsg}`);
+      alert(t("theme.alertUpdateFailed", { error: errorMsg }));
       return false;
     }
   }
@@ -222,7 +224,7 @@ export default function ThemePage() {
           if (logoUploaded) {
             setLogoVersion((v) => v + 1);
           }
-          toast.success("Appearance settings saved successfully!");
+          toast.success(t("theme.toastSavedSuccess"));
         }
 
         formikHelpers.setSubmitting(false);

@@ -10,6 +10,7 @@ import { Button, Divider } from "@opal/components";
 import CharacterCount from "@/refresh-components/CharacterCount";
 import TextSeparator from "@/refresh-components/TextSeparator";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useModalClose } from "@/refresh-components/contexts/ModalContext";
 import { SvgAddLines, SvgMinusCircle, SvgPlusCircle } from "@opal/icons";
 import {
@@ -170,6 +171,7 @@ export default function MemoriesModal({
   highlightOnOpen = false,
   focusNewLine = false,
 }: MemoriesModalProps) {
+  const { t } = useTranslation();
   const close = useModalClose(onClose);
   const [focusMemoryId, setFocusMemoryId] = useState<number | null>(null);
 
@@ -179,8 +181,8 @@ export default function MemoriesModal({
     user,
     updateUserPersonalization,
     {
-      onSuccess: () => toast.success("Preferences saved"),
-      onError: () => toast.error("Failed to save preferences"),
+      onSuccess: () => toast.success(t("settings.preferencesSaved")),
+      onError: () => toast.error(t("settings.failedSavePreferences")),
     }
   );
 

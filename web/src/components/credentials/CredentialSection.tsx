@@ -33,6 +33,7 @@ import {
   useOAuthDetails,
 } from "@/lib/connectors/oauth";
 import { Spinner } from "@/components/Spinner";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { CreateStdOAuthCredential } from "@/components/credentials/actions/CreateStdOAuthCredential";
 import { Card } from "../ui/card";
 import { isTypedFileField, TypedFile } from "@/lib/connectors/fileTypes";
@@ -49,6 +50,7 @@ export default function CredentialSection({
   sourceType,
   refresh,
 }: CredentialSectionProps) {
+  const { t } = useTranslation();
   const { data: credentials } = useSWR<Credential<ConfluenceCredentialJson>[]>(
     buildSimilarCredentialInfoURL(sourceType),
     errorHandlingFetcher,
@@ -96,13 +98,13 @@ export default function CredentialSection({
       mutate(buildSimilarCredentialInfoURL(sourceType));
       refresh();
 
-      toast.success("Swapped credential successfully!");
+      toast.success(t("credentials.toastCredentialSwapped"));
     } else {
       const errorData = await response.json();
       toast.error(
-        `Issue swapping credential: ${
-          errorData.detail || errorData.message || "Unknown error"
-        }`
+        t("credentials.toastSwapError", {
+          error: errorData.detail || errorData.message || t("connectorCCPair.unknownError"),
+        })
       );
     }
   };
@@ -130,10 +132,10 @@ export default function CredentialSection({
       response = await updateCredential(selectedCredential.id, details);
     }
     if (response.ok) {
-      toast.success("Updated credential");
+      toast.success(t("credentials.toastUpdatedCredential"));
       onSucces();
     } else {
-      toast.error("Issue updating credential");
+      toast.error(t("credentials.toastUpdateError"));
     }
   };
 
