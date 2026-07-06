@@ -11,6 +11,7 @@ import {
 } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import { PermissionSyncStatusEnum } from "./types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Per-row status badge shown inside both the doc-permission and
@@ -39,46 +40,46 @@ import { PermissionSyncStatusEnum } from "./types";
 interface BadgeConfig {
   color: TagColor;
   icon: IconFunctionComponent;
-  label: string;
+  key: string;
 }
 
 const STATUS_CONFIG: Record<PermissionSyncStatusEnum, BadgeConfig> = {
   [PermissionSyncStatusEnum.SUCCESS]: {
     color: "green",
     icon: SvgCheckCircle,
-    label: "Succeeded",
+    key: "connectorCCPair.statusSucceeded",
   },
   [PermissionSyncStatusEnum.COMPLETED_WITH_ERRORS]: {
     color: "amber",
     icon: SvgAlertTriangle,
-    label: "Completed with errors",
+    key: "connectorCCPair.statusCompletedWithErrors",
   },
   [PermissionSyncStatusEnum.FAILED]: {
     color: "amber",
     icon: SvgXOctagon,
-    label: "Failed",
+    key: "connectorCCPair.statusFailed",
   },
   [PermissionSyncStatusEnum.IN_PROGRESS]: {
     color: "blue",
     icon: SvgClock,
-    label: "In Progress",
+    key: "connectorCCPair.statusInProgress",
   },
   [PermissionSyncStatusEnum.NOT_STARTED]: {
     color: "gray",
     icon: SvgClock,
-    label: "Scheduled",
+    key: "connectorCCPair.statusScheduled",
   },
   [PermissionSyncStatusEnum.CANCELED]: {
     color: "gray",
     icon: SvgClock,
-    label: "Canceled",
+    key: "connectorCCPair.statusCanceled",
   },
 };
 
 const FALLBACK_CONFIG: BadgeConfig = {
   color: "gray",
   icon: SvgClock,
-  label: "Not Started",
+  key: "connectorCCPair.statusNotStarted",
 };
 
 const STATUSES_WITH_ERROR_TOOLTIP: ReadonlySet<PermissionSyncStatusEnum> =
@@ -97,9 +98,11 @@ export function PermissionSyncStatusBadge({
   status,
   errorMsg,
 }: PermissionSyncStatusBadgeProps) {
+  const { t } = useTranslation();
   const config = (status && STATUS_CONFIG[status]) ?? FALLBACK_CONFIG;
+  const label = t(config.key);
   const tag = (
-    <Tag color={config.color} icon={config.icon} title={config.label} />
+    <Tag color={config.color} icon={config.icon} title={label} />
   );
 
   if (status && STATUSES_WITH_ERROR_TOOLTIP.has(status) && errorMsg) {

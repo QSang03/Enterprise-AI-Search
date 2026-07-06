@@ -3,6 +3,7 @@
 import Modal from "@/refresh-components/Modal";
 import { SvgBarChartSmall } from "@opal/icons";
 import StageMetricsPanel from "./stage-metrics/StageMetricsPanel";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface StageMetricsModalProps {
   indexAttemptId: number;
@@ -13,13 +14,15 @@ export default function StageMetricsModal({
   indexAttemptId,
   onClose,
 }: StageMetricsModalProps) {
+  const { t } = useTranslation();
+
   return (
     <Modal open onOpenChange={(isOpen) => !isOpen && onClose()}>
       <Modal.Content width="lg" height="lg">
         <Modal.Header
           icon={SvgBarChartSmall}
-          title="Indexing stage metrics"
-          description="Per-batch and per-attempt timing for this index attempt."
+          title={t("stageMetrics.modalTitle")}
+          description={t("stageMetrics.modalDesc")}
           onClose={onClose}
         />
         <Modal.Body>
