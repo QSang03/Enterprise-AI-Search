@@ -6,6 +6,7 @@ import { LoadingAnimation } from "@/components/Loading";
 import { ValidSources } from "@/lib/types";
 import { usePublicCredentials } from "@/lib/hooks";
 import Title from "@/components/ui/title";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { DriveJsonUploadSection, DriveAuthSection } from "./Credential";
 import {
   Credential,
@@ -25,6 +26,7 @@ import {
 } from "@/lib/googleConnector";
 
 const GDriveMain = () => {
+  const { t } = useTranslation();
   const { isAdmin, user } = useUser();
 
   // Get app credential and service account key
@@ -103,12 +105,12 @@ const GDriveMain = () => {
 
   // Error states
   if (credentialsError || !credentialsData) {
-    return <ErrorCallout errorTitle="Failed to load credentials." />;
+    return <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadCredentials")} />;
   }
 
   if (googleDriveCredentialsError || !googleDriveCredentials) {
     return (
-      <ErrorCallout errorTitle="Failed to load Google Drive credentials." />
+      <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadDriveCredentials")} />
     );
   }
 
@@ -117,13 +119,13 @@ const GDriveMain = () => {
     !serviceAccountKeySuccessfullyFetched
   ) {
     return (
-      <ErrorCallout errorTitle="Error loading Google Drive app credentials. Contact an administrator." />
+      <ErrorCallout errorTitle={t("googleConnectorPages.errorLoadingDriveAppCreds")} />
     );
   }
 
   if (googleDriveConnectorsError) {
     return (
-      <ErrorCallout errorTitle="Failed to load Google Drive associated connectors." />
+      <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadDriveAssociated")} />
     );
   }
 
@@ -152,7 +154,7 @@ const GDriveMain = () => {
 
   return (
     <>
-      <Title className="mb-2 mt-6">Step 1: Provide your Credentials</Title>
+      <Title className="mb-2 mt-6">{t("googleConnectorPages.provideCredentialsTitle")}</Title>
       <DriveJsonUploadSection
         appCredentialData={appCredentialData}
         serviceAccountCredentialData={serviceAccountKeyData}
@@ -168,7 +170,7 @@ const GDriveMain = () => {
         (appCredentialData?.client_id ||
           serviceAccountKeyData?.service_account_email) && (
           <>
-            <Title className="mb-2 mt-6">Step 2: Authenticate with Onyx</Title>
+            <Title className="mb-2 mt-6">{t("googleConnectorPages.authenticateOnyxTitle")}</Title>
             <DriveAuthSection
               refreshCredentials={handleRefresh}
               googleDrivePublicUploadedCredential={

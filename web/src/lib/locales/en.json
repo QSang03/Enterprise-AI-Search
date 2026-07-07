@@ -41,7 +41,8 @@
     "more": "More",
     "optional": "Optional",
     "copyLink": "Copy Link",
-    "download": "Download"
+    "download": "Download",
+    "continue": "Continue"
   },
   "agentEditor": {
     "searchForAnAgent": "Search for an agent...",
@@ -2747,7 +2748,36 @@
     "toastInvalidFile": "Invalid file provided - {error}",
     "toastRevokedGmail": "Successfully revoked the Gmail credential!",
     "toastRevokedGDrive": "Successfully revoked the Google Drive credential!",
-    "toastCannotRevokeAssociated": "Cannot revoke the credential while any connector is still associated with the credential. Please delete all associated connectors, then try again."
+    "toastCannotRevokeAssociated": "Cannot revoke the credential while any connector is still associated with the credential. Please delete all associated connectors, then try again.",
+    "dropJsonHere": "Drop JSON file here",
+    "selectOrDragJson": "Select or drag JSON credentials file...",
+    "curatorWarning": "Curators are unable to set up the {connector} credentials. To add a {connector} connector, please contact an administrator.",
+    "uploadInstructions": "To connect your {connector}, create credentials (either OAuth App or Service Account), download the JSON file, and upload it below.",
+    "viewDetailedSetup": "View detailed setup instructions",
+    "toastDeletedServiceAccountKey": "Successfully deleted service account key",
+    "toastDeletedAppCredentials": "Successfully deleted app credentials",
+    "toastFailedDelete": "Failed to delete credentials - {error}",
+    "deleteCredentialsBtn": "Delete Credentials",
+    "authCompleteTitle": "Authentication Complete",
+    "authCompleteDesc": "Your {connector} credentials have been successfully uploaded and authenticated.",
+    "revokeAccessBtn": "Revoke Access",
+    "authSectionTitle": "{connector} Authentication",
+    "completeStep1Warning": "Please complete Step 1 by uploading either OAuth credentials or a Service Account key before proceeding with authentication.",
+    "validationEmail": "Must be a valid email",
+    "validationRequired": "Required",
+    "toastCreatedServiceAccount": "Successfully created service account credential",
+    "toastFailedCreateServiceAccount": "Failed to create service account credential - {error}",
+    "primaryAdminEmailLabel": "Primary Admin Email:",
+    "primaryAdminEmailSubtextDrive": "Enter the email of an admin/owner of the Google Organization that owns the Google Drive(s) you want to index.",
+    "primaryAdminEmailSubtextGmail": "Enter the email of an admin/owner of the Google Organization that owns the Gmail account(s) you want to index.",
+    "creating": "Creating...",
+    "createCredentialBtn": "Create Credential",
+    "oauthInstructionsDrive": "Next, you need to authenticate with Google Drive via OAuth. This gives us read access to the documents you have access to in your Google Drive account.",
+    "oauthInstructionsGmail": "Next, you need to authenticate with Gmail via OAuth. This gives us read access to the emails you have access to in your Gmail account.",
+    "toastFailedOAuth": "Failed to authenticate with {connector} - {error}",
+    "authenticating": "Authenticating...",
+    "authenticateBtnDrive": "Authenticate with Google Drive",
+    "authenticateBtnGmail": "Authenticate with Gmail"
   },
   "credentials": {
     "toastCredentialSwapped": "Swapped credential successfully!",
@@ -3145,5 +3175,17 @@
     "optional": "(optional)",
     "enterPlaceholder": "Enter {label}",
     "selectAnOption": "Select an option"
+  },
+  "googleConnectorPages": {
+    "failedLoadCredentials": "Failed to load credentials.",
+    "failedLoadDriveCredentials": "Failed to load Google Drive credentials.",
+    "failedLoadGmailCredentials": "Failed to load Gmail credentials.",
+    "errorLoadingDriveAppCreds": "Error loading Google Drive app credentials. Contact an administrator.",
+    "errorLoadingGmailAppCreds": "Error loading Gmail app credentials. Contact an administrator.",
+    "failedLoadDriveAssociated": "Failed to load Google Drive associated connectors.",
+    "failedLoadGmailAssociated": "Failed to load Gmail associated connectors.",
+    "failedLoadConnectors": "Failed to load connectors.",
+    "provideCredentialsTitle": "Step 1: Provide your Credentials",
+    "authenticateOnyxTitle": "Step 2: Authenticate with Onyx"
   }
 }

@@ -41,7 +41,8 @@
     "more": "Thêm",
     "optional": "Tùy chọn",
     "copyLink": "Sao chép liên kết",
-    "download": "Tải xuống"
+    "download": "Tải xuống",
+    "continue": "Tiếp tục"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",
@@ -2747,7 +2748,36 @@
     "toastInvalidFile": "Tệp tin cung cấp không hợp lệ - {error}",
     "toastRevokedGmail": "Thu hồi thông tin xác thực Gmail thành công!",
     "toastRevokedGDrive": "Thu hồi thông tin xác thực Google Drive thành công!",
-    "toastCannotRevokeAssociated": "Không thể thu hồi thông tin xác thực khi vẫn còn kết nối liên kết. Vui lòng xóa tất cả các kết nối liên kết, sau đó thử lại."
+    "toastCannotRevokeAssociated": "Không thể thu hồi thông tin xác thực khi vẫn còn kết nối liên kết. Vui lòng xóa tất cả các kết nối liên kết, sau đó thử lại.",
+    "dropJsonHere": "Thả file JSON vào đây",
+    "selectOrDragJson": "Chọn hoặc kéo tệp JSON chứa thông tin xác thực...",
+    "curatorWarning": "Curator không thể thiết lập thông tin xác thực {connector}. Để thêm connector {connector}, vui lòng liên hệ với quản trị viên.",
+    "uploadInstructions": "Để kết nối với {connector}, hãy tạo thông tin xác thực (OAuth App hoặc Service Account), tải xuống tệp JSON và tải lên ở bên dưới.",
+    "viewDetailedSetup": "Xem hướng dẫn thiết lập chi tiết",
+    "toastDeletedServiceAccountKey": "Đã xóa khóa service account thành công",
+    "toastDeletedAppCredentials": "Đã xóa thông tin xác thực ứng dụng thành công",
+    "toastFailedDelete": "Xóa thông tin xác thực thất bại - {error}",
+    "deleteCredentialsBtn": "Xóa thông tin xác thực",
+    "authCompleteTitle": "Xác thực hoàn tất",
+    "authCompleteDesc": "Thông tin xác thực {connector} của bạn đã được tải lên và xác thực thành công.",
+    "revokeAccessBtn": "Thu hồi quyền truy cập",
+    "authSectionTitle": "Xác thực {connector}",
+    "completeStep1Warning": "Vui lòng hoàn thành Bước 1 bằng cách tải lên thông tin xác thực OAuth hoặc khóa Service Account trước khi tiếp tục xác thực.",
+    "validationEmail": "Phải là một email hợp lệ",
+    "validationRequired": "Bắt buộc",
+    "toastCreatedServiceAccount": "Đã tạo thông tin xác thực service account thành công",
+    "toastFailedCreateServiceAccount": "Tạo thông tin xác thực service account thất bại - {error}",
+    "primaryAdminEmailLabel": "Email quản trị viên chính:",
+    "primaryAdminEmailSubtextDrive": "Nhập email của quản trị viên/chủ sở hữu của Google Organization sở hữu (các) Google Drive bạn muốn lập chỉ mục.",
+    "primaryAdminEmailSubtextGmail": "Nhập email của quản trị viên/chủ sở hữu của Google Organization sở hữu (các) tài khoản Gmail bạn muốn lập chỉ mục.",
+    "creating": "Đang tạo...",
+    "createCredentialBtn": "Tạo thông tin xác thực",
+    "oauthInstructionsDrive": "Tiếp theo, bạn cần xác thực với Google Drive qua OAuth. Việc này cấp cho chúng tôi quyền đọc các tài liệu mà bạn có quyền truy cập trong tài khoản Google Drive của mình.",
+    "oauthInstructionsGmail": "Tiếp theo, bạn cần xác thực với Gmail qua OAuth. Việc này cấp cho chúng tôi quyền đọc các email mà bạn có quyền truy cập trong tài khoản Gmail của mình.",
+    "toastFailedOAuth": "Xác thực với {connector} thất bại - {error}",
+    "authenticating": "Đang xác thực...",
+    "authenticateBtnDrive": "Xác thực với Google Drive",
+    "authenticateBtnGmail": "Xác thực với Gmail"
   },
   "credentials": {
     "toastCredentialSwapped": "Đã chuyển đổi thông tin xác thực thành công!",
@@ -3145,5 +3175,17 @@
     "optional": "(tùy chọn)",
     "enterPlaceholder": "Nhập {label}",
     "selectAnOption": "Chọn một tùy chọn"
+  },
+  "googleConnectorPages": {
+    "failedLoadCredentials": "Tải thông tin xác thực thất bại.",
+    "failedLoadDriveCredentials": "Tải thông tin xác thực Google Drive thất bại.",
+    "failedLoadGmailCredentials": "Tải thông tin xác thực Gmail thất bại.",
+    "errorLoadingDriveAppCreds": "Lỗi khi tải thông tin xác thực ứng dụng Google Drive. Vui lòng liên hệ với quản trị viên.",
+    "errorLoadingGmailAppCreds": "Lỗi khi tải thông tin xác thực ứng dụng Gmail. Vui lòng liên hệ với quản trị viên.",
+    "failedLoadDriveAssociated": "Tải các connector Google Drive liên kết thất bại.",
+    "failedLoadGmailAssociated": "Tải các connector Gmail liên kết thất bại.",
+    "failedLoadConnectors": "Tải connector thất bại.",
+    "provideCredentialsTitle": "Bước 1: Cung cấp thông tin xác thực của bạn",
+    "authenticateOnyxTitle": "Bước 2: Xác thực với Onyx"
   }
 }

@@ -13,6 +13,7 @@ import {
 import { GmailAuthSection, GmailJsonUploadSection } from "./Credential";
 import { usePublicCredentials, useBasicConnectorStatus } from "@/lib/hooks";
 import Title from "@/components/ui/title";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { useUser } from "@/providers/UserProvider";
 import {
   useGoogleAppCredential,
@@ -40,6 +41,7 @@ export const GmailMain = ({
   onOAuthRedirect,
   onCredentialCreated,
 }: GmailMainProps) => {
+  const { t } = useTranslation();
   const { isAdmin, user } = useUser();
 
   const {
@@ -115,15 +117,15 @@ export const GmailMain = ({
   }
 
   if (credentialsError || !credentialsData) {
-    return <ErrorCallout errorTitle="Failed to load credentials." />;
+    return <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadCredentials")} />;
   }
 
   if (gmailCredentialsError || !gmailCredentials) {
-    return <ErrorCallout errorTitle="Failed to load Gmail credentials." />;
+    return <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadGmailCredentials")} />;
   }
 
   if (connectorIndexingStatusesError || !connectorIndexingStatuses) {
-    return <ErrorCallout errorTitle="Failed to load connectors." />;
+    return <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadConnectors")} />;
   }
 
   if (
@@ -131,13 +133,13 @@ export const GmailMain = ({
     !serviceAccountKeySuccessfullyFetched
   ) {
     return (
-      <ErrorCallout errorTitle="Error loading Gmail app credentials. Contact an administrator." />
+      <ErrorCallout errorTitle={t("googleConnectorPages.errorLoadingGmailAppCreds")} />
     );
   }
 
   if (gmailConnectorsError) {
     return (
-      <ErrorCallout errorTitle="Failed to load Gmail associated connectors." />
+      <ErrorCallout errorTitle={t("googleConnectorPages.failedLoadGmailAssociated")} />
     );
   }
 
@@ -176,7 +178,7 @@ export const GmailMain = ({
   return (
     <>
       <Title className="mb-2 mt-6 ml-auto mr-auto">
-        Step 1: Provide your Credentials
+        {t("googleConnectorPages.provideCredentialsTitle")}
       </Title>
       <GmailJsonUploadSection
         appCredentialData={appCredentialData}
@@ -191,7 +193,7 @@ export const GmailMain = ({
       {isAdmin && hasUploadedCredentials && (
         <>
           <Title className="mb-2 mt-6 ml-auto mr-auto">
-            Step 2: Authenticate with Onyx
+            {t("googleConnectorPages.authenticateOnyxTitle")}
           </Title>
           <GmailAuthSection
             refreshCredentials={handleRefresh}
