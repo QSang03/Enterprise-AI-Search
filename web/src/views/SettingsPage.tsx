@@ -120,6 +120,7 @@ function ScopeSelector({
   scopesError,
   disabled,
 }: ScopeSelectorProps) {
+  const { t } = useTranslation();
   const groups = useMemo(() => {
     const byLabel = new Map<string, ScopeGroup>();
     for (const option of scopeOptions) {
@@ -139,14 +140,14 @@ function ScopeSelector({
   if (scopesError) {
     return (
       <Text font="secondary-body" color="text-03">
-        Couldn&apos;t load permissions.
+        {t("settings.permissionsLoadError")}
       </Text>
     );
   }
   if (scopeOptions.length === 0) {
     return (
       <Text font="secondary-body" color="text-03">
-        Loading permissions...
+        {t("settings.permissionsLoading")}
       </Text>
     );
   }

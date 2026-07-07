@@ -21,11 +21,13 @@ import {
 import UserCredentialsModal from "@/app/craft/v1/apps/UserCredentialsModal";
 import { toast } from "@/hooks/useToast";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // The user's own app connections. Org-wide configuration lives at
 // /craft/v1/apps/manage (admin-only); admins get a shortcut button to it here.
 export default function ExternalAppsPage() {
   const { isAdmin } = useUser();
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   // A `?connect` deep-link focuses the targeted card's Connect button, so don't
@@ -40,8 +42,8 @@ export default function ExternalAppsPage() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgPlug}
-        title="Apps"
-        description="Connect the tools Onyx Craft can use as context while it works."
+        title={t("craft.appsTitle")}
+        description={t("craft.appsDesc")}
         rightChildren={
           isAdmin ? (
             <div className="flex items-center gap-2">
@@ -50,7 +52,7 @@ export default function ExternalAppsPage() {
                 prominence="secondary"
                 icon={SvgSettings}
               >
-                Manage apps
+                {t("craft.manageApps")}
               </Button>
             </div>
           ) : undefined
@@ -58,7 +60,7 @@ export default function ExternalAppsPage() {
       >
         <InputTypeIn
           ref={searchInputRef}
-          placeholder="Search apps..."
+          placeholder={t("craft.searchAppsPlaceholder")}
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           searchIcon
@@ -76,6 +78,7 @@ interface AppConnectionsProps {
 }
 
 function AppConnections({ query }: AppConnectionsProps) {
+  const { t } = useTranslation();
   const { data, mutate } = useSWR<ExternalAppUserResponse[]>(
     SWR_KEYS.buildExternalApps,
     errorHandlingFetcher,
@@ -97,7 +100,7 @@ function AppConnections({ query }: AppConnectionsProps) {
   if (data === undefined) {
     return (
       <Card background="none" border="dashed" rounding="lg">
-        <Text font="main-content-body">Loading…</Text>
+        <Text font="main-content-body">{t("craft.loading")}</Text>
       </Card>
     );
   }
@@ -106,8 +109,7 @@ function AppConnections({ query }: AppConnectionsProps) {
     return (
       <Card background="none" border="dashed" rounding="lg">
         <Text font="main-content-body" color="text-03">
-          No external apps are enabled for your org yet. Ask an admin to enable
-          one.
+          {t("craft.noAppsEnabled")}
         </Text>
       </Card>
     );
@@ -118,7 +120,7 @@ function AppConnections({ query }: AppConnectionsProps) {
       {connected.length > 0 && (
         <section className="flex flex-col gap-2">
           <Text font="secondary-body" color="text-03">
-            Connected
+            {t("common.connected")}
           </Text>
           <div className="flex flex-col gap-2">
             {connected.map((userApp) => (
@@ -135,11 +137,11 @@ function AppConnections({ query }: AppConnectionsProps) {
 
       <section className="flex flex-col gap-2">
         <Text font="secondary-body" color="text-03">
-          Browse apps
+          {t("craft.browseApps")}
         </Text>
         {browse.length === 0 ? (
           <Text font="secondary-body" color="text-03">
-            {query ? "No apps match your search." : "Everything is connected."}
+            {query ? t("craft.noAppsMatchSearch") : t("craft.everythingConnected")}
           </Text>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -172,6 +174,7 @@ function ProviderConnectCard({
   highlight,
   onChange,
 }: ProviderConnectCardProps) {
+  const { t } = useTranslation();
   const [isStarting, setIsStarting] = useState(false);
   const [credModalOpen, setCredModalOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -198,9 +201,7 @@ function ProviderConnectCard({
       const { authorize_url } = await startExternalAppOAuth(userApp.id);
       window.location.href = authorize_url;
     } catch (e) {
-      toast.error(
-        e instanceof Error ? e.message : "Failed to start authorization"
-      );
+      toast.error(e instanceof Error ? e.message : t("craft.failedStartAuthorization"));
       setIsStarting(false);
     }
   }
@@ -213,7 +214,7 @@ function ProviderConnectCard({
       await disconnectUserFromApp(userApp.id);
       onChange();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to disconnect");
+      toast.error(e instanceof Error ? e.message : t("craft.failedDisconnect"));
     } finally {
       setIsStarting(false);
     }
@@ -240,7 +241,7 @@ function ProviderConnectCard({
                   <SvgCheckCircle className="w-4 h-4 text-status-success-05" />
                 </div>
                 <Text font="secondary-body" color="text-03">
-                  Connected
+                  {t("common.connected")}
                 </Text>
               </div>
               <Button
@@ -248,7 +249,7 @@ function ProviderConnectCard({
                 disabled={isStarting}
                 onClick={disconnect}
               >
-                {isStarting ? "…" : "Disconnect"}
+                {isStarting ? t("craft.disconnecting") : t("common.disconnect")}
               </Button>
             </div>
           ) : (
@@ -261,7 +262,7 @@ function ProviderConnectCard({
                 {userApp.description}
               </Text>
               <Button disabled={isStarting} onClick={connect}>
-                {isStarting ? "Redirecting…" : "Connect"}
+                {isStarting ? t("craft.connecting") : t("common.connect")}
               </Button>
             </div>
           )}

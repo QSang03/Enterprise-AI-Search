@@ -724,11 +724,11 @@ export default function ChatPreferencesPage() {
                   tag={
                     !businessTier
                       ? {
-                          title: "Business Plan",
+                          title: t("admin.chatPreferences.businessPlanBadge"),
                           color: "amber",
                           icon: SvgOrganization,
                         }
-                      : { title: "beta", color: "blue" }
+                      : { title: t("admin.chatPreferences.betaBadge"), color: "blue" }
                   }
                   description={t("admin.chatPreferences.searchModeDesc")}
                   disabled={!businessTier || uniqueSources.length === 0}
@@ -747,7 +747,7 @@ export default function ChatPreferencesPage() {
               </Disabled>
               <InputHorizontal
                 title={t("admin.chatPreferences.multiModel")}
-                tag={{ title: "beta", color: "blue" }}
+                tag={{ title: t("admin.chatPreferences.betaBadge"), color: "blue" }}
                 description={t("admin.chatPreferences.multiModelDesc")}
                 withLabel
               >

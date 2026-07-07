@@ -127,8 +127,8 @@ export default function WikiAndGraphDashboard() {
   const filteredRelations = useMemo(() => {
     if (!relations) return [];
     return relations.filter((r) => {
-      const srcName = entityIdToNameMap.get(r.source_entity_id) || "Unknown Entity";
-      const tgtName = entityIdToNameMap.get(r.target_entity_id) || "Unknown Entity";
+      const srcName = entityIdToNameMap.get(r.source_entity_id) || t("wikiGraph.unknownEntity");
+      const tgtName = entityIdToNameMap.get(r.target_entity_id) || t("wikiGraph.unknownEntity");
       const term = relationSearch.toLowerCase();
       return (
         srcName.toLowerCase().includes(term) ||
@@ -149,9 +149,7 @@ export default function WikiAndGraphDashboard() {
   // Handler to request backend Auto-Wiki generation
   const handleGenerateWiki = async () => {
     if (selectedDocIds.length < 10) {
-      setGenerationError(
-        `Auto-Wiki generation requires at least 10 source documents. Currently selected: ${selectedDocIds.length}`
-      );
+      setGenerationError(t("wikiGraph.requiresMinDocs", { count: selectedDocIds.length }));
       return;
     }
 
@@ -171,14 +169,14 @@ export default function WikiAndGraphDashboard() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.detail || "Failed to generate wiki");
+        throw new Error(errData.detail || t("wikiGraph.failedGenerateWiki"));
       }
 
       await mutateWikis();
       setIsGeneratingFlow(false);
       setSelectedDocIds([]);
     } catch (err: any) {
-      setGenerationError(err.message || "An unexpected error occurred.");
+      setGenerationError(err.message || t("wikiGraph.unexpectedError"));
     } finally {
       setIsGenerating(false);
     }
@@ -204,7 +202,7 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgBookOpen className="w-4 h-4" />
-            Auto-Wiki Pages ({wikis?.length ?? 0})
+            {t("wikiGraph.autoWikiPages", { count: wikis?.length ?? 0 })}
           </button>
           
           <button
@@ -216,7 +214,7 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgUsers className="w-4 h-4" />
-            Knowledge Graph Entities ({entities?.length ?? 0})
+            {t("wikiGraph.knowledgeGraphEntities", { count: entities?.length ?? 0 })}
           </button>
 
           <button
@@ -228,7 +226,7 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgGlobe className="w-4 h-4" />
-            Entity Relationships ({relations?.length ?? 0})
+            {t("wikiGraph.entityRelationships", { count: relations?.length ?? 0 })}
           </button>
         </div>
 
@@ -240,7 +238,7 @@ export default function WikiAndGraphDashboard() {
               <div className="flex justify-between items-center">
                 <h3 className="text-base font-bold text-text flex items-center gap-2">
                   <SvgBookOpen className="w-5 h-5 text-accent-blue" />
-                  Wiki Articles
+                  {t("wikiGraph.wikiArticles")}
                 </h3>
 
                 <button
@@ -251,13 +249,13 @@ export default function WikiAndGraphDashboard() {
                   className="flex items-center gap-1.5 text-xs py-1.5 px-3 bg-accent hover:bg-accent/95 text-white font-bold rounded-lg transition-all shadow-sm"
                 >
                   <SvgPlusCircle className="w-4 h-4" />
-                  Generate Wiki
+                  {t("wikiGraph.generateWiki")}
                 </button>
               </div>
 
               {wikisError && (
                 <div className="p-3 bg-error-light text-error text-xs rounded-lg border border-error">
-                  Failed to load wiki articles.
+                  {t("wikiGraph.failedLoadWikiArticles")}
                 </div>
               )}
 
@@ -269,7 +267,7 @@ export default function WikiAndGraphDashboard() {
                 </div>
               ) : !wikis || wikis.length === 0 ? (
                 <div className="text-center py-12 text-text-subtle text-sm">
-                  No wiki pages generated yet. Select at least 10 documents to compile your first Auto-Wiki.
+                  {t("wikiGraph.noWikisYet")}
                 </div>
               ) : (
                 <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
@@ -293,7 +291,7 @@ export default function WikiAndGraphDashboard() {
                           <div className="flex items-center gap-2">
                             {wiki.is_stale && (
                               <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-warning/10 text-warning border border-warning/20">
-                                Stale
+                                {t("wikiGraph.stale")}
                               </span>
                             )}
                             <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
@@ -303,7 +301,7 @@ export default function WikiAndGraphDashboard() {
                         </div>
 
                         <div className="text-3xs text-text-subtle">
-                          Created at: {new Date(wiki.created_at).toLocaleString()}
+                          {t("wikiGraph.createdAt")} {new Date(wiki.created_at).toLocaleString()}
                         </div>
                       </div>
                     );
@@ -330,7 +328,7 @@ export default function WikiAndGraphDashboard() {
                   </div>
 
                   <p className="text-xs text-text-subtle mb-4">
-                    Select 10 or more files below to analyze and build a consolidated knowledge base document.
+                    {t("wikiGraph.generateWikiDesc")}
                   </p>
 
                   {generationError && (
@@ -343,7 +341,7 @@ export default function WikiAndGraphDashboard() {
                   <div className="flex-1 max-h-[300px] overflow-y-auto border border-border rounded-xl p-3 bg-background-strong space-y-2 mb-4">
                     {availableDocs.length === 0 ? (
                       <div className="text-center py-10 text-xs text-text-subtle">
-                        No completed document runs available to index. Upload some files first.
+                        {t("wikiGraph.noCompletedDocRuns")}
                       </div>
                     ) : (
                       availableDocs.map((doc: any) => {
@@ -361,7 +359,7 @@ export default function WikiAndGraphDashboard() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="text-xs font-semibold text-text truncate">{doc.file_name || doc.doc_id}</div>
-                              <div className="text-3xs text-text-subtle">Chunks: {doc.chunk_count}</div>
+                              <div className="text-3xs text-text-subtle">{t("wikiGraph.chunks", { count: doc.chunk_count })}</div>
                             </div>
                           </div>
                         );
@@ -371,7 +369,7 @@ export default function WikiAndGraphDashboard() {
 
                   <div className="flex justify-between items-center pt-4 border-t border-border mt-auto">
                     <span className="text-xs text-text-subtle font-semibold">
-                      Selected: {selectedDocIds.length} / {availableDocs.length} (Requires &gt;= 10)
+                      {t("wikiGraph.selectedDocs", { selected: selectedDocIds.length, total: availableDocs.length })}
                     </span>
 
                     <button
@@ -384,10 +382,10 @@ export default function WikiAndGraphDashboard() {
                       {isGenerating ? (
                         <>
                           <SvgSimpleLoader className="w-4 h-4 animate-spin" />
-                          Generating...
+                          {t("wikiGraph.generating")}
                         </>
                       ) : (
-                        "Generate Page"
+                        t("wikiGraph.generatePage")
                       )}
                     </button>
                   </div>
@@ -401,12 +399,12 @@ export default function WikiAndGraphDashboard() {
                         {selectedWiki.title}
                       </h4>
                       <span className="px-2 py-0.5 text-2xs font-extrabold uppercase rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shrink-0">
-                        Version {selectedWiki.version}
+                        {t("wikiGraph.version", { version: selectedWiki.version })}
                       </span>
                     </div>
 
                     <div className="text-3xs text-text-subtle">
-                      Published: {new Date(selectedWiki.created_at).toLocaleString()}
+                      {t("wikiGraph.published")} {new Date(selectedWiki.created_at).toLocaleString()}
                     </div>
                   </div>
 
@@ -422,7 +420,7 @@ export default function WikiAndGraphDashboard() {
                   <SvgFileText className="w-12 h-12 text-text-subtle mb-3" />
                   <h4 className="text-sm font-bold text-text mb-1">{t("wikiGraph.noArticleSelected")}</h4>
                   <p className="text-xs text-text-subtle max-w-[260px]">
-                    Select a wiki article from the list to preview its contents.
+                    {t("wikiGraph.selectWikiArticle")}
                   </p>
                 </div>
               )}
@@ -465,7 +463,7 @@ export default function WikiAndGraphDashboard() {
 
             {entitiesError && (
               <div className="p-3 bg-error-light text-error text-xs rounded-lg border border-error">
-                Failed to load knowledge graph entities.
+                {t("wikiGraph.failedLoadEntities")}
               </div>
             )}
 
@@ -477,7 +475,7 @@ export default function WikiAndGraphDashboard() {
               </div>
             ) : filteredEntities.length === 0 ? (
               <div className="text-center py-16 text-text-subtle text-sm bg-background p-6 rounded-2xl border border-border">
-                No entities found. Make sure you have uploaded files and that they are indexed.
+                {t("wikiGraph.noEntitiesFound")}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -496,7 +494,7 @@ export default function WikiAndGraphDashboard() {
                     </div>
 
                     <p className="text-xs text-text-subtle line-clamp-3 leading-normal" title={entity.description}>
-                      {entity.description || "No description provided."}
+                      {entity.description || t("wikiGraph.noDescriptionProvided")}
                     </p>
                   </div>
                 ))}
@@ -524,7 +522,7 @@ export default function WikiAndGraphDashboard() {
 
             {relationsError && (
               <div className="p-3 bg-error-light text-error text-xs rounded-lg border border-error">
-                Failed to load knowledge graph relations.
+                {t("wikiGraph.failedLoadRelations")}
               </div>
             )}
 
@@ -536,13 +534,13 @@ export default function WikiAndGraphDashboard() {
               </div>
             ) : filteredRelations.length === 0 ? (
               <div className="text-center py-16 text-text-subtle text-sm bg-background p-6 rounded-2xl border border-border">
-                No relationships found. Upload and process Vietnamese documents first to trigger LLM graph parsing.
+                {t("wikiGraph.noRelationshipsFound")}
               </div>
             ) : (
               <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
                 {filteredRelations.map((relation) => {
-                  const srcName = entityIdToNameMap.get(relation.source_entity_id) || "Unknown Entity";
-                  const tgtName = entityIdToNameMap.get(relation.target_entity_id) || "Unknown Entity";
+                  const srcName = entityIdToNameMap.get(relation.source_entity_id) || t("wikiGraph.unknownEntity");
+                  const tgtName = entityIdToNameMap.get(relation.target_entity_id) || t("wikiGraph.unknownEntity");
                   
                   return (
                     <div

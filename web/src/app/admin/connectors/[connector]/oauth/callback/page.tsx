@@ -8,17 +8,20 @@ import { ValidSources } from "@/lib/types";
 import CardSection from "@/components/admin/CardSection";
 import { handleOAuthAuthorizationResponse } from "@/lib/oauth_utils";
 import { SvgKey } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export default function OAuthCallbackPage() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
 
-  const [statusMessage, setStatusMessage] = useState("Processing...");
+  const [statusMessage, setStatusMessage] = useState(t("oauthCallback.processing"));
   const [statusDetails, setStatusDetails] = useState(
-    "Please wait while we complete the setup."
+    t("oauthCallback.pleaseWait")
   );
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [pageTitle, setPageTitle] = useState(
-    "Authorize with Third-Party service"
+    t("oauthCallback.defaultTitle")
   );
 
   // Extract query parameters
@@ -35,9 +38,11 @@ export default function OAuthCallbackPage() {
       // sourceType (for looking up metadata) = "google_drive"
 
       if (!code || !state) {
-        setStatusMessage("Improperly formed OAuth authorization request.");
+        setStatusMessage(t("oauthCallback.improperlyFormed"));
         setStatusDetails(
-          !code ? "Missing authorization code." : "Missing state parameter."
+          !code
+            ? t("oauthCallback.missingCode")
+            : t("oauthCallback.missingState")
         );
         setIsError(true);
         return;
@@ -45,9 +50,11 @@ export default function OAuthCallbackPage() {
 
       if (!connector) {
         setStatusMessage(
-          `The specified connector source type ${connector} does not exist.`
+          t("oauthCallback.invalidSourceType").replace("{sourceType}", connector ?? "")
         );
-        setStatusDetails(`${connector} is not a valid source type.`);
+        setStatusDetails(
+          t("oauthCallback.notValidSourceType").replace("{sourceType}", connector ?? "")
+        );
         setIsError(true);
         return;
       }
@@ -55,18 +62,22 @@ export default function OAuthCallbackPage() {
       const sourceType = connector.replaceAll("-", "_");
       if (!isValidSource(sourceType)) {
         setStatusMessage(
-          `The specified connector source type ${sourceType} does not exist.`
+          t("oauthCallback.invalidSourceType").replace("{sourceType}", sourceType)
         );
-        setStatusDetails(`${sourceType} is not a valid source type.`);
+        setStatusDetails(
+          t("oauthCallback.notValidSourceType").replace("{sourceType}", sourceType)
+        );
         setIsError(true);
         return;
       }
 
       const sourceMetadata = getSourceMetadata(sourceType as ValidSources);
-      setPageTitle(`Authorize with ${sourceMetadata.displayName}`);
+      setPageTitle(
+        t("oauthCallback.titleWith").replace("{displayName}", sourceMetadata.displayName)
+      );
 
-      setStatusMessage("Processing...");
-      setStatusDetails("Please wait while we complete authorization.");
+      setStatusMessage(t("oauthCallback.processing"));
+      setStatusDetails(t("oauthCallback.pleaseWaitAuth"));
       setIsError(false); // Ensure no error state during loading
 
       try {
@@ -80,27 +91,31 @@ export default function OAuthCallbackPage() {
           throw new Error("Empty response from OAuth server.");
         }
 
-        setStatusMessage("Success!");
+        setStatusMessage(t("oauthCallback.success"));
 
         // set the continuation link
         if (response.finalize_url) {
           setRedirectUrl(response.finalize_url);
           setStatusDetails(
-            `Your authorization with ${sourceMetadata.displayName} completed successfully. Additional steps are required to complete credential setup.`
+            t("oauthCallback.successWithSteps").replace(
+              "{displayName}",
+              sourceMetadata.displayName
+            )
           );
         } else {
           setRedirectUrl(response.redirect_on_success);
           setStatusDetails(
-            `Your authorization with ${sourceMetadata.displayName} completed successfully.`
+            t("oauthCallback.successNoSteps").replace(
+              "{displayName}",
+              sourceMetadata.displayName
+            )
           );
         }
         setIsError(false);
       } catch (error) {
         console.error("OAuth error:", error);
-        setStatusMessage("Oops, something went wrong!");
-        setStatusDetails(
-          "An error occurred during the OAuth process. Please try again."
-        );
+        setStatusMessage(t("oauthCallback.oopsWentWrong"));
+        setStatusDetails(t("oauthCallback.errorOccurred"));
         setIsError(true);
       }
     };
@@ -119,11 +134,11 @@ export default function OAuthCallbackPage() {
           {redirectUrl && !isError && (
             <div className="mt-4">
               <p className="text-sm">
-                Click{" "}
+                {t("oauthCallback.clickHereToContinue").split("{here}")[0]}
                 <a href={redirectUrl} className="text-blue-500 underline">
-                  here
-                </a>{" "}
-                to continue.
+                  {t("oauthCallback.here")}
+                </a>
+                {t("oauthCallback.clickHereToContinue").split("{here}")[1]}
               </p>
             </div>
           )}

@@ -7,6 +7,7 @@ import Text from "@/refresh-components/texts/Text";
 import { cn } from "@opal/utils";
 import { markdown } from "@opal/utils";
 import { SvgUnplug } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 interface DisconnectEntityModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,6 +27,7 @@ export default function DisconnectEntityModal({
   isDisconnecting = false,
   skipOverlay = false,
 }: DisconnectEntityModalProps) {
+  const { t } = useTranslation();
   const disconnectButtonRef = useRef<HTMLButtonElement>(null);
 
   if (!name) return null;
@@ -52,17 +54,16 @@ export default function DisconnectEntityModal({
           icon={({ className }) => (
             <SvgUnplug className={cn(className, "stroke-action-danger-05")} />
           )}
-          title={markdown(`Disconnect *${name}*`)}
+          title={markdown(t("actions.disconnectTitle", { name }))}
           onClose={onClose}
         />
 
         <Modal.Body>
           <Text as="p" text03 mainUiBody>
-            All tools connected to {name} will stop working. You can reconnect
-            to this server later if needed.
+            {t("actions.disconnectBody1", { name })}
           </Text>
           <Text as="p" text03 mainUiBody>
-            Are you sure you want to proceed?
+            {t("actions.disconnectBody2")}
           </Text>
         </Modal.Body>
 
@@ -72,7 +73,7 @@ export default function DisconnectEntityModal({
             prominence="secondary"
             onClick={onClose}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
           {onConfirmDisconnectAndDelete && (
             <Button
@@ -81,7 +82,7 @@ export default function DisconnectEntityModal({
               prominence="secondary"
               onClick={onConfirmDisconnectAndDelete}
             >
-              Disconnect &amp; Delete
+              {t("actions.disconnectAndDeleteBtn")}
             </Button>
           )}
           <Button
@@ -90,7 +91,7 @@ export default function DisconnectEntityModal({
             onClick={onConfirmDisconnect}
             ref={disconnectButtonRef}
           >
-            {isDisconnecting ? "Disconnecting..." : "Disconnect"}
+            {isDisconnecting ? t("actions.disconnecting") : t("actions.disconnectBtn")}
           </Button>
         </Modal.Footer>
       </Modal.Content>

@@ -1499,22 +1499,22 @@ export default function IndexSettingsPage() {
                     justifyContent="start"
                   >
                     <Content
-                      title="Retrieval Optimization"
-                      description="Additional indexing features that improve search accuracy by configuring how documents are chunked and contextualized. These can increase embedding cost."
+                      title={t("admin.indexSettings.retrievalOptimizationTitle")}
+                      description={t("admin.indexSettings.retrievalOptimizationDesc")}
                       sizePreset="main-content"
                       variant="section"
                     />
 
                     <CloudDisabled
                       disabled
-                      tooltip="Multipass Indexing is disabled temporarily and will be available in the future."
+                      tooltip={t("admin.indexSettings.multipassIndexingTooltip")}
                     >
                       <Card border="solid" rounding="lg">
                         <InputHorizontal
-                          title="Multipass Indexing"
-                          description="Index documents as chunks of varying sizes to better identify relevant sources."
+                          title={t("admin.indexSettings.multipassIndexing")}
+                          description={t("admin.indexSettings.multipassIndexingDesc")}
                           tag={{
-                            title: "temporarily unavailable",
+                            title: t("admin.indexSettings.tempUnavailable"),
                             color: "gray",
                           }}
                           withLabel

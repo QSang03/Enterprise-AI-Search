@@ -12,6 +12,7 @@ import { useSettings } from "@/lib/settings/hooks";
 import { ApplicationStatus } from "@/lib/settings/types";
 import Text from "@/refresh-components/texts/Text";
 import { SvgLock } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const linkClassName = "text-action-link-05 hover:text-action-link-06 underline";
 
@@ -36,6 +37,7 @@ const fetchResubscriptionSession =
   };
 
 export default function AccessRestricted() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { data: license } = useLicense();
@@ -52,16 +54,16 @@ export default function AccessRestricted() {
       used_seats != null && seat_count != null
         ? ` (${used_seats} users / ${seat_count} seats)`
         : "";
-    return `Your organization has exceeded its licensed seat count${counts}. Access is restricted until the number of users is reduced or your license is upgraded.`;
+    return t("accessRestricted.seatLimitExceeded", { counts });
   }
 
   const initialModalMessage = isSeatLimitExceeded
     ? getSeatLimitMessage()
     : showRenewalMessage
       ? NEXT_PUBLIC_CLOUD_ENABLED
-        ? "Your access to Onyx has been temporarily suspended due to a lapse in your subscription."
-        : "Your access to Onyx has been temporarily suspended due to a lapse in your license."
-      : "An Enterprise license is required to use Onyx. Your data is protected and will be available once a license is activated.";
+        ? t("accessRestricted.subscriptionLapsed")
+        : t("accessRestricted.licenseLapsed")
+      : t("accessRestricted.enterpriseLicenseRequired");
 
   const handleResubscribe = async () => {
     setIsLoading(true);
@@ -70,12 +72,12 @@ export default function AccessRestricted() {
       // `url` covers both the new-checkout and past_due payment-update responses.
       const { url } = await fetchResubscriptionSession();
       if (!url) {
-        throw new Error("No redirect URL returned");
+        throw new Error(t("accessRestricted.noRedirectUrlReturned"));
       }
       window.location.href = url;
     } catch (error) {
       console.error("Error creating resubscription session:", error);
-      setError("Error opening resubscription page. Please try again later.");
+      setError(t("accessRestricted.openResubscriptionFailed"));
       setIsLoading(false);
     }
   };
@@ -83,7 +85,7 @@ export default function AccessRestricted() {
   return (
     <ErrorPageLayout>
       <div className="flex items-center gap-2">
-        <Text headingH2>Access Restricted</Text>
+        <Text headingH2>{t("accessRestricted.title")}</Text>
         <SvgLock className="stroke-status-error-05 w-6 h-6" />
       </div>
 
@@ -92,11 +94,11 @@ export default function AccessRestricted() {
       {isSeatLimitExceeded ? (
         <>
           <Text text03>
-            If you are an administrator, you can manage users on the{" "}
+            {t("accessRestricted.adminUsersPrefix")} {" "}
             <Link className={linkClassName} href="/admin/users">
-              User Management
+              {t("accessRestricted.userManagement")}
             </Link>{" "}
-            page.
+            {t("accessRestricted.adminUsersSuffix")}
           </Text>
 
           <div className="flex flex-row gap-2">
@@ -106,26 +108,23 @@ export default function AccessRestricted() {
                 window.location.reload();
               }}
             >
-              Log out
+              {t("common.logout")}
             </Button>
           </div>
         </>
       ) : NEXT_PUBLIC_CLOUD_ENABLED ? (
         <>
           <Text text03>
-            To reinstate your access and continue benefiting from Onyx&apos;s
-            powerful features, please update your payment information.
+            {t("accessRestricted.cloudPaymentInfo")}
           </Text>
 
           <Text text03>
-            If you&apos;re an admin, you can manage your subscription by
-            clicking the button below. For other users, please reach out to your
-            administrator to address this matter.
+            {t("accessRestricted.cloudAdminInfo")}
           </Text>
 
           <div className="flex flex-row gap-2">
             <Button disabled={isLoading} onClick={handleResubscribe}>
-              {isLoading ? "Loading..." : "Resubscribe"}
+              {isLoading ? t("common.loading") : t("accessRestricted.resubscribe")}
             </Button>
             <Button
               prominence="secondary"
@@ -134,7 +133,7 @@ export default function AccessRestricted() {
                 window.location.reload();
               }}
             >
-              Log out
+              {t("common.logout")}
             </Button>
           </div>
 
@@ -144,12 +143,12 @@ export default function AccessRestricted() {
         <>
           <Text text03>
             {hadPreviousLicense
-              ? "To reinstate your access and continue using Onyx, please contact your system administrator to renew your license."
-              : "To get started, please contact your system administrator to obtain an Enterprise license."}
+              ? t("accessRestricted.renewLicense")
+              : t("accessRestricted.obtainEnterpriseLicense")}
           </Text>
 
           <Text text03>
-            If you are the administrator, please apply a valid license key to activate your workspace, or contact system support.
+            {t("accessRestricted.adminApplyLicense")}
           </Text>
 
           <div className="flex flex-row gap-2">
@@ -159,21 +158,21 @@ export default function AccessRestricted() {
                 window.location.reload();
               }}
             >
-              Log out
+              {t("common.logout")}
             </Button>
           </div>
         </>
       )}
 
       <Text text03>
-        Need help? Join our{" "}
+        {t("accessRestricted.needHelpPrefix")} {" "}
         <InlineExternalLink
           className={linkClassName}
           href="https://discord.gg/4NA5SbzrWb"
         >
-          Discord community
+          {t("accessRestricted.discordCommunity")}
         </InlineExternalLink>{" "}
-        for support.
+        {t("accessRestricted.needHelpSuffix")}
       </Text>
     </ErrorPageLayout>
   );

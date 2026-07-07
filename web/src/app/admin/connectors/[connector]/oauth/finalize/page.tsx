@@ -15,6 +15,8 @@ import { SelectorFormField } from "@/components/Field";
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from "formik";
 import * as Yup from "yup";
 import { SvgKey } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 // Helper component to keep the effect logic clean:
 function UpdateCloudURLOnCloudIdChange({
   accessibleResources,
@@ -52,18 +54,19 @@ function UpdateCloudURLOnCloudIdChange({
 }
 
 export default function OAuthFinalizePage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [statusMessage, setStatusMessage] = useState("Processing...");
+  const [statusMessage, setStatusMessage] = useState(t("oauthFinalize.processing"));
   const [statusDetails, setStatusDetails] = useState(
-    "Please wait while we complete the setup."
+    t("oauthFinalize.pleaseWait")
   );
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false); // New state
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [pageTitle, setPageTitle] = useState(
-    "Finalize Authorization with Third-Party service"
+    t("oauthFinalize.defaultTitle")
   );
 
   const [accessibleResources, setAccessibleResources] = useState<
@@ -83,8 +86,8 @@ export default function OAuthFinalizePage() {
       // sourceType (for looking up metadata) = "google_drive"
 
       if (isNaN(credential) || !connector) {
-        setStatusMessage("Improperly formed OAuth finalization request.");
-        setStatusDetails("Invalid or missing credential id.");
+        setStatusMessage(t("oauthFinalize.improperlyFormed"));
+        setStatusDetails(t("oauthFinalize.invalidOrMissingCredential"));
         setIsError(true);
         return;
       }
@@ -92,20 +95,22 @@ export default function OAuthFinalizePage() {
       const sourceType = connector.replaceAll("-", "_");
       if (!isValidSource(sourceType)) {
         setStatusMessage(
-          `The specified connector source type ${sourceType} does not exist.`
+          t("oauthFinalize.invalidSourceType").replace("{sourceType}", sourceType)
         );
-        setStatusDetails(`${sourceType} is not a valid source type.`);
+        setStatusDetails(
+          t("oauthFinalize.notValidSourceType").replace("{sourceType}", sourceType)
+        );
         setIsError(true);
         return;
       }
 
       const sourceMetadata = getSourceMetadata(sourceType as ValidSources);
-      setPageTitle(`Finalize Authorization with ${sourceMetadata.displayName}`);
-
-      setStatusMessage("Processing...");
-      setStatusDetails(
-        "Please wait while we retrieve a list of your accessible sites."
+      setPageTitle(
+        t("oauthFinalize.titleWith").replace("{displayName}", sourceMetadata.displayName)
       );
+
+      setStatusMessage(t("oauthFinalize.processing"));
+      setStatusDetails(t("oauthFinalize.pleaseWaitRetrieve"));
       setIsError(false); // Ensure no error state during loading
 
       try {
@@ -120,16 +125,14 @@ export default function OAuthFinalizePage() {
 
         setAccessibleResources(response.accessible_resources);
 
-        setStatusMessage("Select a Confluence site");
+        setStatusMessage(t("oauthFinalize.selectConfluenceSite"));
         setStatusDetails("");
 
         setIsError(false);
       } catch (error) {
         console.error("OAuth finalization error:", error);
-        setStatusMessage("Oops, something went wrong!");
-        setStatusDetails(
-          "An error occurred during the OAuth finalization process. Please try again."
-        );
+        setStatusMessage(t("oauthFinalize.oopsWentWrong"));
+        setStatusDetails(t("oauthFinalize.errorOccurred"));
         setIsError(true);
       }
     };
@@ -157,16 +160,16 @@ export default function OAuthFinalizePage() {
             }}
             validationSchema={Yup.object().shape({
               credential_id: Yup.number().required(
-                "Credential ID is required."
+                t("oauthFinalize.credentialIdRequired")
               ),
               cloud_id: Yup.string().required(
-                "You must select a Confluence site (id not found)."
+                t("oauthFinalize.mustSelectSiteId")
               ),
               cloud_name: Yup.string().required(
-                "You must select a Confluence site (name not found)."
+                t("oauthFinalize.mustSelectSiteName")
               ),
               cloud_url: Yup.string().required(
-                "You must select a Confluence site (url not found)."
+                t("oauthFinalize.mustSelectSiteUrl")
               ),
             })}
             validateOnMount
@@ -195,16 +198,14 @@ export default function OAuthFinalizePage() {
 
                 if (response) {
                   setRedirectUrl(response.redirect_url);
-                  setStatusMessage("Confluence authorization finalized.");
+                  setStatusMessage(t("oauthFinalize.confluenceFinalized"));
                 }
 
-                setIsSubmitted(true); // Mark as submitted
+                setIsSubmitted(true);
               } catch (error) {
                 console.error(error);
-                setStatusMessage("Error during submission.");
-                setStatusDetails(
-                  "An error occurred during the submission process. Please try again."
-                );
+                setStatusMessage(t("oauthFinalize.errorDuringSubmission"));
+                setStatusDetails(t("oauthFinalize.errorDuringSubmissionDetails"));
                 setIsError(true);
                 formikHelpers.setSubmitting(false);
               }
@@ -212,15 +213,6 @@ export default function OAuthFinalizePage() {
           >
             {({ isSubmitting, isValid, setFieldValue }) => (
               <Form>
-                {/* Debug info
-                <div className="mb-4 p-2 bg-gray-100 rounded-sm text-xs">
-                  <pre>
-                    isValid: {String(isValid)}
-                    errors: {JSON.stringify(errors, null, 2)}
-                    values: {JSON.stringify(values, null, 2)}
-                  </pre>
-                </div> */}
-
                 {/* Our helper component that reacts to changes in cloud_id */}
                 <UpdateCloudURLOnCloudIdChange
                   accessibleResources={accessibleResources}
@@ -260,7 +252,9 @@ export default function OAuthFinalizePage() {
                 <br />
                 {!redirectUrl && (
                   <Button disabled={!isValid || isSubmitting} type="submit">
-                    {isSubmitting ? "Submitting..." : "Submit"}
+                    {isSubmitting
+                      ? t("oauthFinalize.submitting")
+                      : t("oauthFinalize.submit")}
                   </Button>
                 )}
               </Form>
@@ -270,11 +264,11 @@ export default function OAuthFinalizePage() {
           {redirectUrl && !isError && (
             <div className="mt-4">
               <p className="text-sm">
-                Authorization finalized. Click{" "}
+                {t("oauthFinalize.authFinalizedClickHere").split("{here}")[0]}
                 <a href={redirectUrl} className="text-blue-500 underline">
-                  here
-                </a>{" "}
-                to continue.
+                  {t("oauthFinalize.here")}
+                </a>
+                {t("oauthFinalize.authFinalizedClickHere").split("{here}")[1]}
               </p>
             </div>
           )}

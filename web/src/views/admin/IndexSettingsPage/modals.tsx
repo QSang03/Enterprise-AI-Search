@@ -44,6 +44,7 @@ interface ModalShellProps {
 
 function ModalShell({ provider, isEditing, children }: ModalShellProps) {
   const { isValid, isSubmitting, submitForm, dirty } = useFormikContext();
+  const { t } = useTranslation();
   const onClose = useModalClose();
 
   return (
@@ -55,13 +56,21 @@ function ModalShell({ provider, isEditing, children }: ModalShellProps) {
           moreIcon2={SvgOnyxLogo}
           title={
             isEditing
-              ? `Manage ${provider.displayName}`
-              : `Set up ${provider.displayName}`
+              ? t("admin.indexSettings.manageProviderTitle", {
+                  name: provider.displayName,
+                })
+              : t("admin.indexSettings.setUpProviderTitle", {
+                  name: provider.displayName,
+                })
           }
           description={
             isEditing
-              ? `Manage ${provider.displayName} provider and model details.`
-              : `Connect to ${provider.displayName} and set up your ${provider.displayName} embedding models.`
+              ? t("admin.indexSettings.manageProviderDesc", {
+                  name: provider.displayName,
+                })
+              : t("admin.indexSettings.setUpProviderDesc", {
+                  name: provider.displayName,
+                })
           }
           onClose={onClose}
         />
@@ -70,14 +79,16 @@ function ModalShell({ provider, isEditing, children }: ModalShellProps) {
         </Modal.Body>
         <Modal.Footer>
           <Button prominence="secondary" onClick={onClose}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button
             disabled={!isValid || !dirty || isSubmitting}
             onClick={submitForm}
             icon={isSubmitting ? SvgSimpleLoader : undefined}
           >
-            {isEditing ? "Update" : "Connect"}
+            {isEditing
+              ? t("admin.indexSettings.update")
+              : t("admin.indexSettings.connect")}
           </Button>
         </Modal.Footer>
       </Modal.Content>
