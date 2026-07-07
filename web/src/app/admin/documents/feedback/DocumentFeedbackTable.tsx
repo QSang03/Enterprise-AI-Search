@@ -1,5 +1,6 @@
 import { toast } from "@/hooks/useToast";
 import { useState } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   Table,
   TableHead,
@@ -26,6 +27,7 @@ const IsVisibleSection = ({
   document: DocumentBoostStatus;
   onUpdate: (response: Response) => void;
 }) => {
+  const { t } = useTranslation();
   return (
     <HoverPopup
       mainContent={
@@ -40,7 +42,7 @@ const IsVisibleSection = ({
             }}
             className="flex text-error cursor-pointer hover:bg-accent-background-hovered py-1 px-2 w-fit rounded-full"
           >
-            <div className="select-none">Hidden</div>
+            <div className="select-none">{t("docFeedback.hiddenStatus")}</div>
             <div className="ml-1 my-auto">
               <Checkbox checked={false} />
             </div>
@@ -56,7 +58,7 @@ const IsVisibleSection = ({
             }}
             className="flex cursor-pointer hover:bg-accent-background-hovered py-1 px-2 w-fit rounded-full"
           >
-            <div className="my-auto select-none">Visible</div>
+            <div className="my-auto select-none">{t("docFeedback.visibleStatus")}</div>
             <div className="ml-1 my-auto">
               <Checkbox checked={true} />
             </div>
@@ -67,12 +69,12 @@ const IsVisibleSection = ({
         <div className="text-xs">
           {document.hidden ? (
             <div className="flex">
-              <FiEye className="my-auto mr-1" /> Unhide
+              <FiEye className="my-auto mr-1" /> {t("docFeedback.unhideAction")}
             </div>
           ) : (
             <div className="flex">
               <FiEyeOff className="my-auto mr-1" />
-              Hide
+              {t("docFeedback.hideAction")}
             </div>
           )}
         </div>
@@ -89,6 +91,7 @@ export const DocumentFeedbackTable = ({
   documents: DocumentBoostStatus[];
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [page, setPage] = useState(1);
 
   return (
@@ -96,9 +99,9 @@ export const DocumentFeedbackTable = ({
       <Table className="overflow-visible">
         <TableHeader>
           <TableRow>
-            <TableHead>Document Name</TableHead>
-            <TableHead>Is Searchable?</TableHead>
-            <TableHead>Score</TableHead>
+            <TableHead>{t("docFeedback.headerDocName")}</TableHead>
+            <TableHead>{t("docFeedback.headerSearchable")}</TableHead>
+            <TableHead>{t("docFeedback.headerScore")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -36,9 +36,15 @@
     "connector": "Connector",
     "advancedOptional": "Advanced (optional)",
     "networkError": "An error occurred",
-    "create": "Create"
+    "create": "Create",
+    "delete": "Delete",
+    "more": "More",
+    "optional": "Optional",
+    "copyLink": "Copy Link",
+    "download": "Download"
   },
   "agentEditor": {
+    "searchForAnAgent": "Search for an agent...",
     "editAgent": "Edit Agent",
     "createAgent": "Create Agent",
     "edit": "Edit",
@@ -144,7 +150,8 @@
     "footerOpen": "Open",
     "renameProject": "Rename Project",
     "deleteProject": "Delete Project",
-    "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone."
+    "deleteProjectConfirm": "Are you sure you want to delete this project? This action cannot be undone.",
+    "searchProjects": "Search projects..."
   },
   "chat": {
     "placeholder": "Ask a question...",
@@ -332,7 +339,9 @@
     "failedSubmitFeedbackNetwork": "Failed to submit feedback - network error",
     "waitScheduledRun": "Please wait for the scheduled run to finish.",
     "waitCurrentOperation": "Please wait for the current operation to complete.",
-    "waitSandboxInit": "Please wait for sandbox to initialize"
+    "waitSandboxInit": "Please wait for sandbox to initialize",
+    "thinking": "Thinking",
+    "tool": "Tool"
   },
   "skills": {
     "createSkillTitle": "Create Personal Skill",
@@ -1076,7 +1085,11 @@
       "userRole": "User Role",
       "userRoleDesc": "This controls their general permissions.",
       "saveChanges": "Save Changes",
-      "editTooltip": "Edit"
+      "editTooltip": "Edit",
+      "failedResetPassword": "Failed to reset password",
+      "filterByGroup": "Filter by group",
+      "filterByRole": "Filter by role",
+      "filterByStatus": "Filter by status"
     },
     "security": {
       "toastUpdated": "Security settings updated",
@@ -1239,7 +1252,8 @@
       "agentsPlaceholder": "Add agents",
       "noAgentsTitle": "No agents added",
       "noAgentsDesc": "Add agents to share with this group.",
-      "noResultsFound": "No results found"
+      "noResultsFound": "No results found",
+      "removeFromGroup": "Remove from group"
     },
     "imageGen": {
       "headerDesc": "Settings for in-chat image generation.",
@@ -1403,7 +1417,8 @@
       "connect": "Connect",
       "apiKeyLabel": "API Key",
       "apiKeyDescWithUrl": "Paste your [API key]({url}) from {name} to connect.",
-      "apiKeyDescWithoutUrl": "Paste your API key from {name} to connect."
+      "apiKeyDescWithoutUrl": "Paste your API key from {name} to connect.",
+      "disconnectedSuccess": "{name} disconnected successfully"
     },
     "embeddings": {
       "apiKeyLabel": "API Key",
@@ -1568,6 +1583,8 @@
       "saveChanges": "Save Changes",
       "toastUpdated": "Service account updated",
       "roleLimitedDesc": "For agents: chat posting and read-only access to other endpoints.",
+      "roleAdminDesc": "Full administrative access to all Onyx API endpoints.",
+      "roleBasicDesc": "Standard user access to Onyx API endpoints.",
       "upgradeTitle": "Upgrade to a paid plan to create API keys.",
       "upgradeDesc": "Trial accounts do not include API key access — purchase a paid subscription to unlock this feature."
     },
@@ -1991,7 +2008,10 @@
     "failedToSaveAuth": "Failed to save authentication configuration",
     "oauthPassthroughDesc": "Forward the user's OAuth access token used to authenticate Onyx.",
     "scopesPlaceholder": "e.g. repo, user",
-    "refreshToolsLabel": "Refresh tools"
+    "refreshToolsLabel": "Refresh tools",
+    "connectedStatus": "Connected",
+    "mcpPageDesc": "Connect MCP (Model Context Protocol) servers to add custom actions and tools for your agents.",
+    "openApiPageDesc": "Connect OpenAPI servers to add custom actions and tools for your agents."
   },
   "cards": {
     "remove": "Remove",
@@ -2675,7 +2695,10 @@
     "connectorNameLabel": "Connector Name",
     "connectorNameSubtext": "A descriptive name for the connector.",
     "noTabsDisplay": "No tabs to display.",
-    "invalidFieldType": "INVALID FIELD TYPE"
+    "invalidFieldType": "INVALID FIELD TYPE",
+    "oauthFailed": "OAuth authentication failed. Please try again.",
+    "invalidConnectorType": "'{connector}' is not a valid Connector Type!",
+    "goHome": "Go home"
   },
   "scim": {
     "toastFailedLoadToken": "Failed to load SCIM token status.",
@@ -2686,11 +2709,18 @@
     "toastTokenCopyFailed": "Failed to copy token",
     "title": "SCIM Sync",
     "description": "Connect your identity provider to import and sync users and groups.",
+    "pageDesc": "Sync users and groups via System for Cross-domain Identity Management (SCIM) protocol.",
     "regenerateToken": "Regenerate Token",
     "generateScimToken": "Generate SCIM Token",
     "connected": "Connected",
     "waitingConnection": "Waiting for Connection",
-    "provideKeyDesc": "Provide the SCIM key to your identity provider to begin syncing users and groups."
+    "provideKeyDesc": "Provide the SCIM key to your identity provider to begin syncing users and groups.",
+    "regenerateScimTokenTitle": "Regenerate SCIM Token",
+    "regenerateTokenBtn": "Regenerate Token",
+    "regenerateTokenWarning": "Your current SCIM token will be revoked and a new token will be generated. You will need to update the token on your identity provider before SCIM provisioning will resume.",
+    "scimTokenTitle": "SCIM Token",
+    "saveTokenWarning": "Save this key before continuing. It won't be shown again.",
+    "copyTokenBtn": "Copy Token"
   },
   "adminScoreEditor": {
     "toastScoreMustBeNumber": "Score must be a number",
@@ -3032,5 +3062,88 @@
   "anonymous": {
     "redirecting": "Redirecting you to the chat page...",
     "pleaseWait": "Please wait while we set up your anonymous session."
+  },
+  "docFeedback": {
+    "mostLikedDocs": "Most Liked Documents",
+    "mostDislikedDocs": "Most Disliked Documents",
+    "loading": "Loading",
+    "errorLoading": "Error loading documents",
+    "headerDocName": "Document Name",
+    "headerSearchable": "Is Searchable?",
+    "headerScore": "Score",
+    "hiddenStatus": "Hidden",
+    "visibleStatus": "Visible",
+    "unhideAction": "Unhide",
+    "hideAction": "Hide",
+    "errorUpdatingStatus": "Error updating hidden status - {error}"
+  },
+  "docExplorer": {
+    "searchPlaceholder": "Find documents based on title / content...",
+    "boostLabel": "Boost:",
+    "hiddenStatus": "Hidden",
+    "visibleStatus": "Visible",
+    "errorUpdateDoc": "Failed to update document - {error}"
+  },
+  "docProcessing": {
+    "sectionTitle": "Process with Unstructured API",
+    "description": "Unstructured extracts and transforms complex data from formats like .pdf, .docx, .png, .pptx, etc. into clean text for Onyx to ingest. Provide an API key to enable Unstructured document processing.",
+    "noteLabel": "Note:",
+    "noteText": "this will send documents to Unstructured servers for processing.",
+    "learnMoreText": "Learn more about Unstructured",
+    "learnMoreHere": "here",
+    "apiKeyPlaceholder": "Enter API Key",
+    "deleteApiKeyBtn": "Delete API Key",
+    "deleteApiKeyHint": "Delete the current API key before updating.",
+    "saveApiKeyBtn": "Save API Key"
+  },
+  "discordBot": {
+    "noChannelsTitle": "No channels configured",
+    "noChannelsDesc": "Run !sync-channels in Discord to add channels.",
+    "colChannel": "Channel",
+    "colEnabled": "Enabled",
+    "colRequireMention": "Require @mention",
+    "colThreadOnlyMode": "Thread Only Mode",
+    "colAgentOverride": "Agent Override"
+  },
+  "addConnectorPage": {
+    "seeConnectorsBtn": "See Connectors",
+    "searchPlaceholder": "Search Connectors",
+    "popularSection": "Popular",
+    "federatedTooltip": "Federated connector already configured. Click to edit the existing connector.",
+    "slackCredTooltip": "Existing Slack credentials found. Click to manage your Slack connector."
+  },
+  "discordGuild": {
+    "failedLoadServer": "Failed to load server",
+    "serverNotFound": "Server not found",
+    "waitingRegistrationTitle": "Waiting for Registration",
+    "waitingRegistrationDesc": "Use the !register command in your Discord server with the registration key to complete setup.",
+    "channelConfigTitle": "Channel Configuration",
+    "channelConfigDesc": "Run !sync-channels in Discord to update the channel list.",
+    "enableAllBtn": "Enable All",
+    "disableAllBtn": "Disable All",
+    "channelConfigPending": "Channel configuration will be available after the server is registered.",
+    "failedLoadChannels": "Failed to load channels",
+    "couldNotLoadChannels": "Could not load channels",
+    "updateConfigBtn": "Update Configuration",
+    "defaultAgentTitle": "Default Agent",
+    "defaultAgentDesc": "The agent used by the bot in all channels unless overridden.",
+    "selectAgentPlaceholder": "Select agent",
+    "defaultAgentItem": "Default Agent",
+    "pendingRegistration": "Pending registration",
+    "registeredAt": "Registered: {date}",
+    "unsavedChangesTitle": "You have unsaved changes",
+    "unsavedChangesDesc": "Click Update to save them.",
+    "toastChannelsUpdated": "Updated {count} channel",
+    "toastChannelsUpdatedPlural": "Updated {count} channels",
+    "toastSomeChannelsFailed": "Updated {succeeded} channels, but {failed} failed",
+    "toastFailedUpdateChannels": "Failed to update channels",
+    "toastDefaultAgentUpdated": "Default agent updated",
+    "toastDefaultAgentCleared": "Default agent cleared",
+    "toastFailedUpdateAgent": "Failed to update agent"
+  },
+  "connectorInput": {
+    "optional": "(optional)",
+    "enterPlaceholder": "Enter {label}",
+    "selectAnOption": "Select an option"
   }
 }

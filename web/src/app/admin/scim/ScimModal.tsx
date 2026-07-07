@@ -53,7 +53,7 @@ export default function ScimModal({
       return (
         <ConfirmationModalLayout
           icon={SvgRefreshCw}
-          title="Regenerate SCIM Token"
+          title={t("scim.regenerateScimTokenTitle")}
           onClose={onClose}
           submit={
             <Button
@@ -61,15 +61,13 @@ export default function ScimModal({
               variant="danger"
               onClick={onRegenerate}
             >
-              Regenerate Token
+              {t("scim.regenerateTokenBtn")}
             </Button>
           }
         >
           <Section alignItems="start" gap={0.5}>
             <Text as="p" text03>
-              Your current SCIM token will be revoked and a new token will be
-              generated. You will need to update the token on your identity
-              provider before SCIM provisioning will resume.
+              {t("scim.regenerateTokenWarning")}
             </Text>
           </Section>
         </ConfirmationModalLayout>
@@ -81,8 +79,8 @@ export default function ScimModal({
           <Modal.Content width="sm">
             <Modal.Header
               icon={SvgKey}
-              title="SCIM Token"
-              description="Save this key before continuing. It won't be shown again."
+              title={t("scim.scimTokenTitle")}
+              description={t("scim.saveTokenWarning")}
               onClose={onClose}
             />
             <Modal.Body>
@@ -120,7 +118,7 @@ export default function ScimModal({
                       })
                     }
                   >
-                    Download
+                    {t("common.download")}
                   </Button>
                 }
                 submit={
@@ -128,7 +126,7 @@ export default function ScimModal({
                     autoFocus
                     onClick={() => copyToClipboard(view.rawToken, t)}
                   >
-                    Copy Token
+                    {t("scim.copyTokenBtn")}
                   </Button>
                 }
               />

@@ -371,7 +371,7 @@ export function SlackChannelConfigFormFields({
             </SubLabel>
 
             <InputComboBox
-              placeholder="Search for an agent..."
+              placeholder={t("agentEditor.searchForAnAgent")}
               value={String(values.persona_id ?? "")}
               onValueChange={(val) =>
                 setFieldValue("persona_id", val ? Number(val) : null)
@@ -437,7 +437,7 @@ export function SlackChannelConfigFormFields({
             </SubLabel>
 
             <InputComboBox
-              placeholder="Search for an agent..."
+              placeholder={t("agentEditor.searchForAnAgent")}
               value={String(values.persona_id ?? "")}
               onValueChange={(val) =>
                 setFieldValue("persona_id", val ? Number(val) : null)

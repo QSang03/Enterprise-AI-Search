@@ -1237,6 +1237,7 @@ def _save_rag_upgrade_metadata(
             db_session.execute(delete(OcrPage).where(OcrPage.doc_id == doc.id))
             db_session.execute(delete(DocumentBlock).where(DocumentBlock.doc_id == doc.id))
             db_session.execute(delete(DocumentProcessingJob).where(DocumentProcessingJob.doc_id == doc.id))
+            db_session.execute(delete(DocumentChunkV2).where(DocumentChunkV2.doc_id == doc.id))
             db_session.flush()
 
             has_layout = doc.additional_info and isinstance(doc.additional_info, dict) and "layout_blocks" in doc.additional_info

@@ -36,9 +36,15 @@
     "connector": "Cổng kết nối",
     "advancedOptional": "Nâng cao (tùy chọn)",
     "networkError": "Đã xảy ra lỗi",
-    "create": "Tạo"
+    "create": "Tạo",
+    "delete": "Xóa",
+    "more": "Thêm",
+    "optional": "Tùy chọn",
+    "copyLink": "Sao chép liên kết",
+    "download": "Tải xuống"
   },
   "agentEditor": {
+    "searchForAnAgent": "Tìm kiếm trợ lý...",
     "editAgent": "Chỉnh sửa trợ lý",
     "createAgent": "Tạo trợ lý",
     "edit": "Chỉnh sửa",
@@ -144,7 +150,8 @@
     "footerOpen": "Mở",
     "renameProject": "Đổi tên dự án",
     "deleteProject": "Xóa dự án",
-    "deleteProjectConfirm": "Bạn có chắc chắn muốn xóa dự án này? Thao tác này không thể hoàn tác."
+    "deleteProjectConfirm": "Bạn có chắc chắn muốn xóa dự án này? Thao tác này không thể hoàn tác.",
+    "searchProjects": "Tìm kiếm dự án..."
   },
   "chat": {
     "placeholder": "Hỏi tôi bất cứ điều gì...",
@@ -332,7 +339,9 @@
     "failedSubmitFeedbackNetwork": "Gửi phản hồi thất bại - lỗi mạng",
     "waitScheduledRun": "Vui lòng đợi tiến trình theo lịch hoàn tất.",
     "waitCurrentOperation": "Vui lòng đợi thao tác hiện tại hoàn tất.",
-    "waitSandboxInit": "Vui lòng đợi khởi tạo môi trường sandbox"
+    "waitSandboxInit": "Vui lòng đợi khởi tạo môi trường sandbox",
+    "thinking": "Đang suy nghĩ",
+    "tool": "Công cụ"
   },
   "skills": {
     "createSkillTitle": "Tạo kỹ năng",
@@ -1076,7 +1085,11 @@
       "userRole": "Vai trò người dùng",
       "userRoleDesc": "Quyết định quyền hạn chung của người dùng này.",
       "saveChanges": "Lưu thay đổi",
-      "editTooltip": "Chỉnh sửa"
+      "editTooltip": "Chỉnh sửa",
+      "failedResetPassword": "Đặt lại mật khẩu thất bại",
+      "filterByGroup": "Lọc theo nhóm",
+      "filterByRole": "Lọc theo vai trò",
+      "filterByStatus": "Lọc theo trạng thái"
     },
     "security": {
       "toastUpdated": "Cập nhật cài đặt bảo mật thành công",
@@ -1239,7 +1252,8 @@
       "agentsPlaceholder": "Thêm trợ lý",
       "noAgentsTitle": "Chưa có trợ lý nào được thêm",
       "noAgentsDesc": "Thêm trợ lý để chia sẻ với nhóm này.",
-      "noResultsFound": "Không tìm thấy kết quả"
+      "noResultsFound": "Không tìm thấy kết quả",
+      "removeFromGroup": "Xóa khỏi nhóm"
     },
     "imageGen": {
       "headerDesc": "Cấu hình tính năng tạo ảnh trong cuộc trò chuyện.",
@@ -1403,7 +1417,8 @@
       "connect": "Kết nối",
       "apiKeyLabel": "API Key",
       "apiKeyDescWithUrl": "Dán [API key]({url}) từ {name} của bạn để kết nối.",
-      "apiKeyDescWithoutUrl": "Dán API key từ {name} của bạn để kết nối."
+      "apiKeyDescWithoutUrl": "Dán API key từ {name} của bạn để kết nối.",
+      "disconnectedSuccess": "Đã ngắt kết nối {name} thành công"
     },
     "embeddings": {
       "apiKeyLabel": "API Key",
@@ -1568,6 +1583,8 @@
       "saveChanges": "Lưu thay đổi",
       "toastUpdated": "Đã cập nhật tài khoản dịch vụ",
       "roleLimitedDesc": "Dành cho trợ lý: đăng cuộc trò chuyện và quyền chỉ đọc đối với các endpoint khác.",
+      "roleAdminDesc": "Quyền quản trị đầy đủ đối với tất cả các endpoint API của Onyx.",
+      "roleBasicDesc": "Quyền truy cập người dùng tiêu chuẩn đối với các endpoint API của Onyx.",
       "upgradeTitle": "Nâng cấp lên gói trả phí để tạo khóa API.",
       "upgradeDesc": "Tài khoản dùng thử không bao gồm quyền truy cập khóa API — hãy mua gói đăng ký trả phí để mở khóa tính năng này."
     },
@@ -1991,7 +2008,10 @@
     "failedToSaveAuth": "Không thể lưu cấu hình xác thực",
     "oauthPassthroughDesc": "Chuyển tiếp token truy cập OAuth của người dùng dùng để xác thực với Onyx.",
     "scopesPlaceholder": "vd. repo, user",
-    "refreshToolsLabel": "Làm mới công cụ"
+    "refreshToolsLabel": "Làm mới công cụ",
+    "connectedStatus": "Đã kết nối",
+    "mcpPageDesc": "Kết nối máy chủ MCP (Giao thức bối cảnh mô hình) để thêm các hành động và công cụ tùy chỉnh cho trợ lý của bạn.",
+    "openApiPageDesc": "Kết nối máy chủ OpenAPI để thêm các hành động và công cụ tùy chỉnh cho trợ lý của bạn."
   },
   "cards": {
     "remove": "Xóa",
@@ -2675,7 +2695,10 @@
     "connectorNameLabel": "Tên kết nối",
     "connectorNameSubtext": "Tên mô tả cho kết nối.",
     "noTabsDisplay": "Không có tab nào để hiển thị.",
-    "invalidFieldType": "LOẠI TRƯỜNG KHÔNG HỢP LỆ"
+    "invalidFieldType": "LOẠI TRƯỜNG KHÔNG HỢP LỆ",
+    "oauthFailed": "Xác thực OAuth thất bại. Vui lòng thử lại.",
+    "invalidConnectorType": "'{connector}' không phải là một loại Connector hợp lệ!",
+    "goHome": "Quay lại trang chủ"
   },
   "scim": {
     "toastFailedLoadToken": "Không thể tải trạng thái token SCIM.",
@@ -2686,11 +2709,18 @@
     "toastTokenCopyFailed": "Sao chép token thất bại",
     "title": "Đồng bộ SCIM",
     "description": "Kết nối nhà cung cấp danh tính của bạn để nhập và đồng bộ người dùng và nhóm.",
+    "pageDesc": "Đồng bộ người dùng và nhóm thông qua giao thức SCIM (System for Cross-domain Identity Management).",
     "regenerateToken": "Tạo lại Token",
     "generateScimToken": "Tạo Token SCIM",
     "connected": "Đã kết nối",
     "waitingConnection": "Đang chờ kết nối",
-    "provideKeyDesc": "Cung cấp khóa SCIM cho nhà cung cấp danh tính của bạn để bắt đầu đồng bộ hóa người dùng và nhóm."
+    "provideKeyDesc": "Cung cấp khóa SCIM cho nhà cung cấp danh tính của bạn để bắt đầu đồng bộ hóa người dùng và nhóm.",
+    "regenerateScimTokenTitle": "Tạo lại SCIM Token",
+    "regenerateTokenBtn": "Tạo lại Token",
+    "regenerateTokenWarning": "Token SCIM hiện tại của bạn sẽ bị thu hồi và một token mới sẽ được tạo. Bạn sẽ cần cập nhật token trên nhà cung cấp danh tính của mình trước khi việc đồng bộ SCIM tiếp tục.",
+    "scimTokenTitle": "SCIM Token",
+    "saveTokenWarning": "Lưu khóa này trước khi tiếp tục. Nó sẽ không được hiển thị lại.",
+    "copyTokenBtn": "Sao chép Token"
   },
   "adminScoreEditor": {
     "toastScoreMustBeNumber": "Điểm số phải là một con số",
@@ -3032,5 +3062,88 @@
   "anonymous": {
     "redirecting": "Đang chuyển hướng bạn đến trang trò chuyện...",
     "pleaseWait": "Vui lòng chờ trong khi chúng tôi thiết lập phiên ẩn danh của bạn."
+  },
+  "docFeedback": {
+    "mostLikedDocs": "Tài liệu được yêu thích nhất",
+    "mostDislikedDocs": "Tài liệu ít được yêu thích nhất",
+    "loading": "Đang tải",
+    "errorLoading": "Lỗi khi tải tài liệu",
+    "headerDocName": "Tên tài liệu",
+    "headerSearchable": "Có thể tìm kiếm?",
+    "headerScore": "Điểm",
+    "hiddenStatus": "Ẩn",
+    "visibleStatus": "Hiển thị",
+    "unhideAction": "Bỏ ẩn",
+    "hideAction": "Ẩn",
+    "errorUpdatingStatus": "Lỗi cập nhật trạng thái hiển thị - {error}"
+  },
+  "docExplorer": {
+    "searchPlaceholder": "Tìm tài liệu theo tiêu đề / nội dung...",
+    "boostLabel": "Tăng hạng:",
+    "hiddenStatus": "Ẩn",
+    "visibleStatus": "Hiển thị",
+    "errorUpdateDoc": "Cập nhật tài liệu thất bại - {error}"
+  },
+  "docProcessing": {
+    "sectionTitle": "Xử lý với Unstructured API",
+    "description": "Unstructured trích xuất và chuyển đổi dữ liệu phức tạp từ các định dạng như .pdf, .docx, .png, .pptx, v.v. thành văn bản thuần tú để Onyx có thể xử lý. Cung cấp khóa API để bật tính năng xử lý tài liệu bằng Unstructured.",
+    "noteLabel": "Lưu ý:",
+    "noteText": "thành phần này sẽ gửi tài liệu đến máy chủ Unstructured để xử lý.",
+    "learnMoreText": "Tìm hiểu thêm về Unstructured",
+    "learnMoreHere": "tại đây",
+    "apiKeyPlaceholder": "Nhập khóa API",
+    "deleteApiKeyBtn": "Xóa khóa API",
+    "deleteApiKeyHint": "Xóa khóa API hiện tại trước khi cập nhật.",
+    "saveApiKeyBtn": "Lưu khóa API"
+  },
+  "discordBot": {
+    "noChannelsTitle": "Chưa có kênh nào được cấu hình",
+    "noChannelsDesc": "Chạy !sync-channels trong Discord để thêm kênh.",
+    "colChannel": "Kênh",
+    "colEnabled": "Đang hoạt động",
+    "colRequireMention": "Yêu cầu @mention",
+    "colThreadOnlyMode": "Chế độ chỉ dùng Thread",
+    "colAgentOverride": "Ghi đè Agent"
+  },
+  "addConnectorPage": {
+    "seeConnectorsBtn": "Xem Connector",
+    "searchPlaceholder": "Tìm kiếm Connector",
+    "popularSection": "Phổ biến",
+    "federatedTooltip": "Connector liên kết đã được cấu hình. Nhấp để chỉnh sửa connector hiện có.",
+    "slackCredTooltip": "Đã tìm thấy thông tin xác thực Slack. Nhấp để quản lý connector Slack của bạn."
+  },
+  "discordGuild": {
+    "failedLoadServer": "Không thể tải server",
+    "serverNotFound": "Không tìm thấy server",
+    "waitingRegistrationTitle": "Chờ đăng ký",
+    "waitingRegistrationDesc": "Sử dụng lệnh !register trong server Discord của bạn với khóa đăng ký để hoàn tất thiết lập.",
+    "channelConfigTitle": "Cấu hình kênh",
+    "channelConfigDesc": "Chạy !sync-channels trong Discord để cập nhật danh sách kênh.",
+    "enableAllBtn": "Bật tất cả",
+    "disableAllBtn": "Tắt tất cả",
+    "channelConfigPending": "Cấu hình kênh sẽ khả dụng sau khi server được đăng ký.",
+    "failedLoadChannels": "Không thể tải kênh",
+    "couldNotLoadChannels": "Không thể tải danh sách kênh",
+    "updateConfigBtn": "Cập nhật cấu hình",
+    "defaultAgentTitle": "Agent mặc định",
+    "defaultAgentDesc": "Agent được bot sử dụng trong tất cả các kênh trừ khi được ghi đè.",
+    "selectAgentPlaceholder": "Chọn agent",
+    "defaultAgentItem": "Agent mặc định",
+    "pendingRegistration": "Chờ đăng ký",
+    "registeredAt": "Đã đăng ký: {date}",
+    "unsavedChangesTitle": "Bạn có thay đổi chưa được lưu",
+    "unsavedChangesDesc": "Nhấp Cập nhật để lưu chúng.",
+    "toastChannelsUpdated": "Đã cập nhật {count} kênh",
+    "toastChannelsUpdatedPlural": "Đã cập nhật {count} kênh",
+    "toastSomeChannelsFailed": "Đã cập nhật {succeeded} kênh, nhưng {failed} kênh thất bại",
+    "toastFailedUpdateChannels": "Cập nhật kênh thất bại",
+    "toastDefaultAgentUpdated": "Agent mặc định đã được cập nhật",
+    "toastDefaultAgentCleared": "Đã xóa agent mặc định",
+    "toastFailedUpdateAgent": "Cập nhật agent thất bại"
+  },
+  "connectorInput": {
+    "optional": "(tùy chọn)",
+    "enterPlaceholder": "Nhập {label}",
+    "selectAnOption": "Chọn một tùy chọn"
   }
 }

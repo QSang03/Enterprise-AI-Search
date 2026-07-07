@@ -20,6 +20,7 @@ import {
 import { SvgHash, SvgBubbleText, SvgLock } from "@opal/icons";
 import { IconProps } from "@opal/types";
 import { Agent } from "@/lib/agents/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function getChannelIcon(
   channelType: DiscordChannelType,
@@ -59,12 +60,13 @@ export function DiscordChannelsTable({
   onChannelUpdate,
   disabled = false,
 }: Props) {
+  const { t } = useTranslation();
   if (channels.length === 0) {
     return (
       <EmptyMessageCard
         sizePreset="main-ui"
-        title="No channels configured"
-        description="Run !sync-channels in Discord to add channels."
+        title={t("discordBot.noChannelsTitle")}
+        description={t("discordBot.noChannelsDesc")}
       />
     );
   }
@@ -73,11 +75,11 @@ export function DiscordChannelsTable({
     <Table>
       <TableHeader>
         <TableRow className="[&>th]:whitespace-nowrap">
-          <TableHead>Channel</TableHead>
-          <TableHead>Enabled</TableHead>
-          <TableHead>Require @mention</TableHead>
-          <TableHead>Thread Only Mode</TableHead>
-          <TableHead>Agent Override</TableHead>
+          <TableHead>{t("discordBot.colChannel")}</TableHead>
+          <TableHead>{t("discordBot.colEnabled")}</TableHead>
+          <TableHead>{t("discordBot.colRequireMention")}</TableHead>
+          <TableHead>{t("discordBot.colThreadOnlyMode")}</TableHead>
+          <TableHead>{t("discordBot.colAgentOverride")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

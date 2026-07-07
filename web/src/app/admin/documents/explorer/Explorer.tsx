@@ -20,6 +20,7 @@ import { Connector } from "@/lib/connectors/connectors";
 import { HorizontalFilters } from "@/components/filters/SourceSelector";
 import { InputTypeIn } from "@opal/components";
 import SvgSimpleLoader from "@opal/icons/simple-loader";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const DocumentDisplay = ({
   document,
@@ -28,6 +29,7 @@ const DocumentDisplay = ({
   document: OnyxDocument;
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   return (
     <div
       key={document.document_id}
@@ -51,7 +53,7 @@ const DocumentDisplay = ({
       </div>
       <div className="flex flex-wrap gap-x-2 mt-1 text-xs">
         <div className="px-1 py-0.5 bg-accent-background-hovered rounded-sm flex">
-          <p className="mr-1 my-auto">Boost:</p>
+          <p className="mr-1 my-auto">{t("docExplorer.boostLabel")}</p>
           <ScoreSection
             documentId={document.document_id}
             initialScore={document.boost}
@@ -68,8 +70,9 @@ const DocumentDisplay = ({
             if (response.ok) {
               refresh();
             } else {
+              const errorMsg = await getErrorMsg(response);
               toast.error(
-                `Failed to update document - ${getErrorMsg(response)}`
+                `${t("docExplorer.errorUpdateDoc").replace("{error}", errorMsg || "")}`
               );
             }
           }}
@@ -77,9 +80,9 @@ const DocumentDisplay = ({
         >
           <div className="my-auto">
             {document.hidden ? (
-              <div className="text-error">Hidden</div>
+              <div className="text-error">{t("docExplorer.hiddenStatus")}</div>
             ) : (
-              "Visible"
+              t("docExplorer.visibleStatus")
             )}
           </div>
           <div className="ml-1 my-auto">
@@ -108,6 +111,7 @@ export function Explorer({
   connectors: Connector<any>[];
   documentSets: DocumentSetSummary[];
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const [query, setQuery] = useState(initialSearchValue || "");
@@ -165,7 +169,7 @@ export function Explorer({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col justify-center gap-2">
         <InputTypeIn
-          placeholder="Find documents based on title / content..."
+          placeholder={t("docExplorer.searchPlaceholder")}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);

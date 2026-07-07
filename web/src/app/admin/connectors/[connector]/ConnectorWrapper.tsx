@@ -21,18 +21,20 @@ import { Credential } from "@/lib/connectors/credentials";
 import { useFederatedConnectors } from "@/lib/hooks";
 import Text from "@/refresh-components/texts/Text";
 import { useToastFromQuery } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function ConnectorWrapper({
   connector,
 }: {
   connector: ConfigurableSources;
 }) {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const mode = searchParams?.get("mode"); // 'federated' or 'regular'
 
   useToastFromQuery({
     oauth_failed: {
-      message: "OAuth authentication failed. Please try again.",
+      message: t("addConnector.oauthFailed"),
       type: "error",
     },
   });
@@ -46,7 +48,7 @@ export default function ConnectorWrapper({
           <div className="mt-12 w-full max-w-3xl mx-auto">
             <div className="mx-auto flex flex-col gap-y-2">
               <HeaderTitle>
-                <p>&lsquo;{connector}&rsquo; is not a valid Connector Type!</p>
+                <p>{t("addConnector.invalidConnectorType").replace("{connector}", connector)}</p>
               </HeaderTitle>
               {/* TODO(@raunakab): migrate to opal Button once className/iconClassName is resolved */}
               <Button
@@ -54,7 +56,7 @@ export default function ConnectorWrapper({
                 className="mr-auto"
               >
                 {" "}
-                Go home{" "}
+                {t("addConnector.goHome")}{" "}
               </Button>
             </div>
           </div>

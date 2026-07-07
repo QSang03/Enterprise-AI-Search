@@ -27,6 +27,7 @@ import SourceTile from "@/components/SourceTile";
 import { InputTypeIn } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.ADD_CONNECTOR;
 
@@ -41,6 +42,7 @@ function SourceTileTooltipWrapper({
   federatedConnectors?: FederatedConnectorDetail[];
   slackCredentials?: Credential<any>[];
 }) {
+  const { t } = useTranslation();
   // Check if there's already a federated connector for this source
   const existingFederatedConnector = useMemo(() => {
     if (!sourceMetadata.federated || !federatedConnectors) {
@@ -95,13 +97,11 @@ function SourceTileTooltipWrapper({
       tooltip={
         existingFederatedConnector ? (
           <Text as="p" textLight05 secondaryBody>
-            <strong>Federated connector already configured.</strong> Click to
-            edit the existing connector.
+            <strong>{t("addConnectorPage.federatedTooltip").split(".")[0]}.</strong> {t("addConnectorPage.federatedTooltip").split(/\. ?/).slice(1).join(". ")}
           </Text>
         ) : hasExistingSlackCredentials ? (
           <Text as="p" textLight05 secondaryBody>
-            <strong>Existing Slack credentials found.</strong> Click to manage
-            your Slack connector.
+            <strong>{t("addConnectorPage.slackCredTooltip").split(".")[0]}.</strong> {t("addConnectorPage.slackCredTooltip").split(/\. ?/).slice(1).join(". ")}
           </Text>
         ) : undefined
       }
@@ -119,6 +119,7 @@ function SourceTileTooltipWrapper({
 }
 
 export default function Page() {
+  const { t } = useTranslation();
   const sources = useMemo(() => listSourceMetadata(), []);
 
   const [rawSearchTerm, setSearchTerm] = useState("");
@@ -243,16 +244,16 @@ export default function Page() {
         icon={route.icon}
         title={route.title}
         rightChildren={
-          <Button href="/admin/indexing/status">See Connectors</Button>
+          <Button href="/admin/indexing/status">{t("addConnectorPage.seeConnectorsBtn")}</Button>
         }
         divider
       />
       <SettingsLayouts.Body>
         <InputTypeIn
           type="text"
-          placeholder="Search Connectors"
+          placeholder={t("addConnectorPage.searchPlaceholder")}
           ref={searchInputRef}
-          value={rawSearchTerm} // keep the input bound to immediate state
+          value={rawSearchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
           onKeyDown={handleKeyPress}
         />
@@ -260,7 +261,7 @@ export default function Page() {
         {dedupedPopular.length > 0 && (
           <div className="pt-8">
             <Text as="p" headingH3>
-              Popular
+              {t("addConnectorPage.popularSection")}
             </Text>
             <div className="flex flex-wrap gap-4 p-4">
               {dedupedPopular.map((source) => (

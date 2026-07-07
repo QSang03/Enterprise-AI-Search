@@ -119,12 +119,14 @@ function ScimContent() {
 // ---------------------------------------------------------------------------
 
 export default function Page() {
+  const { t } = useTranslation();
+
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgUserSync}
-        title="SCIM"
-        description="Sync users and groups via System for Cross-domain Identity Management (SCIM) protocol."
+        title={t("scim.title")}
+        description={t("scim.pageDesc")}
         divider
       />
       <SettingsLayouts.Body>

@@ -1,6 +1,7 @@
 import { useField } from "formik";
 import { FileUpload } from "@/components/admin/connectors/FileUpload";
 import CredentialSubText from "@/components/credentials/CredentialFields";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface FileInputProps {
   name: string;
@@ -21,6 +22,7 @@ export default function FileInput({
   isZip = false, // Default to false for multiple file uploads
   hideError = false,
 }: FileInputProps) {
+  const { t } = useTranslation();
   const [field, meta, helpers] = useField(name);
 
   return (
@@ -31,7 +33,7 @@ export default function FileInput({
           className="block text-sm font-medium text-text-700 mb-1"
         >
           {label}
-          {optional && <span className="text-text-500 ml-1">(optional)</span>}
+          {optional && <span className="text-text-500 ml-1">{t("connectorInput.optional")}</span>}
         </label>
       )}
       {description && <CredentialSubText>{description}</CredentialSubText>}

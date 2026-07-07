@@ -7,10 +7,12 @@ import { numPages, numToDisplay } from "./constants";
 import Title from "@/components/ui/title";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.DOCUMENT_FEEDBACK;
 
 function Main() {
+  const { t } = useTranslation();
   const {
     data: mostLikedDocuments,
     isLoading: isMostLikedDocumentsLoading,
@@ -31,7 +33,7 @@ function Main() {
   };
 
   if (isMostLikedDocumentsLoading || isMostLikedDocumentLoading) {
-    return <LoadingAnimation text="Loading" />;
+    return <LoadingAnimation text={t("docFeedback.loading")} />;
   }
 
   if (
@@ -42,7 +44,7 @@ function Main() {
   ) {
     return (
       <div className="text-red-600">
-        Error loading documents -{" "}
+        {t("docFeedback.errorLoading")} -{" "}
         {mostDislikedDocumentsError || mostLikedDocumentsError}
       </div>
     );
@@ -50,10 +52,10 @@ function Main() {
 
   return (
     <div>
-      <Title className="mb-2">Most Liked Documents</Title>
+      <Title className="mb-2">{t("docFeedback.mostLikedDocs")}</Title>
       <DocumentFeedbackTable documents={mostLikedDocuments} refresh={refresh} />
 
-      <Title className="mb-2 mt-6">Most Disliked Documents</Title>
+      <Title className="mb-2 mt-6">{t("docFeedback.mostDislikedDocs")}</Title>
       <DocumentFeedbackTable
         documents={mostDislikedDocuments}
         refresh={refresh}
