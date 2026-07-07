@@ -136,12 +136,16 @@ export default function SlackChannelConfigsTable({
                             );
                             if (response.ok) {
                               toast.success(
-                                `Slack bot config "${slackChannelConfig.id}" deleted`
+                                t("slackBots.configDeleted", {
+                                  id: String(slackChannelConfig.id),
+                                })
                               );
                             } else {
                               const errorMsg = await response.text();
                               toast.error(
-                                `Failed to delete Slack bot config - ${errorMsg}`
+                                t("slackBots.configDeleteFailed", {
+                                  error: errorMsg,
+                                })
                               );
                             }
                             refresh();
@@ -161,8 +165,7 @@ export default function SlackChannelConfigsTable({
                     colSpan={4}
                     className="text-center text-muted-foreground"
                   >
-                    No channel-specific configurations. Add a new configuration
-                    to customize behavior for specific channels.
+                    {t("slackBots.noChannelConfigs")}
                   </TableCell>
                 </TableRow>
               )}

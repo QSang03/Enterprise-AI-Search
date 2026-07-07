@@ -11,6 +11,7 @@ import {
   CollapsibleTrigger,
 } from "@/refresh-components/Collapsible";
 import MinimalMarkdown from "@/components/chat/MinimalMarkdown";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // MinimalMarkdown's default `p` goes through MemoizedParagraph which forces
 // the Opal `mainContentBody` preset (~16px). Override every text-bearing
@@ -92,6 +93,7 @@ export default function ThinkingCard({
   isStreaming,
   defaultOpen = false,
 }: ThinkingCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   if (!content) return null;
@@ -108,7 +110,7 @@ export default function ThinkingCard({
           <div className="flex items-center gap-2 min-w-0 w-full">
             <ThinkingActivityIcon isStreaming={isStreaming} />
             <Text font="main-ui-muted" color="text-04" nowrap>
-              {isStreaming ? "Thinking..." : "Thinking"}
+              {isStreaming ? t("craft.thinkingEllipsis") : t("craft.thinking")}
             </Text>
             <SvgChevronDown
               className={cn(

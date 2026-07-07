@@ -24,6 +24,7 @@ import {
 } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import { InlineFilePreview } from "@/app/craft/components/output-panel/FilePreviewContent";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface FilesTabProps {
   sessionId: string | null;
@@ -40,6 +41,7 @@ export default function FilesTab({
   isPreProvisioned = false,
   isProvisioning = false,
 }: FilesTabProps) {
+  const { t } = useTranslation();
   // Get persisted state from store (only used when not pre-provisioned)
   const filesTabState = useFilesTabState();
   const updateFilesTabState = useBuildSessionStore(
@@ -289,12 +291,14 @@ export default function FilesTab({
       >
         <SvgHardDrive size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          {isProvisioning ? "Preparing sandbox..." : "No files yet"}
+          {isProvisioning
+            ? t("craft.preparingSandbox")
+            : t("craft.noFilesYet")}
         </Text>
         <Text font="secondary-body" color="text-02">
           {isProvisioning
-            ? "Setting up your development environment"
-            : "Files created during the build will appear here"}
+            ? t("craft.settingUpDevEnv")
+            : t("craft.filesCreatedDuringBuild")}
         </Text>
       </Section>
     );
@@ -310,7 +314,7 @@ export default function FilesTab({
       >
         <SvgHardDrive size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          Error loading files
+          {t("craft.errorLoadingFiles")}
         </Text>
         <Text font="secondary-body" color="text-02">
           {error.message}
@@ -328,7 +332,7 @@ export default function FilesTab({
         padding={2}
       >
         <Text font="secondary-body" color="text-03">
-          Loading files...
+          {t("craft.loadingFiles")}
         </Text>
       </Section>
     );
@@ -385,7 +389,7 @@ export default function FilesTab({
             padding={2}
           >
             <Text font="secondary-body" color="text-03">
-              No files in this directory
+              {t("craft.noFilesInDirectory")}
             </Text>
           </Section>
         ) : (

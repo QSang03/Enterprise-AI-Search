@@ -6,6 +6,7 @@ import { track, AnalyticsEvent } from "@/lib/analytics/utils";
 import { OnyxLogoTypeIcon } from "@/components/icons/icons";
 import RefreshText from "@/refresh-components/texts/Text";
 import BigButton from "@/app/craft/components/BigButton";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BuildModeIntroContentProps {
   onClose: () => void;
@@ -16,6 +17,8 @@ export default function BuildModeIntroContent({
   onClose,
   onTryBuildMode,
 }: BuildModeIntroContentProps) {
+  const { t } = useTranslation();
+
   // Track when user sees the craft intro
   useEffect(() => {
     track(AnalyticsEvent.SAW_CRAFT_INTRO);
@@ -77,7 +80,7 @@ export default function BuildModeIntroContent({
               onClose();
             }}
           >
-            Return Home
+            {t("craft.returnHome")}
           </BigButton>
           <BigButton
             primary
@@ -88,7 +91,7 @@ export default function BuildModeIntroContent({
               onTryBuildMode();
             }}
           >
-            Start Crafting
+            {t("craft.startCrafting")}
           </BigButton>
         </motion.div>
       </div>

@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
-const ERROR_MESSAGES = {
-  Anonymous: "Your team does not have anonymous access enabled.",
+const ERROR_MESSAGE_KEYS: Record<string, string> = {
+  Anonymous: "auth.anonymousAccessDisabled",
 };
 
 export default function AuthErrorDisplay({
@@ -12,16 +13,15 @@ export default function AuthErrorDisplay({
 }: {
   searchParams: any;
 }) {
+  const { t } = useTranslation();
   const error = searchParams?.error;
 
   useEffect(() => {
     if (error) {
-      toast.error(
-        ERROR_MESSAGES[error as keyof typeof ERROR_MESSAGES] ||
-          "An error occurred."
-      );
+      const key = ERROR_MESSAGE_KEYS[error as string];
+      toast.error(key ? t(key) : t("auth.genericError"));
     }
-  }, [error]);
+  }, [error, t]);
 
   return null;
 }

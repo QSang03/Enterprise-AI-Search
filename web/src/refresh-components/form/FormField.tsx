@@ -16,6 +16,7 @@ import { useFieldContext } from "./FieldContext";
 import { Slot } from "@radix-ui/react-slot";
 import Text from "../texts/Text";
 import { FieldMessage } from "../messages/FieldMessage";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export const FormFieldRoot: React.FC<FormFieldRootProps> = ({
   id,
@@ -64,6 +65,7 @@ export const FormFieldLabel: React.FC<LabelProps> = ({
   children,
   ...props
 }) => {
+  const { t } = useTranslation();
   const { baseId } = useFieldContext();
   return (
     <label
@@ -79,11 +81,11 @@ export const FormFieldLabel: React.FC<LabelProps> = ({
       {children}
       {required ? (
         <Text as="p" text03 mainUiMuted className="mx-0.5">
-          {"(Required)"}
+          {t("formField.required")}
         </Text>
       ) : optional ? (
         <Text as="p" text03 mainUiMuted className="mx-0.5">
-          {"(Optional)"}
+          {t("formField.optional")}
         </Text>
       ) : null}
       {rightIcon && <span className="flex items-center">{rightIcon}</span>}

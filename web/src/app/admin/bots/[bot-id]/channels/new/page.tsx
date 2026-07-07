@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useTranslation } from "@/providers/LanguageProvider";
 
 function NewChannelConfigContent({ slackBotId }: { slackBotId: number }) {
+  const { t } = useTranslation();
   const enterpriseTier = useTierAtLeast(Tier.ENTERPRISE);
 
   const {
@@ -47,10 +48,10 @@ function NewChannelConfigContent({ slackBotId }: { slackBotId: number }) {
   if (docSetsError || !documentSets) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch document sets - ${
-          docSetsError?.message ?? "unknown error"
-        }`}
+        errorTitle={t("slackBots.errorSomethingWrong")}
+        errorMsg={t("slackBots.failedFetchDocSets", {
+          error: docSetsError?.message ?? t("slackBots.unknownError"),
+        })}
       />
     );
   }
@@ -58,10 +59,10 @@ function NewChannelConfigContent({ slackBotId }: { slackBotId: number }) {
   if (agentsError) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch agents - ${
-          agentsError?.message ?? "unknown error"
-        }`}
+        errorTitle={t("slackBots.errorSomethingWrong")}
+        errorMsg={t("slackBots.failedFetchAgents", {
+          error: agentsError?.message ?? t("slackBots.unknownError"),
+        })}
       />
     );
   }

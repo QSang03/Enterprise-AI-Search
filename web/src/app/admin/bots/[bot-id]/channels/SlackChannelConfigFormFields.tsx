@@ -152,9 +152,7 @@ export function SlackChannelConfigFormFields({
           (dsId: number) => !invalidSelected.includes(dsId)
         )
       );
-      toast.warning(
-        "We removed one or more document sets from your selection because they are no longer valid. Please review and update your configuration."
-      );
+      toast.warning(t("slackBots.removedInvalidDocSets"));
     }
   }, [unselectableSets, values.document_sets, setFieldValue]);
 
@@ -182,11 +180,10 @@ export function SlackChannelConfigFormFields({
         {isDefault && (
           <>
             <Badge variant="agent" className="bg-blue-100 text-blue-800">
-              Default Configuration
+              {t("slackBots.defaultConfigBadge")}
             </Badge>
             <p className="mt-2 text-sm">
-              This default configuration will apply to all channels and direct
-              messages (DMs) in your Slack workspace.
+              {t("slackBots.defaultConfigDesc")}
             </p>
             <div className="mt-4 p-4 bg-background rounded-md border border-neutral-300">
               <CheckboxField
@@ -195,9 +192,7 @@ export function SlackChannelConfigFormFields({
                 labelClassName="text-text"
               />
               <p className="mt-2 text-sm italic">
-                Warning: Disabling the default configuration means OnyxBot
-                won&apos;t respond in Slack channels unless they are explicitly
-                configured. Additionally, OnyxBot will not respond to DMs.
+                {t("slackBots.disableDefaultWarning")}
               </p>
             </div>
           </>
@@ -254,13 +249,15 @@ export function SlackChannelConfigFormFields({
             <div className="mt-4">
               <SubLabel>
                 <>
-                  Select the document sets OnyxBot will use while answering
-                  questions in Slack.
+                  {t("slackBots.selectDocSetsDesc")}
                   <br />
                   {unselectableSets.length > 0 ? (
                     <span>
-                      Some incompatible document sets are{" "}
-                      {viewUnselectableSets ? "visible" : "hidden"}.{" "}
+                      {t("slackBots.someIncompatibleDocSets", {
+                        visibility: viewUnselectableSets
+                          ? t("slackBots.visibilityVisible")
+                          : t("slackBots.visibilityHidden"),
+                      })}{" "}
                       <button
                         type="button"
                         onClick={() =>
@@ -271,9 +268,9 @@ export function SlackChannelConfigFormFields({
                         className="text-sm text-action-link-05"
                       >
                         {viewUnselectableSets
-                          ? "Hide un-selectable "
-                          : "View all "}
-                        document sets
+                          ? t("slackBots.hideUnselectable")
+                          : t("slackBots.viewAll")}{" "}
+                        {t("slackBots.documentSetsWord")}
                       </button>
                     </span>
                   ) : (
@@ -311,8 +308,7 @@ export function SlackChannelConfigFormFields({
                     {viewUnselectableSets && unselectableSets.length > 0 && (
                       <div className="mt-4">
                         <p className="text-sm text-text-dark/80">
-                          These document sets cannot be attached as they have
-                          auto-synced docs:
+                          {t("slackBots.autoSyncDocSetsDesc")}
                         </p>
                         <div className="mb-3 mt-2 flex gap-2 flex-wrap text-sm">
                           {unselectableSets.map((documentSet) => (
@@ -320,7 +316,7 @@ export function SlackChannelConfigFormFields({
                               key={documentSet.id}
                               documentSet={documentSet}
                               disabled
-                              disabledTooltip="Unable to use this document set because it contains a connector with auto-sync permissions. OnyxBot's responses in this channel are visible to all Slack users, so mirroring the asker's permissions could inadvertently expose private information."
+                              disabledTooltip={t("slackBots.disabledDocSetTooltip")}
                               isSelected={false}
                             />
                           ))}
@@ -341,15 +337,12 @@ export function SlackChannelConfigFormFields({
           <div className="mt-4">
             <SubLabel>
               <>
-                Select the search-enabled agent OnyxBot will use while answering
-                questions in Slack.
+                {t("slackBots.selectSearchAgentDesc")}
                 {syncEnabledAgents.length > 0 && (
                   <>
                     <br />
                     <span className="text-sm text-text-dark/80">
-                      Note: Some of your agents have auto-synced connectors in
-                      their document sets. You cannot select these agents as
-                      they will not be able to answer questions in Slack.{" "}
+                      {t("slackBots.syncAgentsNote")}{" "}
                       <button
                         type="button"
                         onClick={() =>
@@ -360,9 +353,9 @@ export function SlackChannelConfigFormFields({
                         className="text-sm text-action-link-05"
                       >
                         {viewSyncEnabledAgents
-                          ? "Hide un-selectable "
-                          : "View all "}
-                        agents
+                          ? t("slackBots.hideUnselectable")
+                          : t("slackBots.viewAll")}{" "}
+                        {t("slackBots.agentsWord")}
                       </button>
                     </span>
                   </>
@@ -382,7 +375,7 @@ export function SlackChannelConfigFormFields({
             {viewSyncEnabledAgents && syncEnabledAgents.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm text-text-dark/80">
-                  Un-selectable agents:
+                  {t("slackBots.unselectableAgents")}
                 </p>
                 <div className="mb-3 mt-2 flex gap-2 flex-wrap text-sm">
                   {syncEnabledAgents.map((persona: MinimalAgent) => (
@@ -407,15 +400,12 @@ export function SlackChannelConfigFormFields({
           <div className="mt-4">
             <SubLabel>
               <>
-                Select the non-search agent OnyxBot will use while answering
-                questions in Slack.
+                {t("slackBots.selectNonSearchAgentDesc")}
                 {syncEnabledAgents.length > 0 && (
                   <>
                     <br />
                     <span className="text-sm text-text-dark/80">
-                      Note: Some of your agents have auto-synced connectors in
-                      their document sets. You cannot select these agents as
-                      they will not be able to answer questions in Slack.{" "}
+                      {t("slackBots.syncAgentsNote")}{" "}
                       <button
                         type="button"
                         onClick={() =>
@@ -426,9 +416,9 @@ export function SlackChannelConfigFormFields({
                         className="text-sm text-action-link-05"
                       >
                         {viewSyncEnabledAgents
-                          ? "Hide un-selectable "
-                          : "View all "}
-                        agents
+                          ? t("slackBots.hideUnselectable")
+                          : t("slackBots.viewAll")}{" "}
+                        {t("slackBots.agentsWord")}
                       </button>
                     </span>
                   </>
@@ -463,8 +453,8 @@ export function SlackChannelConfigFormFields({
                     label={t("slackBots.answerType")}
                     tooltip={t("slackBots.answerTypeTooltip")}
                     options={[
-                      { name: "Standard", value: "citations" },
-                      { name: "Detailed", value: "quotes" },
+                      { name: t("slackBots.answerTypeStandard"), value: "citations" },
+                      { name: t("slackBots.answerTypeDetailed"), value: "quotes" },
                     ]}
                   />
                 </div>
@@ -571,21 +561,14 @@ export function SlackChannelConfigFormFields({
             tooltip={
               <div className="space-y-2">
                 <Label className="text-text mb-2 font-semibold">
-                  Privacy Alert
+                  {t("slackBots.privacyAlertTitle")}
                 </Label>
                 <p className="text-sm text-text-darker mb-4">
-                  Please note that if the private (ephemeral) response is *not
-                  selected*, only public documents within the selected document
-                  sets will be accessible for user queries. If the private
-                  (ephemeral) response *is selected*, user quries can also
-                  leverage documents that the user has already been granted
-                  access to. Note that users will be able to share the response
-                  with others in the channel, so please ensure that this is
-                  aligned with your company sharing policies.
+                  {t("slackBots.privacyAlertDesc")}
                 </p>
                 <div className="space-y-2">
                   <h4 className="text-sm text-text font-medium">
-                    Relevant Connectors:
+                    {t("slackBots.relevantConnectors")}
                   </h4>
                   <div className="max-h-40 overflow-y-auto border-t border-text-subtle flex-col gap-y-2">
                     {memoizedPrivateConnectors.map((ccpairinfo: any) => (
@@ -615,9 +598,11 @@ export function SlackChannelConfigFormFields({
             </div>
           </Tooltip>
         )}
-        <Button type="submit">{isUpdate ? "Update" : "Create"}</Button>
+        <Button type="submit">
+          {isUpdate ? t("slackBots.formUpdateBtn") : t("slackBots.formCreateBtn")}
+        </Button>
         <Button prominence="secondary" onClick={() => router.back()}>
-          Cancel
+          {t("common.cancel")}
         </Button>
       </div>
     </>

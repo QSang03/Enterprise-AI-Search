@@ -13,6 +13,7 @@ import {
 import { SvgChevronRight } from "@opal/icons";
 import useCCPairs from "@/hooks/useCCPairs";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ConnectDataBannerProps {
   className?: string;
@@ -29,6 +30,7 @@ function IconWrapper({ children }: { children: React.ReactNode }) {
 export default function ConnectDataBanner({
   className,
 }: ConnectDataBannerProps) {
+  const { t } = useTranslation();
   const { isAdmin, isCurator } = useUser();
   const canManageConnectors = isAdmin || isCurator;
   const { ccPairs, isLoading } = useCCPairs(canManageConnectors);
@@ -79,7 +81,7 @@ export default function ConnectDataBanner({
 
         <div className="flex items-center justify-center gap-1">
           <Text font="secondary-body" color="text-03">
-            Connect your data
+            {t("craft.connectYourData")}
           </Text>
           <SvgChevronRight className="h-4 w-4 text-text-03" />
         </div>

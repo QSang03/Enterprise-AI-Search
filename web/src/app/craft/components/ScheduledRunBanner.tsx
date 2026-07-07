@@ -13,6 +13,7 @@ import {
 import type { ScheduledRunContextResponse } from "@/app/craft/v1/tasks/interfaces";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ScheduledRunBannerProps {
   sessionId: string | null;
@@ -44,10 +45,8 @@ export default function ScheduledRunBanner({
   sessionId,
   context,
 }: ScheduledRunBannerProps) {
-  // 404 is the expected "this session isn't scheduled" signal — the standard
-  // fetcher throws on it, which lands in `error` and falls through the
-  // `if (!data)` guard below to render nothing. `shouldRetryOnError: false`
-  // keeps SWR from hammering the endpoint after a legit 404.
+  const { t } = useTranslation();
+  // 404 is the expected "this session isn't scheduled" signal
   const { data: fetchedContext } = useScheduledRunContext(
     context === undefined ? sessionId : null
   );
@@ -57,12 +56,13 @@ export default function ScheduledRunBanner({
 
   const statusText =
     data.status === "RUNNING"
-      ? "This scheduled run is still running. Follow-up messages unlock when it finishes."
+      ? t("craft.scheduledRunRunning")
       : data.status === "AWAITING_APPROVAL"
-        ? "This scheduled run is awaiting approval. Follow-up messages unlock after it resumes and finishes."
-        : `This session was started by scheduled task ${data.task_name} at ${formatAbsolute(
-            data.started_at
-          )}.`;
+        ? t("craft.scheduledRunAwaitingApproval")
+        : t("craft.scheduledRunStarted", {
+            taskName: data.task_name,
+            startedAt: formatAbsolute(data.started_at),
+          });
 
   return (
     <div
@@ -84,7 +84,10 @@ export default function ScheduledRunBanner({
         )}
         data-testid="back-to-task-button"
         title={statusText}
-        aria-label={`View scheduled task ${data.task_name}. ${statusText}`}
+        aria-label={t("craft.viewScheduledTaskAria", {
+          taskName: data.task_name,
+          statusText,
+        })}
       >
         <span className="grid shrink-0 translate-y-px items-center">
           <span
@@ -97,7 +100,7 @@ export default function ScheduledRunBanner({
             <SvgClock size={14} className="shrink-0 text-text-03" />
             <span className="flex h-5 shrink-0 items-center">
               <Text font="figure-small-label" color="text-03" nowrap>
-                Scheduled
+                {t("craft.scheduled")}
               </Text>
             </span>
           </span>
@@ -111,7 +114,7 @@ export default function ScheduledRunBanner({
             <SvgExternalLink size={14} className="shrink-0 text-text-03" />
             <span className="flex h-5 shrink-0 items-center">
               <Text font="figure-small-label" color="text-03" nowrap>
-                View task
+                {t("craft.viewTask")}
               </Text>
             </span>
           </span>
@@ -136,7 +139,9 @@ export default function ScheduledRunBanner({
           </span>
           <span className="hidden h-5 shrink-0 items-center xl:flex">
             <Text font="secondary-body" color="text-03" nowrap>
-              {`Started ${formatAbsolute(data.started_at)}`}
+              {t("craft.scheduledRunStartedAt", {
+                startedAt: formatAbsolute(data.started_at),
+              })}
             </Text>
           </span>
         </div>

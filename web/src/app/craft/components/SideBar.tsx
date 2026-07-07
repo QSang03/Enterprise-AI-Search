@@ -53,6 +53,7 @@ import {
   CRAFT_APPS_PATH,
   CRAFT_TASKS_PATH,
 } from "@/app/craft/v1/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ============================================================================
 // Fun Deleting Messages
@@ -124,6 +125,7 @@ function BuildSessionButton({
   onDelete,
   onDeleteActiveSession,
 }: BuildSessionButtonProps) {
+  const { t } = useTranslation();
   const [renaming, setRenaming] = useState(false);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -181,7 +183,7 @@ function BuildSessionButton({
       } catch (err) {
         setIsDeleting(false);
         setDeleteError(
-          err instanceof Error ? err.message : "Failed to delete session"
+          err instanceof Error ? err.message : t("craft.failedDeleteSession")
         );
       }
     },
@@ -212,7 +214,7 @@ function BuildSessionButton({
               icon={SvgEdit}
               onClick={noProp(() => setRenaming(true))}
             >
-              Rename
+              {t("craft.rename")}
             </LineItem>,
             null,
             <LineItem
@@ -221,7 +223,7 @@ function BuildSessionButton({
               onClick={noProp(() => setIsDeleteModalOpen(true))}
               danger
             >
-              Delete
+              {t("craft.delete")}
             </LineItem>,
           ]}
         </PopoverMenu>
@@ -273,10 +275,10 @@ function BuildSessionButton({
         <ConfirmationModalLayout
           title={
             deleteSuccess
-              ? "Deleted"
+              ? t("craft.deletedTitle")
               : deleteError
-                ? "Delete Failed"
-                : "Delete Craft"
+                ? t("craft.deleteFailedTitle")
+                : t("craft.deleteCraft")
           }
           icon={deleteSuccess ? SvgCheckCircle : SvgTrash}
           onClose={isDeleting || deleteSuccess ? undefined : closeModal}
@@ -285,11 +287,11 @@ function BuildSessionButton({
           submit={
             deleteSuccess ? (
               <Button disabled variant="action" icon={SvgCheckCircle}>
-                Done
+                {t("common.done")}
               </Button>
             ) : deleteError ? (
               <Button variant="danger" onClick={closeModal}>
-                Close
+                {t("common.close")}
               </Button>
             ) : (
               <Button
@@ -298,14 +300,14 @@ function BuildSessionButton({
                 onClick={handleConfirmDelete}
                 icon={isDeleting ? SvgSimpleLoader : undefined}
               >
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? t("craft.deleting") : t("craft.delete")}
               </Button>
             )
           }
         >
           {deleteSuccess ? (
             <Text as="p" color="text-03">
-              Build deleted successfully.
+              {t("craft.deleteSuccess")}
             </Text>
           ) : deleteError ? (
             <Text as="p" color="status-error-02">
@@ -314,7 +316,7 @@ function BuildSessionButton({
           ) : isDeleting ? (
             <DeletingMessage />
           ) : (
-            "Are you sure you want to delete this craft? This action cannot be undone."
+            t("craft.deleteCraftConfirm")
           )}
         </ConfirmationModalLayout>
       )}
@@ -327,6 +329,7 @@ function BuildSessionButton({
 // ============================================================================
 
 const MemoizedBuildSidebarInner = memo(() => {
+  const { t } = useTranslation();
   const { folded } = useSidebarState();
   const router = useRouter();
   const pathname = usePathname();
@@ -356,10 +359,13 @@ const MemoizedBuildSidebarInner = memo(() => {
   // limit=0 indicates unlimited (local/self-hosted mode), so hide the count
   const sessionsTitle = useMemo(() => {
     if (isEnabled && limits && limits.limit > 0) {
-      return `Total Messages (${limits.messagesUsed}/${limits.limit})`;
+      return t("craft.totalMessages", {
+        used: String(limits.messagesUsed),
+        limit: String(limits.limit),
+      });
     }
-    return "Sessions";
-  }, [isEnabled, limits]);
+    return t("craft.sessions");
+  }, [isEnabled, limits, t]);
 
   // Navigate to new build - session controller handles setCurrentSession and pre-provisioning
   const handleNewBuild = useCallback(() => {
@@ -381,10 +387,10 @@ const MemoizedBuildSidebarInner = memo(() => {
   const newBuildButton = useMemo(
     () => (
       <SidebarTab icon={SvgEditBig} folded={folded} onClick={handleNewBuild}>
-        Start Crafting
+        {t("craft.startCrafting")}
       </SidebarTab>
     ),
-    [folded, handleNewBuild]
+    [folded, handleNewBuild, t]
   );
 
   const scheduledTasksPanel = useMemo(
@@ -395,10 +401,10 @@ const MemoizedBuildSidebarInner = memo(() => {
         href={CRAFT_TASKS_PATH}
         selected={pathname.startsWith(CRAFT_TASKS_PATH)}
       >
-        Scheduled Tasks
+        {t("craft.scheduledTasks")}
       </SidebarTab>
     ),
-    [folded, pathname]
+    [folded, pathname, t]
   );
 
   const appsTab = useMemo(
@@ -409,10 +415,10 @@ const MemoizedBuildSidebarInner = memo(() => {
         href={CRAFT_APPS_PATH}
         selected={pathname.startsWith(CRAFT_APPS_PATH)}
       >
-        Apps
+        {t("craft.apps")}
       </SidebarTab>
     ),
-    [folded, pathname]
+    [folded, pathname, t]
   );
 
   const skillsPanel = useMemo(
@@ -423,19 +429,19 @@ const MemoizedBuildSidebarInner = memo(() => {
         href={CRAFT_SKILLS_PATH}
         selected={pathname.startsWith(CRAFT_SKILLS_PATH)}
       >
-        Skills
+        {t("craft.skills")}
       </SidebarTab>
     ),
-    [folded, pathname]
+    [folded, pathname, t]
   );
 
   const backToChatButton = useMemo(
     () => (
       <SidebarTab icon={SvgArrowLeft} folded={folded} href="/app">
-        Back to Chat
+        {t("craft.backToChat")}
       </SidebarTab>
     ),
-    [folded]
+    [folded, t]
   );
 
   const footer = useMemo(
@@ -471,7 +477,7 @@ const MemoizedBuildSidebarInner = memo(() => {
             {sessionHistory.length === 0 ? (
               <div className="pl-2 pr-1.5 py-1">
                 <Text color="text-01">
-                  Start building! Session history will appear here.
+                  {t("craft.emptySessionHistory")}
                 </Text>
               </div>
             ) : (

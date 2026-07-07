@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useEffect, useCallback } from "react";
+import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import {
@@ -27,6 +27,7 @@ import { Text } from "@opal/components";
 import { SvgGlobe, SvgHardDrive, SvgFiles, SvgX } from "@opal/icons";
 import { IconProps } from "@opal/types";
 import CraftingLoader from "@/app/craft/components/CraftingLoader";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // Output panel sub-components. UrlBar is the always-visible chrome and stays
 // static; the heavy tab bodies (preview iframe, file browser, artifact list,
@@ -58,12 +59,6 @@ const FilePreviewContent = dynamic(
 
 type TabValue = OutputTabType;
 
-const tabs: { value: TabValue; label: string; icon: React.FC<IconProps> }[] = [
-  { value: "preview", label: "Preview", icon: SvgGlobe },
-  { value: "files", label: "Files", icon: SvgHardDrive },
-  { value: "artifacts", label: "Artifacts", icon: SvgFiles },
-];
-
 interface BuildOutputPanelProps {
   isOpen: boolean;
 }
@@ -78,9 +73,20 @@ interface BuildOutputPanelProps {
  * - Artifact list with download/view options
  */
 const BuildOutputPanel = memo(({ isOpen }: BuildOutputPanelProps) => {
+  const { t } = useTranslation();
   const session = useSession();
   const preProvisionedSessionId = usePreProvisionedSessionId();
   const isPreProvisioning = useIsPreProvisioning();
+
+  const tabs: { value: TabValue; label: string; icon: React.FC<IconProps> }[] =
+    useMemo(
+      () => [
+        { value: "preview", label: t("craft.tabPreview"), icon: SvgGlobe },
+        { value: "files", label: t("craft.tabFiles"), icon: SvgHardDrive },
+        { value: "artifacts", label: t("craft.tabArtifacts"), icon: SvgFiles },
+      ],
+      [t]
+    );
 
   // Get active tab state from store
   const activeOutputTab = useActiveOutputTab();

@@ -3,6 +3,7 @@
 import { Text } from "@opal/components";
 import { SvgAlertTriangle } from "@opal/icons";
 import { UsageLimits } from "@/app/craft/types/streamingTypes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface UpgradePlanModalProps {
   open: boolean;
@@ -19,9 +20,12 @@ export default function UpgradePlanModal({
   onClose,
   limits,
 }: UpgradePlanModalProps) {
+  const { t } = useTranslation();
+
   if (!open) return null;
 
   const isPaidUser = limits?.limitType === "weekly";
+  const limit = String(limits?.limit ?? (isPaidUser ? 25 : 5));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -37,12 +41,12 @@ export default function UpgradePlanModal({
 
             <div className="flex flex-col items-center gap-2 text-center max-w-sm">
               <Text font="heading-h2" color="text-05">
-                You've reached your message limit
+                {t("craft.messageLimitTitle")}
               </Text>
               <Text font="main-ui-body" color="text-03">
                 {isPaidUser
-                  ? `You've used all ${limits?.limit ?? 25} messages for this week. Your message limit will automatically reset at the start of each week, allowing you to continue crafting with Onyx.`
-                  : `You've used all ${limits?.limit ?? 5} free messages available in your trial. You've reached the limit for your free account.`}
+                  ? t("craft.messageLimitPaidDesc", { limit })
+                  : t("craft.messageLimitFreeDesc", { limit })}
               </Text>
             </div>
           </div>
@@ -54,7 +58,7 @@ export default function UpgradePlanModal({
               className="flex items-center gap-1.5 px-4 py-2 rounded-12 border border-border-01 bg-background-tint-00 text-text-04 hover:bg-background-tint-02 transition-colors"
             >
               <Text font="main-ui-action" color="text-05">
-                Got it
+                {t("craft.messageLimitGotIt")}
               </Text>
             </button>
           </div>

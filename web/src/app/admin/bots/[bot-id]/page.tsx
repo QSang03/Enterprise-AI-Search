@@ -12,6 +12,7 @@ import { getErrorMsg } from "@/lib/error";
 import { useTranslation } from "@/providers/LanguageProvider";
 
 function SlackBotEditContent({ botId }: { botId: string }) {
+  const { t } = useTranslation();
   const {
     data: slackBot,
     isLoading: isSlackBotLoading,
@@ -33,10 +34,11 @@ function SlackBotEditContent({ botId }: { botId: string }) {
   if (slackBotError || !slackBot) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch Slack Bot ${botId}: ${getErrorMsg(
-          slackBotError
-        )}`}
+        errorTitle={t("slackBots.errorSomethingWrong")}
+        errorMsg={t("slackBots.failedFetchSlackBot", {
+          botId,
+          error: getErrorMsg(slackBotError),
+        })}
       />
     );
   }
@@ -44,10 +46,11 @@ function SlackBotEditContent({ botId }: { botId: string }) {
   if (slackChannelConfigsError || !slackChannelConfigs) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch Slack Bot ${botId}: ${getErrorMsg(
-          slackChannelConfigsError
-        )}`}
+        errorTitle={t("slackBots.errorSomethingWrong")}
+        errorMsg={t("slackBots.failedFetchSlackBot", {
+          botId,
+          error: getErrorMsg(slackChannelConfigsError),
+        })}
       />
     );
   }

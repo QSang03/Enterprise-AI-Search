@@ -26,6 +26,7 @@ import {
 import { Button, InputTypeIn, ShadowDiv, Text } from "@opal/components";
 
 import { ConfirmEntityModal } from "@/sections/modals/ConfirmEntityModal";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Build a hierarchical tree from a flat list of library entries.
@@ -81,6 +82,7 @@ export default function UserLibraryModal({
   onClose,
   onChanges,
 }: UserLibraryModalProps) {
+  const { t } = useTranslation();
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -153,7 +155,7 @@ export default function UserLibraryModal({
         mutate();
         onChanges?.();
       } catch (err) {
-        setUploadError(err instanceof Error ? err.message : "Upload failed");
+        setUploadError(err instanceof Error ? err.message : t("craft.uploadFailed"));
       } finally {
         setIsUploading(false);
       }
@@ -235,7 +237,7 @@ export default function UserLibraryModal({
     } catch (err) {
       console.error("Failed to create directory:", err);
       setUploadError(
-        err instanceof Error ? err.message : "Failed to create folder"
+        err instanceof Error ? err.message : t("craft.failedCreateFolder")
       );
     } finally {
       setShowNewFolderModal(false);
@@ -251,8 +253,8 @@ export default function UserLibraryModal({
         <Modal.Content width="lg" height="fit">
           <Modal.Header
             icon={SvgFileText}
-            title="Your Files"
-            description="Upload files for your agent to read (Excel, Word, PowerPoint, etc.)"
+            title={t("craft.yourFiles")}
+            description={t("craft.yourFilesDesc")}
             onClose={onClose}
           />
           <Modal.Body>
@@ -273,14 +275,14 @@ export default function UserLibraryModal({
                   icon={SvgFolderPlus}
                   onClick={() => setShowNewFolderModal(true)}
                 >
-                  New folder
+                  {t("craft.newFolderLower")}
                 </Button>
                 <Button
                   icon={SvgUploadCloud}
                   disabled={isUploading}
                   onClick={() => handleUploadToFolder("/")}
                 >
-                  {isUploading ? "Uploading…" : "Upload"}
+                  {isUploading ? t("craft.uploading") : t("craft.upload")}
                 </Button>
               </div>
 
@@ -303,13 +305,13 @@ export default function UserLibraryModal({
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <Text font="secondary-body" color="text-03">
-                      Loading files…
+                      {t("craft.loadingFiles")}
                     </Text>
                   </div>
                 ) : error ? (
                   <div className="flex items-center justify-center py-12">
                     <Text font="secondary-body" color="status-error-05">
-                      Failed to load files
+                      {t("craft.failedLoadFiles")}
                     </Text>
                   </div>
                 ) : fileCount === 0 ? (
@@ -335,7 +337,7 @@ export default function UserLibraryModal({
                 {isDragging && (
                   <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-12 border-2 border-dashed border-action-link-04 bg-action-link-01/90">
                     <Text font="main-ui-action" color="text-05">
-                      Drop files to upload
+                      {t("craft.dropFilesToUpload")}
                     </Text>
                   </div>
                 )}
@@ -344,7 +346,7 @@ export default function UserLibraryModal({
           </Modal.Body>
 
           <Modal.Footer>
-            <Button onClick={onClose}>Done</Button>
+            <Button onClick={onClose}>{t("craft.done")}</Button>
           </Modal.Footer>
         </Modal.Content>
       </Modal>
@@ -356,11 +358,11 @@ export default function UserLibraryModal({
           entityType={entryToDelete.is_directory ? "folder" : "file"}
           entityName={entryToDelete.name}
           action="delete"
-          actionButtonText="Delete"
+          actionButtonText={t("craft.delete")}
           additionalDetails={
             entryToDelete.is_directory
-              ? "This will delete the folder and all its contents."
-              : "This file will be removed from your library."
+              ? t("craft.deleteFolderDetails")
+              : t("craft.deleteFileDetails")
           }
           onClose={() => setEntryToDelete(null)}
           onSubmit={handleDeleteConfirm}
@@ -380,7 +382,7 @@ export default function UserLibraryModal({
         <Modal.Content width="sm" height="fit">
           <Modal.Header
             icon={SvgFolder}
-            title="New Folder"
+            title={t("craft.newFolder")}
             onClose={() => {
               setShowNewFolderModal(false);
               setNewFolderName("");
@@ -389,12 +391,12 @@ export default function UserLibraryModal({
           <Modal.Body>
             <div className="flex flex-col items-stretch gap-2">
               <Text font="secondary-body" color="text-03">
-                Folder name
+                {t("craft.folderName")}
               </Text>
               <InputTypeIn
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Enter folder name"
+                placeholder={t("craft.enterFolderName")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && newFolderName.trim()) {
                     handleCreateDirectory();
@@ -412,13 +414,13 @@ export default function UserLibraryModal({
                 setNewFolderName("");
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button
               disabled={!newFolderName.trim()}
               onClick={handleCreateDirectory}
             >
-              Create
+              {t("craft.create")}
             </Button>
           </Modal.Footer>
         </Modal.Content>
@@ -433,6 +435,8 @@ interface UploadDropzoneProps {
 }
 
 function UploadDropzone({ onClick, active }: UploadDropzoneProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       role="button"
@@ -453,11 +457,10 @@ function UploadDropzone({ onClick, active }: UploadDropzoneProps) {
     >
       <SvgUploadCloud size={28} className="stroke-text-03" />
       <Text font="main-ui-action" color="text-04">
-        Drag files here or click to upload
+        {t("craft.dragFilesHere")}
       </Text>
       <Text font="secondary-body" color="text-03">
-        Excel, Word, PowerPoint, PDF, or ZIP. PDFs with many embedded images may
-        be rejected.
+        {t("craft.uploadFormatsHint")}
       </Text>
     </div>
   );

@@ -15,14 +15,17 @@ interface LibraryFile {
   name: string;
 }
 
+type TranslateFn = (
+  key: string,
+  replacements?: Record<string, string | number>
+) => string;
+
 interface EntryMenuHandlers {
   onAttachFiles: () => void;
   onSelectEntry: (entry: PickerEntry) => void;
-  // Navigate to the Skills / Apps pages (used by the empty-state prompts).
   onBrowseSkills: () => void;
   onBrowseApps: () => void;
   libraryFiles?: LibraryFile[];
-  /** Opens the library management modal. When set, a Library flyout is added. */
   onManageLibrary?: () => void;
 }
 
@@ -36,21 +39,21 @@ export function buildEntryMenuItems(
     onBrowseApps,
     libraryFiles = [],
     onManageLibrary,
-  }: EntryMenuHandlers
+  }: EntryMenuHandlers,
+  t: TranslateFn
 ): Array<PlusMenuItem | null> {
-  // Skills and Apps always show; when empty they prompt the user to browse/connect.
   const items: Array<PlusMenuItem | null> = [
     {
       key: "files",
       icon: SvgPaperclip,
-      label: "Add files or photos",
+      label: t("craft.addFilesOrPhotos"),
       onSelect: onAttachFiles,
     },
     null,
     {
       key: "skills",
       icon: SvgSparkle,
-      label: "Skills",
+      label: t("craft.skills"),
       flyoutItems:
         sections.skills.length > 0
           ? sections.skills.map((skill) => ({
@@ -64,7 +67,7 @@ export function buildEntryMenuItems(
               {
                 key: "skills-empty",
                 icon: SvgSparkle,
-                label: "Browse skills",
+                label: t("craft.browseSkills"),
                 onSelect: onBrowseSkills,
               },
             ],
@@ -72,7 +75,7 @@ export function buildEntryMenuItems(
     {
       key: "apps",
       icon: SvgPlug,
-      label: "Apps",
+      label: t("craft.apps"),
       flyoutItems:
         sections.apps.length > 0
           ? sections.apps.map((app) => ({
@@ -81,7 +84,7 @@ export function buildEntryMenuItems(
               label: app.name,
               rightContent: app.authenticated ? undefined : (
                 <Text font="secondary-body" color="text-03">
-                  Connect
+                  {t("craft.connect")}
                 </Text>
               ),
               onSelect: () => onSelectEntry(app),
@@ -90,7 +93,7 @@ export function buildEntryMenuItems(
               {
                 key: "apps-empty",
                 icon: SvgPlug,
-                label: "Connect an app",
+                label: t("craft.connectAnApp"),
                 onSelect: onBrowseApps,
               },
             ],
@@ -101,9 +104,8 @@ export function buildEntryMenuItems(
     items.push({
       key: "library",
       icon: SvgFolder,
-      label: "Library",
+      label: t("craft.library"),
       flyoutItems: [
-        // TODO(craft-library): file rows open the manage modal until per-file attach is wired.
         ...libraryFiles.map((file) => ({
           key: file.id,
           icon: SvgFileText,
@@ -113,7 +115,7 @@ export function buildEntryMenuItems(
         {
           key: "manage",
           icon: SvgFolder,
-          label: "Manage library…",
+          label: t("craft.manageLibrary"),
           onSelect: onManageLibrary,
         },
       ],

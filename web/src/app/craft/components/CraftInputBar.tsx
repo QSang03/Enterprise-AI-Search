@@ -37,6 +37,7 @@ import {
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { fetchLibraryTree } from "@/app/craft/services/apiServices";
 import type { QueuedMessage } from "@/app/app/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface CraftInputBarHandle {
   reset: () => void;
@@ -79,6 +80,7 @@ const CraftInputBar = memo(
       },
       ref
     ) => {
+      const { t } = useTranslation();
       const baseRef = useRef<BaseInputBarHandle>(null);
       const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -201,17 +203,20 @@ const CraftInputBar = memo(
       const router = useRouter();
       const plusMenuItems = useMemo(
         () =>
-          buildEntryMenuItems(pickerSections, {
-            onAttachFiles: () => fileInputRef.current?.click(),
-            onSelectEntry: addEntry,
-            onBrowseSkills: () => router.push("/craft/v1/skills"),
-            onBrowseApps: () => router.push("/craft/v1/apps"),
-            libraryFiles,
-            // Defer the modal until the + popover finishes closing, else it paints over it.
-            onManageLibrary: () =>
-              window.setTimeout(() => setLibraryModalOpen(true), 200),
-          }),
-        [pickerSections, addEntry, libraryFiles, router]
+          buildEntryMenuItems(
+            pickerSections,
+            {
+              onAttachFiles: () => fileInputRef.current?.click(),
+              onSelectEntry: addEntry,
+              onBrowseSkills: () => router.push("/craft/v1/skills"),
+              onBrowseApps: () => router.push("/craft/v1/apps"),
+              libraryFiles,
+              onManageLibrary: () =>
+                window.setTimeout(() => setLibraryModalOpen(true), 200),
+            },
+            t
+          ),
+        [pickerSections, addEntry, libraryFiles, router, t]
       );
 
       const bottomLeftSlot = (
@@ -219,7 +224,7 @@ const CraftInputBar = memo(
           <PlusMenuButton
             items={plusMenuItems}
             disabled={disabled}
-            tooltip="Add files or skills"
+            tooltip={t("craft.addFilesOrSkills")}
           />
           {interruptible && <InterruptHint interrupting={isInterrupting} />}
         </>
