@@ -42,7 +42,10 @@
     "optional": "Tùy chọn",
     "copyLink": "Sao chép liên kết",
     "download": "Tải xuống",
-    "continue": "Tiếp tục"
+    "continue": "Tiếp tục",
+    "loading": "Đang tải...",
+    "initializing": "Đang khởi tạo {appName}",
+    "advancedOptions": "Tùy chọn nâng cao"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",
@@ -233,7 +236,7 @@
     "waitingForSession": "Đang chờ phiên sẵn sàng...",
     "editPastedText": "Chỉnh sửa văn bản đã dán",
     "errorWithResponse": "Đã xảy ra lỗi với phản hồi.",
-    "stackTrace": "Stack trace",
+    "stackTrace": "Dấu vết ngăn xếp",
     "editMessage": "Chỉnh sửa",
     "done": "Hoàn thành",
     "stopped": "Đã dừng",
@@ -661,7 +664,7 @@
     "haveDifferentEmail": "Có tài khoản với email khác?",
     "impersonateUser": "Đóng vai người dùng",
     "email": "Email",
-    "apiKey": "API Key",
+    "apiKey": "Khóa API",
     "enterApiKey": "Nhập API Key",
     "invalidEmail": "Email không hợp lệ",
     "required": "Bắt buộc",
@@ -909,7 +912,7 @@
       "systemPrompt": "Chỉ dẫn hệ thống chính (System Prompt)",
       "systemPromptDesc": "Chỉ dẫn hệ thống gốc cho tất cả các cuộc trò chuyện, trợ lý và dự án. Hãy chỉnh sửa cẩn thận: Thay đổi lớn có thể làm giảm chất lượng câu trả lời.",
       "modifyPrompt": "Chỉnh sửa Chỉ dẫn",
-      "connectors": "Connectors",
+      "connectors": "Cổng kết nối",
       "noConnectors": "Không có kết nối nguồn nào được thiết lập",
       "manageAll": "Quản lý tất cả",
       "actionsTools": "Hành động & Công cụ",
@@ -1074,7 +1077,7 @@
       "delete": "Xóa",
       "deleteDesc": "{email} sẽ bị xóa vĩnh viễn khỏi Onyx. Tất cả lịch sử phiên trò chuyện của họ cũng bị xóa. Hành động này không thể hoàn tác.",
       "passwordReset": "Đặt lại mật khẩu",
-      "done": "Done",
+      "done": "Hoàn tất",
       "passwordResetSuccessDesc": "Mật khẩu cho {email} đã được đặt lại. Hãy sao chép mật khẩu mới bên dưới — nó sẽ không hiển thị lại lần nữa.",
       "passwordResetWarningDesc": "Hành động này sẽ tạo ra một mật khẩu ngẫu nhiên mới cho {email}. Mật khẩu hiện tại của họ sẽ ngừng hoạt động ngay lập tức.",
       "userUpdated": "Cập nhật người dùng thành công",
@@ -1309,8 +1312,8 @@
       "apiKeyRequired": "API Key là bắt buộc",
       "credentialsFileRequired": "Tệp chứng chỉ là bắt buộc",
       "locationRequired": "Vị trí/Khu vực là bắt buộc",
-      "targetUriLabel": "Target URI",
-      "apiKeyLabel": "API Key",
+      "targetUriLabel": "URI đích",
+      "apiKeyLabel": "Khóa API",
       "locationLabel": "Vị trí",
       "credentialsFileLabel": "Tệp chứng chỉ",
       "targetUriDesc": "Dán endpoint target URI của bạn từ {link} (bao gồm endpoint base API, tên deployment và phiên bản API).",
@@ -1367,8 +1370,8 @@
       "configureTitle": "Cấu hình {name}",
       "setUpTitle": "Thiết lập {name}",
       "modalDesc": "Kết nối với {name} và thiết lập các mô hình giọng nói của bạn.",
-      "targetUriLabel": "Target URI",
-      "apiKeyLabel": "API Key",
+      "targetUriLabel": "URI đích",
+      "apiKeyLabel": "Khóa API",
       "sttModelLabel": "Mô hình STT",
       "defaultModelLabel": "Mô hình mặc định",
       "defaultModelDesc": "Mô hình này sẽ được sử dụng bởi Onyx theo mặc định để chuyển đổi văn bản thành giọng nói.",
@@ -1421,13 +1424,13 @@
       "cancel": "Hủy",
       "update": "Cập nhật",
       "connect": "Kết nối",
-      "apiKeyLabel": "API Key",
+      "apiKeyLabel": "Khóa API",
       "apiKeyDescWithUrl": "Dán [API key]({url}) từ {name} của bạn để kết nối.",
       "apiKeyDescWithoutUrl": "Dán API key từ {name} của bạn để kết nối.",
       "disconnectedSuccess": "Đã ngắt kết nối {name} thành công"
     },
     "embeddings": {
-      "apiKeyLabel": "API Key",
+      "apiKeyLabel": "Khóa API",
       "apiKeyDesc": "Dán [API key]({url}) của bạn từ {name} để truy cập mô hình của bạn.",
       "uploadJsonCredentials": "Tải lên tệp chứng chỉ JSON",
       "modelNameLabel": "Tên mô hình (Model Name)",
@@ -1483,7 +1486,7 @@
       "modelName": "Tên mô hình",
       "modelNameDesc": "Mã định danh mô hình được sử dụng bởi nhà cung cấp.",
       "selectRerankerPlaceholder": "Chọn một mô hình reranker",
-      "rerankerApiKey": "Reranker API Key",
+      "rerankerApiKey": "Khóa API Reranker",
       "rerankerApiKeyDesc": "Dán API key của bạn từ {name} để truy cập dịch vụ xếp hạng lại.",
       "rerankerApiUrl": "URL base API của Reranker",
       "rerankerApiUrlDesc": "Dán URL endpoint tương thích với {name} của bạn.",
@@ -1561,7 +1564,7 @@
       "deleteDesc": "Bất kỳ ứng dụng nào sử dụng API key của tài khoản *{name}* ({display}) sẽ mất quyền truy cập vào Onyx.",
       "cannotBeUndone": "Hành động xóa không thể hoàn tác.",
       "columnName": "Tên",
-      "columnApiKey": "API Key",
+      "columnApiKey": "Khóa API",
       "columnAccountType": "Loại tài khoản",
       "unnamed": "Chưa đặt tên",
       "toastFailedUpdateRole": "Không thể cập nhật vai trò.",
@@ -1605,7 +1608,7 @@
       "displayName": "Tên hiển thị",
       "displayNameOptional": "tùy chọn",
       "displayNameDesc": "Được dùng để định danh nhà cung cấp này trong ứng dụng.",
-      "apiKey": "API Key",
+      "apiKey": "Khóa API",
       "apiKeyDesc": "Dán API key của bạn để truy cập các mô hình.",
       "apiKeyDescProvider": "Dán API key của bạn từ {providerName} để truy cập các mô hình.",
       "apiBase": "URL base API",
@@ -1683,7 +1686,7 @@
         "gcpProjectIdPlaceholder": "my-vertex-project"
       },
       "azure": {
-        "targetUri": "Target URI",
+        "targetUri": "URI đích",
         "targetUriDesc": "Dán URI mục tiêu điểm cuối từ Azure OpenAI (bao gồm URL cơ sở, tên triển khai và phiên bản API)."
       },
       "bedrock": {
@@ -1740,10 +1743,10 @@
       "addConnector": "Thêm kết nối",
       "documents.sets": "Bộ tài liệu",
       "indexing.settings": "Cấu hình lập chỉ mục lại",
-      "apiKey": "API Keys",
-      "bots": "Slack Bots",
-      "discordBots": "Discord Bots",
-      "hooks": "Event Webhooks",
+      "apiKey": "Khóa API",
+      "bots": "Bot Slack",
+      "discordBots": "Bot Discord",
+      "hooks": "Webhook sự kiện",
       "users": "Người dùng",
       "groups": "Nhóm",
       "scim": "Đồng bộ SCIM",
@@ -1888,7 +1891,7 @@
     "advancedDesc": "Cấu hình nhà cung cấp OAuth đã biết với các endpoint ủy quyền và token rõ ràng thay vì khám phá tự động.",
     "providerMode": "Chế độ nhà cung cấp",
     "selectModePlaceholder": "Chọn chế độ",
-    "apiKey": "API Key",
+    "apiKey": "Khóa API",
     "sharedApiKeyPlaceholder": "API key dùng chung cho tổ chức của bạn",
     "noAuthTitle": "Không xác thực cho máy chủ MCP này",
     "noAuthDesc": "Sẽ không sử dụng xác thực cho kết nối này. Hãy đảm bảo bạn tin tưởng máy chủ này. Bạn chịu trách nhiệm về các hành động thực hiện với kết nối này.",
@@ -1982,7 +1985,7 @@
     "authorizationEndpoint": "Authorization Endpoint",
     "tokenEndpoint": "Token Endpoint",
     "scopesOverride": "Scopes Override (ngăn cách bằng dấu phẩy)",
-    "additionalAuthParams": "Additional Auth Params (JSON)",
+    "additionalAuthParams": "Tham số xác thực bổ sung (JSON)",
     "knownProviderHelp": "Chế độ Known-provider yêu cầu cấu hình endpoint. Các endpoint tham chiếu của Google: authorization {authHint} và token {tokenHint}.",
     "individualKeyTab": "API Key cá nhân (Mỗi người dùng)",
     "sharedKeyTab": "API Key dùng chung (Quản trị viên)",
@@ -2171,7 +2174,7 @@
     "modelsTitle": "Mô hình",
     "openAiCompatDesc": "Kết nối từ các mô hình cloud hoặc tự lưu trữ qua các endpoint tương thích OpenAI.",
     "customProviderDesc": "Kết nối mô hình từ các nhà cung cấp tương thích LiteLLM khác.",
-    "visionTitle": "Vision",
+    "visionTitle": "Thị giác",
     "providerIdPlaceholder": "Chuỗi ID nhà cung cấp hiển thị trên LiteLLM",
     "usePrefix": "Sử dụng",
     "envVarPlaceholder": "ví dụ: OPENAI_ORGANIZATION",
@@ -2444,7 +2447,7 @@
     "general": "Lỗi"
   },
   "slackBots": {
-    "title": "Slack Bots",
+    "title": "Bot Slack",
     "description": "Thiết lập các Slack bot để kết nối với Onyx. Sau khi thiết lập, bạn có thể đặt câu hỏi trực tiếp cho Onyx từ Slack. Ngoài ra, bạn có thể:",
     "featureAutoAnswer": "Thiết lập OnyxBot để tự động trả lời các câu hỏi trong một số kênh cụ thể.",
     "featureChooseDocSets": "Chọn bộ tài liệu mà OnyxBot sẽ trả lời từ đó, tùy thuộc vào kênh mà câu hỏi được đặt.",
@@ -2792,7 +2795,7 @@
     "regenerateScimTokenTitle": "Tạo lại SCIM Token",
     "regenerateTokenBtn": "Tạo lại Token",
     "regenerateTokenWarning": "Token SCIM hiện tại của bạn sẽ bị thu hồi và một token mới sẽ được tạo. Bạn sẽ cần cập nhật token trên nhà cung cấp danh tính của mình trước khi việc đồng bộ SCIM tiếp tục.",
-    "scimTokenTitle": "SCIM Token",
+    "scimTokenTitle": "Token SCIM",
     "saveTokenWarning": "Lưu khóa này trước khi tiếp tục. Nó sẽ không được hiển thị lại.",
     "copyTokenBtn": "Sao chép Token"
   },
@@ -3331,5 +3334,67 @@
     "mustSelectSiteId": "Bạn phải chọn một trang Confluence (không tìm thấy id).",
     "mustSelectSiteName": "Bạn phải chọn một trang Confluence (không tìm thấy tên).",
     "mustSelectSiteUrl": "Bạn phải chọn một trang Confluence (không tìm thấy url)."
+  },
+  "statusBadges": {
+    "failed": "Thất bại",
+    "completedWithErrors": "Hoàn thành có lỗi",
+    "succeeded": "Thành công",
+    "inProgress": "Đang xử lý",
+    "scheduled": "Đã lên lịch",
+    "canceled": "Đã hủy",
+    "invalid": "Không hợp lệ",
+    "none": "Không có",
+    "notStarted": "Chưa bắt đầu",
+    "deleting": "Đang xóa",
+    "paused": "Tạm dừng",
+    "error": "Lỗi",
+    "initialIndexing": "Lập chỉ mục ban đầu",
+    "indexing": "Đang lập chỉ mục",
+    "indexed": "Đã lập chỉ mục",
+    "invalidConnectorTooltip": "Connector đang ở trạng thái không hợp lệ. Vui lòng cập nhật thông tin xác thực hoặc tạo connector mới."
+  },
+  "errorCallout": {
+    "pageNotFound": "Không tìm thấy trang"
+  },
+  "configError": {
+    "title": "Chúng tôi gặp sự cố",
+    "description1": "Có vẻ như đã xảy ra lỗi khi tải cài đặt Onyx của bạn. Điều này có thể do vấn đề cấu hình hoặc thiết lập chưa hoàn tất.",
+    "description2Prefix": "Nếu bạn là quản trị viên, vui lòng xem",
+    "documentation": "tài liệu hướng dẫn",
+    "description2Suffix": "để biết các bước cấu hình đúng. Nếu bạn là người dùng, vui lòng liên hệ quản trị viên để được hỗ trợ.",
+    "description3Prefix": "Cần trợ giúp? Tham gia",
+    "discordCommunity": "cộng đồng Discord",
+    "description3Suffix": "của chúng tôi để được hỗ trợ."
+  },
+  "cloudError": {
+    "title": "Đang bảo trì",
+    "description1": "Onyx hiện đang trong thời gian bảo trì. Vui lòng quay lại sau vài phút.",
+    "description2": "Chúng tôi xin lỗi vì sự bất tiện này và cảm ơn sự kiên nhẫn của bạn."
+  },
+  "debugPage": {
+    "description": "**Nhật ký gỡ lỗi** cung cấp thông tin chi tiết về hoạt động và sự kiện của hệ thống. Bạn có thể tải xuống nhật ký theo từng danh mục để phân tích hoặc khắc phục sự cố.",
+    "categoryHeader": "Danh mục",
+    "actionsHeader": "Hành động",
+    "downloadLogs": "Tải nhật ký"
+  },
+  "isPublicGroupSelector": {
+    "loading": "Đang tải...",
+    "unknownGroup": "Không xác định",
+    "assignedToGroup": "{objectName} này sẽ được gán cho nhóm {groupName}.",
+    "makeCuratorAccessible": "Cho phép giám tuyển truy cập {objectName} này?",
+    "makePublic": "Công khai {objectName} này?",
+    "publicSubtext": "Nếu bật, {objectName} này sẽ khả dụng cho tất cả {publicToWhom}. Ngược lại, chỉ Quản trị viên và {publicToWhom} được cấp quyền truy cập rõ ràng (ví dụ: qua Nhóm người dùng) mới có thể truy cập.",
+    "assignGroupAccess": "Gán quyền truy cập nhóm cho {objectName} này",
+    "adminGroupSubtext": "{objectName} này sẽ hiển thị/khả dụng cho các nhóm được chọn bên dưới",
+    "curatorGroupSubtext": "Giám tuyển phải chọn một hoặc nhiều nhóm để cấp quyền truy cập {objectName} này",
+    "publicDisabledMessage": "{objectName} này đang công khai và khả dụng cho tất cả người dùng."
+  },
+  "nonSelectableConnectors": {
+    "unavailableLabel": "Connector không khả dụng:"
+  },
+  "announcementBanner": {
+    "reindexMessage": "Chỉ mục của bạn đã lỗi thời - chúng tôi khuyến nghị cập nhật cài đặt tìm kiếm.",
+    "updateHere": "Cập nhật tại đây",
+    "dismiss": "Bỏ qua"
   }
 }

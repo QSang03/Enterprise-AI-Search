@@ -42,7 +42,10 @@
     "optional": "Optional",
     "copyLink": "Copy Link",
     "download": "Download",
-    "continue": "Continue"
+    "continue": "Continue",
+    "loading": "Loading...",
+    "initializing": "Initializing {appName}",
+    "advancedOptions": "Advanced Options"
   },
   "agentEditor": {
     "searchForAnAgent": "Search for an agent...",
@@ -3331,5 +3334,67 @@
     "mustSelectSiteId": "You must select a Confluence site (id not found).",
     "mustSelectSiteName": "You must select a Confluence site (name not found).",
     "mustSelectSiteUrl": "You must select a Confluence site (url not found)."
+  },
+  "statusBadges": {
+    "failed": "Failed",
+    "completedWithErrors": "Completed with errors",
+    "succeeded": "Succeeded",
+    "inProgress": "In Progress",
+    "scheduled": "Scheduled",
+    "canceled": "Canceled",
+    "invalid": "Invalid",
+    "none": "None",
+    "notStarted": "Not Started",
+    "deleting": "Deleting",
+    "paused": "Paused",
+    "error": "Error",
+    "initialIndexing": "Initial Indexing",
+    "indexing": "Indexing",
+    "indexed": "Indexed",
+    "invalidConnectorTooltip": "Connector is in an invalid state. Please update the credentials or create a new connector."
+  },
+  "errorCallout": {
+    "pageNotFound": "Page not found"
+  },
+  "configError": {
+    "title": "We encountered an issue",
+    "description1": "It seems there was a problem loading your Onyx settings. This could be due to a configuration issue or incomplete setup.",
+    "description2Prefix": "If you're an admin, please review our",
+    "documentation": "documentation",
+    "description2Suffix": "for proper configuration steps. If you're a user, please contact your admin for assistance.",
+    "description3Prefix": "Need help? Join our",
+    "discordCommunity": "Discord community",
+    "description3Suffix": "for support."
+  },
+  "cloudError": {
+    "title": "Maintenance in Progress",
+    "description1": "Onyx is currently in a maintenance window. Please check back in a couple of minutes.",
+    "description2": "We apologize for any inconvenience this may cause and appreciate your patience."
+  },
+  "debugPage": {
+    "description": "**Debug Logs** provide detailed information about system operations and events. You can download logs for each category to analyze system behavior or troubleshoot issues.",
+    "categoryHeader": "Category",
+    "actionsHeader": "Actions",
+    "downloadLogs": "Download Logs"
+  },
+  "isPublicGroupSelector": {
+    "loading": "Loading...",
+    "unknownGroup": "Unknown",
+    "assignedToGroup": "This {objectName} will be assigned to group {groupName}.",
+    "makeCuratorAccessible": "Make this {objectName} Curator Accessible?",
+    "makePublic": "Make this {objectName} Public?",
+    "publicSubtext": "If set, then this {objectName} will be usable by All {publicToWhom}. Otherwise, only Admins and {publicToWhom} who have explicitly been given access to this {objectName} (e.g. via a User Group) will have access.",
+    "assignGroupAccess": "Assign group access for this {objectName}",
+    "adminGroupSubtext": "This {objectName} will be visible/accessible by the groups selected below",
+    "curatorGroupSubtext": "Curators must select one or more groups to give access to this {objectName}",
+    "publicDisabledMessage": "This {objectName} is public and available to all users."
+  },
+  "nonSelectableConnectors": {
+    "unavailableLabel": "Unavailable connectors:"
+  },
+  "announcementBanner": {
+    "reindexMessage": "Your index is out of date - we strongly recommend updating your search settings.",
+    "updateHere": "Update here",
+    "dismiss": "Dismiss"
   }
 }

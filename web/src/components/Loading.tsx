@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import "./loading.css";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface LoadingAnimationProps {
   text?: string;
@@ -13,6 +14,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
   text,
   size,
 }) => {
+  const { t } = useTranslation();
   const [dots, setDots] = useState("...");
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export const LoadingAnimation: React.FC<LoadingAnimationProps> = ({
   return (
     <span className="loading-animation inline-flex">
       <span className={cn("mx-auto inline-flex", size)}>
-        {text === undefined ? "Thinking" : text}
+        {text === undefined ? t("tools.thinking") : text}
         <span className="dots">{dots}</span>
       </span>
     </span>

@@ -1,21 +1,24 @@
+"use client";
+
 import Text from "@/refresh-components/texts/Text";
 import ErrorPageLayout from "@/components/errorPages/ErrorPageLayout";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function CloudError() {
+  const { t } = useTranslation();
+
   return (
     <ErrorPageLayout>
       <Text as="p" headingH2>
-        Maintenance in Progress
+        {t("cloudError.title")}
       </Text>
 
       <Text as="p" text03>
-        Onyx is currently in a maintenance window. Please check back in a couple
-        of minutes.
+        {t("cloudError.description1")}
       </Text>
 
       <Text as="p" text03>
-        We apologize for any inconvenience this may cause and appreciate your
-        patience.
+        {t("cloudError.description2")}
       </Text>
     </ErrorPageLayout>
   );

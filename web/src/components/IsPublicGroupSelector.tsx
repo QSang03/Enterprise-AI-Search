@@ -1,3 +1,5 @@
+"use client";
+
 import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import React, { useState, useEffect } from "react";
@@ -7,6 +9,7 @@ import { useUserGroups } from "@/lib/hooks";
 import { BooleanFormField } from "@/components/Field";
 import { useUser } from "@/providers/UserProvider";
 import { GroupsMultiSelect } from "./GroupsMultiSelect";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type IsPublicGroupSelectorFormType = {
   is_public: boolean;
@@ -30,6 +33,7 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
   enforceGroupSelection?: boolean;
   smallLabels?: boolean;
 }) => {
+  const { t } = useTranslation();
   const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
   const { isAdmin, user, isCurator } = useUser();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
@@ -58,13 +62,13 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
   }, [user, userGroups, businessTier]);
 
   if (userGroupsIsLoading) {
-    return <div>Loading...</div>;
+    return <div>{t("isPublicGroupSelector.loading")}</div>;
   }
   if (!businessTier) {
     return null;
   }
 
-  let firstUserGroupName = "Unknown";
+  let firstUserGroupName = t("isPublicGroupSelector.unknownGroup");
   if (userGroups) {
     const userGroup = userGroups[0];
     if (userGroup) {
@@ -77,8 +81,10 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
       <>
         {userGroups && (
           <div className="mb-1 font-medium text-base">
-            This {objectName} will be assigned to group{" "}
-            <b>{firstUserGroupName}</b>.
+            {t("isPublicGroupSelector.assignedToGroup", {
+              objectName,
+              groupName: firstUserGroupName,
+            })}
           </div>
         )}
       </>
@@ -95,16 +101,18 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
             small={smallLabels}
             label={
               publicToWhom === "Curators"
-                ? `Make this ${objectName} Curator Accessible?`
-                : `Make this ${objectName} Public?`
+                ? t("isPublicGroupSelector.makeCuratorAccessible", {
+                    objectName,
+                  })
+                : t("isPublicGroupSelector.makePublic", { objectName })
             }
             disabled={!isAdmin}
             subtext={
               <span className="block mt-2 text-sm text-text-600 dark:text-neutral-400">
-                If set, then this {objectName} will be usable by{" "}
-                <b>All {publicToWhom}</b>. Otherwise, only <b>Admins</b> and{" "}
-                <b>{publicToWhom}</b> who have explicitly been given access to
-                this {objectName} (e.g. via a User Group) will have access.
+                {t("isPublicGroupSelector.publicSubtext", {
+                  objectName,
+                  publicToWhom,
+                })}
               </span>
             }
           />
@@ -113,14 +121,16 @@ export const IsPublicGroupSelector = <T extends IsPublicGroupSelectorFormType>({
 
       <GroupsMultiSelect
         formikProps={formikProps}
-        label={`Assign group access for this ${objectName}`}
+        label={t("isPublicGroupSelector.assignGroupAccess", { objectName })}
         subtext={
           isAdmin || !enforceGroupSelection
-            ? `This ${objectName} will be visible/accessible by the groups selected below`
-            : `Curators must select one or more groups to give access to this ${objectName}`
+            ? t("isPublicGroupSelector.adminGroupSubtext", { objectName })
+            : t("isPublicGroupSelector.curatorGroupSubtext", { objectName })
         }
         disabled={formikProps.values.is_public && !isCurator}
-        disabledMessage={`This ${objectName} is public and available to all users.`}
+        disabledMessage={t("isPublicGroupSelector.publicDisabledMessage", {
+          objectName,
+        })}
       />
     </div>
   );

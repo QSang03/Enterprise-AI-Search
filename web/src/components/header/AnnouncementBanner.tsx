@@ -9,10 +9,13 @@ import { SvgX } from "@opal/icons";
 import { dismissNotification } from "@/lib/notifications/api";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { useSWRConfig } from "swr";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 const DISMISSED_NOTIFICATION_COOKIE_PREFIX = "dismissed_notification_";
 const COOKIE_EXPIRY_DAYS = 1;
 
 export function AnnouncementBanner() {
+  const { t } = useTranslation();
   const settings = useSettings();
   const { mutate } = useSWRConfig();
   const [localNotifications, setLocalNotifications] = useState(
@@ -62,22 +65,26 @@ export function AnnouncementBanner() {
             >
               {notification.notif_type == "reindex" ? (
                 <p className="text-center">
-                  Your index is out of date - we strongly recommend updating
-                  your search settings.{" "}
+                  {t("announcementBanner.reindexMessage")}{" "}
                   <Link
                     href={"/admin/configuration/index-settings" as Route}
                     className="ml-2 underline cursor-pointer"
                   >
-                    Update here
+                    {t("announcementBanner.updateHere")}
                   </Link>
                 </p>
               ) : null}
               <button
                 onClick={() => handleDismiss(notification.id)}
                 className="absolute top-0 right-0 mt-2 mr-2"
-                aria-label="Dismiss"
+                aria-label={t("announcementBanner.dismiss")}
               >
-                <CustomTooltip showTick citation delay={100} content="Dismiss">
+                <CustomTooltip
+                  showTick
+                  citation
+                  delay={100}
+                  content={t("announcementBanner.dismiss")}
+                >
                   <SvgX className="stroke-text-04 h-5 w-5" />
                 </CustomTooltip>
               </button>

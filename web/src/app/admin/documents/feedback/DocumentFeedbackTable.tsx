@@ -128,9 +128,9 @@ export const DocumentFeedbackTable = ({
                           refresh();
                         } else {
                           toast.error(
-                            `Error updating hidden status - ${getErrorMsg(
-                              response
-                            )}`
+                            t("docFeedback.errorUpdatingStatus", {
+                              error: await getErrorMsg(response),
+                            })
                           );
                         }
                       }}

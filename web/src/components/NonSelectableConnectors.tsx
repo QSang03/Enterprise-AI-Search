@@ -1,8 +1,12 @@
+"use client";
+
 import { ConnectorStatus } from "@/lib/types";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { Content } from "@opal/layouts";
 import Text from "@/refresh-components/texts/Text";
 import { SvgLock } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 interface NonSelectableConnectorsProps {
   connectors: ConnectorStatus<any, any>[];
   title: string;
@@ -14,6 +18,8 @@ export const NonSelectableConnectors = ({
   title,
   description,
 }: NonSelectableConnectorsProps) => {
+  const { t } = useTranslation();
+
   if (connectors.length === 0) {
     return null;
   }
@@ -31,7 +37,7 @@ export const NonSelectableConnectors = ({
         <div className="mb-2 flex items-center gap-1.5">
           <SvgLock className="h-3.5 w-3.5 stroke-text-03" />
           <Text as="p" figureSmallLabel text04 className="mb-0!">
-            Unavailable connectors:
+            {t("nonSelectableConnectors.unavailableLabel")}
           </Text>
         </div>
         <div className="flex flex-wrap gap-1.5">

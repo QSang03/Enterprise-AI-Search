@@ -18,10 +18,12 @@ import { Spacer } from "@opal/components";
 import { Spinner } from "@/components/Spinner";
 import { SvgDownloadCloud } from "@opal/icons";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.DEBUG;
 
 function Main() {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -77,9 +79,7 @@ function Main() {
       {isDownloading && <Spinner />}
       <div className="mb-8">
         <Text as="p">
-          {markdown(
-            "**Debug Logs** provide detailed information about system operations and events. You can download logs for each category to analyze system behavior or troubleshoot issues."
-          )}
+          {markdown(t("debugPage.description"))}
         </Text>
         <Spacer rem={0.75} />
 
@@ -88,8 +88,8 @@ function Main() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>{t("debugPage.categoryHeader")}</TableHead>
+                  <TableHead>{t("debugPage.actionsHeader")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,7 +105,7 @@ function Main() {
                         onClick={() => handleDownload(category)}
                         icon={SvgDownloadCloud}
                       >
-                        Download Logs
+                        {t("debugPage.downloadLogs")}
                       </Button>
                     </TableCell>
                   </TableRow>
