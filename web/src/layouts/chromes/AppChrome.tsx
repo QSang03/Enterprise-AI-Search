@@ -59,12 +59,14 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { useCustomFooterContent } from "@/lib/app/hooks";
 import { useFullWidthChat } from "@/providers/FullWidthChatProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Header
 // ---------------------------------------------------------------------------
 
 function Header() {
+  const { t } = useTranslation();
   const appFocus = useAppFocus();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const { state, setAppMode } = useQueryController();
@@ -218,7 +220,7 @@ function Header() {
             sizePreset="main-ui"
             rounding="sm"
             icon={SvgFolderIn}
-            title="Move to Project"
+            title={t("moveToProject")}
             onClick={noProp(() => setShowMoveOptions(true))}
           />,
           <LineItemButton
@@ -227,7 +229,7 @@ function Header() {
             rounding="sm"
             color="danger"
             icon={SvgTrash}
-            title="Delete"
+            title={t("delete")}
             onClick={noProp(() => setDeleteConfirmationModalOpen(true))}
           />,
         ];
@@ -314,14 +316,14 @@ function Header() {
                     >
                       <Popover.Trigger asChild>
                         <OpenButton
-                          aria-label="Change app mode"
+                          aria-label={t("changeAppMode")}
                           icon={
                             effectiveMode === "search"
                               ? SvgSearchMenu
                               : SvgBubbleText
                           }
                         >
-                          {effectiveMode === "search" ? "Search" : "Chat"}
+                          {effectiveMode === "search" ? t("search") : t("chat")}
                         </OpenButton>
                       </Popover.Trigger>
                       <Popover.Content align="start" width="lg">
@@ -333,7 +335,7 @@ function Header() {
                             state={
                               effectiveMode === "search" ? "selected" : "empty"
                             }
-                            title="Search"
+                            title={t("search")}
                             description="Quick search for documents"
                             onClick={noProp(() => {
                               setAppMode("search");
@@ -394,7 +396,7 @@ function Header() {
                       interaction={showShareModal ? "hover" : "rest"}
                       responsiveHideText
                       onClick={() => setShowShareModal(true)}
-                      aria-label="share-chat-button"
+                      aria-label={t("shareChatButton")}
                     >
                       Share
                     </Button>
@@ -403,7 +405,7 @@ function Header() {
                       prominence="tertiary"
                       onClick={toggleFullWidthChat}
                       tooltip={fullWidthChat ? "Fit width" : "Full width"}
-                      aria-label="Toggle full width chat"
+                      aria-label={t("toggleFullWidthChat")}
                       aria-pressed={fullWidthChat}
                     />
                     <SimplePopover

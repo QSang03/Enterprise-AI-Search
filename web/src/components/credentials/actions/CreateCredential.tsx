@@ -219,7 +219,7 @@ export default function CreateCredential({
               <TextFormField
                 name="name"
                 placeholder={t("credentialNamePlaceholder")}
-                label="Name:"
+                label={t("name")}
               />
 
               <CredentialFieldsRenderer

@@ -68,7 +68,7 @@ function NonClickableCell({ reason, children }: NonClickableCellProps) {
   );
 }
 
-function buildColumns() {
+function buildColumns(t: (key: string) => string) {
   return [
     tc.column("started_at", {
       header: "Started",
@@ -106,7 +106,7 @@ function buildColumns() {
                 <SvgLock
                   size={12}
                   className="text-text-03"
-                  aria-label="Not openable"
+                  aria-label={t("notOpenable")}
                 />
               )}
             </div>
@@ -199,7 +199,7 @@ export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
     void mutate();
   }, [mutate]);
 
-  const columns = useMemo(() => buildColumns(), []);
+  const columns = useMemo(() => buildColumns(t), [t]);
 
   const allRuns = useMemo(() => {
     const runs: ScheduledRunSummary[] = [];

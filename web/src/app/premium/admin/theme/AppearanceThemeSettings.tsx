@@ -502,7 +502,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Label>
             <FormField.Control asChild>
               <InputTypeIn
-                aria-label="Custom Help Link Label"
+                aria-label={t("customHelpLinkLabel")}
                 data-label="custom-help-link-label-input"
                 clearButton
                 placeholder={t("linkLabelPlaceholder")}
@@ -531,7 +531,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Label>
             <FormField.Control>
               <Switch
-                aria-label="Hide Onyx Branding"
+                aria-label={t("hideOnyxBranding")}
                 data-label="hide-onyx-branding-toggle"
                 checked={values.hide_onyx_branding}
                 onCheckedChange={(checked) =>
@@ -556,7 +556,7 @@ export const AppearanceThemeSettings = forwardRef<
             <FormField.Label>Show First Visit Notice</FormField.Label>
             <FormField.Control>
               <Switch
-                aria-label="Show First Visit Notice"
+                aria-label={t("showFirstVisitNotice")}
                 data-label="first-visit-notice-toggle"
                 checked={values.show_first_visit_notice}
                 onCheckedChange={(checked) =>
@@ -636,7 +636,7 @@ export const AppearanceThemeSettings = forwardRef<
                 <FormField.Label>Require Consent to Notice</FormField.Label>
                 <FormField.Control>
                   <Switch
-                    aria-label="Require Consent to Notice"
+                    aria-label={t("requireConsentToNotice")}
                     data-label="require-consent-toggle"
                     checked={values.enable_consent_screen}
                     onCheckedChange={(checked) =>

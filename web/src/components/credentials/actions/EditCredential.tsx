@@ -67,7 +67,7 @@ export default function EditCredential({
               includeRevert
               name="name"
               placeholder={credential.name || ""}
-              label="Name (optional):"
+              label={t("nameOptional")}
             />
 
             {Object.entries(credential.credential_json).map(([key, value]) =>

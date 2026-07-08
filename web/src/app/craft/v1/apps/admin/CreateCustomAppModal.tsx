@@ -290,7 +290,7 @@ export default function CreateCustomAppModal({
             {error && (
               <MessageCard
                 variant="error"
-                title="Couldn't save"
+                title={t("couldntSave")}
                 description={error}
               />
             )}

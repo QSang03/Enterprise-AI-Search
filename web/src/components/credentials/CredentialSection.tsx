@@ -263,7 +263,7 @@ export default function CredentialSection({
           <Modal.Content>
             <Modal.Header
               icon={SvgEdit}
-              title="Edit Credential"
+              title={t("editCredential")}
               onClose={closeEditingCredential}
             />
             <Modal.Body>

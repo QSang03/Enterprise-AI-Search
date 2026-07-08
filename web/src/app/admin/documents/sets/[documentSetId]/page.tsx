@@ -11,6 +11,7 @@ import CardSection from "@/components/admin/CardSection";
 import { DocumentSetCreationForm } from "../DocumentSetCreationForm";
 import { useRouter } from "next/navigation";
 import { useSettings } from "@/lib/settings/hooks";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.DOCUMENT_SETS;
 
@@ -93,6 +94,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
 export default function Page(props: {
   params: Promise<{ documentSetId: string }>;
 }) {
+  const { t } = useTranslation();
   const params = use(props.params);
   const documentSetId = parseInt(params.documentSetId);
 
@@ -100,7 +102,7 @@ export default function Page(props: {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={route.icon}
-        title="Edit Document Set"
+        title={t("editDocumentSet")}
         divider
         backButton
       />

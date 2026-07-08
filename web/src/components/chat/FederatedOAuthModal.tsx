@@ -124,7 +124,7 @@ export default function FederatedOAuthModal() {
       <Modal.Content width="sm" height="sm">
         <Modal.Header
           icon={SvgLink}
-          title="Connect Your Apps"
+          title={t("connectYourApps")}
           description={`Improve answer quality by letting ${applicationName} search all your connected data.`}
         />
         <Modal.Body>

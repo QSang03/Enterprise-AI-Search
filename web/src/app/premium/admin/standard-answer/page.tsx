@@ -68,9 +68,11 @@ const RowTemplate = ({
 const CategoryBubble = ({
   name,
   onDelete,
+  t,
 }: {
   name: string;
   onDelete?: () => void;
+  t: (key: string) => string;
 }) => (
   <span
     className={`
@@ -94,7 +96,7 @@ const CategoryBubble = ({
     {onDelete && (
       <button
         className="ml-1 text-subtle hover:text-emphasis"
-        aria-label="Remove category"
+        aria-label={t("removeCategory")}
       >
         &times;
       </button>
@@ -122,7 +124,7 @@ const StandardAnswersTableRow = ({
         </Link>,
         <div key={`categories-${standardAnswer.id}`}>
           {standardAnswer.categories.map((category) => (
-            <CategoryBubble key={category.id} name={category.name} />
+            <CategoryBubble key={category.id} name={category.name} t={t} />
           ))}
         </div>,
         <ReactMarkdown key={`keyword-${standardAnswer.id}`}>
@@ -289,6 +291,7 @@ const StandardAnswersTable = ({
               key={category.id}
               name={category.name}
               onDelete={() => handleCategorySelect(category)}
+              t={t}
             />
           ))}
         </div>

@@ -5,15 +5,17 @@ import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { Text } from "@opal/components";
 import { Spacer } from "@opal/components";
 import CustomAnalyticsUpdateForm from "./CustomAnalyticsUpdateForm";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const route = ADMIN_ROUTES.CUSTOM_ANALYTICS;
 
 function Main() {
+  const { t } = useTranslation();
   if (!CUSTOM_ANALYTICS_ENABLED) {
     return (
       <div>
         <div className="mt-4">
-          <Callout type="danger" title="Custom Analytics is not enabled.">
+          <Callout type="danger" title={t("customAnalyticsNotEnabled")}>
             To set up custom analytics scripts, please work with the team who
             setup Onyx in your team to set the{" "}
             <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable.

@@ -133,7 +133,7 @@ function CredentialSelectionTable({
                         disabled={!editable}
                         onClick={() => onEditCredential(credential)}
                         className="cursor-pointer my-auto"
-                        aria-label="Edit credential"
+                        aria-label={t("editCredential")}
                       >
                         <SvgEdit size={16} />
                       </button>
@@ -186,6 +186,7 @@ export default function ModifyCredential({
   onDeleteCredential,
   onCreateNew,
 }: ModifyCredentialProps) {
+  const { t } = useTranslation();
   const [selectedCredential, setSelectedCredential] =
     useState<Credential<any> | null>(null);
   const [confirmDeletionCredential, setConfirmDeletionCredential] =
@@ -200,7 +201,7 @@ export default function ModifyCredential({
           <Modal.Content width="sm" height="sm">
             <Modal.Header
               icon={SvgAlertTriangle}
-              title="Confirm Deletion"
+              title={t("confirmDeletion")}
               onClose={() => setConfirmDeletionCredential(null)}
             />
             <Modal.Body>
