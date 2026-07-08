@@ -202,7 +202,7 @@ export default function ScheduledTaskDetailPage() {
         <ConfirmationModalLayout
           icon={SvgTrash}
           title={`Delete "${data.name}"?`}
-          description="This stops future runs and removes the task. Past run history (and the underlying sessions) will be preserved for audit."
+          description={t("stopTaskDescription")}
           onClose={() => setConfirmDelete(false)}
           submit={
             <Button

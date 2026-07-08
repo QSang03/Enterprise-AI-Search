@@ -372,7 +372,7 @@ export default function ScheduleTaskForm({
         <GeneralLayouts.Section>
           <InputVertical
             title={t("preApprovedApps")}
-            description="Selected apps can act without pausing for approval while this task runs on its own. Note: an app you don't pre-approve will pause mid-run to ask for your approval. The run may stall or fail if you do not approve an action request."
+            description={t("preApprovedAppsDescription")}
           >
             <PreApprovalPicker
               selectedIds={preApprovedAppIds}

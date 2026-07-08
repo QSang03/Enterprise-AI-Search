@@ -20,6 +20,7 @@ import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { useSidebarState } from "@opal/layouts";
 import useScreenSize from "@/hooks/useScreenSize";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const footerMarkdownComponents = {
   p: ({ children }: { children?: React.ReactNode }) => (
@@ -60,6 +61,7 @@ const footerMarkdownComponents = {
  * extension doesn't need.
  */
 export default function NRFChrome() {
+  const { t } = useTranslation();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
   const { state, setAppMode } = useQueryController();
   const isSearchModeAvailable = useIsSearchModeAvailable();
@@ -109,7 +111,7 @@ export default function NRFChrome() {
                   <LineItem
                     icon={SvgSearchMenu}
                     selected={effectiveMode === "search"}
-                    description="Quick search for documents"
+                    description={t("quickSearchDescription")}
                     onClick={noProp(() => {
                       setAppMode("search");
                       setModePopoverOpen(false);
@@ -120,7 +122,7 @@ export default function NRFChrome() {
                   <LineItem
                     icon={SvgBubbleText}
                     selected={effectiveMode === "chat"}
-                    description="Conversation and research"
+                    description={t("conversationResearchDescription")}
                     onClick={noProp(() => {
                       setAppMode("chat");
                       setModePopoverOpen(false);

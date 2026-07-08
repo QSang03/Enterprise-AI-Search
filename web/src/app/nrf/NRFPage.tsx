@@ -611,7 +611,7 @@ export default function NRFPage({ isSidePanel = false }: NRFPageProps) {
               <Modal.Header
                 icon={SvgAlertTriangle}
                 title={t("turnOffOnyxNewTabPage")}
-                description="You'll see your browser's default new tab page instead. You can turn it back on anytime in your Onyx settings."
+                description={t("turnOffNewTabPageDescription")}
                 onClose={() => setShowTurnOffModal(false)}
               />
               <Modal.Footer>

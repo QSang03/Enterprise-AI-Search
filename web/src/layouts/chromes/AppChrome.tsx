@@ -336,7 +336,7 @@ function Header() {
                               effectiveMode === "search" ? "selected" : "empty"
                             }
                             title={t("search")}
-                            description="Quick search for documents"
+                            description={t("quickSearchDescription")}
                             onClick={noProp(() => {
                               setAppMode("search");
                               setModePopoverOpen(false);
@@ -350,7 +350,7 @@ function Header() {
                               effectiveMode === "chat" ? "selected" : "empty"
                             }
                             title="Chat"
-                            description="Conversation and research"
+                            description={t("conversationResearchDescription")}
                             onClick={noProp(() => {
                               setAppMode("chat");
                               setModePopoverOpen(false);

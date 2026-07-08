@@ -246,7 +246,7 @@ export default function ThemePage() {
             <SettingsLayouts.Root>
               <SettingsLayouts.Header
                 title={route.title}
-                description="Customize how the application appears to users across your organization."
+                description={t("customizeAppearanceDescription")}
                 icon={route.icon}
                 rightChildren={
                   <Button
