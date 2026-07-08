@@ -147,7 +147,7 @@ function CredentialSelectionTable({
       </table>
 
       {allCredentials.length == 0 && (
-        <p className="mt-4"> No credentials exist for this connector!</p>
+        <p className="mt-4">{t("noCredentialsExist")}</p>
       )}
     </div>
   );
@@ -206,8 +206,7 @@ export default function ModifyCredential({
             />
             <Modal.Body>
               <Text as="p">
-                Are you sure you want to delete this credential? You cannot
-                delete credentials that are linked to live connectors.
+                {t("deleteCredentialConfirm")}
               </Text>
             </Modal.Body>
             <Modal.Footer>

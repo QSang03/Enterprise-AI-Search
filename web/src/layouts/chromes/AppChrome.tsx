@@ -280,8 +280,7 @@ function Header() {
             </Button>
           }
         >
-          Are you sure you want to delete this chat? This action cannot be
-          undone.
+          {t("deleteChatConfirm")}
         </ConfirmationModalLayout>
       )}
 

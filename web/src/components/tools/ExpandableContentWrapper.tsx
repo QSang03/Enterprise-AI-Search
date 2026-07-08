@@ -8,6 +8,7 @@ import { FileDescriptor } from "@/app/app/interfaces";
 import { cn } from "@opal/utils";
 import PreviewModal from "@/sections/modals/PreviewModal";
 import { MinimalOnyxDocument } from "@/lib/search/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ExpandableContentWrapperProps {
   fileDescriptor: FileDescriptor;
@@ -25,6 +26,7 @@ export default function ExpandableContentWrapper({
   close,
   ContentComponent,
 }: ExpandableContentWrapperProps) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpand = () => setExpanded((prev) => !prev);
@@ -52,21 +54,21 @@ export default function ExpandableContentWrapper({
               size="sm"
               onClick={downloadFile}
               icon={SvgDownloadCloud}
-              tooltip="Download file"
+              tooltip={t("downloadFile")}
             />
             <Button
               prominence="tertiary"
               size="sm"
               onClick={toggleExpand}
               icon={expanded ? SvgFold : SvgMaximize2}
-              tooltip={expanded ? "Minimize" : "Full screen"}
+              tooltip={expanded ? t("minimize") : t("fullScreen")}
             />
             <Button
               prominence="tertiary"
               size="sm"
               onClick={close}
               icon={SvgX}
-              tooltip="Hide"
+              tooltip={t("hide")}
             />
           </div>
         </div>

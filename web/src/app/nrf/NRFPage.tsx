@@ -449,7 +449,7 @@ export default function NRFPage({ isSidePanel = false }: NRFPageProps) {
             prominence="secondary"
             icon={SvgMenu}
             onClick={toggleSettings}
-            tooltip="Open settings"
+            tooltip={t("openSettings")}
           />
         </div>
       )}

@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItemWithTooltip } from "@/components/ui/dropdown-menu-with-tooltip";
 import { toast } from "@/hooks/useToast";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip } from "@opal/components";
@@ -194,6 +195,7 @@ export function FederatedConnectorForm({
   preloadedConnectorData,
   preloadedCredentialSchema,
 }: FederatedConnectorFormProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const sourceMetadata = getSourceMetadata(connector);
   const isEditMode = connectorId !== undefined;
@@ -384,9 +386,7 @@ export function FederatedConnectorForm({
   const handleDeleteConnector = async () => {
     if (!connectorId) return;
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this federated connector? This action cannot be undone."
-    );
+    const confirmed = window.confirm(t("deleteFederatedConnectorConfirm"));
 
     if (!confirmed) return;
 

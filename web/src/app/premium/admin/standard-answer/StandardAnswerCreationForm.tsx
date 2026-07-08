@@ -114,21 +114,21 @@ export const StandardAnswerCreationForm = ({
                   name="keyword"
                   label={t("regexPattern")}
                   isCode
-                  tooltip="Triggers if the question matches this regex pattern (using Python `re.search()`)"
+                  tooltip={t("regexPatternTooltip")}
                   placeholder={t("regexPlaceholder")}
                 />
               ) : values.matchAnyKeywords == "any" ? (
                 <TextFormField
                   name="keyword"
                   label={t("anyKeywords")}
-                  tooltip="A question must match these keywords in order to trigger the answer."
+                  tooltip={t("keywordsTooltip")}
                   placeholder={t("anyKeywordsPlaceholder")}
                 />
               ) : (
                 <TextFormField
                   name="keyword"
                   label={t("allKeywords")}
-                  tooltip="A question must match these keywords in order to trigger the answer."
+                  tooltip={t("keywordsTooltip")}
                   placeholder={t("allKeywordsPlaceholder")}
                 />
               )}

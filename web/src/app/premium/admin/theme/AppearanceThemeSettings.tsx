@@ -268,7 +268,7 @@ export const AppearanceThemeSettings = forwardRef<
                 <Tabs.List>
                   <Tabs.Trigger
                     value="logo_and_name"
-                    tooltip="Show both your application logo and name."
+                    tooltip={t("showLogoAndName")}
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
                   >
@@ -279,8 +279,8 @@ export const AppearanceThemeSettings = forwardRef<
                     disabled={!hasLogo}
                     tooltip={
                       hasLogo
-                        ? "Show only your application logo."
-                        : "Upload a logo to enable this option."
+                        ? t("showLogoOnly")
+                        : t("uploadLogoToEnable")
                     }
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
@@ -292,8 +292,8 @@ export const AppearanceThemeSettings = forwardRef<
                     disabled={!hasApplicationName}
                     tooltip={
                       hasApplicationName
-                        ? "Show only your application name."
-                        : "Enter an application name to enable this option."
+                        ? t("showNameOnly")
+                        : t("enterAppNameToEnable")
                     }
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}

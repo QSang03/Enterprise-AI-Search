@@ -328,6 +328,7 @@ export default function UserLibraryModal({
                         onToggleFolder={toggleFolder}
                         onDelete={setEntryToDelete}
                         onUploadToFolder={handleUploadToFolder}
+                        t={t}
                       />
                     </div>
                   </ShadowDiv>
@@ -472,6 +473,7 @@ interface LibraryTreeViewProps {
   onToggleFolder: (path: string) => void;
   onDelete: (entry: LibraryEntry) => void;
   onUploadToFolder: (folderPath: string) => void;
+  t: (key: string) => string;
   depth?: number;
 }
 
@@ -481,6 +483,7 @@ function LibraryTreeView({
   onToggleFolder,
   onDelete,
   onUploadToFolder,
+  t,
   depth = 0,
 }: LibraryTreeViewProps) {
   // Sort entries: directories first, then alphabetically
@@ -561,7 +564,7 @@ function LibraryTreeView({
                         entry.path.replace(/^user_library/, "") || "/";
                       onUploadToFolder(uploadPath);
                     }}
-                    tooltip="Upload to this folder"
+                    tooltip={t("uploadToFolder")}
                   />
                 )}
                 <Button
@@ -570,7 +573,7 @@ function LibraryTreeView({
                   size="sm"
                   icon={SvgTrash}
                   onClick={() => onDelete(entry)}
-                  tooltip="Delete"
+                  tooltip={t("delete")}
                 />
               </div>
             </div>
@@ -583,6 +586,7 @@ function LibraryTreeView({
                 onToggleFolder={onToggleFolder}
                 onDelete={onDelete}
                 onUploadToFolder={onUploadToFolder}
+                t={t}
                 depth={depth + 1}
               />
             )}
