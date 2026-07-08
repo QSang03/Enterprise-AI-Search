@@ -7,12 +7,14 @@ import { AreaChartDisplay } from "@/components/ui/areaChart";
 import Title from "@/components/ui/title";
 import { Text } from "@opal/components";
 import CardSection from "@/components/admin/CardSection";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function QueryPerformanceChart({
   timeRange,
 }: {
   timeRange: DateRangePickerValue;
 }) {
+  const { t } = useTranslation();
   const {
     data: queryAnalyticsData,
     isLoading: isQueryAnalyticsLoading,
@@ -97,8 +99,8 @@ export function QueryPerformanceChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>Usage</Title>
-      <Text as="p">Usage over time</Text>
+      <Title>{t("usage")}</Title>
+      <Text as="p">{t("usageOverTime")}</Text>
       {chart}
     </CardSection>
   );

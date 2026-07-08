@@ -49,16 +49,13 @@ export default function CustomAnalyticsUpdateForm() {
         }}
       >
         <div className="mb-4">
-          <Label>Script</Label>
+          <Label>{t("scriptLabel")}</Label>
           <Text as="p">
-            Specify the Javascript that should run on page load in order to
-            initialize your custom tracking/analytics.
+            {t("scriptDesc")}
           </Text>
           <Spacer rem={0.75} />
           <Text as="p">
-            {markdown(
-              "Do not include the `<script></script>` tags. If you upload a script below but you are not receiving any events in your analytics platform, try removing all extra whitespace before each line of JavaScript."
-            )}
+            {markdown(t("scriptNote"))}
           </Text>
           <Spacer rem={0.5} />
           <InputTextArea
@@ -69,13 +66,10 @@ export default function CustomAnalyticsUpdateForm() {
           />
         </div>
 
-        <Label>Secret Key</Label>
+        <Label>{t("secretKey")}</Label>
         <SubLabel>
           <>
-            For security reasons, you must provide a secret key to update this
-            script. This should be the value of the{" "}
-            <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable set when
-            initially setting up Onyx.
+            {t("secretKeyDesc")}
           </>
         </SubLabel>
         <input
@@ -92,7 +86,7 @@ export default function CustomAnalyticsUpdateForm() {
           onChange={(e) => setSecretKey(e.target.value)}
         />
         <Spacer rem={1} />
-        <Button type="submit">Update</Button>
+        <Button type="submit">{t("update")}</Button>
       </form>
     </div>
   );

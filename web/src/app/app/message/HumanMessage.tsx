@@ -25,6 +25,7 @@ function MessageEditing({
   onSubmitEdit,
   onCancelEdit,
 }: MessageEditingProps) {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [editedContent, setEditedContent] = useState(content);
 
@@ -76,9 +77,9 @@ function MessageEditing({
           }}
         />
         <div className="flex justify-end gap-1">
-          <Button onClick={handleSubmit}>Submit</Button>
+          <Button onClick={handleSubmit}>{t("submit")}</Button>
           <Button prominence="secondary" onClick={handleCancel}>
-            Cancel
+            {t("cancel")}
           </Button>
         </div>
       </div>

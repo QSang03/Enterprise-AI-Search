@@ -17,22 +17,24 @@ import {
   createBuiltInExternalApp,
   updateExternalApp,
 } from "@/app/craft/services/externalAppsService";
+import { useTranslation } from "@/providers/LanguageProvider";
 
-const POLICY_OPTIONS: { value: EndpointPolicy; label: string }[] = [
-  { value: "ALWAYS", label: "Auto-approve" },
-  { value: "ASK", label: "Ask" },
-  { value: "DENY", label: "Deny" },
+const POLICY_OPTIONS = (t: (key: string) => string): { value: EndpointPolicy; label: string }[] => [
+  { value: "ALWAYS", label: t("autoApprove") },
+  { value: "ASK", label: t("ask") },
+  { value: "DENY", label: t("deny") },
 ];
 
 interface PolicyToggleProps {
   value: EndpointPolicy;
   onChange: (value: EndpointPolicy) => void;
+  t: (key: string) => string;
 }
 
-function PolicyToggle({ value, onChange }: PolicyToggleProps) {
+function PolicyToggle({ value, onChange, t }: PolicyToggleProps) {
   return (
     <div className="flex gap-1 shrink-0">
-      {POLICY_OPTIONS.map((option) => (
+      {POLICY_OPTIONS(t).map((option) => (
         <Button
           key={option.value}
           size="xs"
@@ -81,6 +83,7 @@ export default function ConfigureProviderModal({
   descriptor,
   existingApp,
 }: ConfigureProviderModalProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [credentialValues, setCredentialValues] = useState<
     Record<string, string>
@@ -216,14 +219,14 @@ export default function ConfigureProviderModal({
             ) : (
               <>
                 <div className="flex flex-col gap-1">
-                  <Text font="main-ui-action">Name</Text>
+                  <Text font="main-ui-action">{t("name")}</Text>
                   <InputTypeIn
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder={descriptor.name}
                   />
                   <Text font="secondary-body" color="text-03">
-                    {`A label for this connection. Use a distinct name when adding multiple instances of the same provider (e.g. "${descriptor.name} — Engineering").`}
+                    {t("connectionLabel", { name: descriptor.name })}
                   </Text>
                 </div>
 
@@ -268,12 +271,12 @@ export default function ConfigureProviderModal({
                     if (value === "ALWAYS" || value === "ASK") applyBulk(value);
                   }}
                 >
-                  <InputSelect.Trigger placeholder="Custom" />
+                  <InputSelect.Trigger placeholder={t("custom")} />
                   <InputSelect.Content>
                     <InputSelect.Item value="ALWAYS">
-                      Auto-approve
+                      {t("autoApprove")}
                     </InputSelect.Item>
-                    <InputSelect.Item value="ASK">Ask</InputSelect.Item>
+                    <InputSelect.Item value="ASK">{t("ask")}</InputSelect.Item>
                   </InputSelect.Content>
                 </InputSelect>
 
@@ -282,8 +285,8 @@ export default function ConfigureProviderModal({
                   onOpenChange={setAdvancedOpen}
                 >
                   <SimpleCollapsible.Header
-                    title="Advanced"
-                    description="Set a policy for each action individually."
+                    title={t("advanced")}
+                    description={t("advancedDesc")}
                   />
                   <SimpleCollapsible.Content>
                     <div className="flex flex-col gap-2">
@@ -311,6 +314,7 @@ export default function ConfigureProviderModal({
                                 [action.action_id]: value,
                               }))
                             }
+                            t={t}
                           />
                         </div>
                       ))}

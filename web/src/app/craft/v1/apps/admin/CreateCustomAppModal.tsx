@@ -20,6 +20,7 @@ import {
   replaceCustomAppBundle,
   updateExternalApp,
 } from "@/app/craft/services/externalAppsService";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface CreateCustomAppModalProps {
   open: boolean;
@@ -55,6 +56,7 @@ export default function CreateCustomAppModal({
   onSaved,
   existingApp,
 }: CreateCustomAppModalProps) {
+  const { t } = useTranslation();
   const isEdit = existingApp !== null;
 
   const [name, setName] = useState("");
@@ -186,29 +188,27 @@ export default function CreateCustomAppModal({
         <Modal.Body>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <Text font="main-ui-action">Name</Text>
+              <Text font="main-ui-action">{t("name")}</Text>
               <InputTypeIn
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="My Custom App"
+                placeholder={t("customAppNamePlaceholder")}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <Text font="main-ui-action">Description</Text>
+              <Text font="main-ui-action">{t("description")}</Text>
               <InputTypeIn
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Optional — defaults to the bundle's SKILL.md description"
+                placeholder={t("descriptionPlaceholder")}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <Text font="main-ui-action">Upstream URL patterns</Text>
+              <Text font="main-ui-action">{t("upstreamUrlPatterns")}</Text>
               <Text font="secondary-body" color="text-03">
-                {
-                  "Outbound URLs the proxy may inject credentials into. Use * to match any characters (e.g. https://api.example.com/* covers every path on that host). The host must be literal — no wildcards before the first slash. Type a pattern and press Enter."
-                }
+                {t("upstreamUrlPatternsDesc")}
               </Text>
               <ListFieldInput
                 values={upstreamPatterns}
@@ -218,9 +218,9 @@ export default function CreateCustomAppModal({
             </div>
 
             <div className="flex flex-col gap-1">
-              <Text font="main-ui-action">Header credential pattern</Text>
+              <Text font="main-ui-action">{t("headerCredentialPattern")}</Text>
               <Text font="secondary-body" color="text-03">
-                {`Optional — headers injected into outbound requests. Use {placeholder} for values the user (or org below) supplies, e.g. "Bearer {api_key}". Leave empty to allowlist the upstream patterns without injecting credentials.`}
+                {t("headerCredentialPatternDesc")}
               </Text>
               <InputKeyValue
                 keyTitle="Header"
@@ -230,36 +230,33 @@ export default function CreateCustomAppModal({
                 items={headers}
                 onChange={setHeaders}
                 mode="line"
-                addButtonLabel="Add header"
+                addButtonLabel={t("addHeader")}
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <Text font="main-ui-action">Organization credentials</Text>
+              <Text font="main-ui-action">{t("orgCredentialPattern")}</Text>
               <Text font="secondary-body" color="text-03">
-                Optional — values your org pre-fills for every user. Leave empty
-                for apps where each user supplies their own credentials.
+                {t("orgCredentialPatternDesc")}
               </Text>
               <InputKeyValue
-                keyTitle="Credential key"
+                keyTitle={t("credentialKey")}
                 valueTitle="Value"
                 keyPlaceholder="api_key"
                 valuePlaceholder="sk-…"
                 items={orgCredentials}
                 onChange={setOrgCredentials}
                 mode="line"
-                addButtonLabel="Add credential"
+                addButtonLabel={t("addCredential")}
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <Text font="main-ui-action">
-                {isEdit ? "Replace bundle (.zip)" : "Bundle (.zip)"}
+                {isEdit ? t("replaceBundle") : t("bundle")}
               </Text>
               <Text font="secondary-body" color="text-03">
-                {isEdit
-                  ? "Optional — upload a new zip to replace the current bundle. Leave empty to keep it. The slug stays the same."
-                  : "A zip containing SKILL.md plus any other files. The filename becomes the app slug."}
+                {isEdit ? t("replaceBundleDesc") : t("bundleDesc")}
               </Text>
               <div className="flex items-center gap-2">
                 <input

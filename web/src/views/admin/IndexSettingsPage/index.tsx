@@ -1467,7 +1467,7 @@ export default function IndexSettingsPage() {
                                         setViewAllModelsOpen(true);
                                       }}
                                     >
-                                      View All Models
+                                      {t("viewAllModels")}
                                     </Button>
                                     {isCurrentCloudBased && (
                                       <div className="p-1">

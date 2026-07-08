@@ -28,6 +28,7 @@ import usePaginatedFetch from "@/hooks/usePaginatedFetch";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import useSWR from "swr";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { TaskQueueState } from "@/app/premium/admin/performance/query-history/types";
 import { withRequestId } from "@/app/premium/admin/performance/query-history/utils";
 import {
@@ -100,10 +101,11 @@ function SelectFeedbackType({
   value: Feedback | "all";
   onValueChange: (value: Feedback | "all") => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Section alignItems="start" gap={0.25}>
       <Text as="p" className="font-medium">
-        Feedback Type
+        {t("feedbackType")}
       </Text>
       <InputSelect
         value={value}
@@ -113,16 +115,16 @@ function SelectFeedbackType({
 
         <InputSelect.Content>
           <InputSelect.Item value="all" icon={SvgMinusCircle}>
-            Any
+            {t("any")}
           </InputSelect.Item>
           <InputSelect.Item value="like" icon={SvgThumbsUp}>
-            Like
+            {t("like")}
           </InputSelect.Item>
           <InputSelect.Item value="dislike" icon={SvgThumbsDown}>
-            Dislike
+            {t("dislike")}
           </InputSelect.Item>
           <InputSelect.Item value="mixed" icon={SvgMinus}>
-            Mixed
+            {t("mixed")}
           </InputSelect.Item>
         </InputSelect.Content>
       </InputSelect>
@@ -131,11 +133,12 @@ function SelectFeedbackType({
 }
 
 function ExportBadge({ status }: { status: TaskStatus }) {
-  if (status === "SUCCESS") return <Badge variant="success">Success</Badge>;
+  const { t } = useTranslation();
+  if (status === "SUCCESS") return <Badge variant="success">{t("successBadge")}</Badge>;
   else if (status === "FAILURE")
-    return <Badge variant="destructive">Failure</Badge>;
+    return <Badge variant="destructive">{t("failureBadge")}</Badge>;
   else if (status === "PENDING" || status === "STARTED")
-    return <Badge variant="in_progress">Pending</Badge>;
+    return <Badge variant="in_progress">{t("pendingBadge")}</Badge>;
   else return <></>;
 }
 
@@ -144,6 +147,7 @@ function PreviousQueryHistoryExportsModal({
 }: {
   setShowModal: Dispatch<SetStateAction<boolean>>;
 }) {
+  const { t } = useTranslation();
   const { data: queryHistoryTasks } = useSWR<TaskQueueState[]>(
     LIST_QUERY_HISTORY_URL,
     errorHandlingFetcher,
@@ -179,18 +183,18 @@ function PreviousQueryHistoryExportsModal({
       <Modal.Content width="full" height="full">
         <Modal.Header
           icon={SvgFileText}
-          title="Previous Query History Exports"
+          title={t("previousQueryHistoryExports")}
           onClose={() => setShowModal(false)}
         />
         <Modal.Body>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Generated At</TableHead>
-                <TableHead>Start Range</TableHead>
-                <TableHead>End Range</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Download</TableHead>
+                <TableHead>{t("generatedAt")}</TableHead>
+                <TableHead>{t("startRange")}</TableHead>
+                <TableHead>{t("endRange")}</TableHead>
+                <TableHead>{t("statusHeader")}</TableHead>
+                <TableHead>{t("downloadHeader")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -245,6 +249,7 @@ function PreviousQueryHistoryExportsModal({
 }
 
 export function QueryHistoryTable() {
+  const { t } = useTranslation();
   const [dateRange, setDateRange] = useState<DateRange>(undefined);
   const [filters, setFilters] = useState<{
     feedback_type?: Feedback | "all";
@@ -333,12 +338,12 @@ export function QueryHistoryTable() {
           <Table className="mt-5">
             <TableHeader>
               <TableRow>
-                <TableHead>First User Message</TableHead>
-                <TableHead>First AI Response</TableHead>
-                <TableHead>Feedback</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Persona</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>{t("firstUserMessage")}</TableHead>
+                <TableHead>{t("firstAIResponse")}</TableHead>
+                <TableHead>{t("feedback")}</TableHead>
+                <TableHead>{t("userHeader")}</TableHead>
+                <TableHead>{t("personaHeader")}</TableHead>
+                <TableHead>{t("dateHeader")}</TableHead>
               </TableRow>
             </TableHeader>
             {isLoading ? (

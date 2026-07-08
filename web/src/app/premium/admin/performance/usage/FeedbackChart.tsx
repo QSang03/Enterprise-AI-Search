@@ -2,6 +2,7 @@ import SvgSimpleLoader from "@opal/icons/simple-loader";
 import { getDatesList, useQueryAnalytics } from "../lib";
 import { Text } from "@opal/components";
 import Title from "@/components/ui/title";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 import { DateRangePickerValue } from "@/components/dateRangeSelectors/AdminDateRangeSelector";
 import CardSection from "@/components/admin/CardSection";
@@ -12,6 +13,7 @@ export function FeedbackChart({
 }: {
   timeRange: DateRangePickerValue;
 }) {
+  const { t } = useTranslation();
   const {
     data: queryAnalyticsData,
     isLoading: isQueryAnalyticsLoading,
@@ -67,8 +69,8 @@ export function FeedbackChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>Feedback</Title>
-      <Text as="p">Thumbs Up / Thumbs Down over time</Text>
+      <Title>{t("feedback")}</Title>
+      <Text as="p">{t("thumbsUpDownOverTime")}</Text>
       {chart}
     </CardSection>
   );
