@@ -1,25 +1,31 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 
-const messages = [
-  "Punching wood...",
-  "Gathering resources...",
-  "Placing blocks...",
-  "Crafting your workspace...",
-  "Mining for dependencies...",
-  "Smelting the code...",
-  "Enchanting with magic...",
-  "World generation complete...",
-  "/gamemode 1",
-];
-
-const MESSAGE_COUNT = messages.length;
 const TYPE_DELAY = 40;
 const LINE_PAUSE = 800;
 const RESET_DELAY = 2000;
 
 export default function CraftingLoader() {
+  const { t } = useTranslation();
+  const messages = useMemo(
+    () => [
+      t("craft.loaderPunchingWood"),
+      t("craft.loaderGatheringResources"),
+      t("craft.loaderPlacingBlocks"),
+      t("craft.loaderCraftingWorkspace"),
+      t("craft.loaderMiningDependencies"),
+      t("craft.loaderSmeltingCode"),
+      t("craft.loaderEnchantingMagic"),
+      t("craft.loaderWorldComplete"),
+      t("craft.loaderGamemode"),
+    ],
+    [t]
+  );
+
+  const messageCount = messages.length;
+
   const [display, setDisplay] = useState({
     lines: [] as string[],
     currentText: "",
@@ -40,7 +46,7 @@ export default function CraftingLoader() {
       const lineIdx = lineIndexRef.current;
       const charIdx = charIndexRef.current;
 
-      if (lineIdx >= MESSAGE_COUNT) {
+      if (lineIdx >= messageCount) {
         timeoutRef.current = setTimeout(() => {
           if (!isActive) return;
           lineIndexRef.current = 0;
@@ -87,7 +93,7 @@ export default function CraftingLoader() {
       if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
       if (timeoutRef.current !== undefined) clearTimeout(timeoutRef.current);
     };
-  }, []);
+  }, [messages, messageCount]);
 
   const { lines, currentText } = display;
   const hasCurrentText = currentText.length > 0;
@@ -127,7 +133,7 @@ export default function CraftingLoader() {
       </div>
 
       <p className="mt-6 text-neutral-500 text-sm font-mono">
-        Crafting your next great idea...
+        {t("craft.loaderTagline")}
       </p>
     </div>
   );

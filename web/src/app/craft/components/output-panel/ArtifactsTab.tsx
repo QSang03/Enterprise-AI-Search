@@ -25,6 +25,7 @@ import {
 } from "@/app/craft/services/apiServices";
 import { FileSystemEntry } from "@/app/craft/types/streamingTypes";
 import { getFileIcon } from "@/lib/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ArtifactsTabProps {
   artifacts: Artifact[];
@@ -35,6 +36,7 @@ export default function ArtifactsTab({
   artifacts,
   sessionId,
 }: ArtifactsTabProps) {
+  const { t } = useTranslation();
   const webappArtifacts = artifacts.filter(
     (a) => a.type === "nextjs_app" || a.type === "web_app"
   );
@@ -69,12 +71,10 @@ export default function ArtifactsTab({
     }
   );
 
-  // Filter out "web" directory (shown as webapp artifact)
   const rawEntries = (outputsListing?.entries ?? []).filter(
     (entry) => entry.name !== "web"
   );
 
-  // Filter out empty directories
   const [outputEntries, setOutputEntries] = useState<FileSystemEntry[]>([]);
 
   useEffect(() => {
@@ -147,10 +147,10 @@ export default function ArtifactsTab({
       >
         <SvgFiles size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          No artifacts yet
+          {t("craft.noArtifactsYet")}
         </Text>
         <Text font="secondary-body" color="text-02">
-          Output files and web apps will appear here
+          {t("craft.artifactsWillAppear")}
         </Text>
       </Section>
     );
@@ -160,7 +160,6 @@ export default function ArtifactsTab({
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-auto overlay-scrollbar">
         <div className="divide-y divide-border-01">
-          {/* Webapp Artifacts */}
           {webappArtifacts.map((artifact) => (
             <div
               key={artifact.id}
@@ -177,7 +176,7 @@ export default function ArtifactsTab({
                   {artifact.name}
                 </Text>
                 <Text font="secondary-body" color="text-02">
-                  Next.js Application
+                  {t("craft.nextJsApplication")}
                 </Text>
               </div>
 
@@ -191,13 +190,12 @@ export default function ArtifactsTab({
                     handleWebappDownload();
                   }}
                 >
-                  Download
+                  {t("common.download")}
                 </Button>
               </div>
             </div>
           ))}
 
-          {/* Output Files & Folders */}
           {outputEntries.map((entry) => (
             <OutputEntryRow
               key={entry.path}
@@ -229,6 +227,7 @@ function OutputEntryRow({
   onDownload,
   onFileOpen,
 }: OutputEntryRowProps) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const [children, setChildren] = useState<FileSystemEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -293,7 +292,7 @@ function OutputEntryRow({
               onDownload(entry.path, entry.is_directory);
             }}
           >
-            Download
+            {t("common.download")}
           </Button>
         </div>
       </div>

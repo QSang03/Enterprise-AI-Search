@@ -4,6 +4,7 @@ import { Fragment, useState } from "react";
 
 import { Button, Text } from "@opal/components";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PayloadViewProps {
   payload: Record<string, unknown>;
@@ -38,6 +39,7 @@ function InsetBlock({ children }: { children: React.ReactNode }) {
 }
 
 function StringValue({ text }: { text: string }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const needsTruncation = text.length > STRING_TRUNCATE_AT && !expanded;
   const shown = needsTruncation
@@ -57,7 +59,7 @@ function StringValue({ text }: { text: string }) {
             size="sm"
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? "Show less" : "Show more"}
+            {expanded ? t("showLess") : t("showMore")}
           </Button>
         </div>
       )}
@@ -66,6 +68,7 @@ function StringValue({ text }: { text: string }) {
 }
 
 function NestedJsonValue({ value }: { value: unknown }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const full = JSON.stringify(value, null, 2);
   const lines = full.split("\n");
@@ -90,7 +93,7 @@ function NestedJsonValue({ value }: { value: unknown }) {
             size="sm"
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? "Show less" : "Show more"}
+            {expanded ? t("showLess") : t("showMore")}
           </Button>
         </div>
       )}

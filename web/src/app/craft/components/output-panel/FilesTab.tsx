@@ -402,6 +402,7 @@ export default function FilesTab({
               onToggleFolder={toggleFolder}
               onFileClick={handleLocalFileClick}
               formatFileSize={formatFileSize}
+              t={t}
             />
           </div>
         )}
@@ -425,6 +426,7 @@ interface FileTreeNodeProps {
   ) => void;
   formatFileSize: (bytes: number | null) => string;
   parentIsLast?: boolean[];
+  t: (key: string) => string;
 }
 
 function FileTreeNode({
@@ -436,6 +438,7 @@ function FileTreeNode({
   onFileClick,
   formatFileSize,
   parentIsLast = [],
+  t,
 }: FileTreeNodeProps) {
   // Sort entries: directories first, then alphabetically
   const sortedEntries = [...entries].sort((a, b) => {
@@ -571,6 +574,7 @@ function FileTreeNode({
                 onFileClick={onFileClick}
                 formatFileSize={formatFileSize}
                 parentIsLast={[...parentIsLast, isLast]}
+                t={t}
               />
             )}
 
@@ -583,7 +587,7 @@ function FileTreeNode({
                   style={{ paddingLeft: `${(depth + 1) * 20 + 24}px` }}
                 >
                   <Text font="secondary-body" color="text-02">
-                    Loading...
+                    {t("loadingEllipsis")}
                   </Text>
                 </div>
               )}

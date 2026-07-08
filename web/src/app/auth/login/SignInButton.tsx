@@ -81,7 +81,7 @@ export default function SignInButton({
         console.error(
           "Captcha: grecaptcha.execute returned no token. The widget may not have loaded yet."
         );
-        setError("grecaptcha.execute returned no token");
+        setError(t("auth.captchaNoToken"));
         return;
       }
       const res = await fetch("/api/auth/captcha/oauth-verify", {
@@ -94,13 +94,9 @@ export default function SignInButton({
         const body = await res.json().catch(() => ({}));
         // eslint-disable-next-line no-console
         console.error(
-          `Captcha verify rejected: status=${res.status} detail=${
-            body.detail ?? "(none)"
-          }`
+          `Captcha verify rejected: status=${res.status} detail=${body.detail ?? "(none)"}`
         );
-        setError(
-          t("auth.captchaFailed")
-        );
+        setError(t("auth.captchaFailed"));
         return;
       }
       navigating = true;

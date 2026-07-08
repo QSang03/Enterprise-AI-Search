@@ -76,11 +76,16 @@ import type { WithoutStyles } from "@opal/types";
 import Text from "@/refresh-components/texts/Text";
 import { InputErrorText } from "@opal/layouts";
 import { SvgMinusCircle, SvgPlusCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type KeyValue = { key: string; value: string };
 
+const KEY_ERROR_EMPTY = "empty_key" as const;
+const KEY_ERROR_DUPLICATE = "duplicate_key" as const;
+type KeyErrorCode = typeof KEY_ERROR_EMPTY | typeof KEY_ERROR_DUPLICATE;
+
 type KeyValueError = {
-  key?: string;
+  key?: KeyErrorCode;
   value?: string;
 };
 
@@ -105,6 +110,10 @@ interface KeyValueInputItemProps {
   error?: KeyValueError;
   canRemove: boolean;
   index: number;
+  keyErrorText?: string;
+  keyAriaLabel: string;
+  valueAriaLabel: string;
+  removeAriaLabel: string;
 }
 
 function KeyValueInputItem({
@@ -116,6 +125,10 @@ function KeyValueInputItem({
   error,
   canRemove,
   index,
+  keyErrorText,
+  keyAriaLabel,
+  valueAriaLabel,
+  removeAriaLabel,
 }: KeyValueInputItemProps) {
   return (
     <>
@@ -124,17 +137,17 @@ function KeyValueInputItem({
           placeholder={keyPlaceholder}
           value={item.key}
           onChange={(e) => onChange({ ...item, key: e.target.value })}
-          aria-label={`${keyPlaceholder || "Key"} ${index + 1}`}
+          aria-label={keyAriaLabel}
           aria-invalid={!!error?.key}
         />
-        {error?.key && <InputErrorText>{error.key}</InputErrorText>}
+        {keyErrorText && <InputErrorText>{keyErrorText}</InputErrorText>}
       </div>
       <div className="flex flex-col gap-y-0.5">
         <InputTypeIn
           placeholder={valuePlaceholder}
           value={item.value}
           onChange={(e) => onChange({ ...item, value: e.target.value })}
-          aria-label={`${valuePlaceholder || "Value"} ${index + 1}`}
+          aria-label={valueAriaLabel}
           aria-invalid={!!error?.value}
         />
         {error?.value && <InputErrorText>{error.value}</InputErrorText>}
@@ -144,7 +157,7 @@ function KeyValueInputItem({
         prominence="tertiary"
         icon={SvgMinusCircle}
         onClick={onRemove}
-        aria-label={`Remove ${keyPlaceholder || "key-value"} pair ${index + 1}`}
+        aria-label={removeAriaLabel}
       />
     </>
   );
@@ -185,8 +198,8 @@ export interface KeyValueInputProps extends WithoutStyles<
 }
 
 export default function KeyValueInput({
-  keyTitle = "Key",
-  valueTitle = "Value",
+  keyTitle: keyTitleProp,
+  valueTitle: valueTitleProp,
   keyPlaceholder,
   valuePlaceholder,
   items = [],
@@ -194,10 +207,14 @@ export default function KeyValueInput({
   mode = "line",
   layout = "equal",
   onValidationError,
-  addButtonLabel = "Add Line",
+  addButtonLabel: addButtonLabelProp,
   ...rest
 }: KeyValueInputProps) {
-  // Validation logic
+  const { t } = useTranslation();
+  const keyTitle = keyTitleProp ?? t("inputKeyValue.keyTitle");
+  const valueTitle = valueTitleProp ?? t("inputKeyValue.valueTitle");
+  const addButtonLabel = addButtonLabelProp ?? t("inputKeyValue.addLine");
+
   const errors = useMemo((): KeyValueError[] => {
     if (!items || items.length === 0) return [];
 
@@ -205,15 +222,13 @@ export default function KeyValueInput({
     const keyCount = new Map<string, number[]>();
 
     items.forEach((item, index) => {
-      // Validate empty keys
       if (item.key.trim() === "" && item.value.trim() !== "") {
         const error = errorsList[index];
         if (error) {
-          error.key = "Key cannot be empty";
+          error.key = KEY_ERROR_EMPTY;
         }
       }
 
-      // Track key occurrences for duplicate validation
       if (item.key.trim() !== "") {
         const existing = keyCount.get(item.key) || [];
         existing.push(index);
@@ -221,13 +236,12 @@ export default function KeyValueInput({
       }
     });
 
-    // Validate duplicate keys
-    keyCount.forEach((indices, key) => {
+    keyCount.forEach((indices) => {
       if (indices.length > 1) {
         indices.forEach((index) => {
           const error = errorsList[index];
           if (error) {
-            error.key = "Duplicate key";
+            error.key = KEY_ERROR_DUPLICATE;
           }
         });
       }
@@ -240,29 +254,29 @@ export default function KeyValueInput({
     return errors.some((error) => error.key || error.value);
   }, [errors]);
 
-  // Generate error message for external form libraries (Formik, etc.)
   const errorMessage = useMemo(() => {
     if (!hasAnyError) return null;
 
     const errorCount = errors.filter((e) => e.key || e.value).length;
     const duplicateCount = errors.filter(
-      (e) => e.key === "Duplicate key"
+      (e) => e.key === KEY_ERROR_DUPLICATE
     ).length;
-    const emptyCount = errors.filter(
-      (e) => e.key === "Key cannot be empty"
-    ).length;
+    const emptyCount = errors.filter((e) => e.key === KEY_ERROR_EMPTY).length;
 
     if (duplicateCount > 0) {
-      return `${duplicateCount} duplicate ${
-        duplicateCount === 1 ? "key" : "keys"
-      } found`;
-    } else if (emptyCount > 0) {
-      return `${emptyCount} empty ${emptyCount === 1 ? "key" : "keys"} found`;
+      return duplicateCount === 1
+        ? t("inputKeyValue.duplicateKeyFound")
+        : t("inputKeyValue.duplicateKeysFound", { count: duplicateCount });
     }
-    return `${errorCount} validation ${
-      errorCount === 1 ? "error" : "errors"
-    } found`;
-  }, [hasAnyError, errors]);
+    if (emptyCount > 0) {
+      return emptyCount === 1
+        ? t("inputKeyValue.emptyKeyFound")
+        : t("inputKeyValue.emptyKeysFound", { count: emptyCount });
+    }
+    return errorCount === 1
+      ? t("inputKeyValue.validationErrorFound")
+      : t("inputKeyValue.validationErrorsFound", { count: errorCount });
+  }, [hasAnyError, errors, t]);
 
   // Notify parent of validation changes
   const onValidationErrorRef = useRef(onValidationError);
@@ -310,20 +324,21 @@ export default function KeyValueInput({
 
   const gridCols = GRID_COLS[layout];
 
+  const getKeyErrorText = (code?: KeyErrorCode) => {
+    if (code === KEY_ERROR_EMPTY) return t("inputKeyValue.keyEmpty");
+    if (code === KEY_ERROR_DUPLICATE) return t("inputKeyValue.duplicateKey");
+    return undefined;
+  };
+
   return (
     <div
       className="w-full flex flex-col gap-y-2"
       role="group"
-      aria-label={`${keyTitle} and ${valueTitle} pairs`}
+      aria-label={t("inputKeyValue.pairsGroupAria", { keyTitle, valueTitle })}
       {...rest}
     >
       {items && items.length > 0 ? (
         <div className={cn("grid items-start gap-1", gridCols)}>
-          {/*
-            # NOTE (@raunakab)
-            We add this space below the "title"-row to add some breathing room between the titles and the key-value items.
-            Since we're using a `grid` template, the padding below *one* item in a row applies additional height to *all* items in that row.
-          */}
           <div className="pb-1">
             <Text mainUiAction>{keyTitle}</Text>
           </div>
@@ -339,14 +354,24 @@ export default function KeyValueInput({
               keyPlaceholder={keyPlaceholder}
               valuePlaceholder={valuePlaceholder}
               error={errors[index]}
+              keyErrorText={getKeyErrorText(errors[index]?.key)}
               canRemove={canRemoveItems}
               index={index}
+              keyAriaLabel={t("inputKeyValue.keyAria", {
+                index: index + 1,
+              })}
+              valueAriaLabel={t("inputKeyValue.valueAria", {
+                index: index + 1,
+              })}
+              removeAriaLabel={t("inputKeyValue.removePairAria", {
+                index: index + 1,
+              })}
             />
           ))}
         </div>
       ) : (
         <EmptyMessageCard
-          title="No items added yet."
+          title={t("inputKeyValue.noItemsYet")}
           padding="sm"
           sizePreset="secondary"
         />
@@ -356,7 +381,7 @@ export default function KeyValueInput({
         prominence="secondary"
         onClick={handleAdd}
         icon={SvgPlusCircle}
-        aria-label={`Add ${keyTitle} and ${valueTitle} pair`}
+        aria-label={t("inputKeyValue.addPairAria", { keyTitle, valueTitle })}
         type="button"
       >
         {addButtonLabel}

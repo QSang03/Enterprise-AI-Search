@@ -37,6 +37,7 @@ import {
 } from "@/app/craft/v1/tasks/utils";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface RunHistoryTableProps {
   taskId: string;
@@ -153,6 +154,7 @@ function buildColumns() {
 }
 
 export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [olderPages, setOlderPages] = useState<ScheduledRunSummary[][]>([]);
   const [olderNextCursor, setOlderNextCursor] = useState<string | null>(null);
@@ -277,7 +279,7 @@ export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
             onClick={() => void loadMore()}
             disabled={loadingMore}
           >
-            {loadingMore ? "Loading..." : "Load more"}
+            {loadingMore ? t("loadingEllipsis") : t("loadMore")}
           </Button>
         </div>
       )}

@@ -2,16 +2,18 @@
 
 import OAuthCallbackPage from "@/components/oauth/OAuthCallbackPage";
 import { getSourceDisplayName } from "@/lib/sources";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function FederatedOAuthCallbackPage() {
+  const { t } = useTranslation();
   const federatedConfig = {
-    processingMessage: "Processing...",
-    processingDetails: "Please wait while we complete the setup.",
-    successMessage: "Success!",
+    processingMessage: t("processingEllipsis"),
+    processingDetails: t("pleaseWaitCompleteSetup"),
+    successMessage: t("success"),
     successDetailsTemplate:
       "Your {serviceName} authorization completed successfully. You can now use this connector for search.",
     errorMessage: "Something Went Wrong",
-    backButtonText: "Back to Chat",
+    backButtonText: t("backToChat"),
     redirectingMessage: "Redirecting to chat in 2 seconds...",
     autoRedirectDelay: 2000,
     defaultRedirectPath: "/app",

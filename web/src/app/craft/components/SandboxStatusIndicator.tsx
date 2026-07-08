@@ -10,110 +10,52 @@ import {
   useIsPreProvisioningFailed,
 } from "@/app/craft/hooks/useBuildSessionStore";
 import { Text } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
-const STATUS_CONFIG = {
-  provisioning: {
-    color: "bg-status-warning-05",
-    pulse: true,
-    label: "Initializing sandbox...",
-  },
-  running: {
-    color: "bg-status-success-05",
-    pulse: false,
-    label: "Sandbox running",
-  },
-  idle: { color: "bg-status-warning-05", pulse: false, label: "Sandbox idle" },
-  sleeping: {
-    color: "bg-status-info-05",
-    pulse: false,
-    label: "Sandbox sleeping",
-  },
-  restoring: {
-    color: "bg-status-warning-05",
-    pulse: true,
-    label: "Restoring sandbox...",
-  },
-  terminated: {
-    color: "bg-status-error-05",
-    pulse: false,
-    label: "Sandbox terminated",
-  },
-  failed: {
-    color: "bg-status-error-05",
-    pulse: false,
-    label: "Failed to provision sandbox",
-  },
-  ready: {
-    color: "bg-status-success-05",
-    pulse: false,
-    label: "Sandbox ready",
-  },
-  loading: {
-    color: "bg-text-03",
-    pulse: true,
-    label: "Finding sandbox...",
-  },
+const STATUS_STYLE = {
+  provisioning: { color: "bg-status-warning-05", pulse: true },
+  running: { color: "bg-status-success-05", pulse: false },
+  idle: { color: "bg-status-warning-05", pulse: false },
+  sleeping: { color: "bg-status-info-05", pulse: false },
+  restoring: { color: "bg-status-warning-05", pulse: true },
+  terminated: { color: "bg-status-error-05", pulse: false },
+  failed: { color: "bg-status-error-05", pulse: false },
+  ready: { color: "bg-status-success-05", pulse: false },
+  loading: { color: "bg-text-03", pulse: true },
 } as const;
 
-type Status = keyof typeof STATUS_CONFIG;
+type Status = keyof typeof STATUS_STYLE;
 
 interface SandboxStatusIndicatorProps {}
 
-/**
- * Derives the current sandbox status from session state or pre-provisioning state.
- *
- * Priority:
- * 1. Actual sandbox status from backend (if session has sandbox info)
- * 2. Session exists but no sandbox info → "running" (optimistic for consumed pre-provisioned sessions)
- * 3. Pre-provisioning failed → "failed"
- * 4. Pre-provisioning in progress → "provisioning" (only when no session - welcome page)
- * 5. Pre-provisioning ready (not yet consumed) → "ready"
- * 6. Default → "loading" (gray, finding sandbox)
- *
- * IMPORTANT: Pre-provisioning state is checked AFTER session existence because
- * pre-provisioning is for NEW sessions. When viewing an existing session, we
- * should show that session's status, not the background pre-provisioning state.
- */
 function deriveSandboxStatus(
   session: ReturnType<typeof useSession>,
   isPreProvisioning: boolean,
   isReady: boolean,
   isFailed: boolean
 ): Status {
-  // 1. Backend is source of truth when available
   if (session?.sandbox) {
     return session.sandbox.status as Status;
   }
-  // 2. Session exists but no sandbox info - assume running
-  // (This handles consumed pre-provisioned sessions before sandbox loads)
   if (session) {
     return "running";
   }
-  // 3. Pre-provisioning failed
   if (isFailed) {
     return "failed";
   }
-  // 4. No session - check pre-provisioning state (welcome page)
   if (isPreProvisioning) {
     return "provisioning";
   }
-  // 5. Pre-provisioning ready but not consumed
   if (isReady) {
     return "ready";
   }
-  // 6. No session, no pre-provisioning state - loading
   return "loading";
 }
 
-/**
- * Displays the current sandbox status with a colored indicator dot.
- *
- * Shows actual sandbox state when a session exists, otherwise shows
- * pre-provisioning state (provisioning/ready).
- */
 export default function SandboxStatusIndicator(
   _props: SandboxStatusIndicatorProps = {}
 ) {
+  const { t } = useTranslation();
   const session = useSession();
   const isPreProvisioning = useIsPreProvisioning();
   const isReady = useIsPreProvisioningReady();
@@ -125,7 +67,19 @@ export default function SandboxStatusIndicator(
     isReady,
     isFailed
   );
-  const { color, pulse, label } = STATUS_CONFIG[status];
+  const { color, pulse } = STATUS_STYLE[status];
+
+  const labelKey: Record<Status, string> = {
+    provisioning: "craft.sandboxProvisioning",
+    running: "craft.sandboxRunning",
+    idle: "craft.sandboxIdle",
+    sleeping: "craft.sandboxSleeping",
+    restoring: "craft.sandboxRestoring",
+    terminated: "craft.sandboxTerminated",
+    failed: "craft.sandboxFailed",
+    ready: "craft.sandboxReady",
+    loading: "craft.sandboxLoading",
+  };
 
   return (
     <motion.div layout transition={{ duration: 0.3, ease: "easeInOut" }}>
@@ -146,7 +100,7 @@ export default function SandboxStatusIndicator(
             transition={{ duration: 0.2 }}
           >
             <Text font="main-ui-body" color="text-05" nowrap>
-              {label}
+              {t(labelKey[status])}
             </Text>
           </motion.span>
         </AnimatePresence>

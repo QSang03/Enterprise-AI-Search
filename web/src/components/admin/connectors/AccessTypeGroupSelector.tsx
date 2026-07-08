@@ -13,6 +13,7 @@ import {
   validAutoSyncSources,
 } from "@/lib/types";
 import { useUser } from "@/providers/UserProvider";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { SvgUsers } from "@opal/icons";
 function isValidAutoSyncSource(
   value: ConfigurableSources
@@ -33,6 +34,7 @@ export function AccessTypeGroupSelector({
 }: {
   connector: ConfigurableSources;
 }) {
+  const { t } = useTranslation();
   const { data: userGroups, isLoading: userGroupsIsLoading } = useUserGroups();
   const { isAdmin, user, isCurator } = useUser();
   const businessTier = useTierAtLeast(Tier.BUSINESS);
@@ -83,7 +85,7 @@ export function AccessTypeGroupSelector({
   ]);
 
   if (userGroupsIsLoading) {
-    return <div>Loading...</div>;
+    return <div>{t("loadingEllipsis")}</div>;
   }
   if (!businessTier) {
     return null;

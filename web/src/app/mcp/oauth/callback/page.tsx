@@ -1,16 +1,18 @@
 "use client";
 
 import OAuthCallbackPage from "@/components/oauth/OAuthCallbackPage";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function MCPOAuthCallbackPage() {
+  const { t } = useTranslation();
   const mcpConfig = {
-    processingMessage: "Processing...",
-    processingDetails: "Please wait while we complete the MCP server setup.",
-    successMessage: "Success!",
+    processingMessage: t("processingEllipsis"),
+    processingDetails: t("pleaseWaitCompleteMcpSetup"),
+    successMessage: t("success"),
     successDetailsTemplate:
       "Your {serviceName} authorization completed successfully. You can now use this server's tools in chat.",
     errorMessage: "Something Went Wrong",
-    backButtonText: "Back to Chat",
+    backButtonText: t("backToChat"),
     redirectingMessage: "Redirecting back in 2 seconds...",
     autoRedirectDelay: 2000,
     defaultRedirectPath: "/app",

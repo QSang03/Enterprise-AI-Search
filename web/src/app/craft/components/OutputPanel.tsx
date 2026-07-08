@@ -550,7 +550,7 @@ const BuildOutputPanel = memo(({ isOpen }: BuildOutputPanelProps) => {
             ? `sandbox://${activeFilePath}`
             : activeOutputTab === "preview"
               ? session
-                ? displayUrl || "Loading..."
+                ? displayUrl || t("loadingEllipsis")
                 : "no-active-sandbox://"
               : activeOutputTab === "files"
                 ? session

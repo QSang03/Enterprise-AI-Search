@@ -6,6 +6,7 @@ import { Button, InputTypeIn, Text } from "@opal/components";
 import Modal from "@/refresh-components/Modal";
 import { useSettings } from "@/lib/settings/hooks";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Dev/debug-only button that streams the user's sandbox pod opencode-serve
@@ -99,6 +100,7 @@ interface LogStreamPaneProps {
 }
 
 function LogStreamPane({ open }: LogStreamPaneProps) {
+  const { t } = useTranslation();
   const [lines, setLines] = useState<LogLine[]>([]);
   const [status, setStatus] = useState<StreamStatus>("connecting");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -155,9 +157,9 @@ function LogStreamPane({ open }: LogStreamPaneProps) {
           setStatus("error");
           setErrorMessage(
             response.status === 404
-              ? "Debug endpoint disabled (ENABLE_OPENCODE_DEBUGGING=false)"
+              ? t("craft.debugEndpointDisabled")
               : response.status === 409
-                ? "No running sandbox to tail logs from"
+                ? t("craft.debugNoSandbox")
                 : `HTTP ${response.status}`
           );
           return;
@@ -211,7 +213,7 @@ function LogStreamPane({ open }: LogStreamPaneProps) {
       controller.abort();
       abortRef.current = null;
     };
-  }, [open, appendLine]);
+  }, [open, appendLine, t]);
 
   // Auto-scroll to bottom when follow=true and lines change.
   useEffect(() => {
@@ -299,12 +301,12 @@ function LogStreamPane({ open }: LogStreamPaneProps) {
         empty={
           lines.length === 0
             ? status === "connecting"
-              ? "Waiting for the first log line…"
+              ? t("craft.debugWaitingFirstLine")
               : status === "error"
-                ? (errorMessage ?? "Error")
-                : "No lines yet."
+                ? (errorMessage ?? t("craft.debugError"))
+                : t("craft.debugNoLinesYet")
             : filter && filteredLines.length === 0
-              ? `No lines match "${filter}"`
+              ? t("craft.debugNoLinesMatch", { filter })
               : null
         }
       />
@@ -341,17 +343,18 @@ function StatusBar({
   copyJustSucceeded,
   onResume,
 }: StatusBarProps) {
+  const { t } = useTranslation();
   const filtered = !!filter && visibleLines !== totalLines;
   const stateLabel =
     status === "error"
-      ? (errorMessage ?? "Error")
+      ? (errorMessage ?? t("craft.debugError"))
       : status === "closed"
-        ? "Closed"
+        ? t("craft.debugClosed")
         : status === "connecting"
-          ? "Connecting"
+          ? t("craft.debugConnecting")
           : paused
-            ? "Paused"
-            : "Streaming";
+            ? t("craft.debugPaused")
+            : t("craft.debugStreaming");
 
   // Single-line toolbar: status pill (state + count) on the left, filter
   // input expanding through the middle, action icons on the right. This
@@ -372,8 +375,13 @@ function StatusBar({
             />
             <Text font="secondary-body" color="text-05" nowrap>
               {filtered
-                ? `${visibleLines.toLocaleString()} / ${totalLines.toLocaleString()} lines`
-                : `${totalLines.toLocaleString()} lines`}
+                ? t("craft.debugLinesFiltered", {
+                    visible: visibleLines.toLocaleString(),
+                    total: totalLines.toLocaleString(),
+                  })
+                : t("craft.debugLinesCount", {
+                    count: totalLines.toLocaleString(),
+                  })}
             </Text>
           </>
         )}
@@ -387,7 +395,9 @@ function StatusBar({
               "hover:bg-status-warning-02 transition-colors"
             )}
           >
-            +{newSincePaused.toLocaleString()} new · jump
+            {t("craft.debugJumpNew", {
+              count: newSincePaused.toLocaleString(),
+            })}
           </button>
         )}
       </div>
@@ -395,7 +405,7 @@ function StatusBar({
       <div className="flex-1 min-w-0">
         <InputTypeIn
           searchIcon
-          placeholder="Filter…"
+          placeholder={t("craft.debugFilterPlaceholder")}
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
           clearButton
@@ -409,7 +419,9 @@ function StatusBar({
           size="sm"
           icon={copyJustSucceeded ? SvgCheck : SvgCopy}
           onClick={onCopy}
-          tooltip={copyJustSucceeded ? "Copied" : "Copy visible"}
+          tooltip={
+            copyJustSucceeded ? t("craft.debugCopied") : t("craft.debugCopyVisible")
+          }
         />
         <Button
           variant="default"
@@ -417,7 +429,7 @@ function StatusBar({
           size="sm"
           icon={SvgTrash}
           onClick={onClear}
-          tooltip="Clear"
+          tooltip={t("craft.clearLogs")}
         />
       </div>
     </div>
@@ -485,6 +497,7 @@ interface OpencodeDebugLogsButtonProps {
 export default function OpencodeDebugLogsButton({
   folded = false,
 }: OpencodeDebugLogsButtonProps) {
+  const { t } = useTranslation();
   const settings = useSettings();
   const [open, setOpen] = useState(false);
 
@@ -501,15 +514,15 @@ export default function OpencodeDebugLogsButton({
         icon={SvgTerminal}
         onClick={() => setOpen(true)}
       >
-        {folded ? "" : "Pod logs"}
+        {folded ? "" : t("craft.debugPodLogsButton")}
       </Button>
       {open && (
         <Modal open onOpenChange={(o) => !o && setOpen(false)}>
           <Modal.Content width="xl" height="lg">
             <Modal.Header
               icon={SvgTerminal}
-              title="Opencode pod logs"
-              description="Live tail of the sandbox container — dev/debug only."
+              title={t("craft.podcardLogs")}
+              description={t("craft.debugPodLogsDesc")}
               onClose={() => setOpen(false)}
             />
             <Modal.Body>
