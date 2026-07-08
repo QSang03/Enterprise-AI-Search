@@ -256,7 +256,7 @@ export default function ConfigureProviderModal({
 
             {descriptor.actions.length > 0 && (
               <div className="flex flex-col gap-2 pt-2">
-                <Text font="main-ui-action">Permissions</Text>
+                <Text font="main-ui-action">{t("permissions")}</Text>
                 <Text font="secondary-body" color="text-03">
                   Choose what the agent may do with this app. “Ask” prompts you
                   in chat before each action runs; “Auto-approve” lets it run
@@ -346,3 +346,4 @@ export default function ConfigureProviderModal({
     </Modal>
   );
 }
+

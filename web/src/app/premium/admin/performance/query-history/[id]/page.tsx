@@ -15,17 +15,19 @@ import { SWR_KEYS } from "@/lib/swr-keys";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { PageLoader } from "@/refresh-components/PageLoader";
 import CardSection from "@/components/admin/CardSection";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function MessageDisplay({ message }: { message: MessageSnapshot }) {
+  const { t } = useTranslation();
   return (
     <div>
       <p className="text-xs font-bold mb-1">
-        {message.message_type === "user" ? "User" : "AI"}
+        {message.message_type === "user" ? t("user") : "AI"}
       </p>
       <Text as="p">{message.message}</Text>
       {message.documents.length > 0 && (
         <div className="flex flex-col gap-y-2 mt-2">
-          <p className="font-bold text-xs">Reference Documents</p>
+          <p className="font-bold text-xs">{t("referenceDocuments")}</p>
           {message.documents.slice(0, 5).map((document) => {
             return (
               <div className="text-sm flex" key={document.document_id}>
@@ -53,7 +55,7 @@ function MessageDisplay({ message }: { message: MessageSnapshot }) {
       )}
       {message.feedback_type && (
         <div className="mt-2">
-          <p className="font-bold text-xs">Feedback</p>
+          <p className="font-bold text-xs">{t("feedback")}</p>
           {message.feedback_text && <Text as="p">{message.feedback_text}</Text>}
           <div className="mt-1">
             <FeedbackBadge feedback={message.feedback_type} />

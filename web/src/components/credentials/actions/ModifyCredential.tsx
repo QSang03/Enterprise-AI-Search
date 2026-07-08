@@ -16,6 +16,7 @@ import {
   SvgTrash,
 } from "@opal/icons";
 import { Button } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 interface CredentialSelectionTableProps {
   credentials: Credential<any>[];
   editableCredentials: Credential<any>[];
@@ -33,6 +34,7 @@ function CredentialSelectionTable({
   currentCredentialId,
   onDeleteCredential,
 }: CredentialSelectionTableProps) {
+  const { t } = useTranslation();
   const [selectedCredentialId, setSelectedCredentialId] = useState<
     number | null
   >(null);
@@ -105,7 +107,7 @@ function CredentialSelectionTable({
                         className="form-radio ml-4 h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                       />
                     ) : (
-                      <Badge>selected</Badge>
+                      <Badge>{t("selected")}</Badge>
                     )}
                   </td>
                   <td className="p-2">{credential.id}</td>
