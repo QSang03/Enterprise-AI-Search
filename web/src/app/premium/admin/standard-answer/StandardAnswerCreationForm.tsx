@@ -115,21 +115,21 @@ export const StandardAnswerCreationForm = ({
                   label={t("regexPattern")}
                   isCode
                   tooltip="Triggers if the question matches this regex pattern (using Python `re.search()`)"
-                  placeholder="(?:it|support)\s*ticket"
+                  placeholder={t("regexPlaceholder")}
                 />
               ) : values.matchAnyKeywords == "any" ? (
                 <TextFormField
                   name="keyword"
                   label={t("anyKeywords")}
                   tooltip="A question must match these keywords in order to trigger the answer."
-                  placeholder="ticket problem issue"
+                  placeholder={t("anyKeywordsPlaceholder")}
                 />
               ) : (
                 <TextFormField
                   name="keyword"
                   label={t("allKeywords")}
                   tooltip="A question must match these keywords in order to trigger the answer."
-                  placeholder="it ticket"
+                  placeholder={t("allKeywordsPlaceholder")}
                 />
               )}
               <BooleanFormField
@@ -163,7 +163,7 @@ export const StandardAnswerCreationForm = ({
                 <MarkdownFormField
                   name="answer"
                   label={t("answer")}
-                  placeholder="The answer in Markdown. Example: If you need any help from the IT team, please email internalsupport@company.com"
+                  placeholder={t("answerPlaceholder")}
                 />
               </div>
               <div className="w-4/12">

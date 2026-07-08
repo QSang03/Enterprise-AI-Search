@@ -10,6 +10,7 @@ import useFederatedOAuthStatus from "@/hooks/useFederatedOAuthStatus";
 import { SvgLink } from "@opal/icons";
 import { Card } from "@/refresh-components/cards";
 import { ContentAction } from "@opal/layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface FederatedConnectorOAuthStatus {
   federated_connector_id: number;
@@ -101,6 +102,7 @@ function useFederatedOauthModal() {
 }
 
 export default function FederatedOAuthModal() {
+  const { t } = useTranslation();
   const { appName: applicationName } = useSettings();
 
   const {
@@ -154,7 +156,7 @@ export default function FederatedOAuthModal() {
           })}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleOAuthModalSkip}>Skip for now</Button>
+          <Button onClick={handleOAuthModalSkip}>{t("skipForNow")}</Button>
         </Modal.Footer>
       </Modal.Content>
     </Modal>

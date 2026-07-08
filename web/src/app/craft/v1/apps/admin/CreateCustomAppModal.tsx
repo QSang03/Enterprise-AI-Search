@@ -213,7 +213,7 @@ export default function CreateCustomAppModal({
               <ListFieldInput
                 values={upstreamPatterns}
                 onChange={setUpstreamPatterns}
-                placeholder="https://api.example.com/*"
+                placeholder={t("apiUrlPlaceholder")}
               />
             </div>
 
@@ -225,8 +225,8 @@ export default function CreateCustomAppModal({
               <InputKeyValue
                 keyTitle={t("header")}
                 valueTitle={t("value")}
-                keyPlaceholder="Authorization"
-                valuePlaceholder="Bearer {api_key}"
+                keyPlaceholder={t("authorizationPlaceholder")}
+                valuePlaceholder={t("bearerPlaceholder")}
                 items={headers}
                 onChange={setHeaders}
                 mode="line"
@@ -242,8 +242,8 @@ export default function CreateCustomAppModal({
               <InputKeyValue
                 keyTitle={t("credentialKey")}
                 valueTitle={t("value")}
-                keyPlaceholder="api_key"
-                valuePlaceholder="sk-…"
+                keyPlaceholder={t("apiKeyPlaceholder")}
+                valuePlaceholder={t("skPlaceholder")}
                 items={orgCredentials}
                 onChange={setOrgCredentials}
                 mode="line"

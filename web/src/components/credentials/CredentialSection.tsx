@@ -33,11 +33,11 @@ import {
   useOAuthDetails,
 } from "@/lib/connectors/oauth";
 import { Spinner } from "@/components/Spinner";
-import { useTranslation } from "@/providers/LanguageProvider";
 import { CreateStdOAuthCredential } from "@/components/credentials/actions/CreateStdOAuthCredential";
 import { Card } from "../ui/card";
 import { isTypedFileField, TypedFile } from "@/lib/connectors/fileTypes";
 import { SvgEdit, SvgKey } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface CredentialSectionProps {
   ccPair: CCPairFullInfo;
@@ -223,7 +223,7 @@ export default function CredentialSection({
                   transition-colors"
               >
                 <FiEdit2 className="h-4 w-4" />
-                <span className="sr-only">Update Credentials</span>
+                <span className="sr-only">{t("updateCredentials")}</span>
               </button>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function CredentialSection({
           <Modal.Content>
             <Modal.Header
               icon={SvgEdit}
-              title="Update Credentials"
+              title={t("updateCredentials")}
               onClose={closeModifyCredential}
             />
             <Modal.Body>

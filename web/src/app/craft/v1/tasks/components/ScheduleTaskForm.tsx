@@ -307,7 +307,7 @@ export default function ScheduleTaskForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               onBlur={() => setNameTouched(true)}
-              placeholder="e.g. Weekly customer escalations digest"
+              placeholder={t("taskNamePlaceholder")}
               data-testid="task-name-input"
               variant={shownNameError ? "error" : undefined}
             />
@@ -330,7 +330,7 @@ export default function ScheduleTaskForm({
               onKeyUp={handlePromptCursorChange}
               onClick={handlePromptCursorChange}
               onBlur={() => setPromptTouched(true)}
-              placeholder="Describe what Craft should do on each run..."
+              placeholder={t("taskPromptPlaceholder")}
               rows={6}
               autoResize
               maxRows={12}

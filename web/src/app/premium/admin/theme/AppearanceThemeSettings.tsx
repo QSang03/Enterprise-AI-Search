@@ -28,6 +28,7 @@ import { SvgEdit } from "@opal/icons";
 import { useTierAtLeast } from "@/hooks/useTierAtLeast";
 import { Tier } from "@/lib/settings/types";
 import { planTagProps } from "@/lib/tier-badge";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface AppearanceThemeSettingsProps {
   selectedLogo: File | null;
@@ -55,6 +56,7 @@ export const AppearanceThemeSettings = forwardRef<
   { selectedLogo, setSelectedLogo, logoVersion, charLimits },
   ref
 ) {
+  const { t } = useTranslation();
   const { values, errors, setFieldValue } = useFormikContext<any>();
   const enterpriseTier = useTierAtLeast(Tier.ENTERPRISE);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -433,7 +435,7 @@ export const AppearanceThemeSettings = forwardRef<
             ref={lowerDisclaimerInputRef}
             data-label="chat-footer-textarea"
             rows={3}
-            placeholder="Add markdown content"
+            placeholder={t("markdownPlaceholder")}
             variant={
               errors.custom_lower_disclaimer_content ? "error" : undefined
             }
@@ -472,7 +474,7 @@ export const AppearanceThemeSettings = forwardRef<
                 ref={customHelpLinkUrlInputRef}
                 data-label="custom-help-link-url-input"
                 clearButton
-                placeholder="https://docs.onyx.app"
+                placeholder={t("urlPlaceholder")}
                 variant={
                   !enterpriseTier
                     ? "disabled"
@@ -503,7 +505,7 @@ export const AppearanceThemeSettings = forwardRef<
                 aria-label="Custom Help Link Label"
                 data-label="custom-help-link-label-input"
                 clearButton
-                placeholder="Link label"
+                placeholder={t("linkLabelPlaceholder")}
                 variant={!enterpriseTier ? "disabled" : undefined}
                 value={values.custom_help_link_label}
                 onChange={(e) =>
@@ -616,7 +618,7 @@ export const AppearanceThemeSettings = forwardRef<
                   ref={noticeContentInputRef}
                   data-label="notice-content-textarea"
                   rows={3}
-                  placeholder="Add markdown content"
+                  placeholder={t("markdownPlaceholder")}
                   variant={errors.custom_popup_content ? "error" : undefined}
                   value={values.custom_popup_content}
                   onChange={(e) =>
@@ -669,7 +671,7 @@ export const AppearanceThemeSettings = forwardRef<
                     ref={consentPromptTextAreaRef}
                     data-label="consent-prompt-textarea"
                     rows={3}
-                    placeholder="Add markdown content"
+                    placeholder={t("markdownPlaceholder")}
                     variant={errors.consent_screen_prompt ? "error" : undefined}
                     value={values.consent_screen_prompt}
                     onChange={(e) => {

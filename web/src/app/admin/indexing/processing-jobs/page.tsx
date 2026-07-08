@@ -56,7 +56,7 @@ export default function DocumentProcessingDashboard() {
             <label className="block text-xs font-semibold text-text-subtle mb-1">{t("processingJobs.searchDocId")}</label>
             <input
               type="text"
-              placeholder="e.g. qd_mvp_rag_spec_doc_001"
+              placeholder={t("searchDocIdPlaceholder")}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);

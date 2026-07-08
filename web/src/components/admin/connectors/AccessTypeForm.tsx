@@ -12,6 +12,7 @@ import { Tier } from "@/lib/settings/types";
 import { useEffect, useMemo } from "react";
 import { Credential } from "@/lib/connectors/credentials";
 import { credentialTemplates } from "@/lib/connectors/credentials";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function isValidAutoSyncSource(
   value: ConfigurableSources
@@ -26,6 +27,7 @@ export function AccessTypeForm({
   connector: ConfigurableSources;
   currentCredential?: Credential<any> | null;
 }) {
+  const { t } = useTranslation();
   const [access_type, meta, access_type_helpers] =
     useField<AccessType>("access_type");
 
@@ -110,9 +112,9 @@ export function AccessTypeForm({
   return (
     <>
       <div>
-        <label className="text-text-950 font-medium">Document Access</label>
+        <label className="text-text-950 font-medium">{t("documentAccess")}</label>
         <p className="text-sm text-text-500">
-          Control who has access to the documents indexed by this connector.
+          {t("documentAccessDesc")}
         </p>
       </div>
       <DefaultDropdown

@@ -347,7 +347,7 @@ export default function HookFormModal({
                     <div className="[&_input::placeholder]:!font-main-ui-muted w-full">
                       <InputTypeInField
                         name="endpoint_url"
-                        placeholder="https://your-api-endpoint.com"
+                        placeholder={t("apiEndpointPlaceholder")}
                         variant={isSubmitting ? "disabled" : undefined}
                       />
                     </div>

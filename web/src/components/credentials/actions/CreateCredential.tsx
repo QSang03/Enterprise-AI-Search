@@ -218,7 +218,7 @@ export default function CreateCredential({
             <CardSection className="w-full items-start dark:bg-neutral-900 mt-4 flex flex-col gap-y-6">
               <TextFormField
                 name="name"
-                placeholder="(Optional) credential name.."
+                placeholder={t("credentialNamePlaceholder")}
                 label="Name:"
               />
 

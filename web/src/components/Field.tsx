@@ -646,7 +646,7 @@ export const MarkdownFormField = ({
         <div className="flex items-center justify-between px-4 py-2 bg-background-neutral-02 rounded-t-md">
           <div className="flex items-center space-x-2">
             <FaMarkdown className="text-text-03" />
-            <span className="text-sm font-semibold text-text-04">Markdown</span>
+            <span className="text-sm font-semibold text-text-04">{t("markdown")}</span>
           </div>
           <button
             type="button"

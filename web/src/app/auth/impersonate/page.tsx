@@ -82,7 +82,7 @@ export default function ImpersonatePage() {
                 name="email"
                 type="email"
                 label={t("auth.email")}
-                placeholder="email@yourcompany.com"
+                placeholder={t("emailPlaceholder")}
               />
 
               <TextFormField
