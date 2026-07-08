@@ -223,8 +223,8 @@ export default function CreateCustomAppModal({
                 {t("headerCredentialPatternDesc")}
               </Text>
               <InputKeyValue
-                keyTitle="Header"
-                valueTitle="Value"
+                keyTitle={t("header")}
+                valueTitle={t("value")}
                 keyPlaceholder="Authorization"
                 valuePlaceholder="Bearer {api_key}"
                 items={headers}
@@ -241,7 +241,7 @@ export default function CreateCustomAppModal({
               </Text>
               <InputKeyValue
                 keyTitle={t("credentialKey")}
-                valueTitle="Value"
+                valueTitle={t("value")}
                 keyPlaceholder="api_key"
                 valuePlaceholder="sk-…"
                 items={orgCredentials}

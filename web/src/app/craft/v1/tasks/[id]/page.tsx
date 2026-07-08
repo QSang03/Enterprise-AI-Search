@@ -28,11 +28,13 @@ import type {
   ScheduledTaskDetail,
   ScheduledTaskStatus,
 } from "@/app/craft/v1/tasks/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { humanReadableScheduleFromCron } from "@/app/craft/v1/tasks/schedule";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 
 export default function ScheduledTaskDetailPage() {
+  const { t } = useTranslation();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const taskId = params?.id;
@@ -111,7 +113,7 @@ export default function ScheduledTaskDetailPage() {
       <SettingsLayouts.Root width="lg">
         <SettingsLayouts.Header
           icon={SvgClock}
-          title="Scheduled task"
+          title={t("scheduledTask")}
           backButton={handleBack}
         />
         <SettingsLayouts.Body>
@@ -127,7 +129,7 @@ export default function ScheduledTaskDetailPage() {
     <SettingsLayouts.Root width="lg">
       <SettingsLayouts.Header
         icon={SvgClock}
-        title={data?.name ?? "Scheduled task"}
+        title={data?.name ?? t("scheduledTask")}
         description={scheduleDescription}
         backButton={handleBack}
         rightChildren={

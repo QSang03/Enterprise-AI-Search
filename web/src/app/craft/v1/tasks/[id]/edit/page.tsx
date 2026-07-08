@@ -14,8 +14,10 @@ import { TASKS_PATH, taskDetailPath } from "@/app/craft/v1/tasks/constants";
 import { decodeUtcCronToLocalPayload } from "@/app/craft/v1/tasks/schedule";
 import { SWR_KEYS } from "@/lib/swr-keys";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export default function EditScheduledTaskPage() {
+  const { t } = useTranslation();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const taskId = params?.id;
@@ -36,7 +38,7 @@ export default function EditScheduledTaskPage() {
       <SettingsLayouts.Root>
         <SettingsLayouts.Header
           icon={SvgClock}
-          title="Edit scheduled task"
+          title={t("editScheduledTask")}
           backButton={handleBack}
           divider
         />
@@ -54,7 +56,7 @@ export default function EditScheduledTaskPage() {
       <SettingsLayouts.Root>
         <SettingsLayouts.Header
           icon={SvgClock}
-          title={data ? `Edit "${data.name}"` : "Edit scheduled task"}
+          title={data ? `${t("edit")} "${data.name}"` : t("editScheduledTask")}
           backButton={handleBack}
           divider
         />

@@ -11,6 +11,7 @@ import type {
   EditorPayload,
 } from "@/app/craft/v1/tasks/interfaces";
 import { TASKS_PATH } from "@/app/craft/v1/tasks/constants";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const VALID_MODES: ReadonlySet<EditorMode> = new Set<EditorMode>([
   "interval",
@@ -18,6 +19,7 @@ const VALID_MODES: ReadonlySet<EditorMode> = new Set<EditorMode>([
 ]);
 
 export default function NewScheduledTaskPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const handleBack = useCallback(() => {
@@ -59,8 +61,8 @@ export default function NewScheduledTaskPage() {
     <ScheduleTaskForm
       initial={initial}
       isEdit={false}
-      title="New Scheduled Task"
-      description="Save a prompt + schedule. Craft will run it on a timer."
+      title={t("newScheduledTask")}
+      description={t("newScheduledTaskDesc")}
       onBack={handleBack}
     />
   );

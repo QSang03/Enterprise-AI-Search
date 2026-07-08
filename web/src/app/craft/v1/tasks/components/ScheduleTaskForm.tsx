@@ -23,6 +23,7 @@ import {
   toPickerSections,
   type PickerEntry,
 } from "@/lib/skills/picker";
+import { useTranslation } from "@/providers/LanguageProvider";
 import type {
   EditorMode,
   EditorPayload,
@@ -65,6 +66,7 @@ export default function ScheduleTaskForm({
   description,
   onBack,
 }: ScheduleTaskFormProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [name, setName] = useState(initial.name);
   const [prompt, setPrompt] = useState(initial.prompt);
@@ -300,7 +302,7 @@ export default function ScheduleTaskForm({
 
       <SettingsLayouts.Body>
         <GeneralLayouts.Section>
-          <InputVertical withLabel title="Name">
+          <InputVertical withLabel title={t("name")}>
             <InputTypeIn
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -318,8 +320,8 @@ export default function ScheduleTaskForm({
 
           <InputVertical
             withLabel
-            title="Prompt"
-            description="This message is sent to Craft each time the task fires."
+            title={t("prompt")}
+            description={t("promptDesc")}
           >
             <InputTextArea
               ref={promptTextareaRef}
@@ -354,7 +356,7 @@ export default function ScheduleTaskForm({
         <Divider paddingParallel="fit" paddingPerpendicular="fit" />
 
         <GeneralLayouts.Section>
-          <InputVertical title="Schedule">
+          <InputVertical title={t("schedule")}>
             <ScheduleEditor
               mode={mode}
               onModeChange={setMode}
@@ -369,7 +371,7 @@ export default function ScheduleTaskForm({
 
         <GeneralLayouts.Section>
           <InputVertical
-            title="Pre-approved apps"
+            title={t("preApprovedApps")}
             description="Selected apps can act without pausing for approval while this task runs on its own. Note: an app you don't pre-approve will pause mid-run to ask for your approval. The run may stall or fail if you do not approve an action request."
           >
             <PreApprovalPicker

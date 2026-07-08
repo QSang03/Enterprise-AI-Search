@@ -166,6 +166,7 @@ const StandardAnswersTable = ({
   standardAnswerCategories: StandardAnswerCategory[];
   refresh: () => void;
 }) => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState<
@@ -173,10 +174,10 @@ const StandardAnswersTable = ({
   >([]);
   const columns = [
     { name: "", key: "edit" },
-    { name: "Categories", key: "category" },
-    { name: "Keywords/Pattern", key: "keyword" },
-    { name: "Match regex?", key: "match_regex" },
-    { name: "Answer", key: "answer" },
+    { name: t("categories"), key: "category" },
+    { name: t("keywordsPattern"), key: "keyword" },
+    { name: t("matchRegex"), key: "match_regex" },
+    { name: t("answer"), key: "answer" },
     { name: "", key: "delete" },
   ];
 
@@ -245,7 +246,7 @@ const StandardAnswersTable = ({
           className="grow ml-2 h-6 bg-transparent outline-hidden placeholder-subtle overflow-hidden whitespace-normal resize-none"
           role="textarea"
           aria-multiline
-          placeholder="Find standard answers by keyword/phrase..."
+          placeholder={t("findStandardAnswers")}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);

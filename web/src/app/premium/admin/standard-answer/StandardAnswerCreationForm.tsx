@@ -21,6 +21,7 @@ import {
   SelectorFormField,
 } from "@/components/Field";
 import MultiSelectDropdown from "@/components/MultiSelectDropdown";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function mapKeywordSelectToMatchAny(keywordSelect: "any" | "all"): boolean {
   return keywordSelect == "any";
@@ -37,6 +38,7 @@ export const StandardAnswerCreationForm = ({
   standardAnswerCategories: StandardAnswerCategory[];
   existingStandardAnswer?: StandardAnswer;
 }) => {
+  const { t } = useTranslation();
   const isUpdate = existingStandardAnswer !== undefined;
   const router = useRouter();
 
@@ -110,7 +112,7 @@ export const StandardAnswerCreationForm = ({
               {values.matchRegex ? (
                 <TextFormField
                   name="keyword"
-                  label="Regex pattern"
+                  label={t("regexPattern")}
                   isCode
                   tooltip="Triggers if the question matches this regex pattern (using Python `re.search()`)"
                   placeholder="(?:it|support)\s*ticket"
@@ -118,14 +120,14 @@ export const StandardAnswerCreationForm = ({
               ) : values.matchAnyKeywords == "any" ? (
                 <TextFormField
                   name="keyword"
-                  label="Any of these keywords, separated by spaces"
+                  label={t("anyKeywords")}
                   tooltip="A question must match these keywords in order to trigger the answer."
                   placeholder="ticket problem issue"
                 />
               ) : (
                 <TextFormField
                   name="keyword"
-                  label="All of these keywords, in any order, separated by spaces"
+                  label={t("allKeywords")}
                   tooltip="A question must match these keywords in order to trigger the answer."
                   placeholder="it ticket"
                 />
@@ -133,13 +135,13 @@ export const StandardAnswerCreationForm = ({
               <BooleanFormField
                 subtext="Match a regex pattern instead of an exact keyword"
                 optional
-                label="Match regex"
+                label={t("matchRegex")}
                 name="matchRegex"
               />
               {values.matchRegex ? null : (
                 <SelectorFormField
                   defaultValue={`all`}
-                  label="Keyword detection strategy"
+                  label={t("keywordDetectionStrategy")}
                   subtext="Choose whether to require the user's question to contain any or all of the keywords above to show this answer."
                   name="matchAnyKeywords"
                   options={[
@@ -160,14 +162,14 @@ export const StandardAnswerCreationForm = ({
               <div className="w-full">
                 <MarkdownFormField
                   name="answer"
-                  label="Answer"
+                  label={t("answer")}
                   placeholder="The answer in Markdown. Example: If you need any help from the IT team, please email internalsupport@company.com"
                 />
               </div>
               <div className="w-4/12">
                 <MultiSelectDropdown
                   name="categories"
-                  label="Categories:"
+                  label={t("categoriesColon")}
                   onChange={(selected_options) => {
                     const selected_categories = selected_options.map(
                       (option) => {

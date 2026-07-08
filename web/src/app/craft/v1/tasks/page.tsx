@@ -28,6 +28,7 @@ import {
   RunStatusBadge,
   TaskStatusBadge,
 } from "@/app/craft/v1/tasks/components/StatusBadge";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   NEW_TASK_PATH,
   TASKS_PAGE_SIZE,
@@ -132,6 +133,7 @@ function buildColumns(handlers: RowActionHandlers) {
 }
 
 export default function ScheduledTasksListPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR<ScheduledTaskListResponse>(
     SWR_KEYS.scheduledTasks,
@@ -200,8 +202,8 @@ export default function ScheduledTasksListPage() {
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgClock}
-        title="Scheduled Tasks"
-        description="Run Craft prompts on a timer. Each fire creates a fresh session that runs in the background."
+        title={t("scheduledTasks")}
+        description={t("scheduledTasksDesc")}
         rightChildren={headerActions}
       />
       <SettingsLayouts.Body>
@@ -212,7 +214,7 @@ export default function ScheduledTasksListPage() {
         ) : error ? (
           <Section gap={0.5}>
             <Text font="main-ui-body" color="text-03">
-              Failed to load scheduled tasks.
+              {t("failedToLoadScheduledTasks")}
             </Text>
             <Button
               variant="default"
@@ -220,7 +222,7 @@ export default function ScheduledTasksListPage() {
               icon={SvgRefreshCw}
               onClick={refresh}
             >
-              Try again
+              {t("tryAgain")}
             </Button>
           </Section>
         ) : (
@@ -236,8 +238,8 @@ export default function ScheduledTasksListPage() {
             emptyState={
               <IllustrationContent
                 illustration={SvgNoResult}
-                title="No scheduled tasks found"
-                description="No scheduled tasks have been created yet."
+                title={t("noScheduledTasksFound")}
+                description={t("noScheduledTasksDesc")}
               />
             }
           />
@@ -247,8 +249,8 @@ export default function ScheduledTasksListPage() {
       {pendingDelete && (
         <ConfirmationModalLayout
           icon={SvgTrash}
-          title={`Delete "${pendingDelete.name}"?`}
-          description="This stops future runs and removes the task. Past run history (and the underlying sessions) will be preserved for audit."
+          title={t("deleteTask", { name: pendingDelete.name })}
+          description={t("deleteTaskDesc")}
           onClose={() => setPendingDelete(null)}
           submit={
             <Button
