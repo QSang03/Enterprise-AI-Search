@@ -217,7 +217,7 @@ function PreviousQueryHistoryExportsModal({
                       disabled={task.status !== "SUCCESS"}
                       tooltip={
                         task.status !== "SUCCESS"
-                          ? "Export is not yet ready"
+                          ? t("exportNotReady")
                           : undefined
                       }
                       href={
@@ -295,7 +295,7 @@ export function QueryHistoryTable() {
   if (error) {
     return (
       <ErrorCallout
-        errorTitle="Error fetching query history"
+        errorTitle={t("errorFetchingQueryHistory")}
         errorMsg={error?.message}
       />
     );
