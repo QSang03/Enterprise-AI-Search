@@ -270,7 +270,7 @@ export default function InputImage({
                 type="button"
                 primary
                 className="w-5! h-5! p-0.5! rounded-04!"
-                aria-label="Remove image"
+                aria-label={t("removeImage")}
               />
             </Hoverable.Item>
           </div>

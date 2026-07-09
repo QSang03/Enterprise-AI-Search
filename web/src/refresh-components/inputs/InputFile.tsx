@@ -5,6 +5,7 @@ import { InputTypeIn, type InputTypeInProps } from "@opal/components";
 import { Button } from "@opal/components";
 import { noProp } from "@/lib/utils";
 import { SvgPaperclip, SvgX } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface InputFileProps extends Omit<
   InputTypeInProps,
@@ -42,6 +43,7 @@ export default function InputFile({
   placeholder,
   ...rest
 }: InputFileProps) {
+  const { t } = useTranslation();
   const [displayValue, setDisplayValue] = useState<string>("");
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isFileMode, setIsFileMode] = useState<boolean>(false);
@@ -129,7 +131,7 @@ export default function InputFile({
       type="button"
       prominence="tertiary"
       size="sm"
-      aria-label="Clear file"
+      aria-label={t("clearFile")}
     />
   ) : (
     <Button
@@ -139,7 +141,7 @@ export default function InputFile({
       type="button"
       prominence="tertiary"
       size="sm"
-      aria-label="Attach file"
+      aria-label={t("attachFile")}
     />
   );
 

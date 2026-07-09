@@ -8,6 +8,7 @@ import { Hoverable } from "@opal/core";
 import IconButton from "../buttons/IconButton";
 import Text from "../texts/Text";
 import Truncated from "../texts/Truncated";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,6 +34,7 @@ interface RemoveButtonProps {
 }
 
 function RemoveButton({ onRemove }: RemoveButtonProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={cn(
@@ -47,8 +49,8 @@ function RemoveButton({ onRemove }: RemoveButtonProps) {
             e.stopPropagation();
             onRemove();
           }}
-          title="Remove"
-          aria-label="Remove"
+          title={t("remove")}
+          aria-label={t("remove")}
           className={cn(
             "h-4 w-4",
             "flex items-center justify-center",

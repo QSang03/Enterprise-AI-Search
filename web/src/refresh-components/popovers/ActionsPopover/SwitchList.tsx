@@ -11,6 +11,7 @@ import {
 import LineItem from "@/refresh-components/buttons/LineItem";
 import type { IconProps } from "@opal/types";
 import { SvgChevronLeft, SvgPlug, SvgUnplug } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface SwitchListItem {
   id: string;
@@ -44,6 +45,7 @@ export default function SwitchList({
   onBack,
   footer,
 }: SwitchListProps) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const filteredItems = useMemo(() => {
     if (!searchTerm) return items;
@@ -65,7 +67,7 @@ export default function SwitchList({
             icon={SvgChevronLeft}
             prominence="tertiary"
             size="sm"
-            aria-label="Back"
+            aria-label={t("back")}
             onClick={() => {
               setSearchTerm("");
               onBack();
@@ -85,7 +87,7 @@ export default function SwitchList({
           icon={allDisabled ? SvgPlug : SvgUnplug}
           onClick={allDisabled ? onEnableAll : onDisableAll}
         >
-          {allDisabled ? "Enable All" : "Disable All"}
+          {allDisabled ? t("enableAll") : t("disableAll")}
         </LineItem>,
 
         ...filteredItems.map((item) => {

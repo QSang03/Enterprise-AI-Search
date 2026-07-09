@@ -1,5 +1,6 @@
 import React from "react";
 import "./onyx-loader.css";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface OnyxLoaderProps {
   /** Size of the animated mark, in pixels. Default: 64 (matches the design). */
@@ -34,10 +35,11 @@ const MARK_PATHS = [
  * label, use `PageLoader`.
  */
 export function OnyxLoader({ size = 64 }: OnyxLoaderProps) {
+  const { t } = useTranslation();
   return (
     <div
       role="status"
-      aria-label="Loading"
+      aria-label={t("loading")}
       className="relative shrink-0 text-border-02"
       style={{ width: size, height: size }}
     >

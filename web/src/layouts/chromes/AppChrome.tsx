@@ -271,7 +271,7 @@ function Header() {
 
       {deleteModalOpen && (
         <ConfirmationModalLayout
-          title="Delete Chat"
+          title={t("deleteChat")}
           icon={SvgTrash}
           onClose={() => setDeleteModalOpen(false)}
           submit={
@@ -348,7 +348,7 @@ function Header() {
                             state={
                               effectiveMode === "chat" ? "selected" : "empty"
                             }
-                            title="Chat"
+                            title={t("chat")}
                             description={t("conversationResearchDescription")}
                             onClick={noProp(() => {
                               setAppMode("chat");

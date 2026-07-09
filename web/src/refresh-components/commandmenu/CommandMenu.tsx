@@ -21,6 +21,7 @@ import ScrollIndicatorDiv from "@/refresh-components/ScrollIndicatorDiv";
 import Divider from "@/refresh-components/Divider";
 import { Section } from "@/layouts/general-layouts";
 import { SvgSearch, SvgX } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 import type {
   CommandMenuProps,
   CommandMenuContentProps,
@@ -439,6 +440,7 @@ function CommandMenuHeader({
   onClose,
   onEmptyBackspace,
 }: CommandMenuHeaderProps) {
+  const { t } = useTranslation();
   // Prevent default for arrow/enter keys so they don't move cursor or submit forms
   // The actual handling happens in Root's centralized handler via event bubbling
   const handleInputKeyDown = useCallback(
@@ -485,7 +487,7 @@ function CommandMenuHeader({
               prominence="tertiary"
               size="sm"
               onClick={onClose}
-              aria-label="Close menu"
+              aria-label={t("closeMenu")}
             />
           </DialogPrimitive.Close>
         )}
@@ -516,6 +518,7 @@ function CommandMenuHeader({
  * Uses ScrollIndicatorDiv for automatic scroll shadows.
  */
 function CommandMenuList({ children, emptyMessage }: CommandMenuListProps) {
+  const { t } = useTranslation();
   const { isKeyboardNav, onListMouseLeave } = useCommandMenuContext();
   const childCount = React.Children.count(children);
 
@@ -536,7 +539,7 @@ function CommandMenuList({ children, emptyMessage }: CommandMenuListProps) {
   return (
     <ScrollIndicatorDiv
       role="listbox"
-      aria-label="Command menu options"
+      aria-label={t("commandMenuOptions")}
       className="p-1 gap-1 max-h-[60vh] bg-background-tint-01"
       backgroundColor="var(--background-tint-01)"
       data-command-menu-list
