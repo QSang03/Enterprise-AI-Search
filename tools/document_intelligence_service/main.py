@@ -129,6 +129,8 @@ def _run_vllm_multimodal(image: Image.Image, blocks: List[Dict[str, Any]], raw_t
 
     # 1. Resize image to avoid token overflow and keep VLM inference fast
     img_copy = image.copy()
+    if img_copy.mode not in ("RGB", "RGBA"):
+        img_copy = img_copy.convert("RGB")
     img_copy.thumbnail((MAX_VLM_IMAGE_DIM, MAX_VLM_IMAGE_DIM))
     
     # 2. Encode to base64
@@ -187,7 +189,7 @@ def _run_vllm_multimodal(image: Image.Image, blocks: List[Dict[str, Any]], raw_t
 
     try:
         logger.info(f"Sending multimodal request to vLLM (thinking disabled): {endpoint}")
-        with httpx.Client(proxy=None, timeout=30.0) as client:
+        with httpx.Client(proxy=None, timeout=600.0) as client:
             response = client.post(endpoint, headers=headers, json=payload)
             if response.status_code == 200:
                 resp_json = response.json()

@@ -28,85 +28,35 @@ def sanitize_s3_key_name(file_name: str) -> str:
     """
     Sanitize file name to be S3-compatible according to AWS guidelines.
 
-    This method:
-    1. Replaces problematic characters with safe alternatives
-    2. URL-encodes characters that might require special handling
-    3. Ensures the result is safe for S3 object keys
-    4. Adds uniqueness when significant sanitization occurs
-
-    Args:
-        file_name: The original file name to sanitize
-
-    Returns:
-        A sanitized file name that is S3-compatible
-
-    Reference: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html
+    Replaces special, space, and non-ASCII characters with safe alternatives.
     """
     if not file_name:
         return "unnamed_file"
 
-    original_name = file_name
+    import unicodedata
 
-    # Characters to avoid completely (replace with underscore)
-    # These are characters that AWS recommends avoiding
-    avoid_chars = r'[\\{}^%`\[\]"<>#|~/]'
+    # Convert accented characters (like Vietnamese) to ASCII equivalents
+    normalized = unicodedata.normalize("NFKD", file_name)
+    ascii_name = normalized.encode("ascii", "ignore").decode("ascii")
 
-    # Replace avoided characters with underscore
-    sanitized = re.sub(avoid_chars, "_", file_name)
-    # Characters that might require special handling but are allowed
-    # We'll URL encode these to be safe
-    special_chars = r"[&$@=;:+,?\s]"
-
-    sanitized = re.sub(special_chars, _encode_special_char, sanitized)
-
-    # Handle non-ASCII characters by URL encoding them
-    # This ensures Unicode characters are properly handled
-    needs_unicode_encoding = False
-    try:
-        # Try to encode as ASCII to check if it contains non-ASCII chars
-        sanitized.encode("ascii")
-    except UnicodeEncodeError:
-        needs_unicode_encoding = True
-        # Contains non-ASCII characters, URL encode the entire string
-        # but preserve safe ASCII characters
-        sanitized = urllib.parse.quote(
-            sanitized,
-            safe="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.()!*",
-        )
+    # Replace any character that is not alphanumeric, dot, hyphen, or underscore with underscore
+    sanitized = re.sub(r"[^A-Za-z0-9._-]", "_", ascii_name)
 
     # Ensure we don't have consecutive periods at the start (relative path issue)
     sanitized = re.sub(r"^\.+", "", sanitized)
 
-    # Remove any trailing periods to avoid download issues
+    # Remove any trailing periods
     sanitized = sanitized.rstrip(".")
 
-    # Remove multiple separators
-    sanitized = re.sub(r"[-_]{2,}", "-", sanitized)
+    # Deduplicate consecutive underscores or hyphens
+    sanitized = re.sub(r"[-_]{2,}", "_", sanitized)
 
-    # If sanitization resulted in empty string, use a default
     if not sanitized:
         sanitized = "sanitized_file"
 
-    # Check if significant sanitization occurred and add uniqueness if needed
-    significant_changes = (
-        # Check if we replaced many characters
-        len(re.findall(avoid_chars, original_name)) > 3
-        or
-        # Check if we had to URL encode Unicode characters
-        needs_unicode_encoding
-        or
-        # Check if the sanitized name is very different in length (expansion due to encoding)
-        len(sanitized) > len(original_name) * 2
-        or
-        # Check if the original had many special characters
-        len(re.findall(special_chars, original_name)) > 5
-    )
-
-    if significant_changes:
-        # Add a short hash to ensure uniqueness while keeping some readability
-        name_hash = hashlib.sha256(original_name.encode("utf-8")).hexdigest()[:8]
-
-        # Try to preserve file extension if it exists and is reasonable
+    # Always append a short hash of the original name to guarantee uniqueness if name changed
+    if sanitized != file_name:
+        name_hash = hashlib.sha256(file_name.encode("utf-8")).hexdigest()[:8]
         if "." in sanitized and len(sanitized.split(".")[-1]) <= 10:
             name_parts = sanitized.rsplit(".", 1)
             sanitized = f"{name_parts[0]}_{name_hash}.{name_parts[1]}"
