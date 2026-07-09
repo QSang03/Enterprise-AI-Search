@@ -207,9 +207,12 @@ def _process_file(
             file_name,
             extraction_result.metadata,
         )
-        onyx_metadata, more_custom_tags = process_onyx_metadata(
-            extraction_result.metadata
-        )
+        # Filter out internal layout and OCR metadata from tag conversion
+        user_metadata = {
+            k: v for k, v in extraction_result.metadata.items()
+            if k not in ("__layout_blocks__", "ocr_pages", "raw_text_content") and not k.startswith("__")
+        }
+        onyx_metadata, more_custom_tags = process_onyx_metadata(user_metadata)
 
         # Add file-specific tags
         custom_tags.update(more_custom_tags)

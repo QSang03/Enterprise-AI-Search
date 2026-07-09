@@ -55,6 +55,7 @@ def graph_extraction_task(
     try:
         with get_session_with_current_tenant() as db_session:
             mark_graph_extraction_job_running(job_uuid, db_session)
+            db_session.commit()
 
         with get_session_with_current_tenant() as db_session:
             # Retrieve all chunks for this document.
@@ -70,6 +71,7 @@ def graph_extraction_task(
                     doc_id,
                 )
                 mark_graph_extraction_job_succeeded(job_uuid, db_session)
+                db_session.commit()
                 return
 
             elapsed = time.monotonic() - start
@@ -101,6 +103,7 @@ def graph_extraction_task(
                 )
 
             mark_graph_extraction_job_succeeded(job_uuid, db_session)
+            db_session.commit()
 
     except TimeoutError as exc:
         task_logger.error(
@@ -111,6 +114,7 @@ def graph_extraction_task(
         )
         with get_session_with_current_tenant() as db_session:
             mark_graph_extraction_job_failed(job_uuid, str(exc), db_session)
+            db_session.commit()
         # Retry with exponential backoff (30s, 5m, 30m).
         retry_delays = [30, 300, 1800]
         retry_num = getattr(self, "request", None)
@@ -127,6 +131,7 @@ def graph_extraction_task(
         )
         with get_session_with_current_tenant() as db_session:
             mark_graph_extraction_job_failed(job_uuid, str(exc), db_session)
+            db_session.commit()
         retry_delays = [30, 300, 1800]
         retry_num = getattr(self, "request", None)
         current_retries = getattr(retry_num, "retries", 0) if retry_num else 0

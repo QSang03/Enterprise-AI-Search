@@ -1432,6 +1432,7 @@ def _enqueue_graph_extraction_jobs(
                     continue
 
                 job_id = str(job.id)
+                db_session.commit()
 
             # Enqueue after the DB session closes so the job row is committed.
             graph_extraction_task.apply_async(
