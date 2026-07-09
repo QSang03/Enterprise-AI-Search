@@ -15,6 +15,7 @@ import { useTranslation } from "@/providers/LanguageProvider";
 const route = ADMIN_ROUTES.DOCUMENT_SETS;
 
 function Main() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { vectorDbEnabled } = useSettings();
 
@@ -38,7 +39,7 @@ function Main() {
   if (vectorDbEnabled && (ccPairsError || !ccPairs)) {
     return (
       <ErrorCallout
-        errorTitle="Failed to fetch Connectors"
+        errorTitle={t("failedToFetchConnectors")}
         errorMsg={ccPairsError}
       />
     );

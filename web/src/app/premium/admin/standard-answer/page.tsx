@@ -352,6 +352,7 @@ const StandardAnswersTable = ({
 };
 
 function Main() {
+  const { t } = useTranslation();
   const {
     data: standardAnswers,
     error: standardAnswersError,
@@ -371,7 +372,7 @@ function Main() {
   if (standardAnswersError || !standardAnswers) {
     return (
       <ErrorCallout
-        errorTitle="Error loading standard answers"
+        errorTitle={t("errorLoadingStandardAnswers")}
         errorMsg={
           standardAnswersError.info?.detail ||
           standardAnswersError.info?.message
@@ -383,7 +384,7 @@ function Main() {
   if (standardAnswerCategoriesError || !standardAnswerCategories) {
     return (
       <ErrorCallout
-        errorTitle="Error loading standard answer categories"
+        errorTitle={t("errorLoadingStandardAnswerCategories")}
         errorMsg={
           standardAnswerCategoriesError.info?.detail ||
           standardAnswerCategoriesError.info?.message

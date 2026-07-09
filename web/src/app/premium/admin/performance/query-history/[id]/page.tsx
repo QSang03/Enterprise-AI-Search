@@ -68,6 +68,7 @@ function MessageDisplay({ message }: { message: MessageSnapshot }) {
 }
 
 export default function QueryPage(props: { params: Promise<{ id: string }> }) {
+  const { t } = useTranslation();
   const params = use(props.params);
   const {
     data: chatSessionSnapshot,
@@ -85,7 +86,7 @@ export default function QueryPage(props: { params: Promise<{ id: string }> }) {
   if (!chatSessionSnapshot || error) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
+        errorTitle={t("somethingWentWrong")}
         errorMsg={`Failed to fetch chat session - ${error}`}
       />
     );

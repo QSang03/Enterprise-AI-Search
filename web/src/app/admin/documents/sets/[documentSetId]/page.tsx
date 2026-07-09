@@ -16,6 +16,7 @@ import { useTranslation } from "@/providers/LanguageProvider";
 const route = ADMIN_ROUTES.DOCUMENT_SETS;
 
 function Main({ documentSetId }: { documentSetId: number }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { vectorDbEnabled } = useSettings();
 
@@ -49,7 +50,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   if (documentSetsError || !documentSets) {
     return (
       <ErrorCallout
-        errorTitle="Failed to fetch document sets"
+        errorTitle={t("failedToFetchDocumentSets")}
         errorMsg={documentSetsError}
       />
     );
@@ -58,7 +59,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   if (vectorDbEnabled && (ccPairsError || !ccPairs)) {
     return (
       <ErrorCallout
-        errorTitle="Failed to fetch Connectors"
+        errorTitle={t("failedToFetchConnectors")}
         errorMsg={ccPairsError}
       />
     );
@@ -70,7 +71,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
   if (!documentSet) {
     return (
       <ErrorCallout
-        errorTitle="Document set not found"
+        errorTitle={t("documentSetNotFound")}
         errorMsg={`Document set with id ${documentSetId} not found`}
       />
     );
