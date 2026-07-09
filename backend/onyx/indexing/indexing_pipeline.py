@@ -104,7 +104,7 @@ from onyx.tracing.llm_utils import llm_generation_span
 from onyx.tracing.llm_utils import record_llm_response
 from onyx.utils.batching import batch_generator
 from onyx.utils.logger import setup_logger
-from onyx.utils.postgres_sanitization import sanitize_documents_for_postgres
+from onyx.utils.postgres_sanitization import sanitize_documents_for_postgres, sanitize_string, sanitize_json_like
 from onyx.utils.threadpool_concurrency import run_functions_tuples_in_parallel
 from onyx.utils.timing import log_function_time
 from shared_configs.configs import MULTI_TENANT
@@ -1281,8 +1281,8 @@ def _save_rag_upgrade_metadata(
                         doc_id=doc.id,
                         page_number=block.get("page_number", 1),
                         block_type=block.get("type", "text"),
-                        text_raw=block.get("text_raw", ""),
-                        text_normalized=block.get("text_normalized", ""),
+                        text_raw=sanitize_string(block.get("text_raw", "")),
+                        text_normalized=sanitize_string(block.get("text_normalized", "")),
                         bbox_x1=float(block.get("bbox", [0, 0, 0, 0])[0]),
                         bbox_y1=float(block.get("bbox", [0, 0, 0, 0])[1]),
                         bbox_x2=float(block.get("bbox", [0, 0, 0, 0])[2]),
@@ -1290,7 +1290,7 @@ def _save_rag_upgrade_metadata(
                         char_start=block.get("char_start", 0),
                         char_end=block.get("char_end", 0),
                         confidence=block.get("confidence"),
-                        block_metadata=block.get("metadata"),
+                        block_metadata=sanitize_json_like(block.get("metadata")),
                     )
                     db_session.add(db_block)
 
@@ -1304,9 +1304,9 @@ def _save_rag_upgrade_metadata(
                     db_page = OcrPage(
                         doc_id=doc.id,
                         page_number=page.get("page_number", 1),
-                        ocr_text=page.get("ocr_text", ""),
+                        ocr_text=sanitize_string(page.get("ocr_text", "")),
                         ocr_confidence=page.get("ocr_confidence"),
-                        layout_data=page.get("layout_data"),
+                        layout_data=sanitize_json_like(page.get("layout_data")),
                     )
                     db_session.add(db_page)
 
@@ -1330,15 +1330,17 @@ def _save_rag_upgrade_metadata(
             allowed_groups = list(access.user_groups) if access else []
             is_public = access.is_public if access else True
 
+            cleaned_content = sanitize_string(chunk.content)
+
             db_chunk = DocumentChunkV2(
                 chunk_id=chunk_uuid,
                 doc_id=doc_id,
                 parent_chunk_id=parent_chunk_uuid,
                 sibling_order=chunk.chunk_id,
-                text_raw=chunk.content,
-                text_normalized=chunk.content,
-                text_for_embedding=chunk.content,
-                text_for_citation=chunk.content,
+                text_raw=cleaned_content,
+                text_normalized=cleaned_content,
+                text_for_embedding=cleaned_content,
+                text_for_citation=cleaned_content,
                 block_type="text",
                 heading_path=[],
                 page_start=0,

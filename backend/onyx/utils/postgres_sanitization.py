@@ -116,6 +116,9 @@ def sanitize_document_for_postgres(document: Document) -> Document:
     if cleaned_doc.doc_metadata is not None:
         cleaned_doc.doc_metadata = sanitize_json_like(cleaned_doc.doc_metadata)
 
+    if cleaned_doc.additional_info is not None:
+        cleaned_doc.additional_info = sanitize_json_like(cleaned_doc.additional_info)
+
     if cleaned_doc.primary_owners is not None:
         cleaned_doc.primary_owners = [
             _sanitize_expert_info(expert) for expert in cleaned_doc.primary_owners
