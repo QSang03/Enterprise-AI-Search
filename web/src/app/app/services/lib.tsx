@@ -63,7 +63,8 @@ export async function updateTemperatureOverrideForChatSession(
 export async function createChatSession(
   personaId: number,
   description: string | null,
-  projectId: number | null
+  projectId: number | null,
+  departmentId: number | null
 ): Promise<string> {
   const createChatSessionResponse = await fetch(
     "/api/chat/create-chat-session",
@@ -76,6 +77,7 @@ export async function createChatSession(
         persona_id: personaId,
         description,
         project_id: projectId,
+        department_id: departmentId,
       }),
     }
   );

@@ -643,6 +643,11 @@ def build_chat_turn(
 
     # Scoping search by department_id if provided
     if new_msg_req.department_id is not None:
+        if chat_session.user_group_id != new_msg_req.department_id:
+            chat_session.user_group_id = new_msg_req.department_id
+            db_session.add(chat_session)
+            db_session.commit()
+
         if new_msg_req.department_id == -1:
             # Kho Tổng (Master Store)
             from onyx.db.models import DocumentSet as DocumentSetDBModel

@@ -505,7 +505,8 @@ export default function useChatController({
         currChatSessionId = await createChatSession(
           liveAgent?.id || 0,
           searchParamBasedChatSessionName,
-          projectId ? parseInt(projectId) : null
+          projectId ? parseInt(projectId) : null,
+          departmentId ?? null
         );
 
         // Optimistically add the new chat session to the sidebar cache

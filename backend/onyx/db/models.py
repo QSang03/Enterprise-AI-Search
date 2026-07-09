@@ -2769,6 +2769,10 @@ class ChatSession(Base):
         ForeignKey("user_project.id"), nullable=True
     )
 
+    user_group_id: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, default=None
+    )
+
     project: Mapped["UserProject"] = relationship(
         "UserProject", back_populates="chat_sessions", foreign_keys=[project_id]
     )

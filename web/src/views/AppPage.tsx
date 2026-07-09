@@ -48,6 +48,7 @@ import useMyGroups from "@/hooks/useMyGroups";
 import useDeepResearchToggle from "@/hooks/useDeepResearchToggle";
 import { useIsDefaultAgent } from "@/lib/agents/hooks";
 import AgentDescription from "@/app/app/components/AgentDescription";
+import { DefaultDropdown } from "@/components/Dropdown";
 import {
   useChatSessionStore,
   useCurrentMessageHistory,
@@ -159,6 +160,27 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   const settings = useSettings();
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
   const { data: myGroups } = useMyGroups();
+  const departmentOptions = useMemo(() => {
+    const opts = [
+      {
+        name: t("appPage.defaultNoFilter"),
+        value: "",
+      },
+      {
+        name: t("appPage.globalKnowledge"),
+        value: "-1",
+      },
+    ];
+    if (myGroups) {
+      myGroups.forEach((group) => {
+        opts.push({
+          name: t("appPage.departmentKb", { name: group.name }),
+          value: String(group.id),
+        });
+      });
+    }
+    return opts;
+  }, [myGroups, t]);
   const { appName } = settings;
 
   useLayoutEffect(() => {
@@ -572,6 +594,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     submitOnLoadPerformed,
     refreshChatSessions,
     onSubmit,
+    setSelectedDepartmentId,
   });
 
   useSendMessageToParent();
@@ -1117,24 +1140,20 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                               />
                             )}
                             
-                            <div className="flex items-center gap-1.5 text-xs text-neutral-500">
-                              <span className="font-semibold text-neutral-600">{t("appPage.knowledgeBase")}</span>
-                              <select
-                                value={selectedDepartmentId === null ? "" : selectedDepartmentId}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  setSelectedDepartmentId(val === "" ? null : Number(val));
-                                }}
-                                className="rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs text-neutral-800 focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 outline-none cursor-pointer"
-                              >
-                                <option value="">{t("appPage.defaultNoFilter")}</option>
-                                <option value="-1">{t("appPage.globalKnowledge")}</option>
-                                {myGroups && myGroups.map((group) => (
-                                  <option key={group.id} value={group.id}>
-                                    {t("appPage.departmentKb", { name: group.name })}
-                                  </option>
-                                ))}
-                              </select>
+                            <div className="flex items-center gap-1.5 text-xs text-neutral-500 min-w-[220px]">
+                              <span className="font-semibold text-neutral-600 whitespace-nowrap">{t("appPage.knowledgeBase")}</span>
+                              <div className="w-full">
+                                <DefaultDropdown
+                                  options={departmentOptions}
+                                  selected={selectedDepartmentId === null ? "" : String(selectedDepartmentId)}
+                                  onSelect={(val) => {
+                                    setSelectedDepartmentId(
+                                      val === "" || val === null ? null : Number(val)
+                                    );
+                                  }}
+                                  side="top"
+                                />
+                              </div>
                             </div>
                           </div>
                         )}

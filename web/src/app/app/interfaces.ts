@@ -142,6 +142,7 @@ export interface ChatSession {
   project_id: number | null;
   current_alternate_model: string;
   current_temperature_override: number | null;
+  department_id?: number | null;
 }
 
 export interface SearchSession {
@@ -209,6 +210,7 @@ export interface BackendChatSession {
   packets: Packet[][];
   // Set while a run is in flight and resumable via the resume-stream endpoint
   current_run?: { run_id: number } | null;
+  department_id?: number | null;
 }
 
 export function toChatSession(backend: BackendChatSession): ChatSession {
@@ -222,6 +224,7 @@ export function toChatSession(backend: BackendChatSession): ChatSession {
     project_id: null,
     current_alternate_model: backend.current_alternate_model ?? "",
     current_temperature_override: backend.current_temperature_override,
+    department_id: backend.department_id ?? null,
   };
 }
 

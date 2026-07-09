@@ -157,6 +157,7 @@ def create_chat_session_from_request(
         user_id=user.id,
         persona_id=chat_session_request.persona_id,
         project_id=chat_session_request.project_id,
+        user_group_id=chat_session_request.department_id,
     )
 
 

@@ -79,6 +79,7 @@ class ChatSessionCreationRequest(BaseModel):
     persona_id: int = 0
     description: str | None = None
     project_id: int | None = None
+    department_id: int | None = None
 
 
 class ChatFeedbackRequest(BaseModel):
@@ -195,6 +196,7 @@ class ChatSessionDetails(BaseModel):
     shared_status: ChatSessionSharedStatus
     current_alternate_model: str | None = None
     current_temperature_override: float | None = None
+    department_id: int | None = None
 
     @classmethod
     def from_model(cls, model: ChatSession) -> "ChatSessionDetails":
@@ -207,6 +209,7 @@ class ChatSessionDetails(BaseModel):
             shared_status=model.shared_status,
             current_alternate_model=model.current_alternate_model,
             current_temperature_override=model.temperature_override,
+            department_id=model.user_group_id,
         )
 
 
@@ -274,6 +277,7 @@ class ChatSessionDetailResponse(BaseModel):
     # Set while a run is in flight and resumable: cursor-0 replay+tail is
     # available at /chat-session/{id}/resume-stream.
     current_run: CurrentRunInfo | None = None
+    department_id: int | None = None
 
 
 class AdminSearchRequest(BaseModel):

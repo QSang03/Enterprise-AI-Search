@@ -227,6 +227,7 @@ def create_chat_session(
     onyxbot_flow: bool = False,
     slack_thread_id: str | None = None,
     project_id: int | None = None,
+    user_group_id: int | None = None,
 ) -> ChatSession:
     chat_session = ChatSession(
         user_id=user_id,
@@ -237,6 +238,7 @@ def create_chat_session(
         onyxbot_flow=onyxbot_flow,
         slack_thread_id=slack_thread_id,
         project_id=project_id,
+        user_group_id=user_group_id,
     )
 
     db_session.add(chat_session)

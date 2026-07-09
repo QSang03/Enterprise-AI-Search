@@ -66,6 +66,7 @@ interface UseChatSessionControllerProps {
     deepResearch: boolean;
     isSeededChat?: boolean;
   }) => Promise<void>;
+  setSelectedDepartmentId?: (id: number | null) => void;
 }
 
 export type SessionFetchError = {
@@ -88,6 +89,7 @@ export default function useChatSessionController({
   submitOnLoadPerformed,
   refreshChatSessions,
   onSubmit,
+  setSelectedDepartmentId,
 }: UseChatSessionControllerProps) {
   const [currentSessionFileTokenCount, setCurrentSessionFileTokenCount] =
     useState<number>(0);
@@ -173,6 +175,9 @@ export default function useChatSessionController({
 
         // Reset the selected agent back to default
         setSelectedAgentFromId(null);
+        if (setSelectedDepartmentId) {
+          setSelectedDepartmentId(null);
+        }
         updateCurrentChatSessionSharedStatus(ChatSessionSharedStatus.Private);
 
         // If we're supposed to submit on initial load, then do that here
@@ -234,6 +239,9 @@ export default function useChatSessionController({
       const session = await response.json();
       const chatSession = session as BackendChatSession;
       setSelectedAgentFromId(chatSession.persona_id);
+      if (setSelectedDepartmentId) {
+        setSelectedDepartmentId(chatSession.department_id ?? null);
+      }
 
       // Ensure the current session is set to the actual session ID from the response
       setCurrentSession(chatSession.chat_session_id);

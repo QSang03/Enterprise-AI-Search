@@ -383,6 +383,7 @@ def get_chat_session(
         # Packets are now directly serialized as Packet Pydantic models
         packets=replay_packet_lists,
         current_run=current_run,
+        department_id=chat_session.user_group_id,
     )
 
 
