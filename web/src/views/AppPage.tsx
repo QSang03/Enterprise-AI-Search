@@ -158,29 +158,17 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
     isLoading: isLoadingChatSessions,
   } = useChatSessions();
   const settings = useSettings();
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(null);
-  const { data: myGroups } = useMyGroups();
-  const departmentOptions = useMemo(() => {
-    const opts = [
-      {
-        name: t("appPage.defaultNoFilter"),
-        value: "",
-      },
-      {
-        name: t("appPage.globalKnowledge"),
-        value: "-1",
-      },
-    ];
-    if (myGroups) {
-      myGroups.forEach((group) => {
-        opts.push({
-          name: t("appPage.departmentKb", { name: group.name }),
-          value: String(group.id),
-        });
-      });
+  const departmentIdParam = searchParams?.get("departmentId");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | null>(
+    departmentIdParam ? Number(departmentIdParam) : null
+  );
+
+  useEffect(() => {
+    if (currentChatSessionId === null) {
+      const param = searchParams?.get("departmentId");
+      setSelectedDepartmentId(param ? Number(param) : null);
     }
-    return opts;
-  }, [myGroups, t]);
+  }, [currentChatSessionId, searchParams]);
   const { appName } = settings;
 
   useLayoutEffect(() => {
@@ -1129,32 +1117,14 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                             isSearch ? "h-[14px]" : "h-0"
                           )}
                         />
-                        {(appFocus.isChat() || appFocus.isNewSession()) && (
+                        {(appFocus.isChat() || appFocus.isNewSession()) && liveAgent && currentProjectId && (
                           <div className="pb-1.5 flex flex-wrap items-center gap-4">
-                            {liveAgent && currentProjectId && (
-                              <MultiModelSelector
-                                selectedModels={multiModel.selectedModels}
-                                onAdd={multiModel.addModel}
-                                onRemove={multiModel.removeModel}
-                                onReplace={multiModel.replaceModel}
-                              />
-                            )}
-                            
-                            <div className="flex items-center gap-1.5 text-xs text-neutral-500 min-w-[220px]">
-                              <span className="font-semibold text-neutral-600 whitespace-nowrap">{t("appPage.knowledgeBase")}</span>
-                              <div className="w-full">
-                                <DefaultDropdown
-                                  options={departmentOptions}
-                                  selected={selectedDepartmentId === null ? "" : String(selectedDepartmentId)}
-                                  onSelect={(val) => {
-                                    setSelectedDepartmentId(
-                                      val === "" || val === null ? null : Number(val)
-                                    );
-                                  }}
-                                  side="top"
-                                />
-                              </div>
-                            </div>
+                            <MultiModelSelector
+                              selectedModels={multiModel.selectedModels}
+                              onAdd={multiModel.addModel}
+                              onRemove={multiModel.removeModel}
+                              onReplace={multiModel.replaceModel}
+                            />
                           </div>
                         )}
 

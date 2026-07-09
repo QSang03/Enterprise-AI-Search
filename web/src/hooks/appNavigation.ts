@@ -9,12 +9,13 @@ interface UseAppRouterProps {
   chatSessionId?: string;
   agentId?: number;
   projectId?: number;
+  departmentId?: number;
 }
 
 export function useAppRouter() {
   const router = useRouter();
   return useCallback(
-    ({ chatSessionId, agentId, projectId }: UseAppRouterProps = {}) => {
+    ({ chatSessionId, agentId, projectId, departmentId }: UseAppRouterProps = {}) => {
       const finalParams = [];
 
       if (chatSessionId)
@@ -23,6 +24,8 @@ export function useAppRouter() {
         finalParams.push(`${SEARCH_PARAM_NAMES.PERSONA_ID}=${agentId}`);
       else if (projectId)
         finalParams.push(`${SEARCH_PARAM_NAMES.PROJECT_ID}=${projectId}`);
+      else if (departmentId !== undefined)
+        finalParams.push(`departmentId=${departmentId}`);
 
       const finalString = finalParams.join("&");
       const finalUrl = `/app?${finalString}`;

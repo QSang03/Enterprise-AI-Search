@@ -408,7 +408,7 @@ function ConnectedHookCard({
                           icon={SvgUnplug}
                           onClick={noProp(() => disconnectModal.toggle(true))}
                           tooltip={t("admin.hooks.disconnectHookTooltip")}
-                          aria-label="Deactivate hook"
+                          aria-label={t("deactivateHook")}
                         />
                       </Hoverable.Item>
                       <Button
@@ -417,7 +417,7 @@ function ConnectedHookCard({
                         icon={SvgRefreshCw}
                         onClick={noProp(handleValidate)}
                         tooltip={t("admin.hooks.validateHookTooltip")}
-                        aria-label="Re-validate hook"
+                        aria-label={t("reValidateHook")}
                       />
                     </>
                   ) : (
@@ -427,7 +427,7 @@ function ConnectedHookCard({
                       icon={SvgTrash}
                       onClick={noProp(() => deleteModal.toggle(true))}
                       tooltip={t("admin.hooks.deleteTooltip")}
-                      aria-label="Delete hook"
+                      aria-label={t("deleteHook")}
                     />
                   )}
                   <Button
@@ -436,7 +436,7 @@ function ConnectedHookCard({
                     icon={SvgSettings}
                     onClick={noProp(onEdit)}
                     tooltip={t("admin.hooks.manageTooltip")}
-                    aria-label="Configure hook"
+                    aria-label={t("configureHook")}
                   />
                 </div>
               </Disabled>

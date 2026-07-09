@@ -164,6 +164,8 @@ def get_user_chat_sessions(
     db_session: Session = Depends(get_session),
     project_id: int | None = None,
     only_non_project_chats: bool = True,
+    department_id: int | None = None,
+    only_non_department_chats: bool = True,
     include_failed_chats: bool = False,
     page_size: int = Query(default=50, ge=1, le=100),
     before: str | None = Query(default=None),
@@ -185,6 +187,8 @@ def get_user_chat_sessions(
             db_session=db_session,
             project_id=project_id,
             only_non_project_chats=only_non_project_chats,
+            department_id=department_id,
+            only_non_department_chats=only_non_department_chats,
             include_failed_chats=include_failed_chats,
             limit=page_size + 1,
             before=before_dt,
@@ -198,16 +202,7 @@ def get_user_chat_sessions(
 
     return ChatSessionsResponse(
         sessions=[
-            ChatSessionDetails(
-                id=chat.id,
-                name=chat.description,
-                persona_id=chat.persona_id,
-                time_created=chat.time_created.isoformat(),
-                time_updated=chat.time_updated.isoformat(),
-                shared_status=chat.shared_status,
-                current_alternate_model=chat.current_alternate_model,
-                current_temperature_override=chat.temperature_override,
-            )
+            ChatSessionDetails.from_model(chat)
             for chat in chat_sessions
         ],
         has_more=has_more,

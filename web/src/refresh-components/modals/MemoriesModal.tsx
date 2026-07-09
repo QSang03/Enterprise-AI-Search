@@ -272,7 +272,7 @@ export default function MemoriesModal({
         <Modal.Header
           icon={SvgAddLines}
           title="Memory"
-          description="Let Onyx reference these stored notes and memories in chats."
+          description={t("memoryDescription")}
           onClose={close}
         >
           <Section flexDirection="row" gap={0.5}>

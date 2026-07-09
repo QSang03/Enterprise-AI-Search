@@ -456,7 +456,7 @@ export const AppearanceThemeSettings = forwardRef<
 
       <Disabled
         disabled={!enterpriseTier}
-        tooltip="Custom help link is an Enterprise Plan feature."
+        tooltip={t("customHelpLinkEnterprise")}
       >
         <div className="flex gap-2 items-start">
           <FormField
@@ -519,7 +519,7 @@ export const AppearanceThemeSettings = forwardRef<
 
       <Disabled
         disabled={!enterpriseTier}
-        tooltip="Hiding Onyx branding is an Enterprise Plan feature."
+        tooltip={t("hideOnyxBrandingEnterprise")}
       >
         <FormField state="idle" className="gap-0">
           <div className="flex justify-between items-center">

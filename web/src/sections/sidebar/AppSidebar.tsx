@@ -81,6 +81,9 @@ import AccountPopover from "@/sections/sidebar/AccountPopover";
 import ChatSearchCommandMenu from "@/sections/sidebar/ChatSearchCommandMenu";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { useQueryController } from "@/providers/QueryControllerProvider";
+import useMyGroups from "@/hooks/useMyGroups";
+import DepartmentFolderButton from "@/sections/sidebar/DepartmentFolderButton";
+import { UserRole } from "@/lib/types";
 
 // Visible-agents = pinned-agents + current-agent (if current-agent not in pinned-agents)
 // OR Visible-agents = pinned-agents (if current-agent in pinned-agents)
@@ -205,6 +208,8 @@ const AppSidebar = memo(function AppSidebarInner() {
   const combinedSettingsData = useSettings();
   const { newTenantInfo, invitationInfo } = useModalContext();
   const { setAppMode, reset } = useQueryController();
+  const { isAdmin, isCurator, user } = useUser();
+  const { data: myGroups, isLoading: isLoadingMyGroups } = useMyGroups();
 
   // Use SWR hooks for data fetching
   const {
@@ -228,12 +233,33 @@ const AppSidebar = memo(function AppSidebarInner() {
     isLoading: isLoadingPinnedAgents,
   } = usePinnedAgents();
 
+  const showGlobalKb = isAdmin || user?.role === UserRole.GLOBAL_CURATOR;
+  const departmentFolders = useMemo(() => {
+    const folders = [];
+    if (showGlobalKb) {
+      folders.push({
+        id: -1,
+        name: t("appPage.globalKnowledge"),
+      });
+    }
+    if (myGroups) {
+      myGroups.forEach((group) => {
+        folders.push({
+          id: group.id,
+          name: t("appPage.departmentKb", { name: group.name }),
+        });
+      });
+    }
+    return folders;
+  }, [showGlobalKb, myGroups, t]);
+
   // Wait for ALL dynamic data before showing any sections
   const isLoadingDynamicContent =
     isLoadingChatSessions ||
     isLoadingProjects ||
     isLoadingAgents ||
-    isLoadingPinnedAgents;
+    isLoadingPinnedAgents ||
+    isLoadingMyGroups;
 
   // Still need some context for stateful operations
   const { refreshCurrentProjectDetails, currentProjectId } =
@@ -471,7 +497,6 @@ const AppSidebar = memo(function AppSidebarInner() {
     ]
   );
 
-  const { isAdmin, isCurator, user } = useUser();
   const activeSidebarTab = useAppFocus();
   const createProjectModal = useCreateModal();
   const showLogoWhenFolded = useShowLogoWhenFolded();
@@ -702,6 +727,17 @@ const AppSidebar = memo(function AppSidebarInner() {
                   {moreAgentsButton}
                 </SidebarLayouts.Section>
               </DndContext>
+
+              {/* Knowledge Bases */}
+              <SidebarLayouts.Section title={t("sidebar.knowledgeBases")}>
+                {departmentFolders.map((folder) => (
+                  <DepartmentFolderButton
+                    key={folder.id}
+                    departmentId={folder.id}
+                    name={folder.name}
+                  />
+                ))}
+              </SidebarLayouts.Section>
 
               {/* Wrap Projects and Recents in a shared DndContext for chat-to-project drag */}
               <DndContext

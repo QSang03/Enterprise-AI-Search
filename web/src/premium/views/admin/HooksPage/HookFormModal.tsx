@@ -278,7 +278,7 @@ export default function HookFormModal({
                           sizePreset="secondary"
                           variant="body"
                           icon={SvgShareWebhook}
-                          title="Hook Point"
+                          title={t("hookPoint")}
                           color="muted"
                           width="fit"
                         />

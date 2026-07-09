@@ -115,6 +115,8 @@ def get_chat_sessions_by_user(
     before: datetime | None = None,
     project_id: int | None = None,
     only_non_project_chats: bool = False,
+    department_id: int | None = None,
+    only_non_department_chats: bool = False,
     include_failed_chats: bool = False,
 ) -> list[ChatSession]:
     stmt = select(ChatSession).where(ChatSession.user_id == user_id)
@@ -134,6 +136,11 @@ def get_chat_sessions_by_user(
         stmt = stmt.where(ChatSession.project_id == project_id)
     elif only_non_project_chats:
         stmt = stmt.where(ChatSession.project_id.is_(None))
+
+    if department_id is not None:
+        stmt = stmt.where(ChatSession.user_group_id == department_id)
+    elif only_non_department_chats:
+        stmt = stmt.where(ChatSession.user_group_id.is_(None))
 
     # When filtering out failed chats, we apply the limit in Python after
     # filtering rather than in SQL, since the post-filter may remove rows.

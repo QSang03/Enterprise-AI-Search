@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@opal/layouts";
 import Text from "@/refresh-components/texts/Text";
 import { SvgAlertCircle, SvgEye, SvgEyeClosed, SvgKey } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 interface MCPAuthTemplate {
   headers: Array<{ name: string; value: string }>;
   request_body_params: Array<{ path: string; value: string }>;
@@ -41,6 +42,7 @@ export default function MCPApiKeyModal({
   isAuthenticated = false,
   existingCredentials,
 }: MCPApiKeyModalProps) {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [credentials, setCredentials] = useState<Record<string, string>>({});
@@ -235,7 +237,7 @@ export default function MCPApiKeyModal({
                     type={showApiKey ? "text" : "password"}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={`Enter your ${credsType}`}
+                    placeholder={t("enterYourApiKey", { credsType })}
                     className="pr-10"
                     required
                   />
@@ -243,7 +245,7 @@ export default function MCPApiKeyModal({
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-emphasis"
-                    aria-label={showApiKey ? "Hide API key" : "Show API key"}
+                    aria-label={showApiKey ? t("hideApiKey") : t("showApiKey")}
                   >
                     {showApiKey ? (
                       <SvgEyeClosed className="h-4 w-4" />
