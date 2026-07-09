@@ -39,7 +39,7 @@ ASYM_PASSAGE_PREFIX = os.environ.get("ASYM_PASSAGE_PREFIX", "")
 # User's set embedding batch size overrides the default encoding batch sizes
 EMBEDDING_BATCH_SIZE = int(os.environ.get("EMBEDDING_BATCH_SIZE") or 0) or None
 
-BATCH_SIZE_ENCODE_CHUNKS = EMBEDDING_BATCH_SIZE or 64
+BATCH_SIZE_ENCODE_CHUNKS = EMBEDDING_BATCH_SIZE or 16
 # don't send over too many chunks at once, as sending too many could cause timeouts
 BATCH_SIZE_ENCODE_CHUNKS_FOR_API_EMBEDDING_SERVICES = EMBEDDING_BATCH_SIZE or 512
 # For score display purposes, only way is to know the expected ranges

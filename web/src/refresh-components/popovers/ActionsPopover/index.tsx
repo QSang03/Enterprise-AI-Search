@@ -48,14 +48,16 @@ import {
   SvgSimpleLoader,
 } from "@opal/icons";
 import { Button } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 function buildTooltipMessage(
   actionDescription: string,
   isConfigured: boolean,
-  canManageAction: boolean
+  canManageAction: boolean,
+  t: (key: string) => string
 ) {
-  const _CONFIGURE_MESSAGE = "Press the settings cog to enable.";
-  const _USER_NOT_ADMIN_MESSAGE = "Ask an admin to configure.";
+  const _CONFIGURE_MESSAGE = t("pressSettingsCogToEnable");
+  const _USER_NOT_ADMIN_MESSAGE = t("askAdminToConfigure");
 
   if (isConfigured) {
     return actionDescription;
@@ -68,58 +70,61 @@ function buildTooltipMessage(
   return actionDescription + " " + _USER_NOT_ADMIN_MESSAGE;
 }
 
-const TOOL_DESCRIPTIONS: Record<string, string> = {
-  [SEARCH_TOOL_ID]: "Search through connected knowledge to inform the answer.",
-  [IMAGE_GENERATION_TOOL_ID]: "Generate images based on a prompt.",
-  [WEB_SEARCH_TOOL_ID]: "Search the web for up-to-date information.",
-  [PYTHON_TOOL_ID]: "Execute code for complex analysis.",
-  [CODING_AGENT_TOOL_ID]:
-    "Investigate a GitHub repository and answer questions about its code.",
-};
+const getToolDescriptions = (t: (key: string) => string): Record<string, string> => ({
+  [SEARCH_TOOL_ID]: t("searchToolDescription"),
+  [IMAGE_GENERATION_TOOL_ID]: t("imageGenerationToolDescription"),
+  [WEB_SEARCH_TOOL_ID]: t("webSearchToolDescription"),
+  [PYTHON_TOOL_ID]: t("pythonToolDescription"),
+  [CODING_AGENT_TOOL_ID]: t("codingAgentToolDescription"),
+});
 
-const DEFAULT_TOOL_DESCRIPTION = "This action is not configured yet.";
+const DEFAULT_TOOL_DESCRIPTION = (t: (key: string) => string) => t("actionNotConfiguredYet");
 
 function getToolTooltip(
   tool: ToolSnapshot,
   isConfigured: boolean,
-  canManageAction: boolean
+  canManageAction: boolean,
+  t: (key: string) => string
 ): string {
+  const toolDescriptions = getToolDescriptions(t);
   const description =
-    (tool.in_code_tool_id && TOOL_DESCRIPTIONS[tool.in_code_tool_id]) ||
+    (tool.in_code_tool_id && toolDescriptions[tool.in_code_tool_id as keyof typeof toolDescriptions]) ||
     tool.description ||
-    DEFAULT_TOOL_DESCRIPTION;
-  return buildTooltipMessage(description, isConfigured, canManageAction);
+    DEFAULT_TOOL_DESCRIPTION(t);
+  return buildTooltipMessage(description, isConfigured, canManageAction, t);
 }
 
-const ADMIN_CONFIG_LINKS: Record<string, { href: string; tooltip: string }> = {
+const getAdminConfigLinks = (t: (key: string) => string): Record<string, { href: string; tooltip: string }> => ({
   [IMAGE_GENERATION_TOOL_ID]: {
     href: "/admin/configuration/image-generation",
-    tooltip: "Configure Image Generation",
+    tooltip: t("configureImageGeneration"),
   },
   [WEB_SEARCH_TOOL_ID]: {
     href: "/admin/configuration/web-search",
-    tooltip: "Configure Web Search",
+    tooltip: t("configureWebSearch"),
   },
   [PYTHON_TOOL_ID]: {
     href: "/admin/configuration/code-interpreter",
-    tooltip: "Configure Code Interpreter",
+    tooltip: t("configureCodeInterpreter"),
   },
-};
+});
 
-const OPENAPI_ADMIN_CONFIG = {
+const getOpenAPIAdminConfig = (t: (key: string) => string) => ({
   href: "/admin/actions/open-api",
-  tooltip: "Manage OpenAPI Actions",
-};
+  tooltip: t("manageOpenAPIActions"),
+});
 
 const getAdminConfigureInfo = (
-  tool: ToolSnapshot
+  tool: ToolSnapshot,
+  t: (key: string) => string
 ): { href: string; tooltip: string } | null => {
-  if (tool.in_code_tool_id && ADMIN_CONFIG_LINKS[tool.in_code_tool_id]) {
-    return ADMIN_CONFIG_LINKS[tool.in_code_tool_id] ?? null;
+  const adminConfigLinks = getAdminConfigLinks(t);
+  if (tool.in_code_tool_id && adminConfigLinks[tool.in_code_tool_id as keyof typeof adminConfigLinks]) {
+    return adminConfigLinks[tool.in_code_tool_id as keyof typeof adminConfigLinks] ?? null;
   }
 
   if (!tool.in_code_tool_id && !tool.mcp_server_id) {
-    return OPENAPI_ADMIN_CONFIG;
+    return getOpenAPIAdminConfig(t);
   }
 
   return null;
@@ -168,6 +173,7 @@ export default function ActionsPopover({
   availableSources = [],
   disabled = false,
 }: ActionsPopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [secondaryView, setSecondaryView] = useState<SecondaryViewState | null>(
     null
@@ -850,7 +856,7 @@ export default function ActionsPopover({
             const canAdminConfigure = isAdmin || isCurator;
             const adminConfigureInfo =
               isUnavailable && canAdminConfigure
-                ? getAdminConfigureInfo(tool)
+                ? getAdminConfigureInfo(tool, t)
                 : null;
             return (
               <ActionLineItem
@@ -862,7 +868,8 @@ export default function ActionsPopover({
                 tooltip={getToolTooltip(
                   tool,
                   isToolAvailable,
-                  canAdminConfigure
+                  canAdminConfigure,
+                  t
                 )}
                 showAdminConfigure={!!adminConfigureInfo}
                 adminConfigureHref={adminConfigureInfo?.href}
@@ -977,7 +984,7 @@ export default function ActionsPopover({
               icon={SvgSliders}
               interaction={open ? "hover" : "rest"}
               prominence="tertiary"
-              tooltip="Manage Actions"
+              tooltip={t("manageActions")}
             />
           </div>
         </Popover.Trigger>

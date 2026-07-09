@@ -53,6 +53,9 @@ class IndexAttemptStage(str, PyEnum):
     FINALIZATION = "FINALIZATION"
     GC_COLLECT = "GC_COLLECT"
 
+    # Time to enqueue graph extraction background jobs after the main pipeline commit.
+    GRAPH_EXTRACTION_ENQUEUE = "GRAPH_EXTRACTION_ENQUEUE"
+
     # Residual (BATCH_TOTAL minus in-span stages); read-time, never written.
     BATCH_UNACCOUNTED = "BATCH_UNACCOUNTED"
 
@@ -101,6 +104,7 @@ STAGE_SCOPE: dict[IndexAttemptStage, StageScope] = {
     IndexAttemptStage.COORDINATION_UPDATE: StageScope.BATCH_LEVEL,
     IndexAttemptStage.FINALIZATION: StageScope.BATCH_LEVEL,
     IndexAttemptStage.GC_COLLECT: StageScope.BATCH_LEVEL,
+    IndexAttemptStage.GRAPH_EXTRACTION_ENQUEUE: StageScope.BATCH_LEVEL,
     IndexAttemptStage.BATCH_UNACCOUNTED: StageScope.BATCH_LEVEL,
     IndexAttemptStage.BATCH_TOTAL: StageScope.BATCH_LEVEL,
 }

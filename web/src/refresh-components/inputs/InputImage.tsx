@@ -8,6 +8,7 @@ import IconButton from "@/refresh-components/buttons/IconButton";
 import { Tooltip } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { useImageDropzone } from "@/hooks/useImageDropzone";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 type ImageState = "empty" | "withImage" | "dragActive";
 type AbledState = "enabled" | "disabled";
@@ -134,6 +135,7 @@ export default function InputImage({
   size = 120,
   className,
 }: InputImageProps) {
+  const { t } = useTranslation();
   const isInteractive = !disabled && (onEdit || onDrop);
   const hasImage = !!src;
 
@@ -235,7 +237,7 @@ export default function InputImage({
                   )}
                 >
                   <div className="pointer-events-auto">
-                    <Tooltip tooltip="Edit" side="top">
+                    <Tooltip tooltip={t("edit")} side="top">
                       <div
                         className={cn(
                           "flex items-center justify-center",
@@ -246,7 +248,7 @@ export default function InputImage({
                           className="text-text-03 font-secondary-action"
                           style={{ fontSize: "12px", lineHeight: "16px" }}
                         >
-                          Edit
+                          {t("edit")}
                         </Text>
                       </div>
                     </Tooltip>

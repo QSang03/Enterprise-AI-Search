@@ -34,6 +34,7 @@ interface MemoryItemProps {
   onFocused?: () => void;
   shouldHighlight?: boolean;
   onHighlighted?: () => void;
+  t: (key: string) => string;
 }
 
 function MemoryItem({
@@ -46,6 +47,7 @@ function MemoryItem({
   onFocused,
   shouldHighlight,
   onHighlighted,
+  t,
 }: MemoryItemProps) {
   const [isFocused, setIsFocused] = useState(false);
   const [isHighlighting, setIsHighlighting] = useState(false);
@@ -122,8 +124,8 @@ function MemoryItem({
             prominence="tertiary"
             icon={SvgMinusCircle}
             onClick={() => void onRemove(originalIndex)}
-            aria-label="Remove Line"
-            tooltip="Remove Line"
+            aria-label={t("removeLine")}
+            tooltip={t("removeLine")}
           />
         </Section>
         <div
@@ -321,6 +323,7 @@ export default function MemoriesModal({
                     onHighlighted={() => {
                       setHighlightMemoryId(null);
                     }}
+                    t={t}
                   />
                   {memory.isNew && (
                     <Divider paddingParallel="fit" paddingPerpendicular="fit" />

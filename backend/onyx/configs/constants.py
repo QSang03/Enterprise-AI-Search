@@ -454,6 +454,9 @@ class OnyxCeleryQueues:
 
     OPENSEARCH_MIGRATION = "opensearch_migration"
 
+    # Knowledge Graph extraction (runs on heavy worker)
+    GRAPH_EXTRACTION = "graph_extraction"
+
 
 class OnyxRedisLocks:
     PRIMARY_WORKER = "da_lock:primary_worker"
@@ -638,6 +641,9 @@ class OnyxCeleryTask:
 
     # License expiry tiered warnings
     CHECK_LICENSE_EXPIRY_NOTIFICATIONS = "check_license_expiry_notifications"
+
+    # Knowledge Graph background extraction
+    GRAPH_EXTRACTION_TASK = "graph_extraction_task"
 
     # Sandbox cleanup
     CLEANUP_IDLE_SANDBOXES = "cleanup_idle_sandboxes"

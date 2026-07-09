@@ -8,6 +8,7 @@ import Text from "@/refresh-components/texts/Text";
 import { SvgDownload, SvgMaximize2, SvgX } from "@opal/icons";
 import { Button } from "@opal/components";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ExpandableTextDisplayProps {
   /** Title shown in header and modal */
@@ -119,6 +120,7 @@ export default function ExpandableTextDisplay({
   renderContent,
   isStreaming = false,
 }: ExpandableTextDisplayProps) {
+  const { t } = useTranslation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -312,7 +314,7 @@ export default function ExpandableTextDisplay({
               prominence="tertiary"
               size="sm"
               icon={SvgMaximize2}
-              tooltip="View Full Text"
+              tooltip={t("viewFullText")}
               onClick={() => setIsModalOpen(true)}
             />
           )}
@@ -369,13 +371,13 @@ export default function ExpandableTextDisplay({
                 prominence="tertiary"
                 size="sm"
                 getCopyText={() => content}
-                tooltip="Copy"
+                tooltip={t("copy")}
               />
               <Button
                 prominence="tertiary"
                 size="sm"
                 icon={SvgDownload}
-                tooltip="Download"
+                tooltip={t("download")}
                 onClick={handleDownload}
               />
             </div>

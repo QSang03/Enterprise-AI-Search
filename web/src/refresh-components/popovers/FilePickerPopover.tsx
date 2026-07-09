@@ -39,12 +39,14 @@ interface FileLineItemProps {
   projectFile: ProjectFile;
   onPickRecent: (file: ProjectFile) => void;
   onFileClick: (file: ProjectFile) => void;
+  t: (key: string) => string;
 }
 
 function FileLineItem({
   projectFile,
   onPickRecent,
   onFileClick,
+  t,
 }: FileLineItemProps) {
   const showLoader = useMemo(
     () =>
@@ -80,7 +82,7 @@ function FileLineItem({
           <IconButton
             icon={SvgExternalLink}
             onClick={noProp(() => onFileClick(projectFile))}
-            tooltip="View File"
+            tooltip={t("viewFile")}
             disabled={disableActionButton}
             internal
             className="hidden group-hover/LineItem:flex"
@@ -108,6 +110,7 @@ interface FilePickerPopoverContentsProps {
   triggerUploadPicker: () => void;
   openRecentFilesModal: () => void;
   hasAnyLlm: boolean;
+  t: (key: string) => string;
 }
 
 function FilePickerPopoverContents({
@@ -117,6 +120,7 @@ function FilePickerPopoverContents({
   triggerUploadPicker,
   openRecentFilesModal,
   hasAnyLlm,
+  t,
 }: FilePickerPopoverContentsProps) {
   // These are the "quick" files that we show. Essentially "speed dial", but for files.
   // The rest of the files will be hidden behind the "All Recent Files" button, should there be more files left to show!
@@ -157,6 +161,7 @@ function FilePickerPopoverContents({
             projectFile={projectFile}
             onPickRecent={onPickRecent}
             onFileClick={onFileClick}
+            t={t}
           />
         )),
 
@@ -317,6 +322,7 @@ export default function FilePickerPopover({
               setOpen(false);
             }}
             hasAnyLlm={hasAnyLlm}
+            t={t}
           />
         </Popover.Content>
       </Popover>

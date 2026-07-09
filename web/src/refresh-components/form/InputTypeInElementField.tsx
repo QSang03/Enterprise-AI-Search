@@ -6,6 +6,7 @@ import { Button } from "@opal/components";
 import { SvgMinusCircle } from "@opal/icons";
 import { useOnChangeEvent, useOnBlurEvent } from "@/hooks/formHooks";
 import { Section } from "@/layouts/general-layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface InputTypeInElementFieldProps extends Omit<
   InputTypeInProps,
@@ -23,6 +24,7 @@ export default function InputTypeInElementField({
   onBlur: onBlurProp,
   ...inputProps
 }: InputTypeInElementFieldProps) {
+  const { t } = useTranslation();
   const [field, meta] = useField(name);
   const onChange = useOnChangeEvent(name, onChangeProp);
   const onBlur = useOnBlurEvent(name, onBlurProp);
@@ -54,7 +56,7 @@ export default function InputTypeInElementField({
         icon={SvgMinusCircle}
         prominence="tertiary"
         onClick={onRemove}
-        tooltip="Remove"
+        tooltip={t("remove")}
       />
     </Section>
   );

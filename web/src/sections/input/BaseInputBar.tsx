@@ -368,7 +368,7 @@ const BaseInputBar = memo(
                     className="border-[1.5px] border-border-02"
                     disabled={!interruptible || isInterrupting}
                     onClick={handleInterrupt}
-                    tooltip="Stop · esc"
+                    tooltip={t("stopEsc")}
                     aria-label={t("input.stopGenerating")}
                   />
                 </div>
@@ -378,10 +378,10 @@ const BaseInputBar = memo(
                   disabled={!canSubmit}
                   tooltip={
                     sandboxInitializing
-                      ? "Initializing sandbox..."
+                      ? t("initializingSandbox")
                       : isRunning
-                        ? "Queue message"
-                        : "Send"
+                        ? t("queueMessage")
+                        : t("send")
                   }
                   aria-label={isRunning ? "Queue message" : "Send"}
                   iconClassName={

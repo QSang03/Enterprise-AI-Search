@@ -1155,7 +1155,7 @@ export default function IndexSettingsPage() {
                       currentEmbeddingModel && (
                         <Disabled
                           disabled={isReindexing}
-                          tooltip="Cancel the in-progress re-index to switch models."
+                          tooltip={t("cancelReIndex")}
                         >
                           <Tabs
                             value={activeModelTab}
@@ -1376,7 +1376,7 @@ export default function IndexSettingsPage() {
                                         <Button
                                           icon={SvgRevert}
                                           prominence="internal"
-                                          tooltip="Revert embedding model selection"
+                                          tooltip={t("revertEmbeddingModel")}
                                           onClick={() => {
                                             void setFieldValue(
                                               "model_name",
@@ -1557,7 +1557,7 @@ export default function IndexSettingsPage() {
 
                           <Disabled
                             disabled={!values.enable_contextual_rag}
-                            tooltip="Cannot modify while Contextual Retrieval is off."
+                            tooltip={t("cannotModifyContextualRetrieval")}
                           >
                             <InputHorizontal
                               title="Contextual Retrieval LLM"
@@ -1630,7 +1630,7 @@ export default function IndexSettingsPage() {
 
                           <Disabled
                             disabled={!imageProcessingEnabled}
-                            tooltip="Enable Extract & Caption Images to configure this."
+                            tooltip={t("enableExtractCaption")}
                           >
                             <InputHorizontal
                               title="Captioning LLM"
@@ -1654,7 +1654,7 @@ export default function IndexSettingsPage() {
 
                           <Disabled
                             disabled={!imageProcessingEnabled}
-                            tooltip="Enable Extract & Caption Images to configure this."
+                            tooltip={t("enableExtractCaption")}
                           >
                             <InputHorizontal
                               title="Max Image Size for Analysis"

@@ -53,7 +53,7 @@ interface RowActionHandlers {
   onDelete: (task: ScheduledTaskListItem) => void;
 }
 
-function buildColumns(handlers: RowActionHandlers) {
+function buildColumns(handlers: RowActionHandlers, t: (key: string) => string) {
   return [
     tc.column("name", {
       header: "Name",
@@ -127,7 +127,7 @@ function buildColumns(handlers: RowActionHandlers) {
     tc.actions({
       showColumnVisibility: false,
       showSorting: false,
-      cell: (task) => <TaskRowActions task={task} handlers={handlers} />,
+      cell: (task) => <TaskRowActions task={task} handlers={handlers} t={t} />,
     }),
   ];
 }
@@ -176,11 +176,14 @@ export default function ScheduledTasksListPage() {
 
   const columns = useMemo(
     () =>
-      buildColumns({
-        busyTaskId,
-        onDelete: (task) => setPendingDelete(task),
-      }),
-    [busyTaskId]
+      buildColumns(
+        {
+          busyTaskId,
+          onDelete: (task) => setPendingDelete(task),
+        },
+        t
+      ),
+    [busyTaskId, t]
   );
 
   const headerActions = useMemo(
@@ -276,13 +279,14 @@ export default function ScheduledTasksListPage() {
 interface TaskRowActionsProps {
   task: ScheduledTaskListItem;
   handlers: RowActionHandlers;
+  t: (key: string) => string;
 }
 
-function TaskRowActions({ task, handlers }: TaskRowActionsProps) {
+function TaskRowActions({ task, handlers, t }: TaskRowActionsProps) {
   const disabled = handlers.busyTaskId === task.id;
   return (
     <div className="flex items-center gap-0.5">
-      <Tooltip tooltip="Delete" side="top">
+      <Tooltip tooltip={t("delete")} side="top">
         <Button
           icon={SvgTrash}
           variant="danger"
