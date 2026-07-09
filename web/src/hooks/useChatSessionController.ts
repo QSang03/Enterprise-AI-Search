@@ -176,7 +176,8 @@ export default function useChatSessionController({
         // Reset the selected agent back to default
         setSelectedAgentFromId(null);
         if (setSelectedDepartmentId) {
-          setSelectedDepartmentId(null);
+          const deptParam = searchParams?.get("departmentId");
+          setSelectedDepartmentId(deptParam ? Number(deptParam) : null);
         }
         updateCurrentChatSessionSharedStatus(ChatSessionSharedStatus.Private);
 

@@ -132,6 +132,7 @@
   },
   "sidebar": {
     "startNewChat": "Bắt đầu trò chuyện mới",
+    "newChatInStore": "Trò chuyện mới trong kho",
     "chatHistory": "Lịch sử trò chuyện",
     "noChatsFound": "Không tìm thấy cuộc trò chuyện nào",
     "projects": "Dự án",

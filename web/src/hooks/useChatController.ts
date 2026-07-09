@@ -515,6 +515,7 @@ export default function useChatController({
           chatSessionId: currChatSessionId,
           personaId: liveAgent?.id || 0,
           projectId: projectId ? parseInt(projectId) : null,
+          departmentId: departmentId ?? null,
         });
       } else {
         // Use the existing session ID from props or from the store

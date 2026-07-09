@@ -21,6 +21,7 @@ from typing import cast
 from typing import Final
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from onyx.auth.schemas import UserRole

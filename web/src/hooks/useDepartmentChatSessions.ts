@@ -1,6 +1,8 @@
 import useSWR from "swr";
+import { useEffect, useMemo } from "react";
 import { ChatSession } from "@/app/app/interfaces";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { usePendingSessions, pendingSessionsStore } from "@/hooks/useChatSessions";
 
 interface ChatSessionsResponse {
   sessions: ChatSession[];
@@ -19,8 +21,36 @@ export function useDepartmentChatSessions(departmentId: number | null) {
     }
   );
 
+  const pendingSessions = usePendingSessions();
+
+  // Merge SWR fetched sessions with optimistic pending sessions
+  const chatSessions = useMemo(() => {
+    const fetchedSessions = data?.sessions ?? [];
+    if (departmentId === null) return fetchedSessions;
+
+    const fetchedIds = new Set(fetchedSessions.map((s) => s.id));
+    const remainingPending = pendingSessions.filter(
+      (pending) => pending.department_id === departmentId && !fetchedIds.has(pending.id)
+    );
+
+    return [...remainingPending, ...fetchedSessions];
+  }, [data, pendingSessions, departmentId]);
+
+  // Clean up pending sessions once they appear in the fetched data from backend
+  useEffect(() => {
+    const fetchedSessions = data?.sessions;
+    if (!fetchedSessions || departmentId === null) return;
+
+    const fetchedIds = new Set(fetchedSessions.map((s) => s.id));
+    pendingSessions.forEach((pending) => {
+      if (pending.department_id === departmentId && fetchedIds.has(pending.id)) {
+        pendingSessionsStore.remove(pending.id);
+      }
+    });
+  }, [data, pendingSessions, departmentId]);
+
   return {
-    chatSessions: data?.sessions ?? [],
+    chatSessions,
     isLoading,
     error,
     refresh: mutate,

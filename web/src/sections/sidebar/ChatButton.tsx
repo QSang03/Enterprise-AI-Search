@@ -99,10 +99,11 @@ export interface ChatButtonProps {
   chatSession: ChatSession;
   project?: Project;
   draggable?: boolean;
+  nested?: boolean;
 }
 
 const ChatButton = memo(
-  ({ chatSession, project, draggable = false }: ChatButtonProps) => {
+  ({ chatSession, project, draggable = false, nested = false }: ChatButtonProps) => {
     const route = useAppRouter();
     const { t } = useTranslation();
     const activeSidebarTab = useAppFocus();
@@ -440,7 +441,7 @@ const ChatButton = memo(
             onClick={handleClick}
             selected={active}
             rightChildren={rightMenu}
-            nested={!!project}
+            nested={nested || !!project}
           >
             {renaming ? (
               <ButtonRenaming

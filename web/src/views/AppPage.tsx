@@ -73,7 +73,8 @@ import Suggestions from "@/sections/Suggestions";
 import OnboardingFlow from "@/sections/onboarding/OnboardingFlow";
 import { OnboardingStep } from "@/interfaces/onboarding";
 import { useShowOnboarding } from "@/hooks/useShowOnboarding";
-import { SvgChevronDown, SvgFileText, SvgCheckSquare, SvgSquare } from "@opal/icons";
+import { SvgChevronDown, SvgFileText, SvgCheckSquare, SvgSquare, SvgX } from "@opal/icons";
+import IconButton from "@/refresh-components/buttons/IconButton";
 import { Button, Spacer } from "@opal/components";
 import { IllustrationContent, RootLayout } from "@opal/layouts";
 import { SvgNotFound, SvgNoAccess } from "@opal/illustrations";
@@ -140,6 +141,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   const router = useRouter();
   const appFocus = useAppFocus();
   const { isMobile } = useScreenSize();
+  const { data: myGroups } = useMyGroups();
 
   useToastFromQuery({
     oauth_connected: {
@@ -687,7 +689,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       selectedDepartmentId,
     ]
   );
-  const { submit: submitQuery, state, setAppMode } = useQueryController();
+  const { submit: submitQuery, state, setAppMode, reset } = useQueryController();
 
   const defaultAppMode =
     (user?.preferences?.default_app_mode?.toLowerCase() as "chat" | "search") ??
@@ -1013,6 +1015,32 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                           availableContextTokens={availableContextTokens}
                           setPresentingDocument={setPresentingDocument}
                         />
+                      </div>
+                    )}
+
+                    {/* Department Scope Indicator */}
+                    {selectedDepartmentId !== null && (
+                      <div className="w-fit flex items-center gap-2 border border-neutral-200 bg-neutral-50 px-3 py-1 rounded-full mb-4 text-xs shadow-sm">
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-semibold text-neutral-600 select-none">
+                          {t("appPage.knowledgeBase") || "Kho kiến thức:"}
+                        </span>
+                        <span className="font-medium text-neutral-800 bg-neutral-200/60 px-1.5 py-0.5 rounded-full">
+                          {selectedDepartmentId === -1
+                            ? t("appPage.globalKnowledge")
+                            : t("appPage.departmentKb", {
+                                name: myGroups?.find((g) => g.id === selectedDepartmentId)?.name || "",
+                              })}
+                        </span>
+                        <button
+                          className="text-neutral-400 hover:text-neutral-600 transition-colors ml-1"
+                          onClick={() => {
+                            reset();
+                            router.push("/app");
+                          }}
+                        >
+                          <SvgX className="h-3 w-3" />
+                        </button>
                       </div>
                     )}
 

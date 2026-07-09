@@ -132,6 +132,7 @@
   },
   "sidebar": {
     "startNewChat": "Start a new chat",
+    "newChatInStore": "New chat in store",
     "chatHistory": "Chat history",
     "noChatsFound": "No chats found",
     "projects": "Projects",

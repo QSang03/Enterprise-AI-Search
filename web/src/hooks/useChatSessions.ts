@@ -28,6 +28,7 @@ export interface PendingChatSessionParams {
   chatSessionId: string;
   personaId: number;
   projectId?: number | null;
+  departmentId?: number | null;
 }
 
 interface UseChatSessionsOutput {
@@ -52,7 +53,7 @@ interface UseChatSessionsOutput {
 // the server returns them. This must be module-level so all hook instances
 // (sidebar, ChatButton, etc.) share the same state.
 
-const pendingSessionsStore = {
+export const pendingSessionsStore = {
   sessions: new Map<string, ChatSession>(),
   listeners: new Set<() => void>(),
   cachedSnapshot: [] as ChatSession[],
@@ -95,7 +96,7 @@ const pendingSessionsStore = {
 // Stable empty array for SSR
 const EMPTY_SESSIONS: ChatSession[] = [];
 
-function usePendingSessions(): ChatSession[] {
+export function usePendingSessions(): ChatSession[] {
   return useSyncExternalStore(
     (callback) => pendingSessionsStore.subscribe(callback),
     () => pendingSessionsStore.getSnapshot(),
@@ -231,9 +232,9 @@ export default function useChatSessions(): UseChatSessionsOutput {
   const chatSessions = useMemo(() => {
     const fetchedIds = new Set(allFetchedSessions.map((s) => s.id));
 
-    // Get pending sessions that are not yet in fetched data
+    // Get pending sessions that are not yet in fetched data and have no department_id
     const remainingPending = pendingSessions.filter(
-      (pending) => !fetchedIds.has(pending.id)
+      (pending) => !fetchedIds.has(pending.id) && pending.department_id == null
     );
 
     // Pending sessions go first (most recent), then fetched sessions
@@ -252,7 +253,7 @@ export default function useChatSessions(): UseChatSessionsOutput {
   // Add a pending chat session that will persist across SWR revalidations.
   // The session will be automatically removed once it appears in the server response.
   const addPendingChatSession = useCallback(
-    ({ chatSessionId, personaId, projectId }: PendingChatSessionParams) => {
+    ({ chatSessionId, personaId, projectId, departmentId }: PendingChatSessionParams) => {
       // Don't add sessions that belong to a project
       if (projectId != null) return;
 
@@ -270,6 +271,7 @@ export default function useChatSessions(): UseChatSessionsOutput {
         project_id: projectId ?? null,
         current_alternate_model: "",
         current_temperature_override: null,
+        department_id: departmentId ?? null,
       });
     },
     []
