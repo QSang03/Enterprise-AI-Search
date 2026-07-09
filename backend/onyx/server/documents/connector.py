@@ -1603,12 +1603,14 @@ def create_connector_with_mock_credential(
         object_is_public=connector_data.access_type == AccessType.PUBLIC,
         object_is_perm_sync=connector_data.access_type == AccessType.SYNC,
     )
+    connector_id: int | None = None
     try:
         _validate_connector_allowed(connector_data.source)
         connector_response = create_connector(
             db_session=db_session,
             connector_data=connector_data,
         )
+        connector_id = connector_response.id
 
         mock_credential = CredentialBase(
             credential_json={},
@@ -1622,7 +1624,6 @@ def create_connector_with_mock_credential(
         )
 
         # Store the created connector and credential IDs
-        connector_id = connector_response.id
         credential_id = credential.id
 
         validate_ccpair_for_user(
@@ -1665,11 +1666,22 @@ def create_connector_with_mock_credential(
         return response
 
     except ConnectorValidationError as e:
+        if connector_id is not None:
+            delete_connector(db_session, connector_id)
+            db_session.commit()
         raise HTTPException(
             status_code=400, detail="Connector validation error: " + str(e)
         )
     except ValueError as e:
+        if connector_id is not None:
+            delete_connector(db_session, connector_id)
+            db_session.commit()
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        if connector_id is not None:
+            delete_connector(db_session, connector_id)
+            db_session.commit()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.patch("/admin/connector/{connector_id}", tags=PUBLIC_API_TAGS)
