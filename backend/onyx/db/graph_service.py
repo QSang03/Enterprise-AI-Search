@@ -388,11 +388,9 @@ Văn bản cần phân tích:
                     except ValueError:
                         confidence = 1.0
 
-                import hashlib
-                # Generate deterministic event_id UUID based on doc, sibling_order, index, title
-                hash_input = f"{doc_id}_{chunk.sibling_order}_{idx}_{title}"
-                hash_bytes = hashlib.md5(hash_input.encode("utf-8")).digest()
-                event_uuid = uuid.UUID(bytes=hash_bytes)
+                KNOWLEDGE_EVENT_NAMESPACE = uuid.UUID("a7b8c9d0-e1f2-4a3b-8c5d-6e7f8091a2b3")
+                hash_input = f"{knowledge_scope_id}:{doc_id}:{chunk.sibling_order}:{idx}:{title}"
+                event_uuid = uuid.uuid5(KNOWLEDGE_EVENT_NAMESPACE, hash_input)
 
                 # Create the KnowledgeEvent
                 event_obj = KnowledgeEvent(
@@ -608,8 +606,9 @@ def expand_entities_cte(
             )
             LEFT JOIN document d ON d.id = re.document_id
             WHERE ee.current_depth < :depth
-              AND (:bypass_acl = TRUE OR re.relation_id IS NULL OR (
-                  ccp.status != 'deleting'
+              AND (:bypass_acl = TRUE OR (
+                  re.relation_id IS NOT NULL
+                  AND ccp.status != 'DELETING'
                   AND (
                       ccp.access_type = 'public'
                       OR d.is_public = TRUE

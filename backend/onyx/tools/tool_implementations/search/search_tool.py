@@ -570,18 +570,17 @@ Phân loại:"""
     ) -> tuple[list[InferenceChunk], list[str]]:
         """Runs vector search on the knowledge_event index and maps hits to parent chunks."""
         try:
-            # Create IndexFilters to pass to search_knowledge_events
             from onyx.context.search.models import IndexFilters
             event_filters = IndexFilters(
                 access_control_list=acl_filters,
-                source_type=None,
-                document_set=None,
-                time_cutoff=None,
-                tags=None,
+                source_type=getattr(effective_filters, "source_type", None),
+                document_set=getattr(effective_filters, "document_set", None),
+                time_cutoff=getattr(effective_filters, "time_cutoff", None),
+                tags=getattr(effective_filters, "tags", None),
+                attached_document_ids=getattr(
+                    effective_filters, "attached_document_ids", None
+                ),
             )
-            if effective_filters:
-                event_filters.attached_document_ids = effective_filters.attached_document_ids
-                
             event_hits = self.document_index.search_knowledge_events(
                 query_embedding=query_embedding,
                 query_text=query_text,
@@ -1250,7 +1249,7 @@ Phân loại:"""
         ]
         search_weights = [1.0, 1.0]
 
-        if query_embedding:
+        if query_embedding and self.document_index.supports_knowledge_events:
             def _event_search_task():
                 chunks, titles = self._run_event_search(
                     secondary_flows_user_query,

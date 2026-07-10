@@ -902,7 +902,8 @@ class OpenSearchDocumentIndex(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        acl_filters: list[str] | None,
+        filters: IndexFilters | None = None,
+        bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
         return []
@@ -1053,11 +1054,12 @@ class OpenSearchIndexPair(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        acl_filters: list[str] | None,
+        filters: IndexFilters | None = None,
+        bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
         return self._primary.search_knowledge_events(
-            query_embedding, query_text, acl_filters, max_events
+            query_embedding, query_text, filters, bypass_acl, max_events
         )
 
     def delete_knowledge_events_by_document(self, document_id: str) -> None:

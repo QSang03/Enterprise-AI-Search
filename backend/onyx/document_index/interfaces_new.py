@@ -472,6 +472,10 @@ class DocumentIndex(
     RandomCapable,
     abc.ABC,
 ):
+    @property
+    def supports_knowledge_events(self) -> bool:
+        return False
+
     @abc.abstractmethod
     def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
         """Indexes knowledge events into the index."""

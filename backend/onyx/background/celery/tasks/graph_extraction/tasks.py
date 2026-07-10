@@ -79,8 +79,9 @@ def graph_extraction_task(
                 db_session.commit()
                 return
 
-            # 2. Clear existing document events (Postgres and Vespa) for idempotency
-            from onyx.db.models import KnowledgeEvent
+            # 2. Clear existing document events and relation evidence (Postgres and Vespa) for idempotency
+            from onyx.db.models import KnowledgeEvent, RelationEvidence
+            db_session.query(RelationEvidence).filter(RelationEvidence.document_id == doc_id).delete()
             db_session.query(KnowledgeEvent).filter(KnowledgeEvent.document_id == doc_id).delete()
             db_session.commit()
             

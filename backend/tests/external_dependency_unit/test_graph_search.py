@@ -47,7 +47,8 @@ def test_graph_entity_matching_and_expansion(db_session: Session) -> None:
     expanded_nodes = expand_entities_cte(
         entity_names=matched_names,
         depth=1,
-        db_session=db_session
+        db_session=db_session,
+        bypass_acl=True,
     )
     expanded_names = {node["name"] for node in expanded_nodes if node.get("name")}
     

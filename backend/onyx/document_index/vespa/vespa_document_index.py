@@ -1242,6 +1242,10 @@ class VespaDocumentIndex(DocumentIndex):
             time.monotonic() - update_start,
         )
 
+    @property
+    def supports_knowledge_events(self) -> bool:
+        return True
+
     def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
         """Indexes knowledge events into Vespa."""
         json_header = {
@@ -1298,7 +1302,8 @@ class VespaDocumentIndex(DocumentIndex):
         if query_embedding:
             yql = (
                 f"select * from knowledge_event "
-                f"where ({where_clause_str}) and ({{targetHits:{max_events}}}nearestNeighbor(content_embedding, query_embedding))"
+                f"where ({where_clause_str}) and "
+                f"({{targetHits:{max_events}}}nearestNeighbor(content_embedding, query_embedding) or userQuery())"
             )
             params = {
                 "yql": yql,
@@ -1510,6 +1515,10 @@ class VespaIndexPair(DocumentIndex):
         dirty: bool | None = None,
     ) -> list[InferenceChunk]:
         return self._primary.random_retrieval(filters, num_to_retrieve, dirty)
+
+    @property
+    def supports_knowledge_events(self) -> bool:
+        return self._primary.supports_knowledge_events
 
     def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
         self._primary.index_knowledge_events(events)
