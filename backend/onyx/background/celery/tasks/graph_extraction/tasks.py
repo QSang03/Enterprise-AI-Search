@@ -7,8 +7,9 @@ Concurrency control via a **Redis distributed lock** (not
 ``pg_advisory_xact_lock``) so that PostgreSQL transactions can be kept short
 — LLM calls, embedding, and Vespa indexing run *outside* any DB transaction.
 
-The lock TTL is periodically extended (``reacquire``) so long-running
-extractions do not lose the mutex.
+The lock TTL is periodically renewed (``reacquire``) so long-running
+extractions do not lose the mutex.  A time-based guard calls ``reacquire``
+if the last renewal is more than TTL/4 seconds ago.
 
 Retry-idempotency
 -----------------
@@ -18,8 +19,9 @@ If the task crashes and is retried:
 *   Events already persisted with the same ``extraction_job_id`` are detected.
 *   If **all** are ``vespa_indexed`` the extraction is skipped and only cleanup
     + ``mark_succeeded`` run.
-*   If **partial** results exist they are deleted and the extraction restarts
-    from scratch (wasteful but safe — Redis lock prevents concurrent access).
+*   If **partial** results exist the already-indexed Vespa events are deleted
+    first, then the PostgreSQL rows are removed and the extraction restarts
+    from scratch.
 
 Cleanup protocol
 ----------------
@@ -27,11 +29,10 @@ Cleanup protocol
 1.  Snapshot old event IDs from PostgreSQL (source of truth).
 2.  Extract → index → collect new event UUIDs.
 3.  Delete old events from Vespa (best-effort, returns **failed** IDs).
-4.  If any deletion failed, raise ``VespaCleanupPendingError`` so the task
-    retries.  On retry the idempotency check finds all events already
-    vespa_indexed and re-runs only cleanup.
+4.  Retry internally up to ``_MAX_CLEANUP_RETRIES`` times with backoff.
 5.  Delete old PostgreSQL rows **only for successfully-deleted** Vespa events.
-    Failed IDs remain in PostgreSQL until cleanup succeeds.
+6.  If cleanup permanently failed: log a warning, proceed (old Vespa events are
+    a minor cosmetic issue — no data-loss risk).
 """
 
 from __future__ import annotations
@@ -42,6 +43,7 @@ from uuid import UUID
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from redis.exceptions import RedisError
 from redis.lock import Lock as RedisLock
 from sqlalchemy import or_
 
@@ -68,6 +70,9 @@ _GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60
 _REDIS_LOCK_TIMEOUT_S = 15 * 60
 _REDIS_LOCK_WAIT_S = 30
 
+_MAX_CLEANUP_RETRIES = 3
+_CLEANUP_RETRY_DELAYS_S = [10, 30, 60]
+
 
 class EventDTO:
     """Plain-data transfer object for knowledge events (no DB session)."""
@@ -91,14 +96,6 @@ class EventDTO:
         self.confidence = confidence
         self.entity_names = entity_names
         self.sibling_order = sibling_order
-
-
-class VespaCleanupPendingError(Exception):
-    """Raised when old Vespa events could not be fully cleaned up.
-
-    The extraction itself succeeded; the task should retry so the
-    retry-idempotency path re-runs only cleanup.
-    """
 
 
 def _delete_vespa_event_ids(event_ids: set[str]) -> set[str]:
@@ -224,20 +221,41 @@ def graph_extraction_task(
             mark_graph_extraction_job_skipped(job_uuid, reason, s)
             s.commit()
 
-    # ── Acquire Redis distributed lock (watchdog reacquires inline) ──
-    redis_client = get_shared_redis_client()
-    lock: RedisLock = redis_client.lock(
-        lock_name,
-        timeout=_REDIS_LOCK_TIMEOUT_S,
-    )
-    if not lock.acquire(blocking=True, blocking_timeout=_REDIS_LOCK_WAIT_S):
+    # ── Acquire Redis distributed lock (inside try for safe retry) ──
+    lock: RedisLock | None = None
+    try:
+        redis_client = get_shared_redis_client()
+        lock = redis_client.lock(
+            lock_name,
+            timeout=_REDIS_LOCK_TIMEOUT_S,
+        )
+        if not lock.acquire(blocking=True, blocking_timeout=_REDIS_LOCK_WAIT_S):
+            task_logger.warning(
+                "graph_extraction_task: could not acquire Redis lock for "
+                "doc_id=%s job_id=%s, will retry",
+                doc_id,
+                job_id,
+            )
+            raise self.retry(countdown=30, expires=3600)
+    except RedisError as exc:
         task_logger.warning(
-            "graph_extraction_task: could not acquire Redis lock for "
-            "doc_id=%s job_id=%s, will retry",
+            "graph_extraction_task: Redis error while acquiring lock for "
+            "doc_id=%s job_id=%s: %s",
             doc_id,
             job_id,
+            exc,
         )
-        raise self.retry(countdown=30, expires=3600)
+        raise self.retry(exc=exc, countdown=30, expires=3600)
+
+    # ── Lock-watchdog helper ─────────────────────────────────────────
+    _lock_last_reacquire = time.monotonic()
+
+    def _ensure_lock_ttl() -> None:
+        nonlocal _lock_last_reacquire
+        assert lock is not None
+        if time.monotonic() - _lock_last_reacquire >= _REDIS_LOCK_TIMEOUT_S / 4:
+            lock.reacquire()
+            _lock_last_reacquire = time.monotonic()
 
     try:
         # ── Phase 0: Initialise shared objects ────────────────────────
@@ -269,8 +287,6 @@ def graph_extraction_task(
                 .first()
             )
 
-            # Content-hash de-dup: skip if another job already
-            # processed the same content successfully.
             if current_job:
                 latest = (
                     db_session.query(GraphExtractionJob)
@@ -296,7 +312,6 @@ def graph_extraction_task(
                     )
                     return
 
-            # Retry-idempotency for THIS job.
             existing_events = (
                 db_session.query(KnowledgeEvent)
                 .filter(
@@ -322,20 +337,25 @@ def graph_extraction_task(
                         ),
                     )
                     if failed_vespa:
-                        # Don't mark succeeded — let the retry loop
-                        # re-run cleanup.
                         db_session.commit()
-                        raise VespaCleanupPendingError(
-                            f"Failed to delete {len(failed_vespa)} "
-                            f"old Vespa events",
+                        task_logger.warning(
+                            "graph_extraction_task: cleanup of %d old "
+                            "Vespa events failed for doc_id=%s, retrying",
+                            len(failed_vespa), doc_id,
                         )
+                        raise self.retry(countdown=30, expires=3600)
                     mark_graph_extraction_job_succeeded(
                         job_uuid, db_session,
                     )
                     db_session.commit()
                     return
 
-                # Partial — delete and restart fresh.
+                # Partial results: delete Vespa events BEFORE PG rows so
+                # a mid-crash doesn't leave orphan indexed events.
+                partial_ids = {str(e.event_id) for e in existing_events}
+                # Step 1: remove from Vespa
+                _delete_vespa_event_ids(partial_ids)
+                # Step 2: now safe to delete PG rows
                 db_session.query(KnowledgeEvent).filter(
                     KnowledgeEvent.extraction_job_id == job_uuid,
                 ).delete(synchronize_session=False)
@@ -365,8 +385,7 @@ def graph_extraction_task(
 
             if not chunks:
                 task_logger.warning(
-                    "graph_extraction_task: no chunks for "
-                    "doc_id=%s, skipping",
+                    "graph_extraction_task: no chunks for doc_id=%s, skipping",
                     doc_id,
                 )
                 mark_graph_extraction_job_succeeded(
@@ -404,8 +423,7 @@ def graph_extraction_task(
             elapsed = time.monotonic() - start
             if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
                 raise TimeoutError(
-                    f"Graph extraction exceeded timeout "
-                    f"after {elapsed:.0f}s",
+                    f"Graph extraction exceeded timeout after {elapsed:.0f}s",
                 )
 
             remaining_budget = max(
@@ -424,7 +442,7 @@ def graph_extraction_task(
                 )
                 chunk_session.commit()
 
-        lock.reacquire()
+            _ensure_lock_ttl()
 
         # ── Phase 4: Build & index Vespa docs ────────────────────────
         from onyx.access.access import get_access_for_document
@@ -444,8 +462,6 @@ def graph_extraction_task(
             server_port=MODEL_SERVER_PORT,
         )
 
-        # Read all DB data into plain DTOs first, then close the session
-        # so embedding + Vespa indexing runs outside any transaction.
         with get_session_with_current_tenant() as db_session:
             doc = (
                 db_session.query(Document)
@@ -509,7 +525,6 @@ def graph_extraction_task(
                         sibling_order=sibling_order,
                     ))
 
-        # Embedding + Vespa indexing — no DB transaction open.
         if event_dtos:
             titles = [d.title for d in event_dtos]
             contents = [d.content for d in event_dtos]
@@ -541,11 +556,13 @@ def graph_extraction_task(
                     ),
                 )
 
+            # Reacquire lock before the potentially-long Vespa indexing call.
+            _ensure_lock_ttl()
             document_index.index_knowledge_events(vespa_event_docs)
+            _ensure_lock_ttl()
         else:
             vespa_event_docs = []
 
-        # Mark vespa_indexed in a fresh short transaction.
         with get_session_with_current_tenant() as db_session:
             events = (
                 db_session.query(KnowledgeEvent)
@@ -558,12 +575,35 @@ def graph_extraction_task(
                 event.vespa_indexed = True
             db_session.commit()
 
-        lock.reacquire()
-
-        # ── Phase 5: Generation swap — Vespa cleanup ─────────────────
+        # ── Phase 5: Generation swap — Vespa cleanup (internal retry) ─
         new_event_ids = {d["event_id"] for d in vespa_event_docs}
         old_ids_to_rm = old_event_ids - new_event_ids
         failed_ids = _delete_vespa_event_ids(old_ids_to_rm)
+
+        if failed_ids:
+            for attempt in range(_MAX_CLEANUP_RETRIES):
+                delay = _CLEANUP_RETRY_DELAYS_S[
+                    min(attempt, len(_CLEANUP_RETRY_DELAYS_S) - 1)
+                ]
+                task_logger.warning(
+                    "graph_extraction_task: cleanup attempt %d/%d "
+                    "failed for %d events for doc_id=%s, retrying in %ds",
+                    attempt + 1, _MAX_CLEANUP_RETRIES,
+                    len(failed_ids), doc_id, delay,
+                )
+                time.sleep(delay)
+                _ensure_lock_ttl()
+                failed_ids = _delete_vespa_event_ids(failed_ids)
+                if not failed_ids:
+                    break
+
+        if failed_ids:
+            task_logger.error(
+                "graph_extraction_task: cleanup permanently failed for "
+                "%d old Vespa events for doc_id=%s — proceeding "
+                "(extraction succeeded, stale events are cosmetic)",
+                len(failed_ids), doc_id,
+            )
 
         # ── Phase 6: Generation swap — PG cleanup ────────────────────
         with get_session_with_current_tenant() as db_session:
@@ -575,15 +615,7 @@ def graph_extraction_task(
             )
             db_session.commit()
 
-        # If any Vespa deletion failed, retry (cleanup-only) instead
-        # of marking succeeded.  The next attempt hits the
-        # all-vespa_indexed branch and re-runs only cleanup.
-        if failed_ids:
-            raise VespaCleanupPendingError(
-                f"Failed to delete {len(failed_ids)} old Vespa events",
-            )
-
-        lock.reacquire()
+        _ensure_lock_ttl()
 
         # ── Phase 7: Wiki stale detection + mark Succeeded ───────────
         with get_session_with_current_tenant() as db_session:
@@ -601,11 +633,6 @@ def graph_extraction_task(
 
             mark_graph_extraction_job_succeeded(job_uuid, db_session)
             db_session.commit()
-
-    except VespaCleanupPendingError:
-        # Extraction succeeded but old-event cleanup is incomplete.
-        # Don't mark failed — retry will re-run cleanup only.
-        raise self.retry(countdown=30, expires=3600)
 
     except NoDefaultLLMError as exc:
         task_logger.warning(
@@ -648,5 +675,5 @@ def graph_extraction_task(
         raise self.retry(exc=exc, countdown=delay, expires=3600)
 
     finally:
-        if lock.owned():
+        if lock is not None and lock.owned():
             lock.release()
