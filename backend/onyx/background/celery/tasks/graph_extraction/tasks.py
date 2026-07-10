@@ -20,24 +20,26 @@ If the task crashes and is retried:
 *   If **all** are ``vespa_indexed`` the extraction is skipped and only cleanup
     + ``mark_succeeded`` run.
 *   If **partial** results exist the already-indexed Vespa events are deleted
-    first, then the PostgreSQL rows are removed and the extraction restarts
-    from scratch.
+    first (with internal retries), then the PostgreSQL rows are removed and
+    the extraction restarts from scratch.
 
 Cleanup protocol
 ----------------
 
 1.  Snapshot old event IDs from PostgreSQL (source of truth).
 2.  Extract → index → collect new event UUIDs.
-3.  Delete old events from Vespa (best-effort, returns **failed** IDs).
-4.  Retry internally up to ``_MAX_CLEANUP_RETRIES`` times with backoff.
+3.  Delete old events from Vespa (best-effort, with ``_delete_with_retry``).
+4.  If cleanup permanently failed: mark job FAILED.  The indexing beat will
+    create a new job; the retry-idempotency branch skips extraction and
+    re-runs only cleanup.
 5.  Delete old PostgreSQL rows **only for successfully-deleted** Vespa events.
-6.  If cleanup permanently failed: log a warning, proceed (old Vespa events are
-    a minor cosmetic issue — no data-loss risk).
+    Failed IDs remain in PostgreSQL until cleanup succeeds.
 """
 
 from __future__ import annotations
 
 import time
+from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
@@ -98,6 +100,10 @@ class EventDTO:
         self.sibling_order = sibling_order
 
 
+class PermanentCleanupError(Exception):
+    """Raised when Vespa cleanup permanently fails after all internal retries."""
+
+
 def _delete_vespa_event_ids(event_ids: set[str]) -> set[str]:
     """Delete specific events from Vespa by event_id (best-effort).
 
@@ -130,6 +136,38 @@ def _delete_vespa_event_ids(event_ids: set[str]) -> set[str]:
     except Exception:
         task_logger.exception("Failed to open Vespa HTTP client for cleanup")
         failed.update(event_ids)
+
+    return failed
+
+
+def _delete_with_retry(
+    event_ids: set[str],
+    ensure_lock_ttl: Callable[[], None],
+    label: str = "",
+) -> set[str]:
+    """Delete events from Vespa with an internal retry loop.
+
+    Returns the IDs that still failed after all retries (empty = success).
+    """
+    if not event_ids:
+        return set()
+
+    failed = _delete_vespa_event_ids(event_ids)
+    for attempt in range(_MAX_CLEANUP_RETRIES):
+        if not failed:
+            break
+        delay = _CLEANUP_RETRY_DELAYS_S[
+            min(attempt, len(_CLEANUP_RETRY_DELAYS_S) - 1)
+        ]
+        task_logger.warning(
+            "%s: cleanup attempt %d/%d failed for %d events, "
+            "retrying in %ds",
+            label, attempt + 1, _MAX_CLEANUP_RETRIES,
+            len(failed), delay,
+        )
+        time.sleep(delay)
+        ensure_lock_ttl()
+        failed = _delete_vespa_event_ids(failed)
 
     return failed
 
@@ -247,7 +285,7 @@ def graph_extraction_task(
         )
         raise self.retry(exc=exc, countdown=30, expires=3600)
 
-    # ── Lock-watchdog helper ─────────────────────────────────────────
+    # ── Lock-ttl renewal helper ──────────────────────────────────────
     _lock_last_reacquire = time.monotonic()
 
     def _ensure_lock_ttl() -> None:
@@ -322,13 +360,16 @@ def graph_extraction_task(
             skip_extraction = False
             if existing_events:
                 if all(e.vespa_indexed for e in existing_events):
+                    # All vespa_indexed → cleanup-only retry.
                     skip_extraction = True
                     new_ids = {str(e.event_id) for e in existing_events}
                     old_ids = _fetch_knowledge_event_ids(
                         db_session, doc_id,
                     )
-                    failed_vespa = _delete_vespa_event_ids(
+                    failed_vespa = _delete_with_retry(
                         old_ids - new_ids,
+                        _ensure_lock_ttl,
+                        "cleanup-only retry",
                     )
                     _cleanup_old_pg_events(
                         db_session, doc_id, job_uuid,
@@ -338,12 +379,11 @@ def graph_extraction_task(
                     )
                     if failed_vespa:
                         db_session.commit()
-                        task_logger.warning(
-                            "graph_extraction_task: cleanup of %d old "
-                            "Vespa events failed for doc_id=%s, retrying",
-                            len(failed_vespa), doc_id,
-                        )
-                        raise self.retry(countdown=30, expires=3600)
+                        _fail(PermanentCleanupError(
+                            f"cleanup-only retry: failed to delete "
+                            f"{len(failed_vespa)} old Vespa events",
+                        ))
+                        return
                     mark_graph_extraction_job_succeeded(
                         job_uuid, db_session,
                     )
@@ -353,9 +393,22 @@ def graph_extraction_task(
                 # Partial results: delete Vespa events BEFORE PG rows so
                 # a mid-crash doesn't leave orphan indexed events.
                 partial_ids = {str(e.event_id) for e in existing_events}
-                # Step 1: remove from Vespa
-                _delete_vespa_event_ids(partial_ids)
-                # Step 2: now safe to delete PG rows
+                failed_partial = _delete_with_retry(
+                    partial_ids,
+                    _ensure_lock_ttl,
+                    "partial cleanup",
+                )
+                if failed_partial:
+                    # Can't safely delete PG rows — Vespa still has orphans.
+                    # Mark failed; next retry will try partial cleanup again.
+                    db_session.commit()
+                    _fail(PermanentCleanupError(
+                        f"partial cleanup: failed to delete "
+                        f"{len(failed_partial)} Vespa events",
+                    ))
+                    return
+
+                # Step 2: now safe to delete PG rows.
                 db_session.query(KnowledgeEvent).filter(
                     KnowledgeEvent.extraction_job_id == job_uuid,
                 ).delete(synchronize_session=False)
@@ -556,7 +609,6 @@ def graph_extraction_task(
                     ),
                 )
 
-            # Reacquire lock before the potentially-long Vespa indexing call.
             _ensure_lock_ttl()
             document_index.index_knowledge_events(vespa_event_docs)
             _ensure_lock_ttl()
@@ -575,35 +627,12 @@ def graph_extraction_task(
                 event.vespa_indexed = True
             db_session.commit()
 
-        # ── Phase 5: Generation swap — Vespa cleanup (internal retry) ─
+        # ── Phase 5: Generation swap — Vespa cleanup ─────────────────
         new_event_ids = {d["event_id"] for d in vespa_event_docs}
         old_ids_to_rm = old_event_ids - new_event_ids
-        failed_ids = _delete_vespa_event_ids(old_ids_to_rm)
-
-        if failed_ids:
-            for attempt in range(_MAX_CLEANUP_RETRIES):
-                delay = _CLEANUP_RETRY_DELAYS_S[
-                    min(attempt, len(_CLEANUP_RETRY_DELAYS_S) - 1)
-                ]
-                task_logger.warning(
-                    "graph_extraction_task: cleanup attempt %d/%d "
-                    "failed for %d events for doc_id=%s, retrying in %ds",
-                    attempt + 1, _MAX_CLEANUP_RETRIES,
-                    len(failed_ids), doc_id, delay,
-                )
-                time.sleep(delay)
-                _ensure_lock_ttl()
-                failed_ids = _delete_vespa_event_ids(failed_ids)
-                if not failed_ids:
-                    break
-
-        if failed_ids:
-            task_logger.error(
-                "graph_extraction_task: cleanup permanently failed for "
-                "%d old Vespa events for doc_id=%s — proceeding "
-                "(extraction succeeded, stale events are cosmetic)",
-                len(failed_ids), doc_id,
-            )
+        failed_ids = _delete_with_retry(
+            old_ids_to_rm, _ensure_lock_ttl, "generation cleanup",
+        )
 
         # ── Phase 6: Generation swap — PG cleanup ────────────────────
         with get_session_with_current_tenant() as db_session:
@@ -614,6 +643,13 @@ def graph_extraction_task(
                 ),
             )
             db_session.commit()
+
+        if failed_ids:
+            _fail(PermanentCleanupError(
+                f"generation cleanup: failed to delete "
+                f"{len(failed_ids)} old Vespa events",
+            ))
+            return
 
         _ensure_lock_ttl()
 
@@ -675,5 +711,11 @@ def graph_extraction_task(
         raise self.retry(exc=exc, countdown=delay, expires=3600)
 
     finally:
-        if lock is not None and lock.owned():
-            lock.release()
+        if lock is not None:
+            try:
+                if lock.owned():
+                    lock.release()
+            except RedisError:
+                task_logger.exception(
+                    "Failed to inspect/release Redis lock %s", lock_name,
+                )
