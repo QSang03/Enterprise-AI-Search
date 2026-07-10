@@ -68,6 +68,7 @@ from onyx.background.celery.apps.app_base import task_logger
 from onyx.configs.constants import OnyxCeleryQueues
 from onyx.configs.constants import OnyxCeleryTask
 from onyx.db.engine.sql_engine import get_session_with_current_tenant
+from onyx.db.engine.tenant_utils import get_all_tenant_ids
 from onyx.db.graph_extraction_jobs import GraphExtractionJob
 from onyx.db.graph_extraction_jobs import GraphExtractionStatus
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_cleanup_pending
@@ -84,6 +85,7 @@ from onyx.db.models import KnowledgeEvent
 from onyx.db.models import RelationEvidence
 from onyx.indexing.indexing_pipeline import _check_and_trigger_wiki_stale_detection
 from onyx.redis.redis_pool import get_shared_redis_client
+from shared_configs.contextvars import CURRENT_TENANT_ID_CONTEXTVAR
 
 logger = get_task_logger(__name__)
 
@@ -100,6 +102,11 @@ _CLEANUP_RETRY_DELAYS_S = [10, 30, 60]
 # How many times the task will re-enqueue itself (with the same job_id) when
 # cleanup keeps failing.  After this limit the job is marked FAILED.
 _MAX_CLEANUP_REENQUEUE = 15
+
+# How old a PENDING/RUNNING/CLEANUP_PENDING newer job can be before the old
+# job stops waiting and proceeds (stale timeout — prevents infinite retry
+# when the newer job is stuck).
+_STALE_SUPERSEDED_TIMEOUT_S = 30 * 60
 
 # Maximum number of Vespa event documents to index in a single call.
 _VESPA_INDEX_BATCH_SIZE = 50
@@ -436,18 +443,12 @@ def graph_extraction_task(
     def _abort_own_generation(
         our_ids: set[str],
         reason: str,
-        *,
-        commit_before: bool = False,
     ) -> bool:
         """Delete *our_ids* from Vespa and PG, then skip.
 
         Returns True if abort completed (skip already called).
         Returns False if cleanup failed and re-enqueue was called instead.
         """
-        if commit_before:
-            # Some callers need the current txn committed before self-cleanup.
-            pass
-
         if our_ids:
             failed = _delete_with_retry(
                 our_ids, _ensure_lock_ttl, f"{reason}: Vespa cleanup",
@@ -550,11 +551,25 @@ def graph_extraction_task(
                 .first()
             )
             if latest_hash_match is not None:
-                db_session.close()
-                _skip(
-                    f"Document content already processed "
-                    f"by job {latest_hash_match.id}",
+                # Must self-clean own events before skipping (P1).
+                our_ids = _fetch_own_event_ids(
+                    db_session, job_uuid, doc_id,
                 )
+                if our_ids:
+                    db_session.close()
+                    aborted = _abort_own_generation(
+                        our_ids,
+                        f"Content already processed by job "
+                        f"{latest_hash_match.id}",
+                    )
+                    if not aborted:
+                        return
+                else:
+                    db_session.close()
+                    _skip(
+                        f"Document content already processed "
+                        f"by job {latest_hash_match.id}",
+                    )
                 return
 
             # 1b. Supersession check (P1) — check SUCCEEDED separately.
@@ -606,12 +621,25 @@ def graph_extraction_task(
                 .first()
             )
             if newer_non_terminal is not None:
-                db_session.close()
-                _reenqueue_superseded_wait(
+                # Check stale timeout — if the newer job has been stuck
+                # for too long, stop waiting and proceed (P2).
+                now = datetime.datetime.now(datetime.timezone.utc)
+                age_s = (now - newer_non_terminal.created_at).total_seconds()
+                if age_s < _STALE_SUPERSEDED_TIMEOUT_S:
+                    db_session.close()
+                    _reenqueue_superseded_wait(
+                        newer_non_terminal.id,
+                        newer_non_terminal.status,
+                    )
+                    return
+                task_logger.warning(
+                    "graph_extraction_task: newer job %s has been %s "
+                    "for %.0fs (exceeded %ds stale timeout), proceeding",
                     newer_non_terminal.id,
                     newer_non_terminal.status,
+                    age_s,
+                    _STALE_SUPERSEDED_TIMEOUT_S,
                 )
-                return
 
             # All newer jobs are FAILED/SKIPPED — proceed.
 
@@ -707,6 +735,10 @@ def graph_extraction_task(
                                 return
                             db_session.close()
                             return
+
+                        # CAS durable commit before any destructive
+                        # operation (P1).
+                        db_session.commit()
 
                     failed_vespa = _delete_with_retry(
                         old_ids - new_ids,
@@ -1148,19 +1180,57 @@ def graph_extraction_task(
 def graph_extraction_cleanup_sweeper(
     self: Any,  # noqa: ANN401, ARG001
 ) -> None:
-    """Periodic sweeper that re-enqueues stuck CLEANUP_PENDING jobs.
+    """Periodic sweeper dispatcher — enqueues per-tenant sub-tasks.
 
-    Claims overdue jobs with ``FOR UPDATE SKIP LOCKED``, advances
-    ``cleanup_next_retry_at`` inside the same transaction to prevent
-    duplicate enqueue on the next beat cycle, then publishes
-    ``graph_extraction_task`` with the job's stored ``tenant_id``.
+    Iterates all known tenant IDs and dispatches one
+    ``graph_extraction_tenant_cleanup_sweeper`` per tenant.
 
     Runs every 5 minutes (see ``beat_schedule.py``).
     """
     try:
+        tenant_ids = get_all_tenant_ids()
+    except Exception:
+        task_logger.exception(
+            "graph_extraction_cleanup_sweeper: failed to list "
+            "tenant IDs, skipping sweep cycle",
+        )
+        return
+
+    for tid in tenant_ids:
+        graph_extraction_tenant_cleanup_sweeper.apply_async(
+            kwargs={"tenant_id": tid},
+            countdown=5,
+        )
+
+
+@shared_task(
+    name=OnyxCeleryTask.GRAPH_EXTRACTION_TENANT_CLEANUP_SWEEPER,
+    ignore_result=True,
+    soft_time_limit=120,
+    trail=False,
+    bind=True,
+)
+def graph_extraction_tenant_cleanup_sweeper(
+    self: Any,  # noqa: ANN401, ARG001
+    tenant_id: str,
+) -> None:
+    """Per-tenant cleanup sweeper — re-enqueues stuck CLEANUP_PENDING jobs.
+
+    Claims overdue jobs with ``FOR UPDATE SKIP LOCKED``, advances
+    ``cleanup_next_retry_at`` by 20 minutes inside the same transaction
+    to prevent duplicate enqueue on the next beat cycle, and sets
+    ``cleanup_claimed_at`` for observability.  Then publishes
+    ``graph_extraction_task`` with the job's stored ``tenant_id``.
+
+    MUST be called via ``apply_async``, not in the current process —
+    the tenant context is set explicitly via the contextvar.
+    """
+    token = CURRENT_TENANT_ID_CONTEXTVAR.set(tenant_id)
+    try:
         now = datetime.datetime.now(datetime.timezone.utc)
 
         with get_session_with_current_tenant() as db_session:
+
             overdue = (
                 db_session.query(GraphExtractionJob)
                 .filter(
@@ -1175,17 +1245,18 @@ def graph_extraction_cleanup_sweeper(
             )
 
             for job in overdue:
-                # Advance the next retry time so the next beat cycle does
-                # not re-enqueue the same row before the worker picks it up.
-                next_retry = now + datetime.timedelta(minutes=5)
+                # Advance the next retry time by 20 min so the next beat
+                # cycle does not re-enqueue the same row before the worker
+                # picks it up.  Record the claim time for observability.
+                next_retry = now + datetime.timedelta(minutes=20)
                 job.cleanup_next_retry_at = next_retry
-                job.cleanup_last_error = "claimed_by_sweeper"
+                job.cleanup_claimed_at = now
 
             db_session.commit()
 
         for job in overdue:
             task_logger.info(
-                "graph_extraction_cleanup_sweeper: re-enqueuing "
+                "graph_extraction_tenant_cleanup_sweeper: re-enqueuing "
                 "job %s for doc_id=%s (retry %d, tenant=%s)",
                 job.id, job.document_id, job.cleanup_retry_count,
                 job.tenant_id,
@@ -1201,8 +1272,12 @@ def graph_extraction_cleanup_sweeper(
 
     except Exception:
         task_logger.exception(
-            "graph_extraction_cleanup_sweeper: error",
+            "graph_extraction_tenant_cleanup_sweeper: error "
+            "for tenant=%s",
+            tenant_id,
         )
+    finally:
+        CURRENT_TENANT_ID_CONTEXTVAR.reset(token)
 
 
 class PermanentCleanupError(Exception):

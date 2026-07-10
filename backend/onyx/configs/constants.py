@@ -645,6 +645,9 @@ class OnyxCeleryTask:
     # Knowledge Graph background extraction
     GRAPH_EXTRACTION_TASK = "graph_extraction_task"
     GRAPH_EXTRACTION_CLEANUP_SWEEPER = "graph_extraction_cleanup_sweeper"
+    GRAPH_EXTRACTION_TENANT_CLEANUP_SWEEPER = (
+        "graph_extraction_tenant_cleanup_sweeper"
+    )
 
     # Sandbox cleanup
     CLEANUP_IDLE_SANDBOXES = "cleanup_idle_sandboxes"
