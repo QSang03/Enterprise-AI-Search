@@ -189,6 +189,16 @@ beat_tasks: list[dict] = [
             "queue": OnyxCeleryQueues.PRIMARY,
         },
     },
+    {
+        "name": "graph-extraction-cleanup-sweeper",
+        "task": OnyxCeleryTask.GRAPH_EXTRACTION_CLEANUP_SWEEPER,
+        "schedule": timedelta(minutes=5),
+        "options": {
+            "priority": OnyxCeleryPriority.MEDIUM,
+            "expires": 60,
+            "queue": OnyxCeleryQueues.GRAPH_EXTRACTION,
+        },
+    },
 ]
 
 # EE features — doc permissions sync and external group sync

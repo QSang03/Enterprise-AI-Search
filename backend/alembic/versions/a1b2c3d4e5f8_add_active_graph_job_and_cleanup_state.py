@@ -60,6 +60,14 @@ def upgrade() -> None:
         ),
     )
 
+    # Partial index for the periodic sweeper query (P2).
+    op.create_index(
+        "ix_graph_jobs_cleanup_due",
+        "graph_extraction_jobs",
+        ["status", "cleanup_next_retry_at"],
+        postgresql_where=sa.text("status = 'cleanup_pending'"),
+    )
+
 
 def downgrade() -> None:
     op.drop_column("graph_extraction_jobs", "cleanup_last_error")

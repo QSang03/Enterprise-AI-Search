@@ -145,6 +145,9 @@ def mark_graph_extraction_job_succeeded(job_id: UUID, db_session: Session) -> No
     if job:
         job.status = GraphExtractionStatus.SUCCEEDED
         job.error_message = None
+        job.cleanup_retry_count = 0
+        job.cleanup_next_retry_at = None
+        job.cleanup_last_error = None
         db_session.flush()
 
 
