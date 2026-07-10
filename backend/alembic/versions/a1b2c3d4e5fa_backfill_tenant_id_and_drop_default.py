@@ -50,13 +50,11 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    # Only reverse what f10 added: SET NOT NULL → DROP NOT NULL.
+    # Do NOT add back DEFAULT 'public' — canonical f9 has no default.
     op.execute(
         "ALTER TABLE graph_extraction_jobs "
         "ALTER COLUMN tenant_id DROP NOT NULL"
-    )
-    op.execute(
-        "ALTER TABLE graph_extraction_jobs "
-        "ALTER COLUMN tenant_id SET DEFAULT 'public'"
     )
     # Note: the UPDATE is intentionally NOT reversed — rolling back to f9
     # does not need to re-introduce incorrect tenant_id values.
