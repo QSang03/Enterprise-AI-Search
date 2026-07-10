@@ -75,6 +75,7 @@ from onyx.db.federated import (
 from onyx.db.federated import list_federated_connector_oauth_tokens
 from onyx.db.graph_service import expand_entities_cte
 from onyx.db.models import Entity
+from onyx.db.models import EntityAlias
 from onyx.db.models import SearchSettings
 from onyx.db.models import User
 from onyx.db.models import WikiPage
@@ -776,8 +777,8 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                 )
                 if candidate_text:
                     candidate_lower = candidate_text.lower()
-                    # Match via normalized_name or alias for robustness.
-                    matched_entities = (
+                    # Union initial match with entity_aliases
+                    q1 = (
                         db_session.query(Entity.name)
                         .filter(
                             func.lower(Entity.normalized_name).ilike(
@@ -789,12 +790,79 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                                 )
                             )
                         )
-                        .all()
                     )
+                    q2 = (
+                        db_session.query(Entity.name)
+                        .join(EntityAlias, EntityAlias.entity_id == Entity.entity_id)
+                        .filter(
+                            EntityAlias.normalized_alias.ilike(
+                                func.concat("%", candidate_lower, "%")
+                            )
+                            | literal(candidate_lower).ilike(
+                                func.concat(
+                                    "%", EntityAlias.normalized_alias, "%"
+                                )
+                            )
+                        )
+                    )
+                    matched_entities = q1.union(q2).all()
                     matched_names = [row[0] for row in matched_entities if row[0]]
                     if matched_names:
+                        # P0: Graph expansion scope-aware
+                        allowed_doc_ids = None
+                        allowed_conn_ids = None
+                        if not self.bypass_acl and self.user and getattr(self.user, "role", None) != "admin":
+                            from onyx.access.hierarchy_access import get_user_external_group_ids
+                            from onyx.db.document_access import apply_document_access_filter
+                            from sqlalchemy import select, and_, or_, cast, String, any_
+                            from sqlalchemy.dialects import postgresql
+                            from onyx.db.models import DocumentByConnectorCredentialPair, ConnectorCredentialPair, Document
+                            from onyx.db.enums import ConnectorCredentialPairStatus, AccessType
+
+                            user_email = self.user.email if self.user and not self.user.is_anonymous else None
+                            user_groups = get_user_external_group_ids(db_session, self.user) if self.user else []
+
+                            # Query allowed document IDs
+                            stmt_docs = select(Document.id)
+                            stmt_docs = apply_document_access_filter(stmt_docs, user_email, user_groups)
+                            allowed_doc_ids = [row[0] for row in db_session.execute(stmt_docs).all()]
+
+                            # Query allowed connector IDs
+                            stmt_conn = select(ConnectorCredentialPair.connector_id).distinct()
+                            stmt_conn = stmt_conn.join(
+                                DocumentByConnectorCredentialPair,
+                                and_(
+                                    DocumentByConnectorCredentialPair.connector_id == ConnectorCredentialPair.connector_id,
+                                    DocumentByConnectorCredentialPair.credential_id == ConnectorCredentialPair.credential_id,
+                                )
+                            ).join(
+                                Document,
+                                Document.id == DocumentByConnectorCredentialPair.id
+                            )
+                            stmt_conn = stmt_conn.where(
+                                ConnectorCredentialPair.status != ConnectorCredentialPairStatus.DELETING
+                            )
+                            access_filters = [
+                                ConnectorCredentialPair.access_type == AccessType.PUBLIC,
+                                Document.is_public.is_(True),
+                            ]
+                            if user_email:
+                                access_filters.append(any_(Document.external_user_emails) == user_email)
+                            if user_groups:
+                                access_filters.append(
+                                    Document.external_user_group_ids.overlap(
+                                        cast(postgresql.array(user_groups), postgresql.ARRAY(String))
+                                    )
+                                )
+                            stmt_conn = stmt_conn.where(or_(*access_filters))
+                            allowed_conn_ids = [row[0] for row in db_session.execute(stmt_conn).all()]
+
                         expanded_nodes = expand_entities_cte(
-                            entity_names=matched_names, depth=1, db_session=db_session
+                            entity_names=matched_names,
+                            depth=1,
+                            db_session=db_session,
+                            allowed_document_ids=allowed_doc_ids,
+                            allowed_connector_ids=allowed_conn_ids,
                         )
                         expanded_names = {
                             node["name"] for node in expanded_nodes if node.get("name")

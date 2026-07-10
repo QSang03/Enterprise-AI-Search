@@ -159,3 +159,18 @@ def mark_graph_extraction_job_failed(
         job.error_message = error_message
         job.retry_count = (job.retry_count or 0) + 1
         db_session.flush()
+
+
+def mark_graph_extraction_job_skipped(
+    job_id: UUID, error_message: str, db_session: Session
+) -> None:
+    job = (
+        db_session.query(GraphExtractionJob)
+        .filter(GraphExtractionJob.id == job_id)
+        .first()
+    )
+    if job:
+        job.status = GraphExtractionStatus.SKIPPED
+        job.error_message = error_message
+        db_session.flush()
+

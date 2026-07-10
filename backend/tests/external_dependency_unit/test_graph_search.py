@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy import func, literal
-from onyx.db.models import Entity, Relation
+from onyx.db.models import Entity, Relation, EntityAlias
 from onyx.db.graph_service import expand_entities_cte
 
 def test_graph_entity_matching_and_expansion(db_session: Session) -> None:
@@ -55,3 +55,63 @@ def test_graph_entity_matching_and_expansion(db_session: Session) -> None:
     assert "Khoa CNTT" in expanded_names
     
     db_session.rollback()
+
+
+def test_graph_entity_matching_with_alias(db_session: Session) -> None:
+    # 1. Insert dummy entities and aliases
+    e1 = Entity(
+        entity_id=uuid.uuid4(),
+        name="Nghị định 15",
+        normalized_name="nghị định 15",
+        entity_type="law",
+        description="Nghị định 15"
+    )
+    db_session.add(e1)
+    db_session.flush()
+    
+    ea = EntityAlias(
+        entity_id=e1.entity_id,
+        alias="ND 15",
+        normalized_alias="nd 15"
+    )
+    db_session.add(ea)
+    db_session.flush()
+    
+    # Same SQL match logic as in updated search_tool.py:
+    candidate_text = "Thông tin về ND 15"
+    candidate_lower = candidate_text.lower()
+    
+    q1 = (
+        db_session.query(Entity.name)
+        .filter(
+            func.lower(Entity.normalized_name).ilike(
+                func.concat("%", candidate_lower, "%")
+            )
+            | literal(candidate_lower).ilike(
+                func.concat(
+                    "%", func.lower(Entity.normalized_name), "%"
+                )
+            )
+        )
+    )
+    q2 = (
+        db_session.query(Entity.name)
+        .join(EntityAlias, EntityAlias.entity_id == Entity.entity_id)
+        .filter(
+            EntityAlias.normalized_alias.ilike(
+                func.concat("%", candidate_lower, "%")
+            )
+            | literal(candidate_lower).ilike(
+                func.concat(
+                    "%", EntityAlias.normalized_alias, "%"
+                )
+            )
+        )
+    )
+    matched_entities = q1.union(q2).all()
+    matched_names = [row[0] for row in matched_entities if row[0]]
+    
+    assert "Nghị định 15" in matched_names
+    
+    db_session.rollback()
+

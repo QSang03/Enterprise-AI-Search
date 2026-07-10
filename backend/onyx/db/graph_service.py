@@ -23,12 +23,22 @@ from sqlalchemy.orm import Session
 from onyx.db.models import Entity
 from onyx.db.models import EntityAlias
 from onyx.db.models import Relation
+from onyx.db.models import RelationEvidence
 from onyx.db.rag_upgrade_models import DocumentChunkV2
 from onyx.llm.factory import get_default_llm
 from onyx.llm.models import ChatCompletionMessage
 from onyx.llm.models import UserMessage
 from onyx.tracing.flows import LLMFlow
 from onyx.tracing.llm_utils import llm_generation_span
+from onyx.utils.logger import setup_logger
+
+logger = setup_logger()
+
+
+class NoDefaultLLMError(Exception):
+    """Exception raised when the default LLM is not configured."""
+    pass
+
 
 # Maximum total characters sent to the LLM for graph extraction.
 # ~8000 tokens ≈ ~32 000 characters for most models; we use a conservative limit.
@@ -212,6 +222,7 @@ def _upsert_entity_with_alias(
 def extract_and_save_graph(
     chunks: list["DocumentChunkV2"],
     db_session: Session,
+    extraction_job_id: uuid.UUID | None = None,
 ) -> None:
     """Extract entities and relations from ``chunks`` using the default LLM and
     persist them to Postgres.
@@ -219,13 +230,16 @@ def extract_and_save_graph(
     Uses smart chunk selection (Mức 3) to cap the LLM context window and
     entity normalization / alias storage (Mức 5) to keep the graph clean.
     """
+    if not chunks:
+        return
+    doc_id = chunks[0].doc_id
+
     try:
         llm = get_default_llm()
     except Exception as e:
-        print(
+        raise NoDefaultLLMError(
             f"Skipping knowledge graph extraction: default LLM not configured. Detail: {e}"
-        )
-        return
+        ) from e
 
     selected = select_chunks_for_extraction(chunks)
     if not selected:
@@ -264,7 +278,8 @@ Văn bản cần phân tích:
         with llm_generation_span(
             llm=llm, flow=LLMFlow.KG_DEEP_EXTRACTION, input_messages=messages
         ):
-            response = llm.invoke(messages)
+            # Configure a 25-minute timeout override to prevent hangs.
+            response = llm.invoke(messages, timeout_override=1500)
 
         response_text = response.content.strip() if response.content else ""
 
@@ -313,21 +328,58 @@ Văn bản cần phân tích:
                         .first()
                     )
                     if not existing_rel:
+                        rel_id = uuid.uuid4()
                         db_session.add(
                             Relation(
-                                relation_id=uuid.uuid4(),
+                                relation_id=rel_id,
                                 source_entity_id=src_id,
                                 target_entity_id=tgt_id,
                                 relation_type=rel_type,
                                 description=description,
                             )
                         )
+                    else:
+                        rel_id = existing_rel.relation_id
+
+                    # Upsert RelationEvidence linking the relation to the document chunk
+                    evidence_exists = (
+                        db_session.query(RelationEvidence)
+                        .filter(
+                            RelationEvidence.relation_id == rel_id,
+                            RelationEvidence.document_id == doc_id,
+                        )
+                        .first()
+                    )
+                    if not evidence_exists:
+                        db_session.add(
+                            RelationEvidence(
+                                relation_id=rel_id,
+                                document_id=doc_id,
+                                extraction_job_id=extraction_job_id,
+                                evidence_text=description,
+                            )
+                        )
     except Exception as e:
-        print(f"Error parsing/saving Knowledge Graph from LLM: {e}")
+        logger.exception("Error parsing/saving Knowledge Graph from LLM")
+        raise
+
+
+_DIRECTIONAL_RELATION_TYPES = [
+    "supersedes",
+    "reports_to",
+    "applies_to",
+    "contains",
+    "before",
+    "after",
+]
 
 
 def expand_entities_cte(
-    entity_names: List[str], depth: int = 2, db_session: Session | None = None
+    entity_names: List[str],
+    depth: int = 2,
+    db_session: Session | None = None,
+    allowed_document_ids: List[str] | None = None,
+    allowed_connector_ids: List[int] | None = None,
 ) -> List[dict]:
     """Recursive CTE entity expansion up to ``depth`` hops in the relation graph.
 
@@ -339,6 +391,12 @@ def expand_entities_cte(
 
     # Normalize input names for lookup.
     normalized_inputs = [n.lower() for n in entity_names]
+
+    has_doc_filter = allowed_document_ids is not None
+    has_conn_filter = allowed_connector_ids is not None
+
+    doc_ids_param = allowed_document_ids if allowed_document_ids is not None else []
+    conn_ids_param = allowed_connector_ids if allowed_connector_ids is not None else []
 
     # Resolve entity IDs via canonical name OR alias, then expand.
     query = text("""
@@ -359,11 +417,36 @@ def expand_entities_cte(
             UNION
 
             -- Recursive: walk relations
-            SELECT e.entity_id, e.name, e.entity_type, e.description, ee.current_depth + 1
-            FROM entities e
-            JOIN relations r ON (r.target_entity_id = e.entity_id OR r.source_entity_id = e.entity_id)
-            JOIN entity_expansion ee ON (ee.entity_id = r.source_entity_id OR ee.entity_id = r.target_entity_id)
+            SELECT DISTINCT e.entity_id, e.name, e.entity_type, e.description, ee.current_depth + 1
+            FROM entity_expansion ee
+            JOIN relations r ON (
+                -- Non-directional: bidirectional walk
+                (
+                    NOT (r.relation_type = ANY(:directional_types))
+                    AND (ee.entity_id = r.source_entity_id OR ee.entity_id = r.target_entity_id)
+                )
+                -- Directional: only walk from source to target
+                OR (
+                    r.relation_type = ANY(:directional_types)
+                    AND r.source_entity_id = ee.entity_id
+                )
+            )
+            JOIN entities e ON (
+                (
+                    NOT (r.relation_type = ANY(:directional_types))
+                    AND (e.entity_id = r.source_entity_id OR e.entity_id = r.target_entity_id)
+                    AND e.entity_id != ee.entity_id
+                )
+                OR (
+                    r.relation_type = ANY(:directional_types)
+                    AND r.target_entity_id = e.entity_id
+                )
+            )
+            LEFT JOIN relation_evidence re ON re.relation_id = r.relation_id
+            LEFT JOIN document_by_connector_credential_pair dbcc ON dbcc.id = re.document_id
             WHERE ee.current_depth < :depth
+              AND (:has_doc_filter = FALSE OR re.document_id = ANY(:allowed_document_ids))
+              AND (:has_conn_filter = FALSE OR dbcc.connector_id = ANY(:allowed_connector_ids))
         )
         SELECT DISTINCT entity_id, name, entity_type, description FROM entity_expansion;
     """)
@@ -373,6 +456,11 @@ def expand_entities_cte(
         {
             "normalized_names": normalized_inputs,
             "depth": depth,
+            "directional_types": _DIRECTIONAL_RELATION_TYPES,
+            "has_doc_filter": has_doc_filter,
+            "has_conn_filter": has_conn_filter,
+            "allowed_document_ids": doc_ids_param,
+            "allowed_connector_ids": conn_ids_param,
         },
     )
 
@@ -385,3 +473,4 @@ def expand_entities_cte(
         }
         for row in result
     ]
+

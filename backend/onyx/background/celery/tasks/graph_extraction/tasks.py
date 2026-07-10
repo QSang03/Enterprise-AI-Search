@@ -17,7 +17,9 @@ from onyx.db.engine.sql_engine import get_session_with_current_tenant
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_failed
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_running
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_succeeded
+from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_skipped
 from onyx.db.graph_service import extract_and_save_graph
+from onyx.db.graph_service import NoDefaultLLMError
 from onyx.db.models import DocumentChunkV2
 from onyx.indexing.indexing_pipeline import _check_and_trigger_wiki_stale_detection
 
@@ -81,7 +83,7 @@ def graph_extraction_task(
                 )
 
             # Graph entity/relation extraction (LLM call; may be slow).
-            extract_and_save_graph(chunks, db_session)
+            extract_and_save_graph(chunks, db_session, extraction_job_id=job_uuid)
 
             elapsed = time.monotonic() - start
             if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
@@ -104,6 +106,18 @@ def graph_extraction_task(
 
             mark_graph_extraction_job_succeeded(job_uuid, db_session)
             db_session.commit()
+
+    except NoDefaultLLMError as exc:
+        task_logger.warning(
+            "graph_extraction_task: skipped (no default LLM) for doc_id=%s job_id=%s: %s",
+            doc_id,
+            job_id,
+            exc,
+        )
+        with get_session_with_current_tenant() as db_session:
+            mark_graph_extraction_job_skipped(job_uuid, str(exc), db_session)
+            db_session.commit()
+        return
 
     except TimeoutError as exc:
         task_logger.error(
