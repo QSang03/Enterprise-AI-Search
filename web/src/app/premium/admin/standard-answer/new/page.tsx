@@ -1,39 +1,66 @@
+"use client";
+
 import { StandardAnswerCreationForm } from "@/app/premium/admin/standard-answer/StandardAnswerCreationForm";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { StandardAnswerCategory } from "@/lib/types";
+import { useTranslation } from "@/providers/LanguageProvider";
+import { useEffect, useState } from "react";
 
 const route = ADMIN_ROUTES.STANDARD_ANSWERS;
 
-async function Page() {
-  const standardAnswerCategoriesResponse = await fetchSS(
-    "/manage/admin/standard-answer/category"
-  );
+function Page() {
+  const { t } = useTranslation();
+  const [standardAnswerCategories, setStandardAnswerCategories] = useState<StandardAnswerCategory[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!standardAnswerCategoriesResponse.ok) {
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetchSS("/manage/admin/standard-answer/category");
+        if (!response.ok) {
+          setError(`${t("failedToFetchStandardAnswerCategories")} - ${await response.text()}`);
+        } else {
+          const data = (await response.json()) as StandardAnswerCategory[];
+          setStandardAnswerCategories(data);
+        }
+      } catch (err) {
+        setError(t("failedToFetchStandardAnswerCategories"));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, [t]);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (error) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch standard answer categories - ${await standardAnswerCategoriesResponse.text()}`}
+        errorTitle={t("somethingWentWrong")}
+        errorMsg={error}
       />
     );
   }
-  const standardAnswerCategories =
-    (await standardAnswerCategoriesResponse.json()) as StandardAnswerCategory[];
 
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={route.icon}
-        title="New Standard Answer"
+        title={t("newStandardAnswer")}
         backButton
         divider
       />
       <SettingsLayouts.Body>
         <StandardAnswerCreationForm
-          standardAnswerCategories={standardAnswerCategories}
+          standardAnswerCategories={standardAnswerCategories || []}
         />
       </SettingsLayouts.Body>
     </SettingsLayouts.Root>

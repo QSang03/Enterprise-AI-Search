@@ -16,9 +16,7 @@ function Main() {
       <div>
         <div className="mt-4">
           <Callout type="danger" title={t("customAnalyticsNotEnabled")}>
-            To set up custom analytics scripts, please work with the team who
-            setup Onyx in your team to set the{" "}
-            <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable.
+            {t("customAnalyticsSetupInstructions")}
           </Callout>
         </div>
       </div>
@@ -28,9 +26,7 @@ function Main() {
   return (
     <div>
       <Text as="p">
-        {
-          "This allows you to bring your own analytics tool to Onyx! Copy the Web snippet from your analytics provider into the box below, and we'll start sending usage events."
-        }
+        {t("customAnalyticsDescription")}
       </Text>
       <Spacer rem={2} />
 

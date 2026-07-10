@@ -55,12 +55,12 @@ export function FeedbackChart({
           const queryAnalyticsForDate = dateToQueryAnalytics.get(dateStr);
           return {
             Day: dateStr,
-            "Positive Feedback": queryAnalyticsForDate?.total_likes || 0,
-            "Negative Feedback": queryAnalyticsForDate?.total_dislikes || 0,
+            [t("positiveFeedback")]: queryAnalyticsForDate?.total_likes || 0,
+            [t("negativeFeedback")]: queryAnalyticsForDate?.total_dislikes || 0,
           };
         })}
-        categories={["Positive Feedback", "Negative Feedback"]}
-        index="Day"
+        categories={[t("positiveFeedback"), t("negativeFeedback")]}
+        index={t("day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />

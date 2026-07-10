@@ -61,7 +61,7 @@ export function OnyxBotChart({
           };
         })}
         categories={[t("totalQueries"), t("automaticallyResolved")]}
-        index="Day"
+        index={t("day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />

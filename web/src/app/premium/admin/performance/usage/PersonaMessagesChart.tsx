@@ -169,7 +169,7 @@ export function PersonaMessagesChart({
         className="mt-4"
         data={chartData}
         categories={[t("messages"), t("uniqueUsers")]}
-        index="Day"
+        index={t("day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />

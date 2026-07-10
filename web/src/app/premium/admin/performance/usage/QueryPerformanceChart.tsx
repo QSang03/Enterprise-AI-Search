@@ -71,12 +71,12 @@ export function QueryPerformanceChart({
           const userAnalyticsForDate = dateToUserAnalytics.get(dateStr);
           return {
             Day: dateStr,
-            Queries: queryAnalyticsForDate?.total_queries || 0,
-            "Unique Users": userAnalyticsForDate?.total_active_users || 0,
+            [t("queries")]: queryAnalyticsForDate?.total_queries || 0,
+            [t("uniqueUsers")]: userAnalyticsForDate?.total_active_users || 0,
           };
         })}
-        categories={["Queries", "Unique Users"]}
-        index="Day"
+        categories={[t("queries"), t("uniqueUsers")]}
+        index={t("day")}
         colors={["indigo", "fuchsia"]}
         yAxisFormatter={(number: number) =>
           new Intl.NumberFormat("en-US", {

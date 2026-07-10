@@ -1,72 +1,91 @@
+"use client";
+
 import { StandardAnswerCreationForm } from "@/app/premium/admin/standard-answer/StandardAnswerCreationForm";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { StandardAnswer, StandardAnswerCategory } from "@/lib/types";
+import { useTranslation } from "@/providers/LanguageProvider";
+import { useEffect, useState } from "react";
 
 const route = ADMIN_ROUTES.STANDARD_ANSWERS;
 
-async function Main({ id }: { id: string }) {
-  const tasks = [
-    fetchSS("/manage/admin/standard-answer"),
-    fetchSS(`/manage/admin/standard-answer/category`),
-  ];
-  const [standardAnswersResponse, standardAnswerCategoriesResponse] =
-    await Promise.all(tasks);
+function Main({ id }: { id: string }) {
+  const { t } = useTranslation();
+  const [standardAnswer, setStandardAnswer] = useState<StandardAnswer | null>(null);
+  const [standardAnswerCategories, setStandardAnswerCategories] = useState<StandardAnswerCategory[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (standardAnswersResponse === undefined) {
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const tasks = [
+          fetchSS("/manage/admin/standard-answer"),
+          fetchSS("/manage/admin/standard-answer/category"),
+        ];
+        const [standardAnswersResponse, standardAnswerCategoriesResponse] =
+          await Promise.all(tasks);
+
+        if (!standardAnswersResponse || !standardAnswersResponse.ok) {
+          const errorMsg = standardAnswersResponse 
+            ? `${t("failedToFetchStandardAnswers")} - ${await standardAnswersResponse.text()}`
+            : t("failedToFetchStandardAnswers");
+          setError(errorMsg);
+          return;
+        }
+
+        const allStandardAnswers =
+          (await standardAnswersResponse.json()) as StandardAnswer[];
+        const foundAnswer = allStandardAnswers.find(
+          (answer) => answer.id.toString() === id
+        );
+
+        if (!foundAnswer) {
+          setError(t("didNotFindStandardAnswer", { id }));
+          return;
+        }
+
+        setStandardAnswer(foundAnswer);
+
+        if (!standardAnswerCategoriesResponse || !standardAnswerCategoriesResponse.ok) {
+          const errorMsg = standardAnswerCategoriesResponse
+            ? `${t("failedToFetchStandardAnswerCategories")} - ${await standardAnswerCategoriesResponse.text()}`
+            : t("failedToFetchStandardAnswerCategories");
+          setError(errorMsg);
+          return;
+        }
+
+        const categories =
+          (await standardAnswerCategoriesResponse.json()) as StandardAnswerCategory[];
+        setStandardAnswerCategories(categories);
+      } catch (err) {
+        setError(t("failedToFetchData"));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [id, t]);
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (error) {
     return (
       <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch standard answers.`}
+        errorTitle={t("somethingWentWrong")}
+        errorMsg={error}
       />
     );
   }
 
-  if (!standardAnswersResponse.ok) {
-    return (
-      <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch standard answers - ${await standardAnswersResponse.text()}`}
-      />
-    );
+  if (!standardAnswer || !standardAnswerCategories) {
+    return null;
   }
-  const allStandardAnswers =
-    (await standardAnswersResponse.json()) as StandardAnswer[];
-  const standardAnswer = allStandardAnswers.find(
-    (answer) => answer.id.toString() === id
-  );
-
-  if (!standardAnswer) {
-    return (
-      <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Did not find standard answer with ID: ${id}`}
-      />
-    );
-  }
-
-  if (standardAnswerCategoriesResponse === undefined) {
-    return (
-      <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch standard answer categories.`}
-      />
-    );
-  }
-
-  if (!standardAnswerCategoriesResponse.ok) {
-    return (
-      <ErrorCallout
-        errorTitle="Something went wrong :("
-        errorMsg={`Failed to fetch standard answer categories - ${await standardAnswerCategoriesResponse.text()}`}
-      />
-    );
-  }
-
-  const standardAnswerCategories =
-    (await standardAnswerCategoriesResponse.json()) as StandardAnswerCategory[];
 
   return (
     <StandardAnswerCreationForm
@@ -76,14 +95,23 @@ async function Main({ id }: { id: string }) {
   );
 }
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
+export default function Page(props: { params: Promise<{ id: string }> }) {
+  const { t } = useTranslation();
+  const [params, setParams] = useState<{ id: string } | null>(null);
+
+  useEffect(() => {
+    props.params.then(setParams);
+  }, [props.params]);
+
+  if (!params) {
+    return null;
+  }
 
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={route.icon}
-        title="Edit Standard Answer"
+        title={t("editStandardAnswer")}
         backButton
         divider
       />

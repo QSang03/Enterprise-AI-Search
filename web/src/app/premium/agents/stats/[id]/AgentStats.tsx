@@ -137,7 +137,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
         className="mt-4"
         data={chartData}
         categories={[t("messages"), t("uniqueUsers")]}
-        index="Day"
+        index={t("day")}
         colors={["#4A4A4A", "#A0A0A0"]}
         yAxisWidth={60}
       />
