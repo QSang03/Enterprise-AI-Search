@@ -7,7 +7,6 @@ Create Date: 2026-07-10 16:00:00.000000
 """
 
 from alembic import op
-import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "a1b2c3d4e5f9"
@@ -17,22 +16,30 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # tenant_id is nullable so each tenant's backfill can set the correct value.
-    op.add_column(
-        "graph_extraction_jobs",
-        sa.Column(
-            "tenant_id",
-            sa.String(),
-            nullable=True,
-        ),
+    # Use IF NOT EXISTS in case a previous migration (e.g. f8 from an earlier
+    # commit) already added the column on this environment.
+    op.execute(
+        "ALTER TABLE graph_extraction_jobs "
+        "ADD COLUMN IF NOT EXISTS tenant_id varchar"
     )
-    op.add_column(
-        "graph_extraction_jobs",
-        sa.Column(
-            "cleanup_claimed_at",
-            sa.DateTime(timezone=True),
-            nullable=True,
-        ),
+    op.execute(
+        "ALTER TABLE graph_extraction_jobs "
+        "ADD COLUMN IF NOT EXISTS cleanup_claimed_at timestamptz"
+    )
+
+    # Backfill tenant_id for existing rows where it is still NULL.
+    # current_schema() returns the tenant schema name because Alembic runs
+    # with schema_translate_map for multi-tenant migrations.
+    op.execute(
+        "UPDATE graph_extraction_jobs "
+        "SET tenant_id = current_schema() "
+        "WHERE tenant_id IS NULL"
+    )
+
+    # Now that all rows have a value, make the column NOT NULL.
+    op.execute(
+        "ALTER TABLE graph_extraction_jobs "
+        "ALTER COLUMN tenant_id SET NOT NULL"
     )
 
 

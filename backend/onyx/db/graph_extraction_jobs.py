@@ -81,7 +81,7 @@ def create_or_skip_graph_extraction_job(
     model_name: str,
     doc_text: str,
     db_session: Session,
-    tenant_id: str = "public",
+    tenant_id: str,
     document_type: str | None = None,
     prompt_version: str = GRAPH_EXTRACTION_PROMPT_VERSION,
 ) -> GraphExtractionJob | None:
@@ -150,6 +150,7 @@ def mark_graph_extraction_job_succeeded(job_id: UUID, db_session: Session) -> No
         job.cleanup_retry_count = 0
         job.cleanup_next_retry_at = None
         job.cleanup_last_error = None
+        job.cleanup_claimed_at = None
         db_session.flush()
 
 
@@ -219,5 +220,6 @@ def reset_cleanup_state(job_id: UUID, db_session: Session) -> None:
         job.cleanup_retry_count = 0
         job.cleanup_next_retry_at = None
         job.cleanup_last_error = None
+        job.cleanup_claimed_at = None
         db_session.flush()
 

@@ -1200,11 +1200,13 @@ def graph_extraction_cleanup_sweeper(
         graph_extraction_tenant_cleanup_sweeper.apply_async(
             kwargs={"tenant_id": tid},
             countdown=5,
+            queue=OnyxCeleryQueues.GRAPH_EXTRACTION,
         )
 
 
 @shared_task(
     name=OnyxCeleryTask.GRAPH_EXTRACTION_TENANT_CLEANUP_SWEEPER,
+    queue=OnyxCeleryQueues.GRAPH_EXTRACTION,
     ignore_result=True,
     soft_time_limit=120,
     trail=False,
@@ -1259,15 +1261,16 @@ def graph_extraction_tenant_cleanup_sweeper(
                 "graph_extraction_tenant_cleanup_sweeper: re-enqueuing "
                 "job %s for doc_id=%s (retry %d, tenant=%s)",
                 job.id, job.document_id, job.cleanup_retry_count,
-                job.tenant_id,
+                tenant_id,
             )
             graph_extraction_task.apply_async(
                 kwargs={
                     "job_id": str(job.id),
                     "doc_id": job.document_id,
-                    "tenant_id": job.tenant_id,
+                    "tenant_id": tenant_id,
                 },
                 countdown=10,
+                queue=OnyxCeleryQueues.GRAPH_EXTRACTION,
             )
 
     except Exception:
