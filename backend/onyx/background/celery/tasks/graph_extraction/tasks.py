@@ -11,6 +11,8 @@ from uuid import UUID
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from sqlalchemy import or_
+from sqlalchemy import text as sql_text
 
 from onyx.background.celery.apps.app_base import task_logger
 from onyx.configs.constants import OnyxCeleryQueues
@@ -18,69 +20,25 @@ from onyx.configs.constants import OnyxCeleryTask
 from onyx.db.engine.sql_engine import get_session_with_current_tenant
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_failed
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_running
-from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_succeeded
 from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_skipped
+from onyx.db.graph_extraction_jobs import mark_graph_extraction_job_succeeded
 from onyx.db.graph_service import extract_and_save_graph
 from onyx.db.graph_service import NoDefaultLLMError
 from onyx.db.models import DocumentChunkV2
+from onyx.db.models import KnowledgeEvent
+from onyx.db.models import RelationEvidence
 from onyx.indexing.indexing_pipeline import _check_and_trigger_wiki_stale_detection
 
 logger = get_task_logger(__name__)
 
-# Maximum wall-time (seconds) for a single graph extraction attempt before we
-# consider it timed-out and mark the job as failed. Celery thread-pool tasks
-# cannot use Celery's soft_time_limit, so we enforce this manually.
-_GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60  # 10 minutes
+_GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60
 
 
-def _fetch_vespa_event_ids(
-    document_index: Any,
-    doc_id: str,
-    tenant_id: str | None,
-) -> set[str]:
-    """Fetch all knowledge event IDs for a document from Vespa.
-
-    These IDs are captured **before** extraction starts so we can
-    selectively delete only the old generation later.
-    """
-    from onyx.document_index.vespa.shared_utils.utils import get_vespa_http_client
-    from onyx.document_index.vespa_constants import SEARCH_ENDPOINT, VESPA_TIMEOUT
-
-    where_clauses = [f'document_id contains "{doc_id}"']
-    if tenant_id:
-        where_clauses.append(f'tenant_id contains "{tenant_id}"')
-    where_clause_str = " AND ".join(where_clauses)
-
-    event_ids: set[str] = set()
-    limit = 100
-    try:
-        with get_vespa_http_client() as http_client:
-            while True:
-                yql = (
-                    f"select event_id from knowledge_event "
-                    f"where {where_clause_str} limit {limit}"
-                )
-                params = {
-                    "yql": yql,
-                    "ranking.profile": "unranked",
-                    "timeout": VESPA_TIMEOUT,
-                }
-                response = http_client.post(SEARCH_ENDPOINT, json=params)
-                response.raise_for_status()
-                hits = response.json().get("root", {}).get("children", [])
-                if not hits:
-                    break
-                for hit in hits:
-                    fields = hit.get("fields", {})
-                    if "event_id" in fields:
-                        event_ids.add(fields["event_id"])
-                if len(hits) < limit:
-                    break
-    except Exception:
-        task_logger.exception(
-            "Failed to fetch Vespa event IDs for doc_id=%s", doc_id,
-        )
-    return event_ids
+def _generate_stable_lock_key(tenant_id: str, doc_id: str) -> int:
+    """Deterministic 64-bit signed advisory lock key (stable across processes)."""
+    raw = f"{tenant_id}:{doc_id}".encode("utf-8")
+    digest = hashlib.blake2b(raw, digest_size=8).digest()
+    return int.from_bytes(digest, byteorder="big", signed=True)
 
 
 def _delete_vespa_event_ids(event_ids: set[str]) -> None:
@@ -108,19 +66,22 @@ def _delete_vespa_event_ids(event_ids: set[str]) -> None:
         task_logger.exception("Failed to open Vespa HTTP client for cleanup")
 
 
-def _generate_stable_lock_key(tenant_id: str, doc_id: str) -> int:
-    """Generate a deterministic advisory-lock key (signed 64-bit) for a document.
+def _fetch_knowledge_event_ids(
+    db_session: Any, doc_id: str
+) -> set[str]:
+    """Fetch all knowledge event IDs for a document from PostgreSQL.
 
-    Uses blake2b so different Python processes always produce the same key
-    for the same tenant_id + doc_id pair (unstable process-local hash() is
-    not used).
+    This is the source of truth — any event in Vespa should have a
+    corresponding row in ``knowledge_events``. Using PostgreSQL avoids
+    pagination bugs (unbounded Vespa loops), tenant-flag inconsistency, and
+    the need for a dedicated DocumentIndex interface method.
     """
-    raw = f"{tenant_id}:{doc_id}".encode("utf-8")
-    digest = hashlib.blake2b(raw, digest_size=8).digest()
-    return int.from_bytes(digest, byteorder="big", signed=True)
-
-
-_PG_UNLOCK = "SELECT pg_advisory_unlock(:key)"
+    return {
+        str(row.event_id)
+        for row in db_session.query(KnowledgeEvent.event_id)
+        .filter(KnowledgeEvent.document_id == doc_id)
+        .all()
+    }
 
 
 @shared_task(
@@ -132,27 +93,48 @@ _PG_UNLOCK = "SELECT pg_advisory_unlock(:key)"
     queue=OnyxCeleryQueues.GRAPH_EXTRACTION,
 )
 def graph_extraction_task(
-    self: object,
+    self: "Any",  # noqa: ANN401 — Celery task self is not typed
     job_id: str,
     doc_id: str,
     tenant_id: str,
 ) -> None:
     """Extract Knowledge Graph entities/relations for a single document.
 
-    Also triggers Wiki stale detection for any wiki pages that cite this
-    document.  Both operations are moved out of the main indexing DB
-    transaction so Postgres locks are never held while waiting for LLM calls.
+    Generation-swap protocol:
+
+    1. Acquire ``pg_advisory_xact_lock`` — transaction-level lock released
+       atomically on the final ``commit()``.  No intermediate commits within
+       the locked transaction, so the lock is never dropped early.  This
+       avoids the connection-pooling hazard of session-level locks with
+       ``Session(bind=engine)`` (single-tenant deployments), where the
+       underlying connection can change across commits.
+
+    2. Fetch old event IDs from PostgreSQL **under the lock** — eliminates
+       the race where two concurrent jobs both snapshot empty before either
+       acquires the lock, then each deletes the wrong generation.
+
+    3. Retry-Idempotency: check if this ``extraction_job_id`` already has
+       events in PostgreSQL.  If all are vespa_indexed → resume cleanup and
+       succeed.  If partial → delete partial results and re-extract.
+
+    4. Extract via LLM and save new events/evidence into PostgreSQL.
+
+    5. Index new events into Vespa.
+
+    6. Delete old generation from Vespa (IDs captured in step 2 minus new
+       IDs) and from PostgreSQL (``extraction_job_id != current``).
+
+    7. Single ``commit()`` releases the advisory lock and makes all DB
+       changes visible atomically.
+
+    8. Mark job SUCCEEDED in a fresh session (post-lock).
     """
     start = time.monotonic()
     job_uuid = UUID(job_id)
 
     try:
         with get_session_with_current_tenant() as db_session:
-            mark_graph_extraction_job_running(job_uuid, db_session)
-            db_session.commit()
-
-        with get_session_with_current_tenant() as db_session:
-            # 1. Feature Gate – only Vespa supports Knowledge Graph events
+            # ── Feature gate ──────────────────────────────────────────
             from onyx.db.search_settings import get_current_search_settings
             from onyx.document_index.factory import get_default_document_index
 
@@ -171,227 +153,247 @@ def graph_extraction_task(
                 db_session.commit()
                 return
 
-            # 2. Capture old Vespa event IDs **before** extraction so we can
-            #    safely delete only the old generation later (generation swap).
-            old_vespa_ids = _fetch_vespa_event_ids(
-                document_index, doc_id, tenant_id
-            )
-
-            # 3. Session-level advisory lock to prevent concurrent jobs for
-            #    the same document.  Unlike pg_advisory_xact_lock, this lock
-            #    survives intermediate commits and is only released on
-            #    explicit unlock or session close – exactly what we need
-            #    since extraction requires multiple commits.
-            from sqlalchemy import text as sql_text
-
+            # ── Advisory lock (transaction-level) ────────────────────
             lock_key = _generate_stable_lock_key(tenant_id, doc_id)
             db_session.execute(
-                sql_text("SELECT pg_advisory_lock(:key)"),
+                sql_text("SELECT pg_advisory_xact_lock(:key)"),
                 {"key": lock_key},
             )
-            try:
-                # 4. Re-check content hash under lock to avoid redundant
-                #    extraction when a concurrent job already completed it.
-                from onyx.db.graph_extraction_jobs import (
-                    GraphExtractionJob,
-                    GraphExtractionStatus,
-                )
 
-                current_job = (
+            # ── Mark running (inside the same transaction) ────────────
+            mark_graph_extraction_job_running(job_uuid, db_session)
+
+            # ── Retry-idempotency check ───────────────────────────────
+            from onyx.db.graph_extraction_jobs import GraphExtractionJob
+            from onyx.db.graph_extraction_jobs import GraphExtractionStatus
+
+            current_job = (
+                db_session.query(GraphExtractionJob)
+                .filter(GraphExtractionJob.id == job_uuid)
+                .first()
+            )
+
+            # Re-check content hash (skip if another job already processed)
+            if current_job:
+                latest = (
                     db_session.query(GraphExtractionJob)
-                    .filter(GraphExtractionJob.id == job_uuid)
+                    .filter(
+                        GraphExtractionJob.document_id == doc_id,
+                        GraphExtractionJob.content_hash
+                        == current_job.content_hash,
+                        GraphExtractionJob.prompt_version
+                        == current_job.prompt_version,
+                        GraphExtractionJob.model_name
+                        == current_job.model_name,
+                        GraphExtractionJob.status
+                        == GraphExtractionStatus.SUCCEEDED,
+                        GraphExtractionJob.id != job_uuid,
+                    )
                     .first()
                 )
-                if current_job:
-                    latest = (
-                        db_session.query(GraphExtractionJob)
-                        .filter(
-                            GraphExtractionJob.document_id == doc_id,
-                            GraphExtractionJob.content_hash
-                            == current_job.content_hash,
-                            GraphExtractionJob.prompt_version
-                            == current_job.prompt_version,
-                            GraphExtractionJob.model_name
-                            == current_job.model_name,
-                            GraphExtractionJob.status
-                            == GraphExtractionStatus.SUCCEEDED,
-                            GraphExtractionJob.id != job_uuid,
-                        )
-                        .first()
+                if latest is not None:
+                    mark_graph_extraction_job_skipped(
+                        job_uuid,
+                        f"Document content already processed by job {latest.id}",
+                        db_session,
                     )
-                    if latest is not None:
-                        mark_graph_extraction_job_skipped(
-                            job_uuid,
-                            "Document content already processed by job "
-                            f"{latest.id}",
-                            db_session,
-                        )
-                        db_session.commit()
-                        return
-
-                from onyx.db.models import (
-                    KnowledgeEvent,
-                    RelationEvidence,
-                    EventEntity,
-                    Entity,
-                    Document,
-                )
-                from onyx.natural_language_processing.search_nlp_models import (
-                    EmbeddingModel,
-                )
-                from onyx.configs.model_configs import (
-                    MODEL_SERVER_HOST,
-                    MODEL_SERVER_PORT,
-                )
-                from onyx.document_index.vespa.event_indexing_utils import (
-                    prepare_knowledge_event_vespa_doc,
-                )
-
-                # 5. Retrieve all chunks for this document.
-                chunks = (
-                    db_session.query(DocumentChunkV2)
-                    .filter(DocumentChunkV2.doc_id == doc_id)
-                    .all()
-                )
-
-                if not chunks:
-                    task_logger.warning(
-                        "graph_extraction_task: no chunks found for "
-                        "doc_id=%s, skipping",
-                        doc_id,
-                    )
-                    mark_graph_extraction_job_succeeded(job_uuid, db_session)
                     db_session.commit()
                     return
+
+            # Check if a previous attempt of THIS job left partial results
+            existing_events = (
+                db_session.query(KnowledgeEvent)
+                .filter(KnowledgeEvent.extraction_job_id == job_uuid)
+                .all()
+            )
+            if existing_events:
+                if all(e.vespa_indexed for e in existing_events):
+                    # Previous attempt already succeeded at Vespa indexing
+                    # but crashed before mark_succeeded.  Resume cleanup.
+                    old_ids = _fetch_knowledge_event_ids(db_session, doc_id)
+                    new_ids = {str(e.event_id) for e in existing_events}
+                    _delete_vespa_event_ids(old_ids - new_ids)
+
+                    # Clean old PG data for this document
+                    db_session.query(RelationEvidence).filter(
+                        RelationEvidence.document_id == doc_id,
+                        or_(
+                            RelationEvidence.extraction_job_id.is_(None),
+                            RelationEvidence.extraction_job_id != job_uuid,
+                        ),
+                    ).delete(synchronize_session=False)
+                    db_session.query(KnowledgeEvent).filter(
+                        KnowledgeEvent.document_id == doc_id,
+                        or_(
+                            KnowledgeEvent.extraction_job_id.is_(None),
+                            KnowledgeEvent.extraction_job_id != job_uuid,
+                        ),
+                    ).delete(synchronize_session=False)
+
+                    db_session.commit()
+                    # Mark succeeded in a fresh session (lock released on commit)
+                    with get_session_with_current_tenant() as s2:
+                        mark_graph_extraction_job_succeeded(job_uuid, s2)
+                        s2.commit()
+                    return
+
+                # Partial results exist — delete & restart fresh
+                db_session.query(KnowledgeEvent).filter(
+                    KnowledgeEvent.extraction_job_id == job_uuid
+                ).delete(synchronize_session=False)
+                db_session.query(RelationEvidence).filter(
+                    RelationEvidence.extraction_job_id == job_uuid
+                ).delete(synchronize_session=False)
+
+            # ── Snapshot old generation IDs (under lock) ──────────────
+            old_event_ids = _fetch_knowledge_event_ids(db_session, doc_id)
+
+            # ── Retrieve chunks ───────────────────────────────────────
+            chunks = (
+                db_session.query(DocumentChunkV2)
+                .filter(DocumentChunkV2.doc_id == doc_id)
+                .all()
+            )
+            if not chunks:
+                task_logger.warning(
+                    "graph_extraction_task: no chunks for doc_id=%s, skipping",
+                    doc_id,
+                )
+                db_session.commit()
+                with get_session_with_current_tenant() as s2:
+                    mark_graph_extraction_job_succeeded(job_uuid, s2)
+                    s2.commit()
+                return
+
+            elapsed = time.monotonic() - start
+            if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
+                raise TimeoutError(
+                    f"Graph extraction exceeded timeout after {elapsed:.0f}s"
+                )
+
+            # ── Select chunks for extraction ──────────────────────────
+            from onyx.db.graph_service import select_chunks_for_extraction
+
+            selected_chunks = select_chunks_for_extraction(chunks)
+
+            from onyx.db.models import ConnectorCredentialPair
+            from onyx.db.models import DocumentByConnectorCredentialPair
+
+            cc_pair = (
+                db_session.query(ConnectorCredentialPair)
+                .join(
+                    DocumentByConnectorCredentialPair,
+                    (
+                        DocumentByConnectorCredentialPair.connector_id
+                        == ConnectorCredentialPair.connector_id
+                    )
+                    & (
+                        DocumentByConnectorCredentialPair.credential_id
+                        == ConnectorCredentialPair.credential_id
+                    ),
+                )
+                .filter(DocumentByConnectorCredentialPair.id == doc_id)
+                .first()
+            )
+            cc_pair_id = cc_pair.id if cc_pair else None
+
+            # ── LLM extraction per chunk ──────────────────────────────
+            for chunk in selected_chunks:
+                if not chunk.text_raw or len(chunk.text_raw.strip()) < 100:
+                    continue
 
                 elapsed = time.monotonic() - start
                 if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
                     raise TimeoutError(
-                        f"Graph extraction exceeded timeout after "
-                        f"{elapsed:.0f}s"
+                        f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                     )
 
-                # 6. Limit extraction to selected chunks
-                from onyx.db.graph_service import select_chunks_for_extraction
+                remaining_budget = max(
+                    10, _GRAPH_EXTRACTION_TIMEOUT_S - elapsed
+                )
+                llm_timeout = min(120, int(remaining_budget))
 
-                selected_chunks = select_chunks_for_extraction(chunks)
-
-                # Get the cc_pair_id for the document
-                from onyx.db.models import (
-                    ConnectorCredentialPair,
-                    DocumentByConnectorCredentialPair,
+                extract_and_save_graph(
+                    chunk,
+                    db_session,
+                    knowledge_scope_id=cc_pair_id,
+                    extraction_job_id=job_uuid,
+                    tenant_id=tenant_id,
+                    timeout=llm_timeout,
                 )
 
-                cc_pair = (
-                    db_session.query(ConnectorCredentialPair)
-                    .join(
-                        DocumentByConnectorCredentialPair,
-                        (
-                            DocumentByConnectorCredentialPair.connector_id
-                            == ConnectorCredentialPair.connector_id
+            # ── Build Vespa documents ─────────────────────────────────
+            from onyx.configs.model_configs import MODEL_SERVER_HOST
+            from onyx.configs.model_configs import MODEL_SERVER_PORT
+            from onyx.db.models import Document
+            from onyx.db.models import Entity
+            from onyx.db.models import EventEntity
+            from onyx.document_index.vespa.event_indexing_utils import (
+                prepare_knowledge_event_vespa_doc,
+            )
+            from onyx.natural_language_processing.search_nlp_models import (
+                EmbeddingModel,
+            )
+
+            embedding_model = EmbeddingModel.from_db_model(
+                search_settings=search_settings,
+                server_host=MODEL_SERVER_HOST,
+                server_port=MODEL_SERVER_PORT,
+            )
+
+            from onyx.access.access import get_access_for_document
+
+            doc = (
+                db_session.query(Document)
+                .filter(Document.id == doc_id)
+                .first()
+            )
+            vespa_event_docs: list[dict[str, Any]] = []
+            if doc:
+                access_control = get_access_for_document(doc_id, db_session)
+                event_acl = list(access_control.to_acl())
+                is_public = access_control.is_public
+                doc_updated_at = doc.doc_updated_at
+
+                events = (
+                    db_session.query(KnowledgeEvent)
+                    .filter(KnowledgeEvent.extraction_job_id == job_uuid)
+                    .all()
+                )
+
+                titles = [e.title for e in events]
+                contents = [e.content for e in events]
+                title_embeds = (
+                    embedding_model.encode(titles) if titles else []
+                )
+                content_embeds = (
+                    embedding_model.encode(contents) if contents else []
+                )
+
+                for idx, event in enumerate(events):
+                    entity_rows = (
+                        db_session.query(Entity.name)
+                        .join(
+                            EventEntity,
+                            EventEntity.entity_id == Entity.entity_id,
                         )
-                        & (
-                            DocumentByConnectorCredentialPair.credential_id
-                            == ConnectorCredentialPair.credential_id
-                        ),
-                    )
-                    .filter(DocumentByConnectorCredentialPair.id == doc_id)
-                    .first()
-                )
-                cc_pair_id = cc_pair.id if cc_pair else None
-
-                # 7. Graph entity/relation extraction per selected chunk.
-                for chunk in selected_chunks:
-                    if not chunk.text_raw or len(chunk.text_raw.strip()) < 100:
-                        continue
-
-                    elapsed = time.monotonic() - start
-                    if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
-                        raise TimeoutError(
-                            f"Graph extraction exceeded timeout after "
-                            f"{elapsed:.0f}s"
-                        )
-
-                    remaining_budget = max(
-                        10, _GRAPH_EXTRACTION_TIMEOUT_S - elapsed
-                    )
-                    llm_timeout = min(120, int(remaining_budget))
-
-                    extract_and_save_graph(
-                        chunk,
-                        db_session,
-                        knowledge_scope_id=cc_pair_id,
-                        extraction_job_id=job_uuid,
-                        tenant_id=tenant_id,
-                        timeout=llm_timeout,
-                    )
-
-                # 8. Index any created events into Vespa.
-                embedding_model = EmbeddingModel.from_db_model(
-                    search_settings=search_settings,
-                    server_host=MODEL_SERVER_HOST,
-                    server_port=MODEL_SERVER_PORT,
-                )
-
-                doc = (
-                    db_session.query(Document)
-                    .filter(Document.id == doc_id)
-                    .first()
-                )
-                vespa_event_docs: list[dict[str, Any]] = []
-                if doc:
-                    from onyx.access.access import get_access_for_document
-
-                    access_control = get_access_for_document(doc_id, db_session)
-                    event_acl = list(access_control.to_acl())
-                    is_public = access_control.is_public
-                    doc_updated_at = doc.doc_updated_at
-
-                    events = (
-                        db_session.query(KnowledgeEvent)
-                        .filter(
-                            KnowledgeEvent.extraction_job_id == job_uuid
-                        )
+                        .filter(EventEntity.event_id == event.event_id)
                         .all()
                     )
+                    entity_names = [r[0] for r in entity_rows]
 
-                    titles_to_embed = [event.title for event in events]
-                    contents_to_embed = [event.content for event in events]
-
-                    title_embeds = (
-                        embedding_model.encode(titles_to_embed)
-                        if titles_to_embed
-                        else []
-                    )
-                    content_embeds = (
-                        embedding_model.encode(contents_to_embed)
-                        if contents_to_embed
-                        else []
-                    )
-
-                    for idx, event in enumerate(events):
-                        entities = (
-                            db_session.query(Entity.name)
-                            .join(
-                                EventEntity,
-                                EventEntity.entity_id == Entity.entity_id,
+                    sibling_order = None
+                    if event.chunk_id:
+                        sibling_order = (
+                            db_session.query(DocumentChunkV2.sibling_order)
+                            .filter(
+                                DocumentChunkV2.chunk_id == event.chunk_id
                             )
-                            .filter(EventEntity.event_id == event.event_id)
-                            .all()
+                            .scalar()
                         )
-                        entity_names = [e[0] for e in entities]
 
-                        sibling_order = None
-                        if event.chunk_id:
-                            sibling_order = (
-                                db_session.query(DocumentChunkV2.sibling_order)
-                                .filter(
-                                    DocumentChunkV2.chunk_id == event.chunk_id
-                                )
-                                .scalar()
-                            )
-
-                        vespa_doc = prepare_knowledge_event_vespa_doc(
+                    vespa_event_docs.append(
+                        prepare_knowledge_event_vespa_doc(
                             event=event,
                             entity_names=entity_names,
                             access_control_list=event_acl,
@@ -402,57 +404,41 @@ def graph_extraction_task(
                             tenant_id=tenant_id,
                             sibling_order=sibling_order,
                         )
-                        vespa_event_docs.append(vespa_doc)
+                    )
 
-                    if vespa_event_docs:
-                        document_index.index_knowledge_events(vespa_event_docs)
-                        for event in events:
-                            event.vespa_indexed = True
-                        db_session.commit()
+                if vespa_event_docs:
+                    document_index.index_knowledge_events(vespa_event_docs)
+                    for event in events:
+                        event.vespa_indexed = True
 
-                # 9. Generation swap: new data is live.  Delete only the old
-                #    generation from Vespa and Postgres.
-                new_event_ids = {
-                    d["event_id"] for d in vespa_event_docs
-                }
-                old_vespa_ids_to_delete = old_vespa_ids - new_event_ids
-                _delete_vespa_event_ids(old_vespa_ids_to_delete)
+            # ── Generation swap: delete old generation ────────────────
+            new_event_ids = {d["event_id"] for d in vespa_event_docs}
+            old_ids_to_rm = old_event_ids - new_event_ids
+            _delete_vespa_event_ids(old_ids_to_rm)
 
-                # Delete old RelationEvidence (any extraction_job_id that is
-                # not the current one, including NULL legacy rows).
-                from sqlalchemy import or_
+            # Delete old RelationEvidence (NULL-safe via IS_(None)).
+            db_session.query(RelationEvidence).filter(
+                RelationEvidence.document_id == doc_id,
+                or_(
+                    RelationEvidence.extraction_job_id.is_(None),
+                    RelationEvidence.extraction_job_id != job_uuid,
+                ),
+            ).delete(synchronize_session=False)
 
-                db_session.query(RelationEvidence).filter(
-                    RelationEvidence.document_id == doc_id,
-                    or_(
-                        RelationEvidence.extraction_job_id.is_(None),
-                        RelationEvidence.extraction_job_id != job_uuid,
-                    ),
-                ).delete(synchronize_session=False)
+            # Delete old KnowledgeEvent (NULL-safe).
+            db_session.query(KnowledgeEvent).filter(
+                KnowledgeEvent.document_id == doc_id,
+                or_(
+                    KnowledgeEvent.extraction_job_id.is_(None),
+                    KnowledgeEvent.extraction_job_id != job_uuid,
+                ),
+            ).delete(synchronize_session=False)
 
-                # Delete old KnowledgeEvent (same logic).
-                db_session.query(KnowledgeEvent).filter(
-                    KnowledgeEvent.document_id == doc_id,
-                    or_(
-                        KnowledgeEvent.extraction_job_id.is_(None),
-                        KnowledgeEvent.extraction_job_id != job_uuid,
-                    ),
-                ).delete(synchronize_session=False)
+            # ── Single commit — releases pg_advisory_xact_lock ────────
+            db_session.commit()
 
-                db_session.commit()
-
-            finally:
-                # Always release the session-level lock.
-                db_session.execute(sql_text(_PG_UNLOCK), {"key": lock_key})
-
-            elapsed = time.monotonic() - start
-            if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
-                raise TimeoutError(
-                    f"Graph extraction exceeded timeout after {elapsed:.0f}s"
-                )
-
-            # Wiki stale detection (second LLM call; only runs when relevant
-            # wiki pages cite this document).
+        # ── Wiki stale detection (post-lock, fresh session) ──────────
+        with get_session_with_current_tenant() as db_session:
             try:
                 _check_and_trigger_wiki_stale_detection(db_session, [doc_id])
             except Exception as wiki_err:
@@ -477,7 +463,6 @@ def graph_extraction_task(
         with get_session_with_current_tenant() as db_session:
             mark_graph_extraction_job_skipped(job_uuid, str(exc), db_session)
             db_session.commit()
-        return
 
     except TimeoutError as exc:
         task_logger.error(
