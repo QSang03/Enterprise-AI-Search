@@ -29,10 +29,13 @@ Cleanup protocol
 1.  Snapshot old event IDs from PostgreSQL (source of truth).
 2.  Extract → index → collect new event UUIDs.
 3.  Delete old events from Vespa (best-effort, with ``_delete_with_retry``).
-4.  If cleanup permanently failed: mark job FAILED.  The indexing beat will
-    create a new job; the retry-idempotency branch skips extraction and
-    re-runs only cleanup.
-5.  Delete old PostgreSQL rows **only for successfully-deleted** Vespa events.
+4.  If cleanup permanently failed: re-enqueue the **same job** (``apply_async``
+    with ``_cleanup_retry`` counter).  The task re-acquires the Redis lock and
+    enters the cleanup-only branch (all events already ``vespa_indexed``),
+    avoiding redundant extraction.
+5.  After ``_MAX_CLEANUP_REENQUEUE`` attempts the task gives up and marks the
+    job ``FAILED``.
+6.  Delete old PostgreSQL rows **only for successfully-deleted** Vespa events.
     Failed IDs remain in PostgreSQL until cleanup succeeds.
 """
 
@@ -72,8 +75,14 @@ _GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60
 _REDIS_LOCK_TIMEOUT_S = 15 * 60
 _REDIS_LOCK_WAIT_S = 30
 
-_MAX_CLEANUP_RETRIES = 3
+# Internal Vespa-deletion retries (within a single task execution).
+# 1 initial attempt + 3 retries = 4 total per task run.
+_MAX_CLEANUP_RETRY_ATTEMPTS = 3
 _CLEANUP_RETRY_DELAYS_S = [10, 30, 60]
+
+# How many times the task will re-enqueue itself (with the same job_id) when
+# cleanup keeps failing.  After this limit the job is marked FAILED.
+_MAX_CLEANUP_REENQUEUE = 15
 
 
 class EventDTO:
@@ -98,10 +107,6 @@ class EventDTO:
         self.confidence = confidence
         self.entity_names = entity_names
         self.sibling_order = sibling_order
-
-
-class PermanentCleanupError(Exception):
-    """Raised when Vespa cleanup permanently fails after all internal retries."""
 
 
 def _delete_vespa_event_ids(event_ids: set[str]) -> set[str]:
@@ -153,7 +158,7 @@ def _delete_with_retry(
         return set()
 
     failed = _delete_vespa_event_ids(event_ids)
-    for attempt in range(_MAX_CLEANUP_RETRIES):
+    for attempt in range(_MAX_CLEANUP_RETRY_ATTEMPTS):
         if not failed:
             break
         delay = _CLEANUP_RETRY_DELAYS_S[
@@ -162,7 +167,7 @@ def _delete_with_retry(
         task_logger.warning(
             "%s: cleanup attempt %d/%d failed for %d events, "
             "retrying in %ds",
-            label, attempt + 1, _MAX_CLEANUP_RETRIES,
+            label, attempt + 1, _MAX_CLEANUP_RETRY_ATTEMPTS,
             len(failed), delay,
         )
         time.sleep(delay)
@@ -239,10 +244,15 @@ def graph_extraction_task(
     job_id: str,
     doc_id: str,
     tenant_id: str,
+    _cleanup_retry: int = 0,
 ) -> None:
     """Extract Knowledge Graph entities/relations for a single document.
 
     See module docstring for the full architecture description.
+
+    ``_cleanup_retry`` is an internal counter for re-enqueue-based retries
+    (not Celery retries).  It is incremented each time the task re-enqueues
+    itself with the same ``job_id`` to re-attempt cleanup only.
     """
     start = time.monotonic()
     job_uuid = UUID(job_id)
@@ -258,6 +268,37 @@ def graph_extraction_task(
         with get_session_with_current_tenant() as s:
             mark_graph_extraction_job_skipped(job_uuid, reason, s)
             s.commit()
+
+    def _reenqueue_cleanup(failed_count: int, reason: str) -> None:
+        """Re-enqueue this same job (same job_id) for a cleanup-only retry."""
+        if _cleanup_retry >= _MAX_CLEANUP_REENQUEUE:
+            task_logger.error(
+                "graph_extraction_task: cleanup re-enqueue limit reached "
+                "(%d attempts) for doc_id=%s job_id=%s — marking FAILED",
+                _MAX_CLEANUP_REENQUEUE, doc_id, job_id,
+            )
+            _fail(PermanentCleanupError(
+                f"{reason}: failed to delete {failed_count} old Vespa "
+                f"events after {_MAX_CLEANUP_REENQUEUE} re-enqueues",
+            ))
+            return
+
+        countdown = min(300 * (_cleanup_retry + 1), 3600)
+        task_logger.warning(
+            "graph_extraction_task: %s — re-enqueueing same job "
+            "(attempt %d/%d) for doc_id=%s, next run in %ds",
+            reason, _cleanup_retry + 1, _MAX_CLEANUP_REENQUEUE,
+            doc_id, countdown,
+        )
+        graph_extraction_task.apply_async(
+            kwargs={
+                "job_id": job_id,
+                "doc_id": doc_id,
+                "tenant_id": tenant_id,
+                "_cleanup_retry": _cleanup_retry + 1,
+            },
+            countdown=countdown,
+        )
 
     # ── Acquire Redis distributed lock (inside try for safe retry) ──
     lock: RedisLock | None = None
@@ -379,10 +420,10 @@ def graph_extraction_task(
                     )
                     if failed_vespa:
                         db_session.commit()
-                        _fail(PermanentCleanupError(
-                            f"cleanup-only retry: failed to delete "
-                            f"{len(failed_vespa)} old Vespa events",
-                        ))
+                        _reenqueue_cleanup(
+                            len(failed_vespa),
+                            "cleanup-only retry failed",
+                        )
                         return
                     mark_graph_extraction_job_succeeded(
                         job_uuid, db_session,
@@ -399,13 +440,11 @@ def graph_extraction_task(
                     "partial cleanup",
                 )
                 if failed_partial:
-                    # Can't safely delete PG rows — Vespa still has orphans.
-                    # Mark failed; next retry will try partial cleanup again.
                     db_session.commit()
-                    _fail(PermanentCleanupError(
-                        f"partial cleanup: failed to delete "
-                        f"{len(failed_partial)} Vespa events",
-                    ))
+                    _reenqueue_cleanup(
+                        len(failed_partial),
+                        "partial cleanup failed",
+                    )
                     return
 
                 # Step 2: now safe to delete PG rows.
@@ -645,10 +684,9 @@ def graph_extraction_task(
             db_session.commit()
 
         if failed_ids:
-            _fail(PermanentCleanupError(
-                f"generation cleanup: failed to delete "
-                f"{len(failed_ids)} old Vespa events",
-            ))
+            _reenqueue_cleanup(
+                len(failed_ids), "generation cleanup failed",
+            )
             return
 
         _ensure_lock_ttl()
@@ -719,3 +757,7 @@ def graph_extraction_task(
                 task_logger.exception(
                     "Failed to inspect/release Redis lock %s", lock_name,
                 )
+
+
+class PermanentCleanupError(Exception):
+    """Raised when Vespa cleanup permanently fails and we give up."""
