@@ -166,6 +166,8 @@ def mark_graph_extraction_job_failed(
         job.status = GraphExtractionStatus.FAILED
         job.error_message = error_message
         job.retry_count = (job.retry_count or 0) + 1
+        job.cleanup_claimed_at = None
+        job.cleanup_next_retry_at = None
         db_session.flush()
 
 
@@ -180,6 +182,10 @@ def mark_graph_extraction_job_skipped(
     if job:
         job.status = GraphExtractionStatus.SKIPPED
         job.error_message = error_message
+        job.cleanup_claimed_at = None
+        job.cleanup_next_retry_at = None
+        job.cleanup_last_error = None
+        job.cleanup_retry_count = 0
         db_session.flush()
 
 

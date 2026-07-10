@@ -16,8 +16,8 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Use IF NOT EXISTS in case a previous migration (e.g. f8 from an earlier
-    # commit) already added the column on this environment.
+    # Idempotent column additions.  An earlier version of this migration
+    # (commit 5f95edc) may already have created them on some environments.
     op.execute(
         "ALTER TABLE graph_extraction_jobs "
         "ADD COLUMN IF NOT EXISTS tenant_id varchar"
@@ -25,21 +25,6 @@ def upgrade() -> None:
     op.execute(
         "ALTER TABLE graph_extraction_jobs "
         "ADD COLUMN IF NOT EXISTS cleanup_claimed_at timestamptz"
-    )
-
-    # Backfill tenant_id for existing rows where it is still NULL.
-    # current_schema() returns the tenant schema name because Alembic runs
-    # with schema_translate_map for multi-tenant migrations.
-    op.execute(
-        "UPDATE graph_extraction_jobs "
-        "SET tenant_id = current_schema() "
-        "WHERE tenant_id IS NULL"
-    )
-
-    # Now that all rows have a value, make the column NOT NULL.
-    op.execute(
-        "ALTER TABLE graph_extraction_jobs "
-        "ALTER COLUMN tenant_id SET NOT NULL"
     )
 
 
