@@ -81,6 +81,7 @@ def create_or_skip_graph_extraction_job(
     model_name: str,
     doc_text: str,
     db_session: Session,
+    tenant_id: str = "public",
     document_type: str | None = None,
     prompt_version: str = GRAPH_EXTRACTION_PROMPT_VERSION,
 ) -> GraphExtractionJob | None:
@@ -115,6 +116,7 @@ def create_or_skip_graph_extraction_job(
 
     job = GraphExtractionJob(
         document_id=doc_id,
+        tenant_id=tenant_id,
         content_hash=content_hash,
         status=GraphExtractionStatus.PENDING,
         prompt_version=prompt_version,

@@ -6634,6 +6634,7 @@ class GraphExtractionJob(Base):
         PGUUID, primary_key=True, server_default=func.gen_random_uuid()
     )
     document_id: Mapped[str] = mapped_column(String(), nullable=False, index=True)
+    tenant_id: Mapped[str] = mapped_column(String(), nullable=False, server_default="public")
     content_hash: Mapped[str] = mapped_column(String(), nullable=False)
     # pending / running / succeeded / failed / skipped
     status: Mapped[str] = mapped_column(

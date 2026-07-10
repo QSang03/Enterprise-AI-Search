@@ -33,6 +33,17 @@ def upgrade() -> None:
         ["active_graph_job_id"],
     )
 
+    # Add tenant_id column (P1 — sweeper needs it to re-enqueue).
+    op.add_column(
+        "graph_extraction_jobs",
+        sa.Column(
+            "tenant_id",
+            sa.String(),
+            nullable=False,
+            server_default=sa.text("'public'"),
+        ),
+    )
+
     # Add durable cleanup state columns to graph_extraction_jobs (P2).
     op.add_column(
         "graph_extraction_jobs",
@@ -70,6 +81,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.drop_column("graph_extraction_jobs", "tenant_id")
     op.drop_column("graph_extraction_jobs", "cleanup_last_error")
     op.drop_column("graph_extraction_jobs", "cleanup_next_retry_at")
     op.drop_column("graph_extraction_jobs", "cleanup_retry_count")

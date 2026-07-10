@@ -26,43 +26,28 @@ If the task crashes and is retried:
 Supersession protection (P1)
 ----------------------------
 
-After acquiring the Redis lock, the task checks for a **newer** extraction job
-for the same document (by ``created_at``).  If a newer job already exists:
+After acquiring the Redis lock, the task checks for newer extraction jobs for
+the same document:
 
-*   **SUCCEEDED** — the current job is superseded.  It deletes only its *own*
-    Vespa events (not the newer generation's) and marks SKIPPED.  If
-    self-cleanup fails, it re-enqueues a cleanup-only retry.
-*   **PENDING / RUNNING / CLEANUP_PENDING** — re-enqueues with a short
-    countdown, giving the newer job time to run.  Never marks SKIPPED for
-    non-terminal states (fixes orphan-generation scenario).
+*   Any **SUCCEEDED** newer job → self-cleanup and SKIPPED.  Self-cleanup
+    deletes **all** own events from Vespa and PG (not just
+    ``vespa_indexed=True`` ones), preventing partial-index orphans.
+*   Any **PENDING / RUNNING / CLEANUP_PENDING** → re-enqueue with short
+    countdown (never SKIPPED for non-terminal states).
+*   Only when **all** newer jobs are FAILED/SKIPPED does the current job
+    proceed (fixes the FAILED-job-masking-SUCCEEDED scenario).
 
-A **compare-and-swap** on ``Document.active_graph_job_id`` guards the
-generation-swap phase.  The CAS runs **before** any destructive cleanup of
-old events.  If it fails (another job claimed the pointer), the task removes
-only its own newly-indexed events and marks SKIPPED, leaving the new
-generation intact.
+The **compare-and-swap** on ``Document.active_graph_job_id`` includes a
+guard that checks whether the current pointer owner is a newer job.  If so,
+the CAS is aborted immediately (no TOCTOU race since Redis lock is held).
 
-Cleanup protocol
-----------------
+A shared ``_abort_own_generation()`` helper handles all three
+self-cleanup paths (CAS failure, cleanup-only CAS failure, supersession)
+consistently: delete Vespa → if fail → re-enqueue; else delete PG → SKIPPED.
 
-1.  Snapshot old event IDs from PostgreSQL (source of truth).
-2.  Extract → index → collect new event UUIDs.
-3.  **CAS** ``Document.active_graph_job_id`` (before deleting anything).
-    *   CAS fails → delete our own (newly-indexed) events, mark SKIPPED.
-    *   CAS succeeds → continue.
-4.  Delete old events from Vespa (best-effort, with ``_delete_with_retry``).
-5.  If cleanup permanently failed: persist ``cleanup_retry_count``,
-    ``cleanup_next_retry_at``, ``cleanup_last_error`` in PostgreSQL and
-    re-enqueue the **same job** (``apply_async``).  The durable DB state
-    survives broker message loss (P2).
-6.  After ``_MAX_CLEANUP_REENQUEUE`` attempts the task gives up and marks the
-    job ``FAILED``.
-7.  Delete old PostgreSQL rows **only for successfully-deleted** Vespa events.
-    Failed IDs remain in PostgreSQL until cleanup succeeds.
-
-A periodic sweeper (``graph_extraction_cleanup_sweeper``) runs every 5 minutes
-and re-enqueues any job stuck in ``CLEANUP_PENDING`` state whose
-``cleanup_next_retry_at <= now()``, providing a durable recovery path (P2).
+The sweeper (``graph_extraction_cleanup_sweeper``) persists re-enqueue state
+durably by advancing ``cleanup_next_retry_at`` inside the same transaction
+that claims the row with ``FOR UPDATE SKIP LOCKED``.
 """
 
 from __future__ import annotations
@@ -236,6 +221,26 @@ def _fetch_knowledge_event_ids(
     }
 
 
+def _fetch_own_event_ids(
+    db_session: Any, job_uuid: UUID, doc_id: str
+) -> set[str]:
+    """Fetch all event IDs belonging to *job_uuid* (regardless of vespa_indexed).
+
+    Used by supersession cleanup and CAS failure cleanup to ensure **all**
+    events are removed — not just those with ``vespa_indexed=True``, which
+    would miss partial-index orphans.
+    """
+    return {
+        str(row.event_id)
+        for row in db_session.query(KnowledgeEvent.event_id)
+        .filter(
+            KnowledgeEvent.extraction_job_id == job_uuid,
+            KnowledgeEvent.document_id == doc_id,
+        )
+        .all()
+    }
+
+
 def _delete_pg_events_for_job(
     db_session: Any,
     job_uuid: UUID,
@@ -331,10 +336,7 @@ def graph_extraction_task(
         next_retry_at: datetime.datetime,
         last_error: str,
     ) -> None:
-        """Persist cleanup-retry metadata to PostgreSQL (P2).
-
-        Called *before* re-enqueue so the state survives broker message loss.
-        """
+        """Persist cleanup-retry metadata to PostgreSQL (P2)."""
         with get_session_with_current_tenant() as s:
             mark_graph_extraction_job_cleanup_pending(
                 job_uuid,
@@ -396,7 +398,6 @@ def graph_extraction_task(
             doc_id, countdown,
         )
 
-        # Persist cleanup state BEFORE publishing the new message.
         _save_cleanup_state(cleanup_retry + 1, next_retry_at, reason)
 
         graph_extraction_task.apply_async(
@@ -414,11 +415,10 @@ def graph_extraction_task(
     ) -> None:
         """Re-enqueue after a short delay to let a newer job make progress.
 
-        Uses a distinct countdown (60s) that does **not** consume the cleanup
-        retry budget, so a stuck newer job (PENDING forever) does not exhaust
-        retries.
+        Uses a distinct countdown (120s) that does **not** consume the cleanup
+        retry budget.
         """
-        countdown = 120  # 2 minutes — enough for a typical extraction cycle
+        countdown = 120
         task_logger.warning(
             "graph_extraction_task: superseded by newer job %s "
             "(status=%s) for doc_id=%s — re-enqueueing in %ds",
@@ -432,6 +432,38 @@ def graph_extraction_task(
             },
             countdown=countdown,
         )
+
+    def _abort_own_generation(
+        our_ids: set[str],
+        reason: str,
+        *,
+        commit_before: bool = False,
+    ) -> bool:
+        """Delete *our_ids* from Vespa and PG, then skip.
+
+        Returns True if abort completed (skip already called).
+        Returns False if cleanup failed and re-enqueue was called instead.
+        """
+        if commit_before:
+            # Some callers need the current txn committed before self-cleanup.
+            pass
+
+        if our_ids:
+            failed = _delete_with_retry(
+                our_ids, _ensure_lock_ttl, f"{reason}: Vespa cleanup",
+            )
+            if failed:
+                _reenqueue_cleanup(
+                    len(failed), f"{reason}: Vespa cleanup failed",
+                )
+                return False
+
+        with get_session_with_current_tenant() as s:
+            _delete_pg_events_for_job(s, job_uuid, doc_id)
+            s.commit()
+
+        _skip(reason)
+        return True
 
     # ── Acquire Redis distributed lock (inside try for safe retry) ──
     lock: RedisLock | None = None
@@ -525,70 +557,65 @@ def graph_extraction_task(
                 )
                 return
 
-            # 1b. Supersession check (P1).
-            newer_job = (
+            # 1b. Supersession check (P1) — check SUCCEEDED separately.
+            newer_succeeded = (
                 db_session.query(GraphExtractionJob)
                 .filter(
                     GraphExtractionJob.document_id == doc_id,
                     GraphExtractionJob.created_at > current_job.created_at,
+                    GraphExtractionJob.status
+                    == GraphExtractionStatus.SUCCEEDED,
                 )
                 .order_by(GraphExtractionJob.created_at.desc())
                 .first()
             )
-            if newer_job is not None:
-                newer_status = newer_job.status
-                if newer_status == GraphExtractionStatus.SUCCEEDED:
-                    # Fully superseded → self-cleanup and skip.
-                    our_events = (
-                        db_session.query(KnowledgeEvent.event_id)
-                        .filter(
-                            KnowledgeEvent.extraction_job_id == job_uuid,
-                            KnowledgeEvent.vespa_indexed.is_(True),
-                        )
-                        .all()
+            if newer_succeeded is not None:
+                # Self-cleanup ALL our events (not just vespa_indexed=True)
+                # and skip.
+                our_ids = _fetch_own_event_ids(
+                    db_session, job_uuid, doc_id,
+                )
+                if our_ids:
+                    aborted = _abort_own_generation(
+                        our_ids,
+                        f"Superseded by newer job {newer_succeeded.id}",
                     )
-                    our_vespa_ids = {str(r[0]) for r in our_events}
-                    if our_vespa_ids:
-                        failed_ids = _delete_with_retry(
-                            our_vespa_ids,
-                            _ensure_lock_ttl,
-                            "supersession cleanup",
-                        )
-                        if failed_ids:
-                            db_session.close()
-                            _reenqueue_cleanup(
-                                len(failed_ids),
-                                "supersession cleanup failed",
-                            )
-                            return
-                        # All our Vespa events deleted → remove PG rows too.
-                        _delete_pg_events_for_job(
-                            db_session, job_uuid, doc_id,
-                        )
-                        db_session.commit()
-                    db_session.close()
+                    if not aborted:
+                        # Re-enqueue was called in _abort_own_generation.
+                        db_session.close()
+                        return
+                else:
                     _skip(
-                        f"Superseded by newer job {newer_job.id} "
-                        f"(status=SUCCEEDED)",
+                        f"Superseded by newer job {newer_succeeded.id}"
                     )
-                    return
+                db_session.close()
+                return
 
-                if newer_status in (
-                    GraphExtractionStatus.PENDING,
-                    GraphExtractionStatus.RUNNING,
-                    GraphExtractionStatus.CLEANUP_PENDING,
-                ):
-                    # Wait for the newer job instead of skipping (P1).
-                    db_session.close()
-                    _reenqueue_superseded_wait(
-                        newer_job.id,
-                        newer_status,
-                    )
-                    return
+            newer_non_terminal = (
+                db_session.query(GraphExtractionJob)
+                .filter(
+                    GraphExtractionJob.document_id == doc_id,
+                    GraphExtractionJob.created_at > current_job.created_at,
+                    GraphExtractionJob.status.in_([
+                        GraphExtractionStatus.PENDING,
+                        GraphExtractionStatus.RUNNING,
+                        GraphExtractionStatus.CLEANUP_PENDING,
+                    ]),
+                )
+                .order_by(GraphExtractionJob.created_at.desc())
+                .first()
+            )
+            if newer_non_terminal is not None:
+                db_session.close()
+                _reenqueue_superseded_wait(
+                    newer_non_terminal.id,
+                    newer_non_terminal.status,
+                )
+                return
 
-                # newer_status is FAILED or SKIPPED — proceed normally.
+            # All newer jobs are FAILED/SKIPPED — proceed.
 
-            # 1c. Read active generation pointer for CAS later.
+            # 1c. Read active generation pointer for CAS.
             doc = (
                 db_session.query(Document)
                 .filter(Document.id == doc_id)
@@ -597,6 +624,41 @@ def graph_extraction_task(
             expected_active_id: UUID | None = (
                 doc.active_graph_job_id if doc else None
             )
+
+            # CAS guard: if the active pointer belongs to a newer job,
+            # abort before even trying CAS.
+            if (
+                expected_active_id is not None
+                and expected_active_id != job_uuid
+            ):
+                active_job = (
+                    db_session.query(GraphExtractionJob)
+                    .filter(GraphExtractionJob.id == expected_active_id)
+                    .first()
+                )
+                if (
+                    active_job is not None
+                    and active_job.created_at > current_job.created_at
+                ):
+                    our_ids = _fetch_own_event_ids(
+                        db_session, job_uuid, doc_id,
+                    )
+                    if our_ids:
+                        aborted = _abort_own_generation(
+                            our_ids,
+                            f"Active pointer belongs to newer job "
+                            f"{active_job.id}, aborting",
+                        )
+                        if not aborted:
+                            db_session.close()
+                            return
+                    else:
+                        _skip(
+                            f"Active pointer belongs to newer job "
+                            f"{active_job.id}, aborting",
+                        )
+                    db_session.close()
+                    return
 
             # 1d. Retry-idempotency check.
             existing_events = (
@@ -631,11 +693,19 @@ def graph_extraction_task(
                             )
                         )
                         if updated == 0:
-                            db_session.close()
-                            _skip(
-                                "CAS failed: generation pointer claimed "
-                                "by another job",
+                            # CAS failed — clean up own generation.
+                            our_ids = _fetch_own_event_ids(
+                                db_session, job_uuid, doc_id,
                             )
+                            db_session.commit()
+                            aborted = _abort_own_generation(
+                                our_ids,
+                                "CAS failed in cleanup-only retry",
+                            )
+                            if not aborted:
+                                db_session.close()
+                                return
+                            db_session.close()
                             return
 
                     failed_vespa = _delete_with_retry(
@@ -880,7 +950,6 @@ def graph_extraction_task(
                     ),
                 )
 
-            # Batch-index into Vespa, renewing the lock between batches.
             for batch in _batch_list(vespa_event_docs, _VESPA_INDEX_BATCH_SIZE):
                 _ensure_lock_ttl()
                 document_index.index_knowledge_events(batch)
@@ -900,39 +969,78 @@ def graph_extraction_task(
                 event.vespa_indexed = True
             db_session.commit()
 
-        # ── Phase 4c: CAS active generation pointer (before Vespa cleanup) ──
-        # If CAS fails, another job claimed the pointer → remove our events.
+        # ── Phase 4c: CAS active generation pointer ──────────────────
         cas_failed = False
         if expected_active_id != job_uuid:
             with get_session_with_current_tenant() as db_session:
-                updated = (
+                # Re-read the document row under lock within the CAS txn.
+                current_doc = (
                     db_session.query(Document)
-                    .filter(
-                        Document.id == doc_id,
-                        Document.active_graph_job_id == expected_active_id,
-                    )
-                    .update(
-                        {"active_graph_job_id": job_uuid},
-                        synchronize_session=False,
-                    )
+                    .filter(Document.id == doc_id)
+                    .with_for_update()
+                    .first()
                 )
-                db_session.commit()
-                if updated == 0:
+                if current_doc is not None:
+                    current_pointer = current_doc.active_graph_job_id
+                    if current_pointer is not None and current_pointer != job_uuid:
+                        # Guard: check if the current pointer belongs to a
+                        # newer job.
+                        pointer_owner = (
+                            db_session.query(GraphExtractionJob)
+                            .filter(GraphExtractionJob.id == current_pointer)
+                            .first()
+                        )
+                        if (
+                            pointer_owner is not None
+                            and pointer_owner.created_at
+                            > current_job.created_at
+                        ):
+                            cas_failed = True
+                            db_session.commit()
+                        else:
+                            updated = (
+                                db_session.query(Document)
+                                .filter(
+                                    Document.id == doc_id,
+                                    Document.active_graph_job_id
+                                    == current_pointer,
+                                )
+                                .update(
+                                    {"active_graph_job_id": job_uuid},
+                                    synchronize_session=False,
+                                )
+                            )
+                            cas_failed = updated == 0
+                            db_session.commit()
+                    elif current_pointer is None:
+                        updated = (
+                            db_session.query(Document)
+                            .filter(
+                                Document.id == doc_id,
+                                Document.active_graph_job_id.is_(None),
+                            )
+                            .update(
+                                {"active_graph_job_id": job_uuid},
+                                synchronize_session=False,
+                            )
+                        )
+                        cas_failed = updated == 0
+                        db_session.commit()
+                    else:
+                        # current_pointer == job_uuid — already ours.
+                        db_session.commit()
+                else:
                     cas_failed = True
+                    db_session.commit()
 
         if cas_failed:
-            # Remove our newly-indexed events — another generation won.
             new_event_ids = {d["event_id"] for d in vespa_event_docs}
-            _delete_with_retry(
-                new_event_ids, _ensure_lock_ttl, "CAS failure cleanup",
+            aborted = _abort_own_generation(
+                new_event_ids,
+                "CAS failed: generation pointer claimed by another job",
             )
-            with get_session_with_current_tenant() as db_session:
-                _delete_pg_events_for_job(db_session, job_uuid, doc_id)
-                db_session.commit()
-            _skip(
-                "CAS failed: generation pointer claimed "
-                "by another job during extraction",
-            )
+            if not aborted:
+                return
             return
 
         # ── Phase 5: Generation swap — Vespa cleanup ─────────────────
@@ -1042,20 +1150,17 @@ def graph_extraction_cleanup_sweeper(
 ) -> None:
     """Periodic sweeper that re-enqueues stuck CLEANUP_PENDING jobs.
 
-    Queries ``graph_extraction_jobs`` where:
-        status = 'cleanup_pending' AND cleanup_next_retry_at <= now()
+    Claims overdue jobs with ``FOR UPDATE SKIP LOCKED``, advances
+    ``cleanup_next_retry_at`` inside the same transaction to prevent
+    duplicate enqueue on the next beat cycle, then publishes
+    ``graph_extraction_task`` with the job's stored ``tenant_id``.
 
-    Uses ``FOR UPDATE SKIP LOCKED`` to claim jobs without blocking other
-    workers, then enqueues the same ``graph_extraction_task`` with the
-    original ``job_id``, ``doc_id``, and ``tenant_id``.
-
-    Runs every 5 minutes (see ``beat_schedule.py``).  Provides a durable
-    recovery path for cleanup jobs whose Celery message was lost (P2).
+    Runs every 5 minutes (see ``beat_schedule.py``).
     """
     try:
-        with get_session_with_current_tenant() as db_session:
-            now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.timezone.utc)
 
+        with get_session_with_current_tenant() as db_session:
             overdue = (
                 db_session.query(GraphExtractionJob)
                 .filter(
@@ -1070,18 +1175,29 @@ def graph_extraction_cleanup_sweeper(
             )
 
             for job in overdue:
-                task_logger.info(
-                    "graph_extraction_cleanup_sweeper: re-enqueuing "
-                    "job %s for doc_id=%s (retry %d)",
-                    job.id, job.document_id, job.cleanup_retry_count,
-                )
-                graph_extraction_task.apply_async(
-                    kwargs={
-                        "job_id": str(job.id),
-                        "doc_id": job.document_id,
-                    },
-                    countdown=10,
-                )
+                # Advance the next retry time so the next beat cycle does
+                # not re-enqueue the same row before the worker picks it up.
+                next_retry = now + datetime.timedelta(minutes=5)
+                job.cleanup_next_retry_at = next_retry
+                job.cleanup_last_error = "claimed_by_sweeper"
+
+            db_session.commit()
+
+        for job in overdue:
+            task_logger.info(
+                "graph_extraction_cleanup_sweeper: re-enqueuing "
+                "job %s for doc_id=%s (retry %d, tenant=%s)",
+                job.id, job.document_id, job.cleanup_retry_count,
+                job.tenant_id,
+            )
+            graph_extraction_task.apply_async(
+                kwargs={
+                    "job_id": str(job.id),
+                    "doc_id": job.document_id,
+                    "tenant_id": job.tenant_id,
+                },
+                countdown=10,
+            )
 
     except Exception:
         task_logger.exception(

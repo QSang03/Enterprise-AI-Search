@@ -1416,6 +1416,7 @@ def _enqueue_graph_extraction_jobs(
 
                     job = create_or_skip_graph_extraction_job(
                         doc_id=doc.id,
+                        tenant_id=tenant_id,
                         content_hash=content_hash,
                         model_name=llm_name,
                         doc_text=doc_text,
