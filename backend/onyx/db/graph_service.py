@@ -218,6 +218,7 @@ def _upsert_entity_with_alias(
         db_session.query(Entity)
         .filter(
             func.lower(Entity.normalized_name) == normalized_key,
+            Entity.entity_type == entity_type,
             Entity.knowledge_scope_id == knowledge_scope_id,
         )
         .first()
@@ -229,6 +230,7 @@ def _upsert_entity_with_alias(
             db_session.query(Entity)
             .filter(
                 Entity.name == canonical,
+                Entity.entity_type == entity_type,
                 Entity.knowledge_scope_id == knowledge_scope_id,
             )
             .first()
@@ -282,6 +284,7 @@ def extract_and_save_graph(
     db_session: Session,
     knowledge_scope_id: int | None = None,
     extraction_job_id: uuid.UUID | None = None,
+    timeout: int = 600,
 ) -> None:
     """Extract KnowledgeEvents, entities, and relations from a single ``chunk`` using the default LLM.
 
@@ -351,8 +354,8 @@ Văn bản cần phân tích:
         with llm_generation_span(
             llm=llm, flow=LLMFlow.KG_EVENT_EXTRACTION, input_messages=messages
         ):
-            # Configure a 25-minute timeout override to prevent hangs.
-            response = llm.invoke(messages, timeout_override=1500)
+            # Configure LLM timeout override clamped to remaining budget.
+            response = llm.invoke(messages, timeout_override=timeout)
 
         response_text = response.content.strip() if response.content else ""
 
@@ -369,7 +372,7 @@ Văn bản cần phân tích:
             name_to_id: dict[str, uuid.UUID] = {}
 
             # Process Events first, and collect all entities
-            for ev_data in events_data:
+            for idx, ev_data in enumerate(events_data):
                 title = ev_data.get("title", "").strip()
                 if not title:
                     continue
@@ -385,9 +388,15 @@ Văn bản cần phân tích:
                     except ValueError:
                         confidence = 1.0
 
+                import hashlib
+                # Generate deterministic event_id UUID based on doc, sibling_order, index, title
+                hash_input = f"{doc_id}_{chunk.sibling_order}_{idx}_{title}"
+                hash_bytes = hashlib.md5(hash_input.encode("utf-8")).digest()
+                event_uuid = uuid.UUID(bytes=hash_bytes)
+
                 # Create the KnowledgeEvent
                 event_obj = KnowledgeEvent(
-                    event_id=uuid.uuid4(),
+                    event_id=event_uuid,
                     document_id=doc_id,
                     chunk_id=chunk.chunk_id,
                     title=title,
@@ -497,6 +506,8 @@ Văn bản cần phân tích:
                         .filter(
                             RelationEvidence.relation_id == rel_id,
                             RelationEvidence.document_id == doc_id,
+                            RelationEvidence.chunk_id == chunk.chunk_id,
+                            RelationEvidence.extraction_job_id == extraction_job_id,
                         )
                         .first()
                     )
@@ -505,6 +516,7 @@ Văn bản cần phân tích:
                             RelationEvidence(
                                 relation_id=rel_id,
                                 document_id=doc_id,
+                                chunk_id=chunk.chunk_id,
                                 extraction_job_id=extraction_job_id,
                                 evidence_text=description,
                             )
@@ -528,8 +540,9 @@ def expand_entities_cte(
     entity_names: List[str],
     depth: int = 2,
     db_session: Session | None = None,
-    allowed_document_ids: List[str] | None = None,
-    allowed_connector_ids: List[int] | None = None,
+    user_email: str | None = None,
+    user_groups: List[str] | None = None,
+    bypass_acl: bool = False,
 ) -> List[dict]:
     """Recursive CTE entity expansion up to ``depth`` hops in the relation graph.
 
@@ -541,12 +554,7 @@ def expand_entities_cte(
 
     # Normalize input names for lookup.
     normalized_inputs = [n.lower() for n in entity_names]
-
-    has_doc_filter = allowed_document_ids is not None
-    has_conn_filter = allowed_connector_ids is not None
-
-    doc_ids_param = allowed_document_ids if allowed_document_ids is not None else []
-    conn_ids_param = allowed_connector_ids if allowed_connector_ids is not None else []
+    user_groups_param = user_groups if user_groups is not None else []
 
     # Resolve entity IDs via canonical name OR alias, then expand.
     query = text("""
@@ -594,9 +602,21 @@ def expand_entities_cte(
             )
             LEFT JOIN relation_evidence re ON re.relation_id = r.relation_id
             LEFT JOIN document_by_connector_credential_pair dbcc ON dbcc.id = re.document_id
+            LEFT JOIN connector_credential_pair ccp ON (
+                ccp.connector_id = dbcc.connector_id
+                AND ccp.credential_id = dbcc.credential_id
+            )
+            LEFT JOIN document d ON d.id = re.document_id
             WHERE ee.current_depth < :depth
-              AND (:has_doc_filter = FALSE OR re.document_id = ANY(:allowed_document_ids))
-              AND (:has_conn_filter = FALSE OR dbcc.connector_id = ANY(:allowed_connector_ids))
+              AND (:bypass_acl = TRUE OR re.relation_id IS NULL OR (
+                  ccp.status != 'deleting'
+                  AND (
+                      ccp.access_type = 'public'
+                      OR d.is_public = TRUE
+                      OR (:user_email IS NOT NULL AND :user_email = ANY(d.external_user_emails))
+                      OR (d.external_user_group_ids && CAST(:user_groups AS VARCHAR[]))
+                  )
+              ))
         )
         SELECT DISTINCT entity_id, name, entity_type, description FROM entity_expansion;
     """)
@@ -607,10 +627,9 @@ def expand_entities_cte(
             "normalized_names": normalized_inputs,
             "depth": depth,
             "directional_types": _DIRECTIONAL_RELATION_TYPES,
-            "has_doc_filter": has_doc_filter,
-            "has_conn_filter": has_conn_filter,
-            "allowed_document_ids": doc_ids_param,
-            "allowed_connector_ids": conn_ids_param,
+            "bypass_acl": bypass_acl,
+            "user_email": user_email,
+            "user_groups": user_groups_param,
         },
     )
 

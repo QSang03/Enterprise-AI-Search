@@ -60,6 +60,32 @@ def graph_extraction_task(
             db_session.commit()
 
         with get_session_with_current_tenant() as db_session:
+            # 1. Feature Gate OpenSearch
+            from onyx.db.search_settings import get_current_search_settings
+            from onyx.document_index.factory import get_default_document_index
+            from onyx.document_index.opensearch.opensearch_document_index import OpenSearchDocumentIndex, OpenSearchIndexPair
+            from onyx.document_index.disabled import DisabledDocumentIndex
+            
+            search_settings = get_current_search_settings(db_session)
+            document_index = get_default_document_index(search_settings, None, db_session)
+            
+            if isinstance(document_index, (OpenSearchDocumentIndex, OpenSearchIndexPair)) or isinstance(document_index, DisabledDocumentIndex):
+                # OpenSearch or Disabled does not support Knowledge Graph events, skip task
+                mark_graph_extraction_job_skipped(
+                    job_uuid, 
+                    "Knowledge Graph events are only supported when Vespa is the search backend.", 
+                    db_session
+                )
+                db_session.commit()
+                return
+
+            # 2. Clear existing document events (Postgres and Vespa) for idempotency
+            from onyx.db.models import KnowledgeEvent
+            db_session.query(KnowledgeEvent).filter(KnowledgeEvent.document_id == doc_id).delete()
+            db_session.commit()
+            
+            document_index.delete_knowledge_events_by_document(doc_id)
+
             # Retrieve all chunks for this document.
             chunks = (
                 db_session.query(DocumentChunkV2)
@@ -82,6 +108,10 @@ def graph_extraction_task(
                     f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                 )
 
+            # 3. Limit extraction to selected chunks
+            from onyx.db.graph_service import select_chunks_for_extraction
+            selected_chunks = select_chunks_for_extraction(chunks)
+
             # Get the cc_pair_id for the document
             from onyx.db.models import ConnectorCredentialPair, DocumentByConnectorCredentialPair
             cc_pair = (
@@ -96,8 +126,8 @@ def graph_extraction_task(
             )
             cc_pair_id = cc_pair.id if cc_pair else None
 
-            # Graph entity/relation extraction per chunk.
-            for chunk in chunks:
+            # Graph entity/relation extraction per selected chunk.
+            for chunk in selected_chunks:
                 if not chunk.text_raw or len(chunk.text_raw.strip()) < 100:
                     continue
 
@@ -107,23 +137,23 @@ def graph_extraction_task(
                         f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                     )
 
+                # Compute remaining budget for LLM call
+                remaining_budget = max(10, _GRAPH_EXTRACTION_TIMEOUT_S - elapsed)
+                llm_timeout = min(120, int(remaining_budget))
+
                 extract_and_save_graph(
                     chunk,
                     db_session,
                     knowledge_scope_id=cc_pair_id,
                     extraction_job_id=job_uuid,
+                    timeout=llm_timeout,
                 )
 
             # Now let's index any created events into Vespa.
             from onyx.db.models import KnowledgeEvent, EventEntity, Entity, Document
-            from onyx.db.search_settings import get_current_search_settings
             from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
             from onyx.configs.model_configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
-            from onyx.document_index.factory import get_default_document_index
             from onyx.document_index.vespa.event_indexing_utils import prepare_knowledge_event_vespa_doc
-            
-            search_settings = get_current_search_settings(db_session)
-            document_index = get_default_document_index(search_settings, None, db_session)
             
             embedding_model = EmbeddingModel.from_db_model(
                 search_settings=search_settings,
@@ -133,9 +163,11 @@ def graph_extraction_task(
             
             doc = db_session.query(Document).filter(Document.id == doc_id).first()
             if doc:
-                is_public = doc.is_public if doc.is_public is not None else False
-                allowed_users = doc.external_user_emails or []
-                allowed_groups = doc.external_user_group_ids or []
+                # 4. Correct document ACL format using DocumentAccess
+                from onyx.access.access import get_access_for_document
+                access_control = get_access_for_document(doc_id, db_session)
+                event_acl = list(access_control.to_acl())
+                is_public = access_control.is_public
                 doc_updated_at = doc.doc_updated_at
                 
                 events = (
@@ -144,8 +176,15 @@ def graph_extraction_task(
                     .all()
                 )
                 
+                # 5. Batch encode event text embeddings
+                titles_to_embed = [event.title for event in events]
+                contents_to_embed = [event.content for event in events]
+                
+                title_embeds = embedding_model.encode(titles_to_embed) if titles_to_embed else []
+                content_embeds = embedding_model.encode(contents_to_embed) if contents_to_embed else []
+                
                 vespa_event_docs = []
-                for event in events:
+                for idx, event in enumerate(events):
                     # Query entity names
                     entities = (
                         db_session.query(Entity.name)
@@ -167,11 +206,11 @@ def graph_extraction_task(
                     vespa_doc = prepare_knowledge_event_vespa_doc(
                         event=event,
                         entity_names=entity_names,
-                        allowed_users=allowed_users,
-                        allowed_groups=allowed_groups,
+                        access_control_list=event_acl,
                         is_public=is_public,
                         doc_updated_at=doc_updated_at,
-                        embedding_model=embedding_model,
+                        title_embed=title_embeds[idx],
+                        content_embed=content_embeds[idx],
                         tenant_id=tenant_id,
                         sibling_order=sibling_order,
                     )

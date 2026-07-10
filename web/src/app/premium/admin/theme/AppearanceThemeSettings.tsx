@@ -257,7 +257,7 @@ export const AppearanceThemeSettings = forwardRef<
           </FormField>
 
           <FormField state="idle">
-            <FormField.Label>Logo Display Style</FormField.Label>
+            <FormField.Label>{t("logoDisplayStyle")}</FormField.Label>
             <FormField.Control>
               <Tabs
                 value={values.logo_display_style}
@@ -272,7 +272,7 @@ export const AppearanceThemeSettings = forwardRef<
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
                   >
-                    Logo & Name
+                    {t("logoAndName")}
                   </Tabs.Trigger>
                   <Tabs.Trigger
                     value="logo_only"
@@ -311,7 +311,7 @@ export const AppearanceThemeSettings = forwardRef<
         </div>
 
         <FormField state="idle">
-          <FormField.Label>Application Logo</FormField.Label>
+          <FormField.Label>{t("applicationLogo")}</FormField.Label>
           <FormField.Control>
             <InputImage
               src={logoSrc}
@@ -553,7 +553,7 @@ export const AppearanceThemeSettings = forwardRef<
       <div className="flex flex-col gap-4 p-4 bg-background-tint-00 rounded-16">
         <FormField state="idle" className="gap-0">
           <div className="flex justify-between items-center">
-            <FormField.Label>Show First Visit Notice</FormField.Label>
+            <FormField.Label>{t("showFirstVisitNotice")}</FormField.Label>
             <FormField.Control>
               <Switch
                 aria-label={t("showFirstVisitNotice")}
@@ -633,7 +633,7 @@ export const AppearanceThemeSettings = forwardRef<
 
             <FormField state="idle" className="gap-0">
               <div className="flex justify-between items-center">
-                <FormField.Label>Require Consent to Notice</FormField.Label>
+                <FormField.Label>{t("requireConsentToNotice")}</FormField.Label>
                 <FormField.Control>
                   <Switch
                     aria-label={t("requireConsentToNotice")}

@@ -6598,8 +6598,8 @@ class RelationEvidence(Base):
     document_id: Mapped[str] = mapped_column(
         String(2048), nullable=False, index=True
     )
-    chunk_id: Mapped[int | None] = mapped_column(
-        Integer, nullable=True
+    chunk_id: Mapped[UUID | None] = mapped_column(
+        PGUUID, nullable=True
     )
     extraction_job_id: Mapped[UUID | None] = mapped_column(
         PGUUID,

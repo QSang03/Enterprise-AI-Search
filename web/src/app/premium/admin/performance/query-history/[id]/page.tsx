@@ -97,7 +97,7 @@ export default function QueryPage(props: { params: Promise<{ id: string }> }) {
       <BackButton />
 
       <CardSection className="mt-4">
-        <Title>Chat Session Details</Title>
+        <Title>{t("chatSessionDetails")}</Title>
 
         <Spacer rem={0.25} />
         {chatSessionSnapshot.assistant_name && (

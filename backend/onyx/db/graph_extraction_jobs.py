@@ -14,7 +14,7 @@ from onyx.db.models import GraphExtractionJob
 
 # Bump this when the extraction prompt changes substantially enough that
 # previously extracted graphs should be regenerated.
-GRAPH_EXTRACTION_PROMPT_VERSION = "v1"
+GRAPH_EXTRACTION_PROMPT_VERSION = "v2-event"
 
 # Document types that are not worth extracting a Knowledge Graph from.
 _SKIP_DOC_TYPES = frozenset(["log", "csv_simple", "notification"])

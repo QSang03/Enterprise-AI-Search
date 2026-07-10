@@ -1,24 +1,19 @@
 import datetime
 from typing import Any
 from onyx.db.models import KnowledgeEvent
-from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
 
 def prepare_knowledge_event_vespa_doc(
     event: KnowledgeEvent,
     entity_names: list[str],
-    allowed_users: list[str],
-    allowed_groups: list[str],
+    access_control_list: list[str],
     is_public: bool,
     doc_updated_at: datetime.datetime | None,
-    embedding_model: EmbeddingModel,
+    title_embed: list[float],
+    content_embed: list[float],
     tenant_id: str | None = None,
     sibling_order: int | None = None,
 ) -> dict[str, Any]:
-    """Generates embeddings and prepares a knowledge event dict for Vespa indexing."""
-    # Generate embeddings for title and content
-    title_embed = embedding_model.encode([event.title])[0]
-    content_embed = embedding_model.encode([event.content])[0]
-
+    """Prepares a knowledge event dict for Vespa indexing using precomputed embeddings and ACLs."""
     updated_at_timestamp = int(doc_updated_at.timestamp()) if doc_updated_at else 0
 
     doc = {
@@ -38,7 +33,7 @@ def prepare_knowledge_event_vespa_doc(
         },
         "confidence": float(event.confidence) if event.confidence is not None else 1.0,
         "doc_updated_at": updated_at_timestamp,
-        "access_control_list": allowed_users + allowed_groups,
+        "access_control_list": access_control_list,
         "is_public": is_public,
     }
 
@@ -46,3 +41,4 @@ def prepare_knowledge_event_vespa_doc(
         doc["tenant_id"] = tenant_id
 
     return doc
+

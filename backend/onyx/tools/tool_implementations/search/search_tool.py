@@ -514,6 +514,26 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
 
     def _classify_query_mode(self, query: str, llm: LLM) -> str:
         """Returns 'standard' if query requires multi-hop/relationship reasoning."""
+        normalized_q = query.lower().strip()
+        
+        # If query has <= 3 words, default to "fast" without calling LLM
+        words = normalized_q.strip().split()
+        if len(words) <= 3:
+            return "fast"
+            
+        # Check explicit relationship indicator keywords
+        standard_indicators = [
+            "so sánh", "khác nhau", "quan hệ", "liên quan", "ảnh hưởng", "tác động", 
+            "workflow", "process", "quy trình", "compare", "relationship", "difference",
+            "relationship between", "quan hệ giữa", "sự khác biệt", "tương tự", 
+            "lịch sử thay đổi", "phụ thuộc", "depend on", "after", "before", "sau khi", "trước khi"
+        ]
+        
+        has_indicator = any(indicator in normalized_q for indicator in standard_indicators)
+        if not has_indicator:
+            # If no relationship indicators, immediately return fast
+            return "fast"
+
         prompt = f"""Bạn là chuyên gia phân loại câu hỏi (Query Classifier).
 Hãy phân loại xem câu hỏi sau đây thuộc loại 'fast' hay 'standard':
 - 'fast': Câu hỏi đơn giản, tìm kiếm thông tin trực tiếp, định nghĩa, tra cứu từ khóa đơn thuần.
@@ -550,10 +570,23 @@ Phân loại:"""
     ) -> tuple[list[InferenceChunk], list[str]]:
         """Runs vector search on the knowledge_event index and maps hits to parent chunks."""
         try:
+            # Create IndexFilters to pass to search_knowledge_events
+            from onyx.context.search.models import IndexFilters
+            event_filters = IndexFilters(
+                access_control_list=acl_filters,
+                source_type=None,
+                document_set=None,
+                time_cutoff=None,
+                tags=None,
+            )
+            if effective_filters:
+                event_filters.attached_document_ids = effective_filters.attached_document_ids
+                
             event_hits = self.document_index.search_knowledge_events(
                 query_embedding=query_embedding,
                 query_text=query_text,
-                acl_filters=acl_filters,
+                filters=event_filters,
+                bypass_acl=self.bypass_acl,
                 max_events=max_events,
             )
             if not event_hits:
@@ -574,7 +607,11 @@ Phân loại:"""
                         if sec_key not in seen_sections:
                             seen_sections.add(sec_key)
                             section_requests.append(
-                                DocumentSectionRequest(document_id=doc_id, chunk_id=sibling_order)
+                                DocumentSectionRequest(
+                                    document_id=doc_id,
+                                    min_chunk_ind=sibling_order,
+                                    max_chunk_ind=sibling_order,
+                                )
                             )
                     except ValueError:
                         pass
@@ -582,9 +619,9 @@ Phân loại:"""
             if not section_requests:
                 return [], titles
 
-            # Vespa id_based_retrieval wants IndexFilters
-            from onyx.context.search.models import IndexFilters
+            # Vespa id_based_retrieval wants IndexFilters with ACL filters populated
             index_filters = IndexFilters(
+                access_control_list=acl_filters,
                 source_type=None,
                 document_set=None,
                 time_cutoff=None,
@@ -906,61 +943,18 @@ Phân loại:"""
                     matched_entities = q1.union(q2).all()
                     matched_names = [row[0] for row in matched_entities if row[0]]
                     if matched_names:
-                        # P0: Graph expansion scope-aware
-                        allowed_doc_ids = None
-                        allowed_conn_ids = None
-                        if not self.bypass_acl and self.user and getattr(self.user, "role", None) != "admin":
-                            from onyx.access.hierarchy_access import get_user_external_group_ids
-                            from onyx.db.document_access import apply_document_access_filter
-                            from sqlalchemy import select, and_, or_, cast, String, any_
-                            from sqlalchemy.dialects import postgresql
-                            from onyx.db.models import DocumentByConnectorCredentialPair, ConnectorCredentialPair, Document
-                            from onyx.db.enums import ConnectorCredentialPairStatus, AccessType
-
-                            user_email = self.user.email if self.user and not self.user.is_anonymous else None
-                            user_groups = get_user_external_group_ids(db_session, self.user) if self.user else []
-
-                            # Query allowed document IDs
-                            stmt_docs = select(Document.id)
-                            stmt_docs = apply_document_access_filter(stmt_docs, user_email, user_groups)
-                            allowed_doc_ids = [row[0] for row in db_session.execute(stmt_docs).all()]
-
-                            # Query allowed connector IDs
-                            stmt_conn = select(ConnectorCredentialPair.connector_id).distinct()
-                            stmt_conn = stmt_conn.join(
-                                DocumentByConnectorCredentialPair,
-                                and_(
-                                    DocumentByConnectorCredentialPair.connector_id == ConnectorCredentialPair.connector_id,
-                                    DocumentByConnectorCredentialPair.credential_id == ConnectorCredentialPair.credential_id,
-                                )
-                            ).join(
-                                Document,
-                                Document.id == DocumentByConnectorCredentialPair.id
-                            )
-                            stmt_conn = stmt_conn.where(
-                                ConnectorCredentialPair.status != ConnectorCredentialPairStatus.DELETING
-                            )
-                            access_filters = [
-                                ConnectorCredentialPair.access_type == AccessType.PUBLIC,
-                                Document.is_public.is_(True),
-                            ]
-                            if user_email:
-                                access_filters.append(any_(Document.external_user_emails) == user_email)
-                            if user_groups:
-                                access_filters.append(
-                                    Document.external_user_group_ids.overlap(
-                                        cast(postgresql.array(user_groups), postgresql.ARRAY(String))
-                                    )
-                                )
-                            stmt_conn = stmt_conn.where(or_(*access_filters))
-                            allowed_conn_ids = [row[0] for row in db_session.execute(stmt_conn).all()]
+                        # P0: Graph expansion scope-aware (optimized, zero materialization)
+                        user_email = self.user.email if self.user and not self.user.is_anonymous else None
+                        from onyx.access.hierarchy_access import get_user_external_group_ids
+                        user_groups = get_user_external_group_ids(db_session, self.user) if self.user else []
 
                         expanded_nodes = expand_entities_cte(
                             entity_names=matched_names,
                             depth=2 if query_mode == "standard" else 1,
                             db_session=db_session,
-                            allowed_document_ids=allowed_doc_ids,
-                            allowed_connector_ids=allowed_conn_ids,
+                            user_email=user_email,
+                            user_groups=user_groups,
+                            bypass_acl=self.bypass_acl,
                         )
                         expanded_names = {
                             node["name"] for node in expanded_nodes if node.get("name")

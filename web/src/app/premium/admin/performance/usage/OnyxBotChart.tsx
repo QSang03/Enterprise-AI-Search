@@ -5,12 +5,14 @@ import { Text } from "@opal/components";
 import Title from "@/components/ui/title";
 import CardSection from "@/components/admin/CardSection";
 import { AreaChartDisplay } from "@/components/ui/areaChart";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function OnyxBotChart({
   timeRange,
 }: {
   timeRange: DateRangePickerValue;
 }) {
+  const { t } = useTranslation();
   const {
     data: onyxBotAnalyticsData,
     isLoading: isOnyxBotAnalyticsLoading,
@@ -68,8 +70,8 @@ export function OnyxBotChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>Slack Channel</Title>
-      <Text as="p">Total Queries vs Auto Resolved</Text>
+      <Title>{t("slackChannel")}</Title>
+      <Text as="p">{t("totalQueriesVsAutoResolved")}</Text>
       {chart}
     </CardSection>
   );

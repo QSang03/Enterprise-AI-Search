@@ -11,6 +11,7 @@ import { useAgents } from "@/lib/agents/hooks";
 import AgentAvatar from "@/refresh-components/avatars/AgentAvatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AreaChartDisplay } from "@/components/ui/areaChart";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 type AgentDailyUsageEntry = {
   date: string;
@@ -25,6 +26,7 @@ type AgentStatsResponse = {
 };
 
 export function AgentStats({ agentId }: { agentId: number }) {
+  const { t } = useTranslation();
   const [agentStats, setAgentStats] = useState<AgentStatsResponse | null>(null);
   const { agents } = useAgents();
   const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +147,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <p className="text-base font-normal text-2xl">Agent Analytics</p>
+        <p className="text-base font-normal text-2xl">{t("agentAnalytics")}</p>
         <AdminDateRangeSelector
           value={dateRange}
           onValueChange={setDateRange}
@@ -169,13 +171,13 @@ export function AgentStats({ agentId }: { agentId: number }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-text-500">
-                    Total Messages
+                    {t("totalMessages")}
                   </p>
                   <p className="text-2xl font-normal">{totalMessages}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-500">
-                    Total Unique Users
+                    {t("totalUniqueUsers")}
                   </p>
                   <p className="text-2xl font-normal">{totalUniqueUsers}</p>
                 </div>

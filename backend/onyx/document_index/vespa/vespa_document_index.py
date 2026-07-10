@@ -1262,28 +1262,43 @@ class VespaDocumentIndex(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        acl_filters: list[str] | None,
+        filters: IndexFilters | None,
+        bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
         """Searches Vespa for knowledge events using a hybrid/semantic/keyword query."""
+        acl_filters = []
+        if filters and filters.access_control_list:
+            acl_filters = list(filters.access_control_list)
+
         where_clauses = []
         if self._multitenant:
             where_clauses.append(f'tenant_id contains "{self._tenant_id}"')
 
+        # Document/Connector gating scope filter
+        if filters and filters.attached_document_ids is not None:
+            doc_ids_match = " OR ".join([f'document_id contains "{doc_id}"' for doc_id in filters.attached_document_ids])
+            if doc_ids_match:
+                where_clauses.append(f"({doc_ids_match})")
+            else:
+                where_clauses.append("false")
+
         # ACL filtering
-        if acl_filters:
-            acl_match = " OR ".join([f'access_control_list contains "{acl}"' for acl in acl_filters])
-            where_clauses.append(f'(is_public = true OR {acl_match})')
+        if bypass_acl:
+            pass
         else:
-            where_clauses.append('is_public = true')
+            if acl_filters:
+                acl_match = " OR ".join([f'access_control_list contains "{acl}"' for acl in acl_filters])
+                where_clauses.append(f'(is_public = true OR {acl_match})')
+            else:
+                where_clauses.append('is_public = true')
 
         where_clause_str = " AND ".join(where_clauses) if where_clauses else "true"
         
         if query_embedding:
             yql = (
                 f"select * from knowledge_event "
-                f"where {where_clause_str} "
-                f"nearestNeighbor(content_embedding, query_embedding)"
+                f"where ({where_clause_str}) and ({{targetHits:{max_events}}}nearestNeighbor(content_embedding, query_embedding))"
             )
             params = {
                 "yql": yql,
@@ -1319,25 +1334,45 @@ class VespaDocumentIndex(DocumentIndex):
 
     def delete_knowledge_events_by_document(self, document_id: str) -> None:
         """Deletes all knowledge events associated with a document_id in Vespa."""
-        yql = f'select event_id from knowledge_event where document_id contains "{document_id}" limit 1000'
-        params = {
-            "yql": yql,
-            "ranking.profile": "unranked",
-            "timeout": VESPA_TIMEOUT,
-        }
+        where_clauses = [f'document_id contains "{document_id}"']
+        if self._multitenant:
+            where_clauses.append(f'tenant_id contains "{self._tenant_id}"')
+        where_clause_str = " AND ".join(where_clauses)
+
+        limit = 100
         with get_vespa_http_client() as http_client:
-            response = http_client.post(SEARCH_ENDPOINT, json=params)
-            response.raise_for_status()
-            hits = response.json().get("root", {}).get("children", [])
-            event_ids = []
-            for hit in hits:
-                fields = hit.get("fields", {})
-                if "event_id" in fields:
-                    event_ids.append(fields["event_id"])
-            
-            for event_id in event_ids:
-                vespa_url = f"{VESPA_APPLICATION_ENDPOINT}/document/v1/knowledge_event/knowledge_event/docid/{event_id}"
-                http_client.delete(vespa_url).raise_for_status()
+            while True:
+                yql = f'select event_id from knowledge_event where {where_clause_str} limit {limit}'
+                params = {
+                    "yql": yql,
+                    "ranking.profile": "unranked",
+                    "timeout": VESPA_TIMEOUT,
+                }
+                response = http_client.post(SEARCH_ENDPOINT, json=params)
+                response.raise_for_status()
+                hits = response.json().get("root", {}).get("children", [])
+                if not hits:
+                    break
+                
+                event_ids = []
+                for hit in hits:
+                    fields = hit.get("fields", {})
+                    if "event_id" in fields:
+                        event_ids.append(fields["event_id"])
+                
+                if not event_ids:
+                    break
+
+                deleted_any = False
+                for event_id in event_ids:
+                    vespa_url = f"{VESPA_APPLICATION_ENDPOINT}/document/v1/knowledge_event/knowledge_event/docid/{event_id}"
+                    del_resp = http_client.delete(vespa_url)
+                    if del_resp.status_code in (200, 204):
+                        deleted_any = True
+                    del_resp.raise_for_status()
+                
+                if not deleted_any or len(hits) < limit:
+                    break
 
 
 
@@ -1483,11 +1518,12 @@ class VespaIndexPair(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        acl_filters: list[str] | None,
+        filters: IndexFilters | None,
+        bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
         return self._primary.search_knowledge_events(
-            query_embedding, query_text, acl_filters, max_events
+            query_embedding, query_text, filters, bypass_acl, max_events
         )
 
     def delete_knowledge_events_by_document(self, document_id: str) -> None:
