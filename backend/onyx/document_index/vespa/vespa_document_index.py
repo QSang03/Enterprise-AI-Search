@@ -1266,7 +1266,7 @@ class VespaDocumentIndex(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        filters: IndexFilters | None,
+        filters: IndexFilters | None = None,
         bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
@@ -1527,7 +1527,7 @@ class VespaIndexPair(DocumentIndex):
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        filters: IndexFilters | None,
+        filters: IndexFilters | None = None,
         bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:

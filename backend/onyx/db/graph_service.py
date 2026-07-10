@@ -284,6 +284,7 @@ def extract_and_save_graph(
     db_session: Session,
     knowledge_scope_id: int | None = None,
     extraction_job_id: uuid.UUID | None = None,
+    tenant_id: str | None = None,
     timeout: int = 600,
 ) -> None:
     """Extract KnowledgeEvents, entities, and relations from a single ``chunk`` using the default LLM.
@@ -389,7 +390,7 @@ Văn bản cần phân tích:
                         confidence = 1.0
 
                 KNOWLEDGE_EVENT_NAMESPACE = uuid.UUID("a7b8c9d0-e1f2-4a3b-8c5d-6e7f8091a2b3")
-                hash_input = f"{knowledge_scope_id}:{doc_id}:{chunk.sibling_order}:{idx}:{title}"
+                hash_input = f"{tenant_id}:{knowledge_scope_id}:{doc_id}:{chunk.sibling_order}:{idx}:{title}"
                 event_uuid = uuid.uuid5(KNOWLEDGE_EVENT_NAMESPACE, hash_input)
 
                 # Create the KnowledgeEvent

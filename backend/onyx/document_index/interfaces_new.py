@@ -486,7 +486,8 @@ class DocumentIndex(
         self,
         query_embedding: list[float] | None,
         query_text: str | None,
-        acl_filters: list[str] | None,
+        filters: IndexFilters | None = None,
+        bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
         """Searches for knowledge events in the index."""

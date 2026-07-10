@@ -5,6 +5,7 @@ and Postgres transaction locks are released immediately after Vespa/DB writes.
 """
 
 import time
+from typing import Any
 from uuid import UUID
 
 from celery import shared_task
@@ -29,6 +30,72 @@ logger = get_task_logger(__name__)
 # consider it timed-out and mark the job as failed. Celery thread-pool tasks
 # cannot use Celery's soft_time_limit, so we enforce this manually.
 _GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60  # 10 minutes
+
+
+def _cleanup_old_generation(
+    db_session: Any,
+    document_index: Any,
+    doc_id: str,
+    current_job_uuid: UUID,
+    vespa_event_docs: list[dict[str, Any]],
+) -> None:
+    """Delete old generation data after new generation is live.
+    
+    Called after new events are indexed into Vespa successfully.
+    Strategy:
+    1. Delete ALL events for this document from Vespa (old + new).
+    2. Re-index only the new events from the already-prepared docs.
+    3. Delete old RelationEvidence and KnowledgeEvent from Postgres.
+    
+    This avoids the complexity of tracking which old event IDs exist
+    in Vespa while ensuring no leftover old events survive.
+    """
+    from onyx.db.models import KnowledgeEvent, RelationEvidence
+
+    # Step 1: Remove all events for this document from Vespa
+    try:
+        document_index.delete_knowledge_events_by_document(doc_id)
+    except Exception:
+        task_logger.exception(
+            "Cleanup: failed to delete old Vespa events for doc_id=%s",
+            doc_id,
+        )
+
+    # Step 2: Re-index only the new events
+    if vespa_event_docs:
+        try:
+            document_index.index_knowledge_events(vespa_event_docs)
+        except Exception:
+            task_logger.exception(
+                "Cleanup: failed to re-index events for doc_id=%s",
+                doc_id,
+            )
+
+    # Step 3: Delete old RelationEvidence for this document
+    try:
+        db_session.query(RelationEvidence).filter(
+            RelationEvidence.document_id == doc_id,
+            RelationEvidence.extraction_job_id != current_job_uuid,
+        ).delete(synchronize_session=False)
+    except Exception:
+        task_logger.exception(
+            "Cleanup: failed to delete old RelationEvidence for doc_id=%s",
+            doc_id,
+        )
+
+    # Step 4: Delete old KnowledgeEvent for this document
+    try:
+        db_session.query(KnowledgeEvent).filter(
+            KnowledgeEvent.document_id == doc_id,
+            KnowledgeEvent.extraction_job_id != current_job_uuid,
+        ).delete(synchronize_session=False)
+    except Exception:
+        task_logger.exception(
+            "Cleanup: failed to delete old KnowledgeEvent for doc_id=%s",
+            doc_id,
+        )
+
+    db_session.commit()
 
 
 @shared_task(
@@ -60,17 +127,14 @@ def graph_extraction_task(
             db_session.commit()
 
         with get_session_with_current_tenant() as db_session:
-            # 1. Feature Gate OpenSearch
+            # 1. Feature Gate – only Vespa supports Knowledge Graph events
             from onyx.db.search_settings import get_current_search_settings
             from onyx.document_index.factory import get_default_document_index
-            from onyx.document_index.opensearch.opensearch_document_index import OpenSearchDocumentIndex, OpenSearchIndexPair
-            from onyx.document_index.disabled import DisabledDocumentIndex
             
             search_settings = get_current_search_settings(db_session)
             document_index = get_default_document_index(search_settings, None, db_session)
             
-            if isinstance(document_index, (OpenSearchDocumentIndex, OpenSearchIndexPair)) or isinstance(document_index, DisabledDocumentIndex):
-                # OpenSearch or Disabled does not support Knowledge Graph events, skip task
+            if not document_index.supports_knowledge_events:
                 mark_graph_extraction_job_skipped(
                     job_uuid, 
                     "Knowledge Graph events are only supported when Vespa is the search backend.", 
@@ -79,13 +143,23 @@ def graph_extraction_task(
                 db_session.commit()
                 return
 
-            # 2. Clear existing document events and relation evidence (Postgres and Vespa) for idempotency
-            from onyx.db.models import KnowledgeEvent, RelationEvidence
-            db_session.query(RelationEvidence).filter(RelationEvidence.document_id == doc_id).delete()
-            db_session.query(KnowledgeEvent).filter(KnowledgeEvent.document_id == doc_id).delete()
-            db_session.commit()
-            
-            document_index.delete_knowledge_events_by_document(doc_id)
+            # 2. Advisory lock to prevent concurrent jobs for the same document.
+            # This ensures only one extraction runs per document at a time,
+            # preventing races where two jobs clear/interfere with each other.
+            lock_key = hash(f"{tenant_id}:{doc_id}") % (2**63)
+            from sqlalchemy import text as sql_text
+            db_session.execute(
+                sql_text("SELECT pg_advisory_xact_lock(:key)"),
+                {"key": lock_key},
+            )
+
+            # 3. Save old data is NOT deleted upfront. New data is extracted
+            # alongside old data (generation swap). Only after new events are
+            # successfully indexed into Vespa do we clean up the old generation.
+            from onyx.db.models import KnowledgeEvent, RelationEvidence, EventEntity, Entity, Document
+            from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
+            from onyx.configs.model_configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
+            from onyx.document_index.vespa.event_indexing_utils import prepare_knowledge_event_vespa_doc
 
             # Retrieve all chunks for this document.
             chunks = (
@@ -109,7 +183,7 @@ def graph_extraction_task(
                     f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                 )
 
-            # 3. Limit extraction to selected chunks
+            # 4. Limit extraction to selected chunks
             from onyx.db.graph_service import select_chunks_for_extraction
             selected_chunks = select_chunks_for_extraction(chunks)
 
@@ -127,7 +201,7 @@ def graph_extraction_task(
             )
             cc_pair_id = cc_pair.id if cc_pair else None
 
-            # Graph entity/relation extraction per selected chunk.
+            # 5. Graph entity/relation extraction per selected chunk.
             for chunk in selected_chunks:
                 if not chunk.text_raw or len(chunk.text_raw.strip()) < 100:
                     continue
@@ -147,15 +221,11 @@ def graph_extraction_task(
                     db_session,
                     knowledge_scope_id=cc_pair_id,
                     extraction_job_id=job_uuid,
+                    tenant_id=tenant_id,
                     timeout=llm_timeout,
                 )
 
-            # Now let's index any created events into Vespa.
-            from onyx.db.models import KnowledgeEvent, EventEntity, Entity, Document
-            from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
-            from onyx.configs.model_configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
-            from onyx.document_index.vespa.event_indexing_utils import prepare_knowledge_event_vespa_doc
-            
+            # 6. Index any created events into Vespa.
             embedding_model = EmbeddingModel.from_db_model(
                 search_settings=search_settings,
                 server_host=MODEL_SERVER_HOST,
@@ -163,8 +233,9 @@ def graph_extraction_task(
             )
             
             doc = db_session.query(Document).filter(Document.id == doc_id).first()
+            vespa_event_docs: list[dict[str, Any]] = []
             if doc:
-                # 4. Correct document ACL format using DocumentAccess
+                # Correct document ACL format using DocumentAccess
                 from onyx.access.access import get_access_for_document
                 access_control = get_access_for_document(doc_id, db_session)
                 event_acl = list(access_control.to_acl())
@@ -177,7 +248,7 @@ def graph_extraction_task(
                     .all()
                 )
                 
-                # 5. Batch encode event text embeddings
+                # Batch encode event text embeddings
                 titles_to_embed = [event.title for event in events]
                 contents_to_embed = [event.content for event in events]
                 
@@ -186,7 +257,6 @@ def graph_extraction_task(
                 
                 vespa_event_docs = []
                 for idx, event in enumerate(events):
-                    # Query entity names
                     entities = (
                         db_session.query(Entity.name)
                         .join(EventEntity, EventEntity.entity_id == Entity.entity_id)
@@ -195,7 +265,6 @@ def graph_extraction_task(
                     )
                     entity_names = [e[0] for e in entities]
                     
-                    # Sibling order of chunk
                     sibling_order = None
                     if event.chunk_id:
                         sibling_order = (
@@ -222,6 +291,25 @@ def graph_extraction_task(
                     for event in events:
                         event.vespa_indexed = True
                     db_session.commit()
+
+            # 7. Generation swap: new data is live in both Postgres and Vespa.
+            # Now safely delete old data. Cleanup is best-effort — failure
+            # should not cause the task to retry since new data is already
+            # indexed.
+            try:
+                _cleanup_old_generation(
+                    db_session,
+                    document_index,
+                    doc_id,
+                    job_uuid,
+                    vespa_event_docs,
+                )
+            except Exception:
+                task_logger.exception(
+                    "Generation swap cleanup failed for doc_id=%s job_id=%s "
+                    "(non-fatal — new data already indexed)",
+                    doc_id, job_id,
+                )
 
             elapsed = time.monotonic() - start
             if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:

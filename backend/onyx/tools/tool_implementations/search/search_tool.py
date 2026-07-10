@@ -621,16 +621,19 @@ Phân loại:"""
             # Vespa id_based_retrieval wants IndexFilters with ACL filters populated
             index_filters = IndexFilters(
                 access_control_list=acl_filters,
-                source_type=None,
-                document_set=None,
-                time_cutoff=None,
-                tags=None,
+                source_type=getattr(effective_filters, "source_type", None),
+                document_set=getattr(effective_filters, "document_set", None),
+                time_cutoff=getattr(effective_filters, "time_cutoff", None),
+                tags=getattr(effective_filters, "tags", None),
+                attached_document_ids=getattr(
+                    effective_filters, "attached_document_ids", None
+                ),
+                hierarchy_node_ids=getattr(
+                    effective_filters, "hierarchy_node_ids", None
+                ),
+                project_id_filter=self.project_id_filter,
+                persona_id_filter=self.persona_id_filter,
             )
-            if effective_filters:
-                index_filters.source_type = effective_filters.source_type
-                index_filters.document_set = effective_filters.document_set
-                index_filters.time_cutoff = effective_filters.time_cutoff
-                index_filters.tags = effective_filters.tags
 
             chunks = self.document_index.id_based_retrieval(
                 chunk_requests=section_requests,
@@ -1209,16 +1212,18 @@ Phân loại:"""
             or (llm_queries[0] if llm_queries else "")
         )
 
-        # Generate query embedding for event search
-        from onyx.context.search.utils import get_query_embeddings
-        query_embeddings = get_query_embeddings(
-            queries=[secondary_flows_user_query],
-            embedding_model=embedding_model,
-        )
-        query_embedding = query_embeddings[0] if query_embeddings else None
-
         event_titles = []
         event_search_chunks = []
+
+        # Generate query embedding for event search only if supported
+        query_embedding = None
+        if self.document_index.supports_knowledge_events:
+            from onyx.context.search.utils import get_query_embeddings
+            query_embeddings = get_query_embeddings(
+                queries=[secondary_flows_user_query],
+                embedding_model=embedding_model,
+            )
+            query_embedding = query_embeddings[0] if query_embeddings else None
 
         # Run pure Keyword and pure Semantic search in parallel, taking top 50 each
         search_functions = [
@@ -1249,7 +1254,7 @@ Phân loại:"""
         ]
         search_weights = [1.0, 1.0]
 
-        if query_embedding and self.document_index.supports_knowledge_events:
+        if query_embedding:
             def _event_search_task():
                 chunks, titles = self._run_event_search(
                     secondary_flows_user_query,
