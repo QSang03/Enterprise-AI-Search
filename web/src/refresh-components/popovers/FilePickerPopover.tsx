@@ -281,8 +281,8 @@ export default function FilePickerPopover({
 
       <recentFilesModal.Provider>
         <UserFilesModal
-          title="Recent Files"
-          description="Upload files or pick from your recent files."
+          title={t("recentFiles")}
+          description={t("uploadFilesOrPickFromRecent")}
           recentFiles={recentFilesSnapshot}
           onPickRecent={(file) => {
             onPickRecent?.(file);

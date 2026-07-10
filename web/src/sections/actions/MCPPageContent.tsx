@@ -500,8 +500,8 @@ export default function MCPPageContent() {
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
           onAction={handleAddServer}
-          actionLabel="Add MCP Server"
-          emptyStateText="Connect MCP server to add custom actions."
+          actionLabel={t("addMCPServer")}
+          emptyStateText={t("connectMCPServerToAddActions")}
         />
       </div>
 

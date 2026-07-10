@@ -133,7 +133,7 @@ export const StandardAnswerCreationForm = ({
                 />
               )}
               <BooleanFormField
-                subtext="Match a regex pattern instead of an exact keyword"
+                subtext={t("matchRegexPattern")}
                 optional
                 label={t("matchRegex")}
                 name="matchRegex"
@@ -142,15 +142,15 @@ export const StandardAnswerCreationForm = ({
                 <SelectorFormField
                   defaultValue={`all`}
                   label={t("keywordDetectionStrategy")}
-                  subtext="Choose whether to require the user's question to contain any or all of the keywords above to show this answer."
+                  subtext={t("keywordDetectionStrategySubtext")}
                   name="matchAnyKeywords"
                   options={[
                     {
-                      name: "All keywords",
+                      name: t("allKeywords"),
                       value: "all",
                     },
                     {
-                      name: "Any keywords",
+                      name: t("anyKeywords"),
                       value: "any",
                     },
                   ]}

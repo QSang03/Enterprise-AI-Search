@@ -94,7 +94,7 @@ function MemoryItem({
         <Section flexDirection="row" alignItems="start" gap={0.5}>
           <InputTextArea
             ref={textareaRef}
-            placeholder="Type or paste in a personal note or memory"
+            placeholder={t("typeOrPastePersonalNote")}
             value={memory.content}
             onChange={(e) => onUpdate(originalIndex, e.target.value)}
             onFocus={() => setIsFocused(true)}
@@ -271,7 +271,7 @@ export default function MemoriesModal({
       <Modal.Content width="sm" height="lg" position="top">
         <Modal.Header
           icon={SvgAddLines}
-          title="Memory"
+          title={t("memory")}
           description={t("memoryDescription")}
           onClose={close}
         >

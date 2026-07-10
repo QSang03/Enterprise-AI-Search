@@ -357,8 +357,8 @@ export default function OpenApiPageContent() {
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
           onAction={handleAddAction}
-          actionLabel="Add OpenAPI Action"
-          emptyStateText="Add custom actions from OpenAPI schemas."
+          actionLabel={t("addOpenAPIAction")}
+          emptyStateText={t("addCustomActionsFromOpenAPI")}
         />
       </div>
 
