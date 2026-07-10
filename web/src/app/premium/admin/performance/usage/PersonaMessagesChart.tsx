@@ -168,7 +168,7 @@ export function PersonaMessagesChart({
       <AreaChartDisplay
         className="mt-4"
         data={chartData}
-        categories={["Messages", "Unique Users"]}
+        categories={[t("messages"), t("uniqueUsers")]}
         index="Day"
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}

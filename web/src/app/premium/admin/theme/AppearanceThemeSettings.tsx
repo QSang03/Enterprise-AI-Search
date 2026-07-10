@@ -304,8 +304,7 @@ export const AppearanceThemeSettings = forwardRef<
               </Tabs>
             </FormField.Control>
             <FormField.Description>
-              Choose what to display at the top of the sidebar. Options become
-              available once you add a logo or application name.
+              {t("chooseLogoDisplayDescription")}
             </FormField.Description>
           </FormField>
         </div>
@@ -365,7 +364,7 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          Greeting Message
+          {t("greetingMessage")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTypeIn
@@ -381,7 +380,7 @@ export const AppearanceThemeSettings = forwardRef<
           />
         </FormField.Control>
         <FormField.Description>
-          Add a short message to the home page.
+          {t("greetingMessageDescription")}
         </FormField.Description>
         <FormField.Message
           messages={{ error: errors.custom_greeting_message as string }}
@@ -397,7 +396,7 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          Chat Header Text
+          {t("chatHeaderText")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTypeIn
@@ -428,7 +427,7 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          Chat Footer Text
+          {t("chatFooterText")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTextArea
@@ -447,7 +446,7 @@ export const AppearanceThemeSettings = forwardRef<
           />
         </FormField.Control>
         <FormField.Description>
-          Add markdown content for disclaimers or additional information.
+          {t("chatFooterDescription")}
         </FormField.Description>
         <FormField.Message
           messages={{ error: errors.custom_lower_disclaimer_content as string }}
@@ -464,7 +463,7 @@ export const AppearanceThemeSettings = forwardRef<
             className="flex-1"
           >
             <FormField.Label>
-              Custom Help Link
+              {t("customHelpLink")}
               {!enterpriseTier && (
                 <Tag {...planTagProps("enterprise")} size="sm" />
               )}
@@ -489,8 +488,7 @@ export const AppearanceThemeSettings = forwardRef<
               />
             </FormField.Control>
             <FormField.Description>
-              Add a custom help link in the user menu in addition to the Onyx
-              documentation.
+              {t("customHelpLinkDescription")}
             </FormField.Description>
             <FormField.Message
               messages={{ error: errors.custom_help_link_url as string }}
@@ -498,7 +496,7 @@ export const AppearanceThemeSettings = forwardRef<
           </FormField>
           <FormField state="idle" className="flex-1">
             <FormField.Label className="invisible" aria-hidden="true">
-              Custom Help Link Label
+              {t("customHelpLinkLabel")}
             </FormField.Label>
             <FormField.Control asChild>
               <InputTypeIn
@@ -524,7 +522,7 @@ export const AppearanceThemeSettings = forwardRef<
         <FormField state="idle" className="gap-0">
           <div className="flex justify-between items-center">
             <FormField.Label>
-              Hide Onyx Branding
+              {t("hideOnyxBranding")}
               {!enterpriseTier && (
                 <Tag {...planTagProps("enterprise")} size="sm" />
               )}
@@ -542,8 +540,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Control>
           </div>
           <FormField.Description>
-            Remove &ldquo;powered by Onyx&rdquo; and other Onyx branding
-            presence in the app.
+            {t("hideOnyxBrandingDescription")}
           </FormField.Description>
         </FormField>
       </Disabled>
@@ -566,7 +563,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Control>
           </div>
           <FormField.Description>
-            Show a one-time pop-up for new users at their first visit.
+            {t("showFirstVisitNoticeDescription")}
           </FormField.Description>
         </FormField>
 
@@ -582,7 +579,7 @@ export const AppearanceThemeSettings = forwardRef<
                   />
                 }
               >
-                Notice Header
+                {t("noticeHeader")}
               </FormField.Label>
               <FormField.Control asChild>
                 <InputTypeIn
@@ -646,8 +643,7 @@ export const AppearanceThemeSettings = forwardRef<
                 </FormField.Control>
               </div>
               <FormField.Description>
-                Require the user to read and agree to the notice before
-                accessing the application.
+                {t("requireConsentDescription")}
               </FormField.Description>
             </FormField>
 
@@ -664,7 +660,7 @@ export const AppearanceThemeSettings = forwardRef<
                     />
                   }
                 >
-                  Notice Consent Prompt
+                  {t("noticeConsentPrompt")}
                 </FormField.Label>
                 <FormField.Control asChild>
                   <InputTextArea

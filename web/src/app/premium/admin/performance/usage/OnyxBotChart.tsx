@@ -33,7 +33,7 @@ export function OnyxBotChart({
   ) {
     chart = (
       <div className="h-80 text-red-600 text-bold flex flex-col">
-        <p className="m-auto">Failed to fetch feedback data...</p>
+        <p className="m-auto">{t("failedToFetchFeedbackData")}</p>
       </div>
     );
   } else {
@@ -55,12 +55,12 @@ export function OnyxBotChart({
           const onyxBotAnalyticsForDate = dateToOnyxBotAnalytics.get(dateStr);
           return {
             Day: dateStr,
-            "Total Queries": onyxBotAnalyticsForDate?.total_queries || 0,
-            "Automatically Resolved":
+            [t("totalQueries")]: onyxBotAnalyticsForDate?.total_queries || 0,
+            [t("automaticallyResolved")]:
               onyxBotAnalyticsForDate?.auto_resolved || 0,
           };
         })}
-        categories={["Total Queries", "Automatically Resolved"]}
+        categories={[t("totalQueries"), t("automaticallyResolved")]}
         index="Day"
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}

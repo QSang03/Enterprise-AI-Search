@@ -87,7 +87,7 @@ export default function QueryPage(props: { params: Promise<{ id: string }> }) {
     return (
       <ErrorCallout
         errorTitle={t("somethingWentWrong")}
-        errorMsg={`Failed to fetch chat session - ${error}`}
+        errorMsg={t("failedToFetchChatSession", { error })}
       />
     );
   }

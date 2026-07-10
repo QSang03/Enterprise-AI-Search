@@ -54,16 +54,16 @@ export function AgentStats({ agentId }: { agentId: number }) {
 
         if (!res.ok) {
           if (res.status === 403) {
-            throw new Error("You don't have permission to view these stats.");
+            throw new Error(t("noPermissionToViewStats"));
           }
-          throw new Error("Failed to fetch agent stats");
+          throw new Error(t("failedToFetchAgentStats"));
         }
 
         const data = (await res.json()) as AgentStatsResponse;
         setAgentStats(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
+          err instanceof Error ? err.message : t("unknownErrorOccurred")
         );
       } finally {
         setIsLoading(false);
@@ -127,7 +127,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
     content = (
       <div className="h-80 text-text-500 flex flex-col">
         <p className="m-auto">
-          No data found for this agent in the selected date range
+          {t("noDataFoundForAgent")}
         </p>
       </div>
     );
@@ -136,7 +136,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
       <AreaChartDisplay
         className="mt-4"
         data={chartData}
-        categories={["Messages", "Unique Users"]}
+        categories={[t("messages"), t("uniqueUsers")]}
         index="Day"
         colors={["#4A4A4A", "#A0A0A0"]}
         yAxisWidth={60}

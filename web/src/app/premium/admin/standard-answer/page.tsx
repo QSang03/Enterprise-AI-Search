@@ -221,10 +221,10 @@ const StandardAnswersTable = ({
   const handleDelete = async (id: number) => {
     const response = await deleteStandardAnswer(id);
     if (response.ok) {
-      toast.success(`Standard answer ${id} deleted`);
+      toast.success(t("standardAnswerDeleted", { id }));
     } else {
       const errorMsg = await response.text();
-      toast.error(`Failed to delete standard answer - ${errorMsg}`);
+      toast.error(t("failedToDeleteStandardAnswer", { errorMsg }));
     }
     refresh();
   };
@@ -323,7 +323,7 @@ const StandardAnswersTable = ({
         <div>
           {paginatedStandardAnswers.length === 0 && (
             <div className="flex justify-center">
-              <Text as="p">No matching standard answers found...</Text>
+              <Text as="p">{t("noMatchingStandardAnswers")}</Text>
             </div>
           )}
         </div>
@@ -331,9 +331,7 @@ const StandardAnswersTable = ({
           <>
             <div className="mt-4">
               <Text as="p">
-                {markdown(
-                  "Ensure that you have added the category to the relevant [Slack Bot](/admin/bots)."
-                )}
+                {markdown(t("ensureCategoryAddedToSlackBot"))}
               </Text>
             </div>
             <div className="mt-4 flex justify-center">

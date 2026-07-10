@@ -184,7 +184,7 @@ export default function ThemePage() {
           });
           if (!response.ok) {
             const errorMsg = (await response.json()).detail;
-            alert(`Failed to upload logo. ${errorMsg}`);
+            alert(t("failedToUploadLogo", { errorMsg }));
             formikHelpers.setSubmitting(false);
             return;
           }

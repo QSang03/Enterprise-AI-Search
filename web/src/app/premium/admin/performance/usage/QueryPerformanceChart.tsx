@@ -42,7 +42,7 @@ export function QueryPerformanceChart({
   ) {
     chart = (
       <div className="h-80 text-red-600 text-bold flex flex-col">
-        <p className="m-auto">Failed to fetch query data...</p>
+        <p className="m-auto">{t("failedToFetchQueryData")}</p>
       </div>
     );
   } else {
