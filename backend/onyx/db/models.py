@@ -1057,6 +1057,13 @@ class Document(Base):
         DateTime(timezone=True), nullable=True
     )
 
+    # Active knowledge graph generation for this document.
+    # Used as a compare-and-swap token to prevent an old job retrying after
+    # a newer generation has been produced (P1 supersession race).
+    active_graph_job_id: Mapped[UUID | None] = mapped_column(
+        PGUUID, nullable=True, index=True
+    )
+
     retrieval_feedbacks: Mapped[list["DocumentRetrievalFeedback"]] = relationship(
         "DocumentRetrievalFeedback", back_populates="document"
     )
@@ -6639,6 +6646,16 @@ class GraphExtractionJob(Base):
     # Versioning: changing the prompt or model version invalidates the cached result.
     prompt_version: Mapped[str] = mapped_column(String(50), nullable=False)
     model_name: Mapped[str] = mapped_column(String(255), nullable=False)
+
+    # Durable cleanup-pending state (P2 — survives broker message loss).
+    cleanup_retry_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0"
+    )
+    cleanup_next_retry_at: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    cleanup_last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

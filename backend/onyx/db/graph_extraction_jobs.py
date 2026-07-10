@@ -4,6 +4,7 @@ Provides skip logic (content-hash caching + document type/length filters)
 and status lifecycle management for background Knowledge Graph extraction.
 """
 
+import datetime
 import re
 from enum import Enum
 from uuid import UUID
@@ -40,6 +41,7 @@ class GraphExtractionStatus(str, Enum):
     SUCCEEDED = "succeeded"
     FAILED = "failed"
     SKIPPED = "skipped"
+    CLEANUP_PENDING = "cleanup_pending"
 
 
 def _count_noun_candidates(text: str) -> int:
@@ -172,5 +174,45 @@ def mark_graph_extraction_job_skipped(
     if job:
         job.status = GraphExtractionStatus.SKIPPED
         job.error_message = error_message
+        db_session.flush()
+
+
+def mark_graph_extraction_job_cleanup_pending(
+    job_id: UUID,
+    cleanup_retry_count: int,
+    cleanup_next_retry_at: datetime.datetime,
+    cleanup_last_error: str,
+    db_session: Session,
+) -> None:
+    """Set the job to CLEANUP_PENDING with durable retry metadata.
+
+    The sweeper (or the task's own re-enqueue) will later pick it up.
+    This avoids relying solely on the in-flight Celery message for retry
+    tracking (P2 — durable cleanup state).
+    """
+    job = (
+        db_session.query(GraphExtractionJob)
+        .filter(GraphExtractionJob.id == job_id)
+        .first()
+    )
+    if job:
+        job.status = GraphExtractionStatus.CLEANUP_PENDING
+        job.cleanup_retry_count = cleanup_retry_count
+        job.cleanup_next_retry_at = cleanup_next_retry_at
+        job.cleanup_last_error = cleanup_last_error
+        db_session.flush()
+
+
+def reset_cleanup_state(job_id: UUID, db_session: Session) -> None:
+    """Clear cleanup-pending state when a job transitions back to RUNNING."""
+    job = (
+        db_session.query(GraphExtractionJob)
+        .filter(GraphExtractionJob.id == job_id)
+        .first()
+    )
+    if job:
+        job.cleanup_retry_count = 0
+        job.cleanup_next_retry_at = None
+        job.cleanup_last_error = None
         db_session.flush()
 
