@@ -1,0 +1,106 @@
+schema {{ schema_name }} {
+    document {{ schema_name }} {
+        {% if multi_tenant %}
+        field tenant_id type string {
+            indexing: summary | attribute
+            rank: filter
+            attribute: fast-search
+        }
+        {% endif %}
+        field event_id type string {
+            indexing: summary | attribute
+            rank: filter
+            attribute: fast-search
+        }
+        field document_id type string {
+            indexing: summary | attribute
+            rank: filter
+            attribute: fast-search
+        }
+        field chunk_id type string {
+            indexing: summary | attribute
+        }
+        field entity_names type array<string> {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field event_title type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field event_content type string {
+            indexing: summary | index
+            index: enable-bm25
+        }
+        field event_category type string {
+            indexing: summary | attribute
+        }
+        field title_embedding type tensor<{{ embedding_precision }}>(x[{{ dim }}]) {
+            indexing: attribute | index
+            attribute {
+                distance-metric: angular
+            }
+        }
+        field content_embedding type tensor<{{ embedding_precision }}>(x[{{ dim }}]) {
+            indexing: attribute | index
+            attribute {
+                distance-metric: angular
+            }
+        }
+        field confidence type float {
+            indexing: summary | attribute
+        }
+        field doc_updated_at type long {
+            indexing: summary | attribute
+        }
+        # ACL inheritance
+        field access_control_list type array<string> {
+            indexing: summary | attribute
+        }
+        field is_public type bool {
+            indexing: summary | attribute
+        }
+    }
+
+    rank-profile default_rank {
+        inputs {
+            query(decay_factor) double
+        }
+        function inline document_age() {
+            expression: max(if(isNan(attribute(doc_updated_at)) == 1, 7890000, now() - attribute(doc_updated_at)) / 31536000, 0)
+        }
+        function inline recency_bias() {
+            expression: max(1 / (1 + query(decay_factor) * document_age), 0.75)
+        }
+        match-features: recency_bias
+    }
+
+    rank-profile event_semantic inherits default, default_rank {
+        inputs {
+            query(query_embedding) tensor<float>(x[{{ dim }}])
+        }
+        first-phase {
+            expression: closeness(field, content_embedding)
+        }
+    }
+
+    rank-profile event_keyword inherits default, default_rank {
+        first-phase {
+            expression: bm25(event_title) + bm25(event_content)
+        }
+    }
+
+    rank-profile event_hybrid inherits default, default_rank {
+        inputs {
+            query(query_embedding) tensor<float>(x[{{ dim }}])
+            query(alpha) double
+        }
+        first-phase {
+            expression: closeness(field, content_embedding)
+        }
+        global-phase {
+            expression: query(alpha) * closeness(field, content_embedding) + (1 - query(alpha)) * (bm25(event_title) + bm25(event_content))
+            rerank-count: 1000
+        }
+    }
+}

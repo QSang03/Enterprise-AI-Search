@@ -895,6 +895,22 @@ class OpenSearchDocumentIndex(DocumentIndex):
             documents=chunks, tenant_state=self._tenant_state, update_if_exists=True
         )
 
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        pass
+
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        return []
+
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        pass
+
+
 
 class OpenSearchIndexPair(DocumentIndex):
     """Pair wrapper that fans operations out to a primary OpenSearch index and
@@ -1030,6 +1046,25 @@ class OpenSearchIndexPair(DocumentIndex):
     ) -> list[InferenceChunk]:
         return self._primary.random_retrieval(filters, num_to_retrieve, dirty)
 
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        self._primary.index_knowledge_events(events)
+
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        return self._primary.search_knowledge_events(
+            query_embedding, query_text, acl_filters, max_events
+        )
+
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        self._primary.delete_knowledge_events_by_document(document_id)
+        if self._secondary:
+            self._secondary.delete_knowledge_events_by_document(document_id)
+
     @property
     def primary(self) -> OpenSearchDocumentIndex:
         return self._primary
@@ -1037,3 +1072,4 @@ class OpenSearchIndexPair(DocumentIndex):
     @property
     def secondary(self) -> OpenSearchDocumentIndex | None:
         return self._secondary
+

@@ -6506,15 +6506,33 @@ class Entity(Base):
     entity_id: Mapped[UUID] = mapped_column(
         PGUUID, primary_key=True, server_default=func.gen_random_uuid()
     )
-    name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
     # Canonical normalized form used for deduplication and alias-based lookup.
     normalized_name: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True
     )
     entity_type: Mapped[str] = mapped_column(String(50), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Scopes entity uniqueness to a connector_credential_pair so that entities
+    # from different connectors do not collide (e.g. "Apple" company vs project).
+    # NULL means legacy global scope (data before this column was added).
+    knowledge_scope_id: Mapped[int | None] = mapped_column(
+        Integer,
+        ForeignKey("connector_credential_pair.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "knowledge_scope_id",
+            "entity_type",
+            "normalized_name",
+            name="uq_entity_scope_type_name",
+        ),
     )
 
 
@@ -6630,3 +6648,90 @@ class GraphExtractionJob(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+
+class KnowledgeEvent(Base):
+    """A structured event extracted from a document chunk.
+
+    Sits between DocumentChunkV2 and the Entity graph, capturing full context
+    (time, category, evidence) that direct triples (A→rel→B) lose.
+    Event ACL is inherited from the linked document_id at query time.
+    """
+
+    __tablename__ = "knowledge_events"
+
+    event_id: Mapped[UUID] = mapped_column(
+        PGUUID, primary_key=True, server_default=func.gen_random_uuid()
+    )
+    document_id: Mapped[str] = mapped_column(
+        String(2048), nullable=False, index=True
+    )
+    chunk_id: Mapped[UUID | None] = mapped_column(
+        PGUUID,
+        ForeignKey("document_chunks_v2.chunk_id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
+    title: Mapped[str] = mapped_column(String(512), nullable=False)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Full context sentence(s) from the chunk that describe this event.
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    event_time_start: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    event_time_end: Mapped[datetime.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    extraction_job_id: Mapped[UUID | None] = mapped_column(
+        PGUUID,
+        ForeignKey("graph_extraction_jobs.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    # Whether the event has been indexed into Vespa (for async indexing tracking).
+    vespa_indexed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class EventEntity(Base):
+    """Join table linking a KnowledgeEvent to the entities it mentions.
+
+    Stores the role each entity plays in the event and the supporting evidence
+    span so citation graph and confidence scoring are possible.
+    """
+
+    __tablename__ = "event_entities"
+
+    id: Mapped[UUID] = mapped_column(
+        PGUUID, primary_key=True, server_default=func.gen_random_uuid()
+    )
+    event_id: Mapped[UUID] = mapped_column(
+        PGUUID,
+        ForeignKey("knowledge_events.event_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    entity_id: Mapped[UUID] = mapped_column(
+        PGUUID,
+        ForeignKey("entities.entity_id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    # Role of this entity in the event (e.g. "subject", "object", "location", "time").
+    role: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    # Evidence sentence from the source chunk that justifies the entity–event link.
+    evidence_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evidence_start: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    evidence_end: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    weight: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint("event_id", "entity_id", "role", name="uq_event_entity_role"),
+    )
+

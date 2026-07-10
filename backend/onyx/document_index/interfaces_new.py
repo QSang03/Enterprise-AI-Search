@@ -1,6 +1,8 @@
 import abc
 from collections.abc import Iterable
+from typing import Any
 from typing import Self
+
 
 from pydantic import BaseModel
 from pydantic import model_validator
@@ -470,16 +472,24 @@ class DocumentIndex(
     RandomCapable,
     abc.ABC,
 ):
-    """
-    A valid document index that can plug into all Onyx flows must implement all
-    of these functionalities.
+    @abc.abstractmethod
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        """Indexes knowledge events into the index."""
+        pass
 
-    As a high-level summary, document indices need to be able to:
-    - Verify the schema definition is valid
-    - Index new documents
-    - Update specific attributes of existing documents
-    - Delete documents
-    - Run hybrid search
-    - Retrieve document or sections of documents based on document id
-    - Retrieve sets of random documents
-    """
+    @abc.abstractmethod
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        """Searches for knowledge events in the index."""
+        pass
+
+    @abc.abstractmethod
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        """Deletes all knowledge events associated with a document_id in the index."""
+        pass
+

@@ -82,14 +82,113 @@ def graph_extraction_task(
                     f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                 )
 
-            # Graph entity/relation extraction (LLM call; may be slow).
-            extract_and_save_graph(chunks, db_session, extraction_job_id=job_uuid)
+            # Get the cc_pair_id for the document
+            from onyx.db.models import ConnectorCredentialPair, DocumentByConnectorCredentialPair
+            cc_pair = (
+                db_session.query(ConnectorCredentialPair)
+                .join(
+                    DocumentByConnectorCredentialPair,
+                    (DocumentByConnectorCredentialPair.connector_id == ConnectorCredentialPair.connector_id)
+                    & (DocumentByConnectorCredentialPair.credential_id == ConnectorCredentialPair.credential_id),
+                )
+                .filter(DocumentByConnectorCredentialPair.id == doc_id)
+                .first()
+            )
+            cc_pair_id = cc_pair.id if cc_pair else None
+
+            # Graph entity/relation extraction per chunk.
+            for chunk in chunks:
+                if not chunk.text_raw or len(chunk.text_raw.strip()) < 100:
+                    continue
+
+                elapsed = time.monotonic() - start
+                if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
+                    raise TimeoutError(
+                        f"Graph extraction exceeded timeout after {elapsed:.0f}s"
+                    )
+
+                extract_and_save_graph(
+                    chunk,
+                    db_session,
+                    knowledge_scope_id=cc_pair_id,
+                    extraction_job_id=job_uuid,
+                )
+
+            # Now let's index any created events into Vespa.
+            from onyx.db.models import KnowledgeEvent, EventEntity, Entity, Document
+            from onyx.db.search_settings import get_current_search_settings
+            from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
+            from onyx.configs.model_configs import MODEL_SERVER_HOST, MODEL_SERVER_PORT
+            from onyx.document_index.factory import get_default_document_index
+            from onyx.document_index.vespa.event_indexing_utils import prepare_knowledge_event_vespa_doc
+            
+            search_settings = get_current_search_settings(db_session)
+            document_index = get_default_document_index(search_settings, None, db_session)
+            
+            embedding_model = EmbeddingModel.from_db_model(
+                search_settings=search_settings,
+                server_host=MODEL_SERVER_HOST,
+                server_port=MODEL_SERVER_PORT,
+            )
+            
+            doc = db_session.query(Document).filter(Document.id == doc_id).first()
+            if doc:
+                is_public = doc.is_public if doc.is_public is not None else False
+                allowed_users = doc.external_user_emails or []
+                allowed_groups = doc.external_user_group_ids or []
+                doc_updated_at = doc.doc_updated_at
+                
+                events = (
+                    db_session.query(KnowledgeEvent)
+                    .filter(KnowledgeEvent.extraction_job_id == job_uuid)
+                    .all()
+                )
+                
+                vespa_event_docs = []
+                for event in events:
+                    # Query entity names
+                    entities = (
+                        db_session.query(Entity.name)
+                        .join(EventEntity, EventEntity.entity_id == Entity.entity_id)
+                        .filter(EventEntity.event_id == event.event_id)
+                        .all()
+                    )
+                    entity_names = [e[0] for e in entities]
+                    
+                    # Sibling order of chunk
+                    sibling_order = None
+                    if event.chunk_id:
+                        sibling_order = (
+                            db_session.query(DocumentChunkV2.sibling_order)
+                            .filter(DocumentChunkV2.chunk_id == event.chunk_id)
+                            .scalar()
+                        )
+                    
+                    vespa_doc = prepare_knowledge_event_vespa_doc(
+                        event=event,
+                        entity_names=entity_names,
+                        allowed_users=allowed_users,
+                        allowed_groups=allowed_groups,
+                        is_public=is_public,
+                        doc_updated_at=doc_updated_at,
+                        embedding_model=embedding_model,
+                        tenant_id=tenant_id,
+                        sibling_order=sibling_order,
+                    )
+                    vespa_event_docs.append(vespa_doc)
+                
+                if vespa_event_docs:
+                    document_index.index_knowledge_events(vespa_event_docs)
+                    for event in events:
+                        event.vespa_indexed = True
+                    db_session.commit()
 
             elapsed = time.monotonic() - start
             if elapsed > _GRAPH_EXTRACTION_TIMEOUT_S:
                 raise TimeoutError(
                     f"Graph extraction exceeded timeout after {elapsed:.0f}s"
                 )
+
 
             # Wiki stale detection (second LLM call; only runs when relevant
             # wiki pages cite this document).

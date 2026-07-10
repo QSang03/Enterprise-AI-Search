@@ -42,6 +42,8 @@ class LLMFlow(StrEnum):
     # Knowledge graph
     KG_DOCUMENT_CLASSIFICATION = "kg_document_classification"
     KG_DEEP_EXTRACTION = "kg_deep_extraction"
+    KG_EVENT_EXTRACTION = "kg_event_extraction"
+
 
     # Image generation
     IMAGE_GENERATION = "image_generation"

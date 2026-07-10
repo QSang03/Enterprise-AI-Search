@@ -376,6 +376,7 @@ class SearchDocsResponse(BaseModel):
     # For cases where the frontend only needs to display a subset of the search docs
     # The whole list is typically still needed for later steps but this set should be saved separately
     displayed_docs: list[SearchDoc] | None = None
+    graph_trace: dict[str, Any] | None = None
 
     @field_validator("displayed_docs", mode="before")
     @classmethod
@@ -384,6 +385,7 @@ class SearchDocsResponse(BaseModel):
         value: list[SearchDoc] | None,
     ) -> list[SearchDoc] | None:
         return value or None
+
 
 
 class SavedSearchDoc(SearchDoc):

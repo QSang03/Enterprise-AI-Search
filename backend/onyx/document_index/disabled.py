@@ -6,6 +6,8 @@ out against a nonexistent Vespa/OpenSearch instance.
 """
 
 from collections.abc import Iterable
+from typing import Any
+
 
 from onyx.context.search.enums import QueryType
 from onyx.context.search.models import IndexFilters
@@ -101,3 +103,19 @@ class DisabledDocumentIndex(DocumentIndex):
         dirty: bool | None = None,  # noqa: ARG002
     ) -> list[InferenceChunk]:
         raise RuntimeError(VECTOR_DB_DISABLED_ERROR)
+
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        raise RuntimeError(VECTOR_DB_DISABLED_ERROR)
+
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        raise RuntimeError(VECTOR_DB_DISABLED_ERROR)
+
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        raise RuntimeError(VECTOR_DB_DISABLED_ERROR)
+

@@ -115,3 +115,37 @@ def test_graph_entity_matching_with_alias(db_session: Session) -> None:
     
     db_session.rollback()
 
+
+def test_search_tool_classify_query_mode(db_session: Session) -> None:
+    from unittest.mock import MagicMock
+    from onyx.tools.tool_implementations.search.search_tool import SearchTool
+    from onyx.llm.interfaces import LLM
+    from onyx.document_index.disabled import DisabledDocumentIndex
+
+    
+    mock_llm = MagicMock(spec=LLM)
+    mock_response = MagicMock()
+    mock_response.content = "standard"
+    mock_llm.invoke.return_value = mock_response
+    
+    tool = SearchTool(
+        tool_id=1,
+        emitter=MagicMock(),
+        user=None,
+        persona_search_info=MagicMock(),
+        llm=mock_llm,
+        document_index=DisabledDocumentIndex(),
+        user_selected_filters=None,
+        project_id_filter=None,
+        bypass_acl=True,
+    )
+
+    
+    mode = tool._classify_query_mode("So sánh quy trình A và quy trình B", mock_llm)
+    assert mode == "standard"
+    
+    mock_response.content = "fast"
+    mode = tool._classify_query_mode("Thông tin về quy trình A", mock_llm)
+    assert mode == "fast"
+
+

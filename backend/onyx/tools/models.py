@@ -188,8 +188,10 @@ class SearchToolOverrideKwargs(BaseModel):
     # Number of chunks (token approx) to include in the string to the LLM
     max_llm_chunks: int | None = MAX_CHUNKS_FED_TO_CHAT
     include_link: bool = False
+    debug: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
 
 
 class ChatFile(BaseModel):

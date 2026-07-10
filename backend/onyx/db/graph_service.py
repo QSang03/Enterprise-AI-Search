@@ -10,9 +10,11 @@ Key responsibilities:
   used for entity deduplication and alias lookup.
 """
 
+import datetime
 import json
 import re
 import unicodedata
+
 import uuid
 from typing import List
 
@@ -24,6 +26,8 @@ from onyx.db.models import Entity
 from onyx.db.models import EntityAlias
 from onyx.db.models import Relation
 from onyx.db.models import RelationEvidence
+from onyx.db.models import KnowledgeEvent
+from onyx.db.models import EventEntity
 from onyx.db.rag_upgrade_models import DocumentChunkV2
 from onyx.llm.factory import get_default_llm
 from onyx.llm.models import ChatCompletionMessage
@@ -147,11 +151,54 @@ def select_chunks_for_extraction(
     return [c for i, c in enumerate(chunks) if i in selected_indices]
 
 
+def _parse_datetime(dt_str: str | None) -> datetime.datetime | None:
+    if not dt_str:
+        return None
+    import datetime
+    dt_str = str(dt_str).strip()
+    # If only digits and length 4, assume year
+    if dt_str.isdigit() and len(dt_str) == 4:
+        try:
+            return datetime.datetime(int(dt_str), 1, 1, tzinfo=datetime.timezone.utc)
+        except ValueError:
+            pass
+    # If YYYY-MM
+    if re.match(r"^\d{4}-\d{2}$", dt_str):
+        try:
+            parts = dt_str.split("-")
+            return datetime.datetime(int(parts[0]), int(parts[1]), 1, tzinfo=datetime.timezone.utc)
+        except ValueError:
+            pass
+    # Try general ISO parsing
+    for fmt in (
+        "%Y-%m-%dT%H:%M:%S%z",
+        "%Y-%m-%dT%H:%M:%S.%f%z",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d",
+    ):
+        try:
+            dt = datetime.datetime.strptime(dt_str, fmt)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
+            return dt
+        except ValueError:
+            continue
+    try:
+        # standard ISO format fallback
+        dt = datetime.datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=datetime.timezone.utc)
+        return dt
+    except Exception:
+        return None
+
+
 def _upsert_entity_with_alias(
     name: str,
     entity_type: str,
     description: str,
     db_session: Session,
+    knowledge_scope_id: int | None = None,
 ) -> uuid.UUID | None:
     """Upsert an entity using normalized name for deduplication.
 
@@ -169,13 +216,23 @@ def _upsert_entity_with_alias(
     # Look up by normalized_name first (canonical match).
     existing = (
         db_session.query(Entity)
-        .filter(func.lower(Entity.normalized_name) == normalized_key)
+        .filter(
+            func.lower(Entity.normalized_name) == normalized_key,
+            Entity.knowledge_scope_id == knowledge_scope_id,
+        )
         .first()
     )
 
     if existing is None:
         # Try exact name match as fallback.
-        existing = db_session.query(Entity).filter(Entity.name == canonical).first()
+        existing = (
+            db_session.query(Entity)
+            .filter(
+                Entity.name == canonical,
+                Entity.knowledge_scope_id == knowledge_scope_id,
+            )
+            .first()
+        )
 
     if existing:
         # Update description if new one is longer.
@@ -191,6 +248,7 @@ def _upsert_entity_with_alias(
             normalized_name=normalized_key,
             entity_type=entity_type,
             description=description,
+            knowledge_scope_id=knowledge_scope_id,
         )
         db_session.add(new_ent)
         db_session.flush()
@@ -220,19 +278,19 @@ def _upsert_entity_with_alias(
 
 
 def extract_and_save_graph(
-    chunks: list["DocumentChunkV2"],
+    chunk: "DocumentChunkV2",
     db_session: Session,
+    knowledge_scope_id: int | None = None,
     extraction_job_id: uuid.UUID | None = None,
 ) -> None:
-    """Extract entities and relations from ``chunks`` using the default LLM and
-    persist them to Postgres.
+    """Extract KnowledgeEvents, entities, and relations from a single ``chunk`` using the default LLM.
 
-    Uses smart chunk selection (Mức 3) to cap the LLM context window and
-    entity normalization / alias storage (Mức 5) to keep the graph clean.
+    Saves structured events (KnowledgeEvent) and join relationships to Postgres.
     """
-    if not chunks:
+    if not chunk or not chunk.text_raw or not chunk.text_raw.strip():
         return
-    doc_id = chunks[0].doc_id
+
+    doc_id = chunk.doc_id
 
     try:
         llm = get_default_llm()
@@ -241,34 +299,49 @@ def extract_and_save_graph(
             f"Skipping knowledge graph extraction: default LLM not configured. Detail: {e}"
         ) from e
 
-    selected = select_chunks_for_extraction(chunks)
-    if not selected:
-        return
-
-    doc_text = "\n\n".join([c.text_raw for c in selected if c.text_raw])
-    if not doc_text.strip():
-        return
-
-    prompt = f"""Bạn là chuyên gia trích xuất đồ thị tri thức (Knowledge Graph) từ văn bản tiếng Việt.
-Hãy phân tích văn bản sau và trích xuất tất cả các thực thể (Entities) quan trọng và mối quan hệ (Relations) giữa chúng.
+    prompt = f"""Bạn là chuyên gia trích xuất đồ thị tri thức (Knowledge Graph) và sự kiện (Knowledge Events) từ văn bản tiếng Việt.
+Hãy phân tích đoạn văn bản sau và trích xuất tất cả các sự kiện (Events) quan trọng và thực thể (Entities) liên quan, cũng như các mối quan hệ (Relations) trực tiếp giữa các thực thể đó.
 
 Định dạng đầu ra BẮT BUỘC là JSON duy nhất có cấu trúc như sau (không kèm markdown block hay văn bản giải thích):
 {{
-  "entities": [
-    {{"name": "Tên thực thể", "type": "Loại thực thể ví dụ: law, organization, person, document", "description": "Mô tả chi tiết thực thể trong văn bản"}}
+  "events": [
+    {{
+      "title": "Tiêu đề ngắn gọn của sự kiện",
+      "summary": "Tóm tắt sự kiện",
+      "content": "Câu văn/Đoạn văn chính xác chứa bằng chứng (evidence) về sự kiện này trong văn bản",
+      "category": "Loại sự kiện (ví dụ: Quy định pháp luật, Giao dịch, Hành động tổ chức, Sự kiện lịch sử)",
+      "event_time_start": "Thời gian bắt đầu sự kiện (định dạng YYYY-MM-DD hoặc ISO-8601 nếu có, nếu không thì để trống)",
+      "event_time_end": "Thời gian kết thúc sự kiện (định dạng tương tự)",
+      "confidence": 0.9,
+      "entities": [
+        {{
+          "name": "Tên thực thể tham gia vào sự kiện",
+          "type": "Loại thực thể (ví dụ: law, organization, person, document, concept)",
+          "role": "Vai trò của thực thể trong sự kiện (ví dụ: chủ thể hành động, đối tượng chịu tác động, địa điểm)",
+          "evidence_text": "Câu văn chứa bằng chứng về vai trò của thực thể này",
+          "weight": 0.8
+        }}
+      ]
+    }}
   ],
   "relations": [
-    {{"source_entity": "Tên thực thể nguồn", "target_entity": "Tên thực thể đích", "relation_type": "Loại quan hệ ví dụ: amends, applies_to, supersedes, member_of", "description": "Mô tả chi tiết mối quan hệ này"}}
+    {{
+      "source_entity": "Tên thực thể nguồn",
+      "target_entity": "Tên thực thể đích",
+      "relation_type": "Loại quan hệ (ví dụ: amends, applies_to, member_of, reports_to)",
+      "description": "Mô tả mối quan hệ"
+    }}
   ]
 }}
 
 Lưu ý:
 - Phải đảm bảo tính chính xác cực kỳ cao.
-- Tên thực thể trong relations phải khớp hoàn toàn với tên thực thể trong danh sách entities.
+- Trích xuất "content" và "evidence_text" phải là các câu thực tế xuất hiện trong văn bản gốc.
+- Định dạng JSON phải chuẩn xác và không bị lỗi cú pháp.
 
 Văn bản cần phân tích:
 \"\"\"
-{doc_text}
+{chunk.text_raw}
 \"\"\"
 """
 
@@ -276,7 +349,7 @@ Văn bản cần phân tích:
 
     try:
         with llm_generation_span(
-            llm=llm, flow=LLMFlow.KG_DEEP_EXTRACTION, input_messages=messages
+            llm=llm, flow=LLMFlow.KG_EVENT_EXTRACTION, input_messages=messages
         ):
             # Configure a 25-minute timeout override to prevent hangs.
             response = llm.invoke(messages, timeout_override=1500)
@@ -289,25 +362,87 @@ Văn bản cần phân tích:
             response_text = response_text.split("```")[1].split("```")[0].strip()
 
         data = json.loads(response_text)
-        entities_data = data.get("entities", [])
+        events_data = data.get("events", [])
         relations_data = data.get("relations", [])
 
         with db_session.begin_nested():
             name_to_id: dict[str, uuid.UUID] = {}
-            for ent in entities_data:
-                raw_name = ent.get("name", "").strip()
-                if not raw_name:
+
+            # Process Events first, and collect all entities
+            for ev_data in events_data:
+                title = ev_data.get("title", "").strip()
+                if not title:
                     continue
-                entity_type = ent.get("type", "concept").strip()
-                description = ent.get("description", "").strip()
-                eid = _upsert_entity_with_alias(
-                    raw_name, entity_type, description, db_session
+                content = ev_data.get("content", "").strip() or chunk.text_raw[:500]
+                summary = ev_data.get("summary", "").strip() or None
+                category = ev_data.get("category", "").strip() or None
+                time_start = _parse_datetime(ev_data.get("event_time_start"))
+                time_end = _parse_datetime(ev_data.get("event_time_end"))
+                confidence = ev_data.get("confidence")
+                if confidence is not None:
+                    try:
+                        confidence = float(confidence)
+                    except ValueError:
+                        confidence = 1.0
+
+                # Create the KnowledgeEvent
+                event_obj = KnowledgeEvent(
+                    event_id=uuid.uuid4(),
+                    document_id=doc_id,
+                    chunk_id=chunk.chunk_id,
+                    title=title,
+                    summary=summary,
+                    content=content,
+                    category=category,
+                    event_time_start=time_start,
+                    event_time_end=time_end,
+                    confidence=confidence,
+                    extraction_job_id=extraction_job_id,
                 )
-                if eid is not None:
-                    name_to_id[raw_name] = eid
+                db_session.add(event_obj)
+                db_session.flush()
+
+                # Process entities in the event
+                for ent in ev_data.get("entities", []):
+                    raw_name = ent.get("name", "").strip()
+                    if not raw_name:
+                        continue
+                    entity_type = ent.get("type", "concept").strip()
+                    description = ent.get("evidence_text", "").strip()
+
+                    eid = _upsert_entity_with_alias(
+                        raw_name,
+                        entity_type,
+                        description,
+                        db_session,
+                        knowledge_scope_id=knowledge_scope_id,
+                    )
+                    if eid is not None:
+                        name_to_id[raw_name] = eid
+
+                        # Create EventEntity link
+                        role = ent.get("role", "").strip() or None
+                        evidence = ent.get("evidence_text", "").strip() or None
+                        ent_weight = ent.get("weight")
+                        if ent_weight is not None:
+                            try:
+                                ent_weight = float(ent_weight)
+                            except ValueError:
+                                ent_weight = 1.0
+
+                        event_ent_obj = EventEntity(
+                            id=uuid.uuid4(),
+                            event_id=event_obj.event_id,
+                            entity_id=eid,
+                            role=role,
+                            evidence_text=evidence,
+                            weight=ent_weight,
+                        )
+                        db_session.add(event_ent_obj)
 
             db_session.flush()
 
+            # Process legacy relations if both source and target entities resolved
             for rel in relations_data:
                 src_name = rel.get("source_entity", "").strip()
                 tgt_name = rel.get("target_entity", "").strip()
@@ -316,6 +451,21 @@ Văn bản cần phân tích:
 
                 src_id = name_to_id.get(src_name)
                 tgt_id = name_to_id.get(tgt_name)
+
+                # Fallback: if we haven't seen these entities in events, upsert them globally within scope
+                if not src_id and src_name:
+                    src_id = _upsert_entity_with_alias(
+                        src_name, "concept", "", db_session, knowledge_scope_id=knowledge_scope_id
+                    )
+                    if src_id:
+                        name_to_id[src_name] = src_id
+
+                if not tgt_id and tgt_name:
+                    tgt_id = _upsert_entity_with_alias(
+                        tgt_name, "concept", "", db_session, knowledge_scope_id=knowledge_scope_id
+                    )
+                    if tgt_id:
+                        name_to_id[tgt_name] = tgt_id
 
                 if src_id and tgt_id:
                     existing_rel = (

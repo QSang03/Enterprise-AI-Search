@@ -167,6 +167,12 @@ def document_by_cc_pair_cleanup_task(
                     document_id,
                     chunk_count=chunk_count,
                 )
+                try:
+                    retry_document_index.delete_knowledge_events_by_document(document_id)
+                except Exception:
+                    logger.exception(
+                        f"Failed to delete knowledge events for document {document_id}"
+                    )
         elif action == DocumentCleanupAction.UPDATE:
             assert update_request is not None
             for retry_document_index in retry_document_indices:

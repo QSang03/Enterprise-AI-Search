@@ -512,7 +512,101 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             prefetched_federated_retrieval_infos=federated_retrieval_infos,
         )
 
+    def _classify_query_mode(self, query: str, llm: LLM) -> str:
+        """Returns 'standard' if query requires multi-hop/relationship reasoning."""
+        prompt = f"""Bạn là chuyên gia phân loại câu hỏi (Query Classifier).
+Hãy phân loại xem câu hỏi sau đây thuộc loại 'fast' hay 'standard':
+- 'fast': Câu hỏi đơn giản, tìm kiếm thông tin trực tiếp, định nghĩa, tra cứu từ khóa đơn thuần.
+- 'standard': Câu hỏi phức tạp đòi hỏi suy luận liên kết, so sánh, phân tích mối quan hệ giữa các thực thể, câu hỏi suy luận sâu hoặc multi-hop.
+
+Chỉ trả về duy nhất từ 'fast' hoặc 'standard' (không kèm giải thích hay từ nào khác).
+
+Câu hỏi: "{query}"
+Phân loại:"""
+        from onyx.llm.models import ChatCompletionMessage, UserMessage
+        from onyx.tracing.flows import LLMFlow
+        from onyx.tracing.llm_utils import llm_generation_span
+        
+        messages = [UserMessage(content=prompt)]
+        try:
+            with llm_generation_span(
+                llm=llm, flow=LLMFlow.INTENT_CLASSIFICATION, input_messages=messages
+            ):
+                res = llm.invoke(messages)
+                classification = res.content.strip().lower() if res.content else "fast"
+                if "standard" in classification:
+                    return "standard"
+        except Exception:
+            pass
+        return "fast"
+
+    def _run_event_search(
+        self,
+        query_text: str,
+        query_embedding: list[float],
+        acl_filters: list[str] | None,
+        effective_filters: BaseFilters | None,
+        max_events: int = 50,
+    ) -> tuple[list[InferenceChunk], list[str]]:
+        """Runs vector search on the knowledge_event index and maps hits to parent chunks."""
+        try:
+            event_hits = self.document_index.search_knowledge_events(
+                query_embedding=query_embedding,
+                query_text=query_text,
+                acl_filters=acl_filters,
+                max_events=max_events,
+            )
+            if not event_hits:
+                return [], []
+
+            titles = [e.get("event_title") or e.get("title") or "" for e in event_hits]
+
+            from onyx.document_index.interfaces_new import DocumentSectionRequest
+            section_requests = []
+            seen_sections = set()
+            for event in event_hits:
+                doc_id = event.get("document_id")
+                sibling_order_str = event.get("chunk_id")
+                if doc_id and sibling_order_str:
+                    try:
+                        sibling_order = int(sibling_order_str)
+                        sec_key = (doc_id, sibling_order)
+                        if sec_key not in seen_sections:
+                            seen_sections.add(sec_key)
+                            section_requests.append(
+                                DocumentSectionRequest(document_id=doc_id, chunk_id=sibling_order)
+                            )
+                    except ValueError:
+                        pass
+
+            if not section_requests:
+                return [], titles
+
+            # Vespa id_based_retrieval wants IndexFilters
+            from onyx.context.search.models import IndexFilters
+            index_filters = IndexFilters(
+                source_type=None,
+                document_set=None,
+                time_cutoff=None,
+                tags=None,
+            )
+            if effective_filters:
+                index_filters.source_type = effective_filters.source_type
+                index_filters.document_set = effective_filters.document_set
+                index_filters.time_cutoff = effective_filters.time_cutoff
+                index_filters.tags = effective_filters.tags
+
+            chunks = self.document_index.id_based_retrieval(
+                chunk_requests=section_requests,
+                filters=index_filters,
+            )
+            return chunks, titles
+        except Exception:
+            logger.exception("Failed to run event search")
+            return [], []
+
     @classmethod
+
     def is_available(cls, db_session: Session) -> bool:
         """Check if search tool is available.
 
@@ -771,10 +865,14 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             # Match entities in the original query or LLM queries and expand them.
             # Expanded entity names are stored separately from keyword_queries
             # and used later as low-weight secondary retrieval candidates.
+            query_mode = "fast"
             try:
                 candidate_text = override_kwargs.original_query or (
                     llm_queries[0] if llm_queries else ""
                 )
+                if candidate_text:
+                    query_mode = self._classify_query_mode(candidate_text, self.llm)
+
                 if candidate_text:
                     candidate_lower = candidate_text.lower()
                     # Union initial match with entity_aliases
@@ -859,7 +957,7 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
 
                         expanded_nodes = expand_entities_cte(
                             entity_names=matched_names,
-                            depth=1,
+                            depth=2 if query_mode == "standard" else 1,
                             db_session=db_session,
                             allowed_document_ids=allowed_doc_ids,
                             allowed_connector_ids=allowed_conn_ids,
@@ -1118,6 +1216,17 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             or (llm_queries[0] if llm_queries else "")
         )
 
+        # Generate query embedding for event search
+        from onyx.context.search.utils import get_query_embeddings
+        query_embeddings = get_query_embeddings(
+            queries=[secondary_flows_user_query],
+            embedding_model=embedding_model,
+        )
+        query_embedding = query_embeddings[0] if query_embeddings else None
+
+        event_titles = []
+        event_search_chunks = []
+
         # Run pure Keyword and pure Semantic search in parallel, taking top 50 each
         search_functions = [
             (
@@ -1146,6 +1255,22 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             ),
         ]
         search_weights = [1.0, 1.0]
+
+        if query_embedding:
+            def _event_search_task():
+                chunks, titles = self._run_event_search(
+                    secondary_flows_user_query,
+                    query_embedding,
+                    acl_filters,
+                    effective_filters,
+                    50,
+                )
+                event_titles.extend(titles)
+                event_search_chunks.extend(chunks)
+                return chunks
+
+            search_functions.append((_event_search_task, ()))
+            search_weights.append(0.4)
 
         # Add Slack federated search if available
         if slack_access_token and override_kwargs.original_query:
@@ -1453,6 +1578,27 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
             format(document_expansion_elapsed, ".3f"),
         )
 
+        # Build GraphSearchTrace
+        graph_trace = None
+        if getattr(override_kwargs, "debug", False):
+            graph_trace = {
+                "query_entities": matched_names if "matched_names" in locals() else [],
+                "matched_entities": matched_names if "matched_names" in locals() else [],
+                "seed_events": event_titles if "event_titles" in locals() else [],
+                "expanded_events": event_titles if "event_titles" in locals() else [],
+                "graph_candidate_chunks": [f"{c.document_id}_{c.chunk_id}" for c in event_search_chunks] if "event_search_chunks" in locals() else [],
+                "route_weights": {
+                    "semantic": 1.0,
+                    "keyword": 1.0,
+                    "event": 0.4 if ("query_embedding" in locals() and query_embedding is not None) else 0.0,
+                    "entity": 0.3 if ("graph_expanded_keywords" in locals() and graph_expanded_keywords) else 0.0,
+                },
+                "timings": {
+                    "overall_elapsed": overall_elapsed,
+                    "query_classification": query_mode if "query_mode" in locals() else "fast",
+                }
+            }
+
         llm_facing_response = docs_str
 
         return ToolResponse(
@@ -1461,7 +1607,9 @@ class SearchTool(Tool[SearchToolOverrideKwargs]):
                 search_docs=search_docs,
                 citation_mapping=citation_mapping,
                 displayed_docs=final_ui_docs,
+                graph_trace=graph_trace,
             ),
             # The LLM facing response typically includes less docs to cut down on noise and token usage
             llm_facing_response=llm_facing_response,
         )
+

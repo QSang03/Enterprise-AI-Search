@@ -216,7 +216,7 @@ def deploy_vespa_schemas(
     )
 
     with open(services_jinja_file, "r") as services_f:
-        schema_names = [primary_index_name, secondary_index_name]
+        schema_names = [primary_index_name, secondary_index_name, "knowledge_event"]
         doc_lines = _create_document_xml_lines(schema_names)
         services_template_str = services_f.read()
         services_template = jinja_env.from_string(services_template_str)
@@ -272,6 +272,21 @@ def deploy_vespa_schemas(
         )
         zip_dict[f"schemas/{secondary_index_name}.sd"] = upcoming_schema.encode("utf-8")
 
+    # Render knowledge_event schema
+    event_schema_jinja_file = os.path.join(
+        vespa_schema_path, "schemas", "knowledge_event.sd.jinja"
+    )
+    with open(event_schema_jinja_file, "r") as event_schema_f:
+        event_template_str = event_schema_f.read()
+    event_template = jinja_env.from_string(event_template_str)
+    event_schema = event_template.render(
+        multi_tenant=MULTI_TENANT,
+        schema_name="knowledge_event",
+        dim=primary_embedding_dim,
+        embedding_precision=primary_embedding_precision.value,
+    )
+    zip_dict["schemas/knowledge_event.sd"] = event_schema.encode("utf-8")
+
     zip_file = _in_memory_zip_from_file_bytes(zip_dict)
     headers = {"Content-Type": "application/zip"}
     response = requests.post(deploy_url, headers=headers, data=zip_file)
@@ -310,7 +325,7 @@ def register_multitenant_vespa_indices(
     jinja_env = jinja2.Environment()  # noqa: S701 — renders Vespa schema files, not HTML
 
     with open(services_jinja_file, "r") as services_f:
-        schema_names = list(indices)
+        schema_names = list(indices) + ["knowledge_event"]
         doc_lines = _create_document_xml_lines(schema_names)
         services_template_str = services_f.read()
         services_template = jinja_env.from_string(services_template_str)
@@ -360,6 +375,21 @@ def register_multitenant_vespa_indices(
         )
         schema = _add_ngrams_to_schema(schema) if needs_reindexing else schema
         zip_dict[f"schemas/{index_name}.sd"] = schema.encode("utf-8")
+
+    # Render knowledge_event schema for multitenant
+    event_schema_jinja_file = os.path.join(
+        vespa_schema_path, "schemas", "knowledge_event.sd.jinja"
+    )
+    with open(event_schema_jinja_file, "r") as event_schema_f:
+        event_template_str = event_schema_f.read()
+    event_template = jinja_env.from_string(event_template_str)
+    event_schema = event_template.render(
+        multi_tenant=MULTI_TENANT,
+        schema_name="knowledge_event",
+        dim=embedding_dims[0],
+        embedding_precision=embedding_precisions[0].value,
+    )
+    zip_dict["schemas/knowledge_event.sd"] = event_schema.encode("utf-8")
 
     zip_file = _in_memory_zip_from_file_bytes(zip_dict)
     headers = {"Content-Type": "application/zip"}
@@ -1212,6 +1242,104 @@ class VespaDocumentIndex(DocumentIndex):
             time.monotonic() - update_start,
         )
 
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        """Indexes knowledge events into Vespa."""
+        json_header = {
+            "Content-Type": "application/json",
+        }
+        with get_vespa_http_client() as http_client:
+            for event in events:
+                event_id = event["event_id"]
+                vespa_url = f"{VESPA_APPLICATION_ENDPOINT}/document/v1/knowledge_event/knowledge_event/docid/{event_id}"
+                response = http_client.post(
+                    vespa_url,
+                    headers=json_header,
+                    json={"fields": event},
+                )
+                response.raise_for_status()
+
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        """Searches Vespa for knowledge events using a hybrid/semantic/keyword query."""
+        where_clauses = []
+        if self._multitenant:
+            where_clauses.append(f'tenant_id contains "{self._tenant_id}"')
+
+        # ACL filtering
+        if acl_filters:
+            acl_match = " OR ".join([f'access_control_list contains "{acl}"' for acl in acl_filters])
+            where_clauses.append(f'(is_public = true OR {acl_match})')
+        else:
+            where_clauses.append('is_public = true')
+
+        where_clause_str = " AND ".join(where_clauses) if where_clauses else "true"
+        
+        if query_embedding:
+            yql = (
+                f"select * from knowledge_event "
+                f"where {where_clause_str} "
+                f"nearestNeighbor(content_embedding, query_embedding)"
+            )
+            params = {
+                "yql": yql,
+                "ranking.profile": "event_hybrid",
+                "ranking.features.query(query_embedding)": query_embedding,
+                "ranking.features.query(alpha)": 0.4,
+                "timeout": VESPA_TIMEOUT,
+                "hits": max_events,
+            }
+            if query_text:
+                params["query"] = query_text
+        else:
+            yql = f"select * from knowledge_event where {where_clause_str}"
+            params = {
+                "yql": yql,
+                "ranking.profile": "event_keyword",
+                "timeout": VESPA_TIMEOUT,
+                "hits": max_events,
+            }
+            if query_text:
+                params["query"] = query_text
+
+        with get_vespa_http_client() as http_client:
+            response = http_client.post(SEARCH_ENDPOINT, json=params)
+            response.raise_for_status()
+            hits = response.json().get("root", {}).get("children", [])
+            
+            results = []
+            for hit in hits:
+                fields = hit.get("fields", {})
+                results.append(fields)
+            return results
+
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        """Deletes all knowledge events associated with a document_id in Vespa."""
+        yql = f'select event_id from knowledge_event where document_id contains "{document_id}" limit 1000'
+        params = {
+            "yql": yql,
+            "ranking.profile": "unranked",
+            "timeout": VESPA_TIMEOUT,
+        }
+        with get_vespa_http_client() as http_client:
+            response = http_client.post(SEARCH_ENDPOINT, json=params)
+            response.raise_for_status()
+            hits = response.json().get("root", {}).get("children", [])
+            event_ids = []
+            for hit in hits:
+                fields = hit.get("fields", {})
+                if "event_id" in fields:
+                    event_ids.append(fields["event_id"])
+            
+            for event_id in event_ids:
+                vespa_url = f"{VESPA_APPLICATION_ENDPOINT}/document/v1/knowledge_event/knowledge_event/docid/{event_id}"
+                http_client.delete(vespa_url).raise_for_status()
+
+
 
 class VespaIndexPair(DocumentIndex):
     """Pair wrapper that fans operations out to a primary Vespa index and an
@@ -1348,6 +1476,25 @@ class VespaIndexPair(DocumentIndex):
     ) -> list[InferenceChunk]:
         return self._primary.random_retrieval(filters, num_to_retrieve, dirty)
 
+    def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
+        self._primary.index_knowledge_events(events)
+
+    def search_knowledge_events(
+        self,
+        query_embedding: list[float] | None,
+        query_text: str | None,
+        acl_filters: list[str] | None,
+        max_events: int = 50,
+    ) -> list[dict[str, Any]]:
+        return self._primary.search_knowledge_events(
+            query_embedding, query_text, acl_filters, max_events
+        )
+
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        self._primary.delete_knowledge_events_by_document(document_id)
+        if self._secondary:
+            self._secondary.delete_knowledge_events_by_document(document_id)
+
     @property
     def primary(self) -> VespaDocumentIndex:
         return self._primary
@@ -1355,3 +1502,4 @@ class VespaIndexPair(DocumentIndex):
     @property
     def secondary(self) -> VespaDocumentIndex | None:
         return self._secondary
+

@@ -45,3 +45,12 @@ class RetryDocumentIndex:
         update_requests: list[MetadataUpdateRequest],
     ) -> None:
         self.index.update(update_requests)
+
+    @retry(
+        retry=retry_if_exception_type(httpx.ReadTimeout),
+        wait=wait_random_exponential(multiplier=1, max=MAX_WAIT),
+        stop=stop_after_delay(STOP_AFTER),
+    )
+    def delete_knowledge_events_by_document(self, document_id: str) -> None:
+        self.index.delete_knowledge_events_by_document(document_id)
+
