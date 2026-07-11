@@ -177,15 +177,15 @@ export default function OAuthFinalizePage() {
               formikHelpers.setSubmitting(true);
               try {
                 if (!values.cloud_id) {
-                  throw new Error("Cloud ID is required.");
+                  throw new Error(t("cloudIdRequired"));
                 }
 
                 if (!values.cloud_name) {
-                  throw new Error("Cloud URL is required.");
+                  throw new Error(t("cloudUrlRequired"));
                 }
 
                 if (!values.cloud_url) {
-                  throw new Error("Cloud URL is required.");
+                  throw new Error(t("cloudUrlRequired"));
                 }
 
                 const response = await handleOAuthConfluenceFinalize(

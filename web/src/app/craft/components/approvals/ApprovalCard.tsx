@@ -211,7 +211,7 @@ export default function ApprovalCard({
             <CollapsibleTrigger asChild>
               <button
                 data-approval-trigger
-                aria-label={isOpen ? "Hide details" : "Show details"}
+                aria-label={isOpen ? t("hideDetails") : t("showDetails")}
                 className="p-1.5"
               >
                 <SvgChevronDown

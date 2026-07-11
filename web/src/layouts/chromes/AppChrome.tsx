@@ -170,7 +170,7 @@ function Header() {
     try {
       const response = await deleteChatSession(currentChatSession.id);
       if (!response.ok) {
-        throw new Error("Failed to delete chat session");
+        throw new Error(t("failedToDeleteChatSession"));
       }
       removeSession(currentChatSession.id);
       await Promise.all([refreshChatSessions(), fetchProjects()]);

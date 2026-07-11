@@ -41,7 +41,7 @@ export function CreateStdOAuthCredential({
     const redirectUrl = await getConnectorOauthRedirectUrl(sourceType, values);
 
     if (!redirectUrl) {
-      throw new Error("No redirect URL found for OAuth connector");
+      throw new Error(t("noRedirectUrlFound"));
     }
 
     window.location.href = redirectUrl;

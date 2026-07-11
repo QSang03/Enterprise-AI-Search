@@ -12,11 +12,13 @@ import { ContentComponentProps } from "./ExpandableContentWrapper";
 import { SvgAlertCircle, SvgSimpleLoader } from "@opal/icons";
 import Text from "@/refresh-components/texts/Text";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const CsvContent: React.FC<ContentComponentProps> = ({
   fileDescriptor,
   expanded = false,
 }) => {
+  const { t } = useTranslation();
   const [data, setData] = useState<Record<string, string>[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [isFetching, setIsFetching] = useState(true);
@@ -45,7 +47,7 @@ const CsvContent: React.FC<ContentComponentProps> = ({
         cache: "force-cache",
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch CSV file");
+        throw new Error(t("failedToFetchCSVFile"));
       }
 
       const contentLength = response.headers.get("Content-Length");
@@ -55,14 +57,14 @@ const CsvContent: React.FC<ContentComponentProps> = ({
       const MAX_FILE_SIZE_MB = 5;
 
       if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-        throw new Error("File size exceeds the maximum limit of 5MB");
+        throw new Error(t("fileSizeExceedsLimit"));
       }
 
       const csvData = await response.text();
       const rows = parseCSV(csvData.trim());
       const firstRow = rows[0];
       if (!firstRow) {
-        throw new Error("CSV file is empty");
+        throw new Error(t("csvFileIsEmpty"));
       }
       const parsedHeaders = firstRow;
       setHeaders(parsedHeaders);

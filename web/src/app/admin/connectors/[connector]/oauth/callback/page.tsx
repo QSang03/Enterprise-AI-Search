@@ -88,7 +88,7 @@ export default function OAuthCallbackPage() {
         );
 
         if (!response) {
-          throw new Error("Empty response from OAuth server.");
+          throw new Error(t("emptyResponseFromOAuthServer"));
         }
 
         setStatusMessage(t("oauthCallback.success"));

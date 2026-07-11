@@ -178,11 +178,11 @@ export default function CreateCustomAppModal({
     <Modal open={open} onOpenChange={(o) => !o && onClose()}>
       <Modal.Content width="lg" height="lg">
         <Modal.Header
-          title={existingApp ? `Edit ${existingApp.name}` : "Create custom app"}
+          title={existingApp ? t("editCustomApp", { name: existingApp.name }) : t("createCustomApp")}
           description={
             isEdit
-              ? "Update this custom app's configuration, and optionally upload a new bundle to replace its files."
-              : "Define a custom external app: upload its skill bundle and configure how the egress proxy authenticates outbound requests."
+              ? t("updateCustomAppDescription")
+              : t("defineCustomAppDescription")
           }
         />
         <Modal.Body>

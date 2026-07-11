@@ -25,6 +25,7 @@ import {
 } from "@/hooks/useAuthTypeMetadata";
 import { updateUserPersonalization as persistPersonalization } from "@/lib/userSettings";
 import { useTheme } from "next-themes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface UserContextType {
   user: User | null;
@@ -61,6 +62,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const { user: fetchedUser, mutateUser } = useCurrentUser();
   const { authTypeMetadata, isLoading: authTypeMetadataLoading } =
     useAuthTypeMetadata();
@@ -182,7 +184,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update user temperature override setting");
+        throw new Error(t("failedToUpdateTemperatureSetting"));
       }
     } catch (error) {
       console.error("Error updating user temperature override setting:", error);
@@ -217,7 +219,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update user shortcut setting");
+        throw new Error(t("failedToUpdateShortcutSetting"));
       }
     } catch (error) {
       console.error("Error updating user shortcut setting:", error);
@@ -252,7 +254,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update paste tile setting");
+        throw new Error(t("failedToUpdatePasteTileSetting"));
       }
     } catch (error) {
       console.error("Error updating paste tile setting:", error);
@@ -283,7 +285,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update auto-scroll setting");
+        throw new Error(t("failedToUpdateAutoScrollSetting"));
       }
     } catch (error) {
       console.error("Error updating auto-scroll setting:", error);
@@ -310,7 +312,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update personalization settings");
+        throw new Error(t("failedToUpdatePersonalizationSettings"));
       }
 
       await refreshUser();
@@ -353,7 +355,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update pinned assistants");
+        throw new Error(t("failedToUpdatePinnedAssistants"));
       }
 
       await refreshUser();
@@ -391,7 +393,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update theme preference");
+        throw new Error(t("failedToUpdateThemePreference"));
       }
     } catch (error) {
       console.error("Error updating theme preference:", error);

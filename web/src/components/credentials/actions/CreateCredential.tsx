@@ -138,7 +138,7 @@ export default function CreateCredential({
       const { message, isSuccess, credential } = response;
 
       if (!credential) {
-        throw new Error("No credential returned");
+        throw new Error(t("noCredentialReturned"));
       }
 
       if (isSuccess && swapConnector) {

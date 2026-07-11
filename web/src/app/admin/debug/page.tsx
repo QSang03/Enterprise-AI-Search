@@ -32,7 +32,7 @@ function Main() {
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/admin/long-term-logs");
-        if (!response.ok) throw new Error("Failed to fetch categories");
+        if (!response.ok) throw new Error(t("failedToFetchCategories"));
         const data = await response.json();
         setCategories(data);
       } catch (error) {
@@ -43,7 +43,7 @@ function Main() {
     };
 
     fetchCategories();
-  }, []);
+  }, [t]);
 
   const handleDownload = async (category: string) => {
     setIsDownloading(true);
@@ -51,7 +51,7 @@ function Main() {
       const response = await fetch(
         `/api/admin/long-term-logs/${category}/download`
       );
-      if (!response.ok) throw new Error("Failed to download logs");
+      if (!response.ok) throw new Error(t("failedToDownloadLogs"));
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

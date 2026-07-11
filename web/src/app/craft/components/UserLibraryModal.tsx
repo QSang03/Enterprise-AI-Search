@@ -517,7 +517,7 @@ function LibraryTreeView({
                   size="2xs"
                   icon={isExpanded ? SvgChevronDown : SvgChevronRight}
                   onClick={() => onToggleFolder(entry.path)}
-                  tooltip={isExpanded ? "Collapse" : "Expand"}
+                  tooltip={isExpanded ? t("collapse") : t("expand")}
                 />
               ) : (
                 <span aria-hidden className="w-5 shrink-0" />
