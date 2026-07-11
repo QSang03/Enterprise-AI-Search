@@ -2,6 +2,7 @@ from collections.abc import Callable
 from typing import cast
 
 from sqlalchemy import cast as sa_cast
+from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy.dialects import postgresql
@@ -9,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from onyx.access.models import DocumentAccess
 from onyx.access.utils import prefix_user_email
+from onyx.access.utils import prefix_user_group
 from onyx.configs.constants import DocumentSource
 from onyx.configs.constants import FileOrigin
 from onyx.configs.constants import PUBLIC_DOC_PAT
@@ -18,6 +20,7 @@ from onyx.db.models import ChatMessage
 from onyx.db.models import ChatSession
 from onyx.db.models import ChatSessionSharedStatus
 from onyx.db.models import Connector
+from onyx.db.models import ConnectorCredentialPair
 from onyx.db.models import Document
 from onyx.db.models import DocumentByConnectorCredentialPair
 from onyx.db.models import FileRecord
@@ -25,7 +28,10 @@ from onyx.db.models import Persona
 from onyx.db.models import Persona__User
 from onyx.db.models import Persona__UserFile
 from onyx.db.models import User
+from onyx.db.models import User__UserGroup
 from onyx.db.models import UserFile
+from onyx.db.models import UserGroup
+from onyx.db.models import UserGroup__ConnectorCredentialPair
 from onyx.db.user_file import fetch_user_files_with_access_relationships
 from onyx.utils.variable_functionality import fetch_ee_implementation_or_noop
 from onyx.utils.variable_functionality import fetch_versioned_implementation
@@ -79,12 +85,46 @@ def _get_access_for_documents(
         db_session=db_session,
         document_ids=document_ids,
     )
+    
+    doc_groups: dict[str, list[str]] = {}
+    if document_ids:
+        group_stmt = (
+            select(
+                DocumentByConnectorCredentialPair.id,
+                UserGroup.name
+            )
+            .join(
+                ConnectorCredentialPair,
+                and_(
+                    ConnectorCredentialPair.connector_id == DocumentByConnectorCredentialPair.connector_id,
+                    ConnectorCredentialPair.credential_id == DocumentByConnectorCredentialPair.credential_id
+                )
+            )
+            .join(
+                UserGroup__ConnectorCredentialPair,
+                and_(
+                    UserGroup__ConnectorCredentialPair.cc_pair_id == ConnectorCredentialPair.id,
+                    UserGroup__ConnectorCredentialPair.is_current.is_(True)
+                )
+            )
+            .join(
+                UserGroup,
+                UserGroup.id == UserGroup__ConnectorCredentialPair.user_group_id
+            )
+            .where(
+                DocumentByConnectorCredentialPair.id.in_(document_ids)
+            )
+        )
+        for doc_id, g_name in db_session.execute(group_stmt).all():
+            if doc_id not in doc_groups:
+                doc_groups[doc_id] = []
+            doc_groups[doc_id].append(g_name)
+
     doc_access = {}
     for document_id, user_emails, is_public in document_access_info:
         doc_access[document_id] = DocumentAccess.build(
             user_emails=[email for email in user_emails if email],
-            # MIT version will wipe all groups and external groups on update
-            user_groups=[],
+            user_groups=doc_groups.get(document_id, []),
             is_public=is_public,
             external_user_emails=[],
             external_user_group_ids=[],
@@ -113,8 +153,8 @@ def get_access_for_documents(
 
 def _get_acl_for_user(
     user: User,
-    db_session: Session,  # noqa: ARG001
-) -> set[str]:  # noqa: ARG001
+    db_session: Session,
+) -> set[str]:
     """Returns a list of ACL entries that the user has access to. This is meant to be
     used downstream to filter out documents that the user does not have access to. The
     user should have access to a document if at least one entry in the document's ACL
@@ -124,7 +164,17 @@ def _get_acl_for_user(
     """
     if user.is_anonymous:
         return {PUBLIC_DOC_PAT}
-    return {prefix_user_email(user.email), PUBLIC_DOC_PAT}
+    acl = {prefix_user_email(user.email), PUBLIC_DOC_PAT}
+    if db_session:
+        groups = (
+            db_session.query(UserGroup.name)
+            .join(User__UserGroup, User__UserGroup.user_group_id == UserGroup.id)
+            .filter(User__UserGroup.user_id == user.id)
+            .all()
+        )
+        for g in groups:
+            acl.add(prefix_user_group(g[0]))
+    return acl
 
 
 def get_acl_for_user(user: User, db_session: Session | None = None) -> set[str]:

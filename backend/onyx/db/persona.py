@@ -297,6 +297,28 @@ def resolve_desired_user_shares(
     }
 
 
+def resolve_desired_group_shares(
+    persona_id: int,
+    group_ids: list[int] | None,
+    group_shares: dict[int, PersonaSharePermission] | None,
+    db_session: Session,
+) -> dict[int, PersonaSharePermission] | None:
+    if group_shares is not None:
+        return dict(group_shares)
+    if group_ids is None:
+        return None
+    existing = {
+        row.user_group_id: row.permission
+        for row in db_session.query(Persona__UserGroup)
+        .filter(Persona__UserGroup.persona_id == persona_id)
+        .all()
+    }
+    return {
+        g_id: existing.get(g_id, PersonaSharePermission.VIEWER)
+        for g_id in set(group_ids)
+    }
+
+
 def update_persona_access(
     persona_id: int,
     creator_user_id: UUID | None,
@@ -333,16 +355,22 @@ def update_persona_access(
             persona_id, desired_user_shares, creator_user_id, db_session
         )
 
-    # MIT doesn't support group-based sharing, so we allow clearing (no-op since
-    # there shouldn't be any) but raise an error if trying to add actual groups.
-    if group_ids is not None or group_shares is not None:
+    desired_group_shares = resolve_desired_group_shares(
+        persona_id, group_ids, group_shares, db_session
+    )
+    if desired_group_shares is not None:
         needs_sync = True
         db_session.query(Persona__UserGroup).filter(
             Persona__UserGroup.persona_id == persona_id
         ).delete(synchronize_session="fetch")
-
-        if group_ids or group_shares:
-            raise NotImplementedError("Onyx MIT does not support group-based sharing")
+        for g_id, perm in desired_group_shares.items():
+            db_session.add(
+                Persona__UserGroup(
+                    persona_id=persona_id,
+                    user_group_id=g_id,
+                    permission=perm,
+                )
+            )
 
     # When sharing changes, user file ACLs need to be updated in the vector DB
     if needs_sync:
@@ -689,16 +717,12 @@ def transfer_persona_ownership(
     new_owner_user_id: UUID | None = None,
     new_owner_group_id: int | None = None,
 ) -> None:
-    """Move ownership to a single user. Group targets are EE-only (versioned
-    override in ee.onyx.db.persona)."""
-    if new_owner_group_id is not None:
-        raise NotImplementedError("Onyx MIT does not support group ownership")
     _transfer_persona_ownership(
         persona_id=persona_id,
         user=user,
         db_session=db_session,
         new_owner_user_id=new_owner_user_id,
-        new_owner_group_id=None,
+        new_owner_group_id=new_owner_group_id,
     )
 
 
