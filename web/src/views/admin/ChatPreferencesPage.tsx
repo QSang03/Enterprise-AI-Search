@@ -1133,7 +1133,7 @@ export default function ChatPreferencesPage() {
                         tag={
                           !enterpriseTier
                             ? {
-                                title: "Enterprise Plan",
+                                title: t("admin.chatPreferences.enterprisePlanBadge"),
                                 color: "amber",
                                 icon: SvgOrganization,
                               }

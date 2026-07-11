@@ -1,7 +1,6 @@
 "use client";
 
 import { StandardAnswerCreationForm } from "@/app/premium/admin/standard-answer/StandardAnswerCreationForm";
-import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
@@ -20,7 +19,7 @@ function Page() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await fetchSS("/manage/admin/standard-answer/category");
+        const response = await fetch("/api/manage/admin/standard-answer/category");
         if (!response.ok) {
           setError(`${t("failedToFetchStandardAnswerCategories")} - ${await response.text()}`);
         } else {

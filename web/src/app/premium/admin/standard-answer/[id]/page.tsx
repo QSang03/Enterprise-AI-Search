@@ -1,7 +1,6 @@
 "use client";
 
 import { StandardAnswerCreationForm } from "@/app/premium/admin/standard-answer/StandardAnswerCreationForm";
-import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
@@ -22,8 +21,8 @@ function Main({ id }: { id: string }) {
     async function fetchData() {
       try {
         const tasks = [
-          fetchSS("/manage/admin/standard-answer"),
-          fetchSS("/manage/admin/standard-answer/category"),
+          fetch("/api/manage/admin/standard-answer"),
+          fetch("/api/manage/admin/standard-answer/category"),
         ];
         const [standardAnswersResponse, standardAnswerCategoriesResponse] =
           await Promise.all(tasks);

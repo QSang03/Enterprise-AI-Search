@@ -285,7 +285,7 @@ export default function SecurityHardeningPage() {
                         }
                         min={1}
                         max={1024}
-                        placeholder="Default"
+                        placeholder={t("admin.security.defaultPlaceholder")}
                       />
                     </InputVertical>
                   </div>
@@ -302,7 +302,7 @@ export default function SecurityHardeningPage() {
                         }
                         min={1}
                         max={1024}
-                        placeholder="Default"
+                        placeholder={t("admin.security.defaultPlaceholder")}
                       />
                     </InputVertical>
                   </div>
@@ -420,16 +420,16 @@ export default function SecurityHardeningPage() {
                         <InputSelect.Item
                           value="masked"
                           wrapDescription
-                          description="Show only the first and last few characters (e.g. abcd...wxyz)."
+                          description={t("admin.security.partiallyMaskedDesc")}
                         >
-                          Partially Masked
+                          {t("admin.security.partiallyMasked")}
                         </InputSelect.Item>
                         <InputSelect.Item
                           value="visible"
                           wrapDescription
-                          description="Show the full credential value to admins."
+                          description={t("admin.security.fullyVisibleDesc")}
                         >
-                          Fully Visible
+                          {t("admin.security.fullyVisible")}
                         </InputSelect.Item>
                       </InputSelect.Content>
                     </InputSelect>
@@ -471,30 +471,30 @@ export default function SecurityHardeningPage() {
                         <InputSelect.Item
                           value="validate_all"
                           wrapDescription
-                          description="Most restrictive. All outbound requests refuse to reach private or internal IPs, including web connectors."
+                          description={t("admin.security.validateAllDesc")}
                         >
-                          Validate All Requests
+                          {t("admin.security.validateAll")}
                         </InputSelect.Item>
                         <InputSelect.Item
                           value="validate_llm"
                           wrapDescription
-                          description="Validate all LLM-initiated URL fetches. Admin-configured connectors can still reach private or internal IPs."
+                          description={t("admin.security.validateLlmDesc")}
                         >
-                          Validate LLM Requests
+                          {t("admin.security.validateLlm")}
                         </InputSelect.Item>
                         <InputSelect.Item
                           value="allow_private_network"
                           wrapDescription
-                          description="Like Validate LLM Requests, but admin-configured MCP/OAuth endpoints may also reach private LAN hosts. Loopback (the app host itself) and cloud-metadata stay blocked."
+                          description={t("admin.security.allowPrivateDesc")}
                         >
-                          Allow Private Network
+                          {t("admin.security.allowPrivate")}
                         </InputSelect.Item>
                         <InputSelect.Item
                           value="disabled"
                           wrapDescription
-                          description="Use only in trusted networks. Allow all outbound requests — required for connecting to local LLM backends."
+                          description={t("admin.security.disabledDesc")}
                         >
-                          Disabled
+                          {t("admin.security.disabled")}
                         </InputSelect.Item>
                       </InputSelect.Content>
                     </InputSelect>
