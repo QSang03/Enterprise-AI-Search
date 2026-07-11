@@ -368,6 +368,7 @@
     "waitCurrentOperation": "Vui lòng đợi thao tác hiện tại hoàn tất.",
     "waitSandboxInit": "Vui lòng đợi khởi tạo môi trường sandbox",
     "thinking": "Đang suy nghĩ",
+    "thinkingEllipsis": "Đang suy nghĩ...",
     "executingCode": "Đang thực thi mã",
     "generatingImages": "Đang tạo hình ảnh",
     "executingTool": "Đang thực thi công cụ",

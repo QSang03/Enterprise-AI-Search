@@ -503,7 +503,12 @@ class DynamicCitationProcessor:
                 continue
 
             # Format the citation text as [[n]](link)
-            formatted_citation_parts.append(f"[[{num}]]({link})")
+            # Use CommonMark angle-bracket syntax when the URL contains
+            # characters (spaces, parentheses) that would break the parser.
+            encoded_link = (
+                f"<{link}>" if " " in link or ")" in link else link
+            )
+            formatted_citation_parts.append(f"[[{num}]]({encoded_link})")
 
             # Skip creating CitationInfo for citations of the same work if cited recently (deduplication)
             if doc_id in self.recent_cited_documents:

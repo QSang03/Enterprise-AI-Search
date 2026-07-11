@@ -368,6 +368,7 @@
     "waitCurrentOperation": "Please wait for the current operation to complete.",
     "waitSandboxInit": "Please wait for sandbox to initialize",
     "thinking": "Thinking",
+    "thinkingEllipsis": "Thinking...",
     "executingCode": "Executing code",
     "generatingImages": "Generating images",
     "executingTool": "Executing tool",
