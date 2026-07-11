@@ -716,7 +716,10 @@ def run_llm_loop(
         always_cite_documents: bool = bool(
             context_files.use_as_search_filter or context_files.file_texts
         )
-        should_cite_documents: bool = False
+        has_search_tool: bool = any(
+            isinstance(tool, (SearchTool, WebSearchTool)) for tool in tools
+        )
+        should_cite_documents: bool = has_search_tool or always_cite_documents
         ran_image_gen: bool = False
         just_ran_web_search: bool = False
         has_open_url_tool: bool = any(isinstance(tool, OpenURLTool) for tool in tools)
