@@ -40,4 +40,24 @@ describe("transformLinkUri", () => {
   it("blocks unsafe protocols", () => {
     expect(transformLinkUri("javascript:alert(1)")).toBeNull();
   });
+
+  it("allows smb:// protocol", () => {
+    expect(
+      transformLinkUri(
+        "smb://192.168.117.200/dulieuchung/P.HanhChanhNhanSu/file.xlsx"
+      )
+    ).toBe(
+      "smb://192.168.117.200/dulieuchung/P.HanhChanhNhanSu/file.xlsx"
+    );
+  });
+
+  it("preserves smb: protocol in ensureHrefProtocol", () => {
+    expect(
+      ensureHrefProtocol(
+        "smb://192.168.117.200/dulieuchung/P.HanhChanhNhanSu/file.xlsx"
+      )
+    ).toBe(
+      "smb://192.168.117.200/dulieuchung/P.HanhChanhNhanSu/file.xlsx"
+    );
+  });
 });

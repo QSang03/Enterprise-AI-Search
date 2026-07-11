@@ -13,17 +13,29 @@ export function WebResultIcon({
   size?: number;
 }) {
   const [error, setError] = useState(false);
+
+  // Non-HTTP(S) protocols (smb://, file://, etc.) can't have favicons
+  const isNonHttpProtocol =
+    url.startsWith("smb:") || url.startsWith("file:");
+
   let hostname;
-  try {
-    hostname = new URL(url).hostname;
-  } catch (e) {
-    hostname = "onyx.app";
+  if (!isNonHttpProtocol) {
+    try {
+      hostname = new URL(url).hostname;
+    } catch (e) {
+      hostname = "onyx.app";
+    }
   }
+
+  if (isNonHttpProtocol) {
+    return <SourceIcon sourceType={ValidSources.Smb} iconSize={size} />;
+  }
+
   return (
     <>
-      {hostname.includes("onyx.app") ? (
+      {(hostname === "onyx.app" || hostname?.includes("onyx.app")) ? (
         <SvgOnyxLogo size={size} className="dark:text-white text-black" />
-      ) : hostname === "github.com" || hostname.endsWith(".github.com") ? (
+      ) : hostname === "github.com" || hostname?.endsWith(".github.com") ? (
         <SvgGithub size={size} />
       ) : !error ? (
         <img

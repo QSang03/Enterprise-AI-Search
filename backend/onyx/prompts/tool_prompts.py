@@ -5,10 +5,11 @@ TOOL_SECTION_HEADER = "\n# Tools\n\n"
 
 # This section is included if there are search type tools, currently internal_search and web_search
 TOOL_DESCRIPTION_SEARCH_GUIDANCE = """
-For questions that can be answered from existing knowledge, answer the user directly without using any tools. \
-If you suspect your knowledge is outdated or for topics where things are rapidly changing, use search tools to get more context. \
+Use the available search tools to find accurate and up-to-date information before answering. \
+Do not rely on your own knowledge for factual questions — always search first. \
+When search tools are available, they are your primary source of truth. \
 For statements that may be describing or referring to a document, run a search for the document. \
-In ambiguous cases, favor searching to get more context.
+In ambiguous cases, always search to get more context.
 
 When using any search type tool, do not make any assumptions and stay as faithful to the user's query as possible. \
 Between internal and web search (if both are available), think about if the user's query is likely better answered by team internal sources or online web pages. \
@@ -21,7 +22,9 @@ If it is unclear which tool to use, consider using multiple in parallel to be ef
 
 INTERNAL_SEARCH_GUIDANCE = """
 ## internal_search
-Use the `internal_search` tool to search connected applications for information. Some examples of when to use `internal_search` include:
+Use the `internal_search` tool to search connected applications for information. \
+This tool is your primary source of truth for any information about the organization, its people, documents, processes, or data. \
+Always prefer using `internal_search` over your own knowledge for these topics. Some examples of when to use `internal_search` include:
 - Internal information: any time where there may be some information stored in internal applications that could help better answer the query.
 - Niche/Specific information: information that is likely not found in public sources, things specific to a project or product, team, process, etc.
 - Keyword Queries: queries that are heavily keyword based are often internal document search queries.

@@ -145,7 +145,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
 
   useToastFromQuery({
     oauth_connected: {
-      message: "Authentication successful",
+      message: t("agentEditor.authenticationSuccessful"),
       type: "success",
     },
   });
@@ -862,7 +862,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
             <Modal.Content>
               <Modal.Header
                 icon={SvgFileText}
-                title="Sources"
+                title={t("agentEditor.sources")}
                 onClose={() => updateCurrentDocumentSidebarVisible(false)}
               />
               <Modal.Body>
@@ -987,16 +987,16 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                             }
                             title={
                               sessionFetchError.type === "not_found"
-                                ? "Chat not found"
+                                ? t("agentEditor.chatNotFound")
                                 : sessionFetchError.type === "access_denied"
-                                  ? "Access denied"
-                                  : "Something went wrong"
+                                  ? t("agentEditor.accessDenied")
+                                  : t("agentEditor.somethingWentWrong")
                             }
                             description={
                               sessionFetchError.type === "not_found"
-                                ? "This chat session doesn't exist or has been deleted."
+                                ? t("agentEditor.chatNotFoundDesc")
                                 : sessionFetchError.type === "access_denied"
-                                  ? "You don't have permission to view this chat session."
+                                  ? t("agentEditor.accessDeniedDesc")
                                   : sessionFetchError.detail
                             }
                           />
@@ -1099,7 +1099,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                           <Button
                             icon={SvgChevronDown}
                             onClick={handleScrollToBottom}
-                            aria-label="Scroll to bottom"
+                            aria-label={t("agentEditor.scrollToBottom")}
                             prominence="secondary"
                           />
                         </div>
@@ -1250,8 +1250,8 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
       </div>
       <projectFilesModal.Provider>
         <UserFilesModal
-          title="Project Files"
-          description="Sessions in this project can access the files here."
+          title={t("agentEditor.projectFiles")}
+          description={t("agentEditor.projectFilesDesc")}
           recentFiles={[...allCurrentProjectFiles]}
           onView={(file) => {
             if (!setPresentingDocument) return;

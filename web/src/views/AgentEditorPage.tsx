@@ -109,6 +109,7 @@ interface AgentIconEditorProps {
 }
 
 function FormWarningsEffect() {
+  const { t } = useTranslation();
   const { values, setStatus } = useFormikContext<{
     web_search: boolean;
     open_url: boolean;
@@ -117,11 +118,10 @@ function FormWarningsEffect() {
   useEffect(() => {
     const warnings: Record<string, string> = {};
     if (values.web_search && !values.open_url) {
-      warnings.open_url =
-        "Web Search without the ability to open URLs can lead to significantly worse web based results.";
+      warnings.open_url = t("agentEditor.webSearchWithoutOpenUrlWarning");
     }
     setStatus({ warnings });
-  }, [values.web_search, values.open_url, setStatus]);
+  }, [values.web_search, values.open_url, setStatus, t]);
 
   return null;
 }
@@ -311,6 +311,7 @@ function MCPServerCard({
   tools: enabledTools,
   isLoading,
 }: MCPServerCardProps) {
+  const { t } = useTranslation();
   const [isFolded, setIsFolded] = useState(false);
   const { values, setFieldValue, getFieldMeta } = useFormikContext<any>();
   const serverFieldName = `mcp_server_${server.id}`;
@@ -383,7 +384,7 @@ function MCPServerCard({
         bottomChildren={
           <GeneralLayouts.Section flexDirection="row" gap={0.5}>
             <InputTypeIn
-              placeholder="Search tools..."
+              placeholder={t("agentEditor.searchToolsPlaceholder")}
               variant="internal"
               searchIcon
               value={query}
@@ -395,7 +396,7 @@ function MCPServerCard({
                 rightIcon={isFolded ? SvgExpand : SvgFold}
                 onClick={() => setIsFolded((prev) => !prev)}
               >
-                {isFolded ? "Expand" : "Fold"}
+                {isFolded ? t("agentEditor.expand") : t("agentEditor.fold")}
               </Button>
             )}
           </GeneralLayouts.Section>
@@ -442,6 +443,7 @@ function MCPServerCard({
 }
 
 function AgentStarterMessages() {
+  const { t } = useTranslation();
   const max_starters = STARTER_MESSAGES_EXAMPLES.length;
 
   const { values } = useFormikContext<{
@@ -473,7 +475,7 @@ function AgentStarterMessages() {
               name={`starter_messages.${i}`}
               placeholder={
                 STARTER_MESSAGES_EXAMPLES[i] ||
-                "Enter a conversation starter..."
+                t("agentEditor.enterConversationStarter")
               }
               onRemove={() => arrayHelpers.remove(i)}
             />
@@ -744,11 +746,11 @@ export default function AgentEditorPage({
     icon_name: Yup.string().nullable(),
     remove_image: Yup.boolean().optional(),
     uploaded_image_id: Yup.string().nullable(),
-    name: Yup.string().required("Agent name is required."),
+    name: Yup.string().required(t("agentEditor.agentNameRequired")),
     description: Yup.string()
       .max(
         MAX_CHARACTERS_AGENT_DESCRIPTION,
-        `Description must be ${MAX_CHARACTERS_AGENT_DESCRIPTION} characters or less`
+        t("agentEditor.descriptionMaxLength", { max: MAX_CHARACTERS_AGENT_DESCRIPTION })
       )
       .optional(),
 
@@ -757,7 +759,7 @@ export default function AgentEditorPage({
     starter_messages: Yup.array().of(
       Yup.string().max(
         MAX_CHARACTERS_STARTER_MESSAGE,
-        `Conversation starter must be ${MAX_CHARACTERS_STARTER_MESSAGE} characters or less`
+        t("agentEditor.conversationStarterMaxLength", { max: MAX_CHARACTERS_STARTER_MESSAGE })
       )
     ),
 
@@ -776,7 +778,7 @@ export default function AgentEditorPage({
       .optional()
       .test(
         "knowledge-cutoff-date-not-in-future",
-        "Knowledge cutoff date must be today or earlier.",
+        t("agentEditor.knowledgeCutoffDateValidation"),
         (value) => !value || !isDateInFuture(value)
       ),
     replace_base_system_prompt: Yup.boolean(),
@@ -1137,8 +1139,8 @@ export default function AgentEditorPage({
 
                 <userFilesModal.Provider>
                   <UserFilesModal
-                    title="User Files"
-                    description="All files selected for this agent"
+                    title={t("agentEditor.userFiles")}
+                    description={t("agentEditor.allFilesSelectedForAgent")}
                     recentFiles={values.user_file_ids
                       .map((userFileId: string) => {
                         const rf = allRecentFiles.find(
@@ -1147,7 +1149,7 @@ export default function AgentEditorPage({
                         if (rf) return rf;
                         return {
                           id: userFileId,
-                          name: `File ${userFileId.slice(0, 8)}`,
+                          name: `${t("agentEditor.filePrefix")} ${userFileId.slice(0, 8)}`,
                           status: UserFileStatus.COMPLETED,
                           file_id: userFileId,
                           created_at: new Date().toISOString(),
