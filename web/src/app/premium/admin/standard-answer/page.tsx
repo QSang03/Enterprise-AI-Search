@@ -394,14 +394,12 @@ function Main() {
   return (
     <div className="mb-8">
       <Text as="p">
-        {markdown(
-          "Manage the standard answers for pre-defined questions.\nNote: Currently, only questions asked from Slack can receive standard answers."
-        )}
+        {markdown(t("standardAnswersDescription"))}
       </Text>
       <Spacer rem={0.5} />
       {standardAnswers.length == 0 && (
         <>
-          <Text as="p">Add your first standard answer below!</Text>
+          <Text as="p">{t("addFirstStandardAnswer")}</Text>
           <Spacer rem={0.5} />
         </>
       )}

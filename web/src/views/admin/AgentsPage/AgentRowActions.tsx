@@ -178,7 +178,7 @@ export default function AgentRowActions({
                     shareModal.toggle(true);
                   }}
                 >
-                  Share
+                  {t("admin.agents.share")}
                 </LineItem>,
                 businessTier ? (
                   <LineItem

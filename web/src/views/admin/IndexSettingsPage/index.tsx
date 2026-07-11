@@ -157,12 +157,12 @@ function EmbeddingProviderInfo({ providerName }: EmbeddingProviderInfoProps) {
       />
       {provider.costslink && (
         <LinkButton href={provider.costslink} target="_blank">
-          Pricing
+          {t("pricing")}
         </LinkButton>
       )}
       {provider.docsLink && (
         <LinkButton href={provider.docsLink} target="_blank">
-          Docs
+          {t("docs")}
         </LinkButton>
       )}
     </>
@@ -361,7 +361,7 @@ function ProviderGroup({
                       )
                     : provider.displayName
                 }
-                suffix={provider.deprecated ? "(deprecated)" : undefined}
+                suffix={provider.deprecated ? t("deprecated") : undefined}
                 sizePreset="secondary"
               />
 
@@ -503,7 +503,7 @@ function EmbeddingModelCard({
             rightIcon={SvgCheckSquare}
             onClick={onSelect}
           >
-            Current Model
+            {t("currentModel")}
           </Button>
         );
       case "selected":
@@ -514,7 +514,7 @@ function EmbeddingModelCard({
             rightIcon={SvgCheckSquare}
             onClick={onSelect}
           >
-            Selected
+            {t("selected")}
           </Button>
         );
     }
@@ -851,16 +851,15 @@ export default function IndexSettingsPage() {
       <cancelReindexModal.Provider>
         <ConfirmationModalLayout
           icon={SvgRevert}
-          title="Cancel Re-index"
+          title={t("cancelReindex")}
           submit={
             <Button variant="danger" onClick={handleCancelReindex}>
-              Cancel
+              {t("cancel")}
             </Button>
           }
         >
           <Text font="main-ui-body" color="text-03" as="p">
-            Cancelling will revert to the previous embedding model and all
-            re-indexing progress will be lost.
+            {t("cancelReindexDescription")}
           </Text>
         </ConfirmationModalLayout>
       </cancelReindexModal.Provider>
@@ -869,7 +868,7 @@ export default function IndexSettingsPage() {
         <SettingsLayouts.Header
           icon={route.icon}
           title={route.title}
-          description="Configure how documents are indexed, embedded, and prepared for search and retrieval."
+          description={t("indexSettingsDescription")}
           divider
         />
 
@@ -1019,9 +1018,9 @@ export default function IndexSettingsPage() {
                     <MessageCard
                       variant="warning"
                       headerPadding="sm"
-                      title="Re-indexing in progress"
+                      title={t("reindexingInProgress")}
                       description={markdown(
-                        `Switching to **${secondarySearchSettings?.model_name}**. Existing documents are being re-embedded — this may take hours or days depending on corpus size. The previous model continues to serve queries until the switchover completes.`
+                        t("reindexingDescription", { modelName: secondarySearchSettings?.model_name })
                       )}
                       bottomChildren={
                         <GeneralLayouts.Section
@@ -1034,14 +1033,14 @@ export default function IndexSettingsPage() {
                             icon={SvgExternalLink}
                             href="/admin/indexing/status"
                           >
-                            See Connectors
+                            {t("seeConnectors")}
                           </Button>
                           <Button
                             variant="danger"
                             prominence="secondary"
                             onClick={() => cancelReindexModal.toggle(true)}
                           >
-                            Cancel Re-index
+                            {t("cancelReindex")}
                           </Button>
                         </GeneralLayouts.Section>
                       }
@@ -1054,13 +1053,13 @@ export default function IndexSettingsPage() {
                         headerPadding="sm"
                         title={
                           isReindexRequired
-                            ? "Changes require a full re-index."
-                            : "Save Settings"
+                            ? t("changesRequireReindex")
+                            : t("saveSettings")
                         }
                         description={markdown(
                           isReindexRequired
-                            ? "Modifying embedding or retrieval settings requires a full re-index of all documents to take effect, which may take **hours or days** depending on corpus size. [Learn More](https://docs.onyx.app/security/architecture/data_flows)"
-                            : "Changes to reranking settings will be applied immediately and do not require re-indexing."
+                            ? t("changesRequireReindexDescription")
+                            : t("rerankingChangesAppliedImmediately")
                         )}
                         bottomChildren={
                           <div className="flex flex-row items-end gap-4 p-2">
@@ -1072,31 +1071,31 @@ export default function IndexSettingsPage() {
                                     setSwitchoverType(v as SwitchoverType)
                                   }
                                 >
-                                  <InputSelect.Trigger placeholder="Select a switchover strategy" />
+                                  <InputSelect.Trigger placeholder={t("selectSwitchoverStrategy")} />
                                   <InputSelect.Content>
                                     <InputSelect.Item
                                       value={SwitchoverType.REINDEX}
                                       icon={SvgClock}
                                       wrapDescription
-                                      description="Safest option. Continue using the current document index with existing settings until all connectors have completed a successful index attempt."
+                                      description={t("reindexAllConnectorsDescription")}
                                     >
-                                      Re-index All Connectors Then Switch
+                                      {t("reindexAllConnectorsThenSwitch")}
                                     </InputSelect.Item>
                                     <InputSelect.Item
                                       value={SwitchoverType.ACTIVE_ONLY}
                                       icon={SvgSlowTime}
                                       wrapDescription
-                                      description="Continue using the current document index with existing settings until all active (not paused/deleting) connectors have completed a successful index attempt."
+                                      description={t("reindexActiveConnectorsDescription")}
                                     >
-                                      Re-index Active Connectors Then Switch
+                                      {t("reindexActiveConnectorsThenSwitch")}
                                     </InputSelect.Item>
                                     <InputSelect.Item
                                       value={SwitchoverType.INSTANT}
                                       icon={SvgEmpty}
                                       wrapDescription
-                                      description="Immediately clear the current document index and switch to the new settings. Requires re-indexing all connectors before the index is repopulated for search."
+                                      description={t("switchBeforeReindexDescription")}
                                     >
-                                      Switch Before Re-index
+                                      {t("switchBeforeReindex")}
                                     </InputSelect.Item>
                                   </InputSelect.Content>
                                 </InputSelect>
@@ -1110,12 +1109,12 @@ export default function IndexSettingsPage() {
                                   setSwitchoverType(SwitchoverType.REINDEX);
                                 }}
                               >
-                                Revert
+                                {t("revert")}
                               </Button>
                               <Button onClick={() => void submitForm()}>
                                 {isReindexRequired
-                                  ? "Apply & Re-index"
-                                  : "Save Changes"}
+                                  ? t("applyAndReindex")
+                                  : t("saveChanges")}
                               </Button>
                             </div>
                           </div>
@@ -1132,8 +1131,8 @@ export default function IndexSettingsPage() {
                     justifyContent="start"
                   >
                     <Content
-                      title="Embedding Model"
-                      description="Onyx uses this model to encode documents for search and retrieval."
+                      title={t("embeddingModel")}
+                      description={t("embeddingModelDescription")}
                       sizePreset="main-content"
                       variant="section"
                     />
@@ -1144,7 +1143,7 @@ export default function IndexSettingsPage() {
                           <GeneralLayouts.Section padding={0.5}>
                             <Content
                               icon={SvgVector}
-                              title="Embedding model and settings are managed by Onyx Cloud."
+                              title={t("embeddingModelCloudManaged")}
                               sizePreset="main-ui"
                               variant="section"
                             />
@@ -1243,8 +1242,8 @@ export default function IndexSettingsPage() {
                                     ) : (
                                       <IllustrationContent
                                         illustration={SvgNoResult}
-                                        title="No cloud-based models found"
-                                        description="Try a different search term."
+                                        title={t("noCloudBasedModelsFound")}
+                                        description={t("tryDifferentSearchTerm")}
                                       />
                                     )}
                                   </Tabs.Content>
@@ -1311,7 +1310,7 @@ export default function IndexSettingsPage() {
                                               <div className="flex flex-row justify-between items-center w-full py-1">
                                                 <Content
                                                   icon={CUSTOM_PROVIDER.icon}
-                                                  title="Custom Models"
+                                                  title={t("customModels")}
                                                   sizePreset="secondary"
                                                 />
                                               </div>
@@ -1327,7 +1326,7 @@ export default function IndexSettingsPage() {
                                             }
                                           >
                                             <ContentAction
-                                              title="Set up a custom embedding model."
+                                              title={t("setupCustomEmbeddingModel")}
                                               sizePreset="secondary"
                                               variant="body"
                                               color="muted"
@@ -1342,7 +1341,7 @@ export default function IndexSettingsPage() {
                                                     )
                                                   }
                                                 >
-                                                  Add Custom Model
+                                                  {t("addCustomModel")}
                                                 </Button>
                                               }
                                               center
@@ -1353,8 +1352,8 @@ export default function IndexSettingsPage() {
                                     ) : (
                                       <IllustrationContent
                                         illustration={SvgNoResult}
-                                        title="No self-hosted models found"
-                                        description="Try a different search term."
+                                        title={t("noSelfHostedModelsFound")}
+                                        description={t("tryDifferentSearchTerm")}
                                       />
                                     )}
                                   </Tabs.Content>
@@ -1365,7 +1364,7 @@ export default function IndexSettingsPage() {
                                 <div className="pt-1 px-1">
                                   <div className="pt-2 pb-1 px-2 flex flex-row items-center justify-between">
                                     <InputTypeIn
-                                      placeholder="Search models..."
+                                      placeholder={t("searchModelsPlaceholder")}
                                       variant="internal"
                                       searchIcon
                                       value={query}
@@ -1400,7 +1399,7 @@ export default function IndexSettingsPage() {
                                         }
                                         rightIcon={SvgFold}
                                       >
-                                        Fold Models
+                                        {t("foldModels")}
                                       </Button>
                                     </div>
                                   </div>
@@ -1408,10 +1407,10 @@ export default function IndexSettingsPage() {
                                   <div className="px-2">
                                     <Tabs.List>
                                       <Tabs.Trigger value={MODEL_TAB_CLOUD}>
-                                        Cloud-based
+                                        {t("cloudBased")}
                                       </Tabs.Trigger>
                                       <Tabs.Trigger value={MODEL_TAB_SELF}>
-                                        Self-hosted
+                                        {t("selfHosted")}
                                       </Tabs.Trigger>
                                     </Tabs.List>
                                   </div>
@@ -1533,10 +1532,10 @@ export default function IndexSettingsPage() {
                       disabled={isReindexing || !hasAnyLlm}
                       tooltip={
                         isReindexing
-                          ? "Cancel the in-progress re-index to change retrieval settings."
+                          ? t("cancelReindexToChangeRetrievalSettings")
                           : !hasAnyLlm
                             ? markdown(
-                                "Contextual Retrieval is disabled because you have no models configured. Set up a [Language Model](/admin/configuration/language-models) first."
+                                t("contextualRetrievalDisabledNoModels")
                               )
                             : undefined
                       }
@@ -1548,8 +1547,8 @@ export default function IndexSettingsPage() {
                       >
                         <GeneralLayouts.Section width="full">
                           <InputHorizontal
-                            title="Contextual Retrieval"
-                            description="Add document-level context to every indexed chunk to improve hybrid search relevance. This can increase embedding cost significantly."
+                            title={t("contextualRetrieval")}
+                            description={t("contextualRetrievalDescription")}
                             withLabel
                           >
                             <SwitchField name="enable_contextual_rag" />
@@ -1560,8 +1559,8 @@ export default function IndexSettingsPage() {
                             tooltip={t("cannotModifyContextualRetrieval")}
                           >
                             <InputHorizontal
-                              title="Contextual Retrieval LLM"
-                              description="This model will be used to generate context for chunks."
+                              title={t("contextualRetrievalLLM")}
+                              description={t("contextualRetrievalLLMDescription")}
                               disabled={!values.enable_contextual_rag}
                               withLabel
                             >
@@ -1594,8 +1593,8 @@ export default function IndexSettingsPage() {
                     justifyContent="start"
                   >
                     <Content
-                      title="Image Processing"
-                      description="Use LLM model to analyze and add descriptions to images during indexing."
+                      title={t("imageProcessing")}
+                      description={t("imageProcessingDescription")}
                       sizePreset="main-content"
                       variant="section"
                     />
@@ -1605,7 +1604,7 @@ export default function IndexSettingsPage() {
                       tooltip={
                         !hasAnyVisionLlm
                           ? markdown(
-                              "Image Processing is disabled because you have no vision-capable models configured. Set up a vision-capable [Language Model](/admin/configuration/language-models) first."
+                              t("imageProcessingDisabledReason")
                             )
                           : undefined
                       }
@@ -1613,8 +1612,8 @@ export default function IndexSettingsPage() {
                       <Card border="solid" rounding="lg">
                         <GeneralLayouts.Section width="full">
                           <InputHorizontal
-                            title="Extract & Caption Images"
-                            description="Extract embedded images from uploaded files (PDFs, DOCX, etc.) and summarize them with a vision-capable LLM so image-only documents become searchable and answerable. Requires a vision-capable default LLM."
+                            title={t("extractAndCaptionImages")}
+                            description={t("extractAndCaptionImagesDescription")}
                             withLabel
                           >
                             <Switch
@@ -1633,8 +1632,8 @@ export default function IndexSettingsPage() {
                             tooltip={t("enableExtractCaption")}
                           >
                             <InputHorizontal
-                              title="Captioning LLM"
-                              description="This model will be used to analyze images during indexing. Only vision-capable models can be selected. Updates apply to documents indexed going forward — existing captions are baked into prior embeddings."
+                              title={t("captioningLLM")}
+                              description={t("captioningLLMDescription")}
                               disabled={!imageProcessingEnabled}
                               withLabel
                             >
@@ -1657,9 +1656,9 @@ export default function IndexSettingsPage() {
                             tooltip={t("enableExtractCaption")}
                           >
                             <InputHorizontal
-                              title="Max Image Size for Analysis"
-                              suffix="(MB)"
-                              description="Images above this size will be skipped to limit resource usage."
+                              title={t("maxImageSizeForAnalysis")}
+                              suffix={t("mb")}
+                              description={t("maxImageSizeForAnalysisDescription")}
                               disabled={!imageProcessingEnabled}
                               withLabel
                             >
@@ -1702,8 +1701,8 @@ export default function IndexSettingsPage() {
                       justifyContent="start"
                     >
                       <Content
-                        title="Search Reranking"
-                        description="Rerank initial search results using a local cross-encoder or cloud reranking service to select the top 10 most relevant chunks."
+                        title={t("searchReranking")}
+                        description={t("searchRerankingDescription")}
                         sizePreset="main-content"
                         variant="section"
                       />
@@ -1711,8 +1710,8 @@ export default function IndexSettingsPage() {
                       <Card border="solid" rounding="lg">
                         <GeneralLayouts.Section width="full">
                           <InputHorizontal
-                            title="Enable Reranking"
-                            description="When enabled, search results are re-evaluated for relevance before being sent to the LLM."
+                            title={t("enableReranking")}
+                            description={t("enableRerankingDescription")}
                             withLabel
                           >
                             <Switch
@@ -1731,8 +1730,8 @@ export default function IndexSettingsPage() {
                               />
 
                               <InputHorizontal
-                                title="Reranker Provider"
-                                description="Choose the provider for the reranking service."
+                                title={t("rerankerProvider")}
+                                description={t("rerankerProviderDescription")}
                                 withLabel
                               >
                                 <InputSelect
@@ -1770,8 +1769,8 @@ export default function IndexSettingsPage() {
                               </InputHorizontal>
 
                               <InputHorizontal
-                                title="Model Name"
-                                description="The model identifier used by the provider."
+                                title={t("modelName")}
+                                description={t("modelNameDescription")}
                                 withLabel
                               >
                                 {(() => {
@@ -1793,7 +1792,7 @@ export default function IndexSettingsPage() {
                                           );
                                         }}
                                       >
-                                        <InputSelect.Trigger placeholder="Select a reranker model" />
+                                        <InputSelect.Trigger placeholder={t("selectRerankerModel")} />
                                         <InputSelect.Content>
                                           {models.map((model) => (
                                             <InputSelect.Item
@@ -1811,7 +1810,7 @@ export default function IndexSettingsPage() {
                                   } else {
                                     return (
                                       <InputTypeIn
-                                        placeholder="e.g. BAAI/bge-reranker-large"
+                                        placeholder={t("rerankerModelPlaceholder")}
                                         value={values.rerank_model_name ?? ""}
                                         onChange={(e) =>
                                           setFieldValue(
@@ -1828,13 +1827,13 @@ export default function IndexSettingsPage() {
                               {values.rerank_provider_type &&
                                 values.rerank_provider_type !== "local" && (
                                   <InputHorizontal
-                                    title="API Key"
-                                    description="API Key or secret credential for the provider."
+                                    title={t("apiKey")}
+                                    description={t("apiKeyDescription")}
                                     withLabel
                                   >
                                     <InputTypeIn
                                       type="password"
-                                      placeholder="••••••••••••••••"
+                                      placeholder={t("passwordPlaceholder")}
                                       value={values.rerank_api_key ?? ""}
                                       onChange={(e) =>
                                         setFieldValue(
@@ -1848,8 +1847,8 @@ export default function IndexSettingsPage() {
 
                               {values.rerank_provider_type === "litellm" && (
                                 <InputHorizontal
-                                  title="API URL"
-                                  description="Base endpoint URL for LiteLLM."
+                                  title={t("apiUrl")}
+                                  description={t("apiUrlDescription")}
                                   withLabel
                                 >
                                   <InputTypeIn

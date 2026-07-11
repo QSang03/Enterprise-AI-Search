@@ -111,12 +111,15 @@ async function updateAgentGroupSharing(
 
 interface DocumentSetSummary {
   id: number;
+  name: string;
   description: string;
   cc_pair_summaries: { id: number }[];
-  federated_connector_summaries: { id: number }[];
+  federated_connector_summaries: { id: number; entities: Record<string, any> }[];
   is_public: boolean;
   users: string[];
   groups: number[];
+  is_department?: boolean;
+  is_master_store?: boolean;
 }
 
 async function updateDocSetGroupSharing(
@@ -153,14 +156,18 @@ async function updateDocSetGroupSharing(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: ds.id,
+        name: ds.name,
         description: ds.description,
         cc_pair_ids: ds.cc_pair_summaries.map((cc) => cc.id),
         federated_connectors: ds.federated_connector_summaries.map((fc) => ({
           federated_connector_id: fc.id,
+          entities: fc.entities,
         })),
         is_public: ds.is_public,
         users: ds.users,
         groups: updatedGroups,
+        is_department: ds.is_department,
+        is_master_store: ds.is_master_store,
       }),
     });
     if (!res.ok) {
@@ -179,14 +186,18 @@ async function updateDocSetGroupSharing(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         id: ds.id,
+        name: ds.name,
         description: ds.description,
         cc_pair_ids: ds.cc_pair_summaries.map((cc) => cc.id),
         federated_connectors: ds.federated_connector_summaries.map((fc) => ({
           federated_connector_id: fc.id,
+          entities: fc.entities,
         })),
         is_public: ds.is_public,
         users: ds.users,
         groups: updatedGroups,
+        is_department: ds.is_department,
+        is_master_store: ds.is_master_store,
       }),
     });
     if (!res.ok) {
