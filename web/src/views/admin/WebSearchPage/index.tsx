@@ -184,7 +184,7 @@ export default function WebSearchPage() {
       if (providerType === "onyx_web_crawler") {
         return {
           id: -1,
-          name: "Onyx Web Crawler",
+          name: t("admin.webSearch.onyxWebCrawler"),
           provider_type: "onyx_web_crawler",
           is_active: true,
           config: null,
@@ -195,7 +195,7 @@ export default function WebSearchPage() {
       if (providerType === "firecrawl") {
         return {
           id: -2,
-          name: "Firecrawl",
+          name: t("admin.webSearch.firecrawl"),
           provider_type: "firecrawl",
           is_active: false,
           config: null,
@@ -206,7 +206,7 @@ export default function WebSearchPage() {
       if (providerType === "exa") {
         return {
           id: -3,
-          name: "Exa",
+          name: t("admin.webSearch.exa"),
           provider_type: "exa",
           is_active: false,
           config: null,
@@ -220,7 +220,7 @@ export default function WebSearchPage() {
       if (providerType === "tavily") {
         return {
           id: -4,
-          name: "Tavily",
+          name: t("admin.webSearch.tavily"),
           provider_type: "tavily",
           is_active: false,
           config: null,

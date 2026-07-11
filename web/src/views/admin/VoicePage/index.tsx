@@ -219,7 +219,7 @@ function ModelCard({
       <ProviderCard
         aria-label={`voice-${mode}-${model.id}`}
         icon={getVoiceProviderDetail(model.providerType).icon}
-        title={model.label}
+        title={getModelLabel(model.label, model.label, t)}
         description={getModelSubtitle(model.id, model.subtitle, t)}
         status={status}
         onConnect={() => setupModal.toggle(true)}
@@ -361,7 +361,7 @@ export default function VoicePage() {
                   className="flex w-full flex-col gap-2"
                 >
                   <Text font="secondary-body" color="text-03">
-                    {group.providerLabel}
+                    {getProviderLabel(group.providerLabel, group.providerLabel, t)}
                   </Text>
                   {group.models.map((model) => (
                     <ModelCard

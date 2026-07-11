@@ -1441,7 +1441,11 @@
       "apiKeyLabel": "API Key",
       "apiKeyDescWithUrl": "Paste your [API key]({url}) from {name} to connect.",
       "apiKeyDescWithoutUrl": "Paste your API key from {name} to connect.",
-      "disconnectedSuccess": "{name} disconnected successfully"
+      "disconnectedSuccess": "{name} disconnected successfully",
+      "onyxWebCrawler": "Onyx Web Crawler",
+      "firecrawl": "Firecrawl",
+      "exa": "Exa",
+      "tavily": "Tavily"
     },
     "embeddings": {
       "apiKeyLabel": "API Key",

@@ -1441,7 +1441,11 @@
       "apiKeyLabel": "Khóa API",
       "apiKeyDescWithUrl": "Dán [API key]({url}) từ {name} của bạn để kết nối.",
       "apiKeyDescWithoutUrl": "Dán API key từ {name} của bạn để kết nối.",
-      "disconnectedSuccess": "Đã ngắt kết nối {name} thành công"
+      "disconnectedSuccess": "Đã ngắt kết nối {name} thành công",
+      "onyxWebCrawler": "Onyx Web Crawler",
+      "firecrawl": "Firecrawl",
+      "exa": "Exa",
+      "tavily": "Tavily"
     },
     "embeddings": {
       "apiKeyLabel": "Khóa API",
