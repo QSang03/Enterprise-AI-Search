@@ -9,6 +9,8 @@ import ToolCardSurface, {
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 interface SearchResult {
   title?: string;
   url: string;
@@ -71,6 +73,7 @@ function domainFromUrl(url: string): string {
  * be parsed.
  */
 export default function WebSearchBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const results = useMemo(
     () => parseResults(toolCall.rawOutput),
     [toolCall.rawOutput]
@@ -81,7 +84,7 @@ export default function WebSearchBody({ toolCall }: ToolCardBodyProps) {
       <ToolCardSurface>
         <ToolCardSection className="whitespace-pre-wrap wrap-break-word">
           <Text as="p" font="secondary-mono" color="text-03">
-            {toolCall.rawOutput || "No results"}
+            {toolCall.rawOutput || t("craft.noResults")}
           </Text>
         </ToolCardSection>
       </ToolCardSurface>

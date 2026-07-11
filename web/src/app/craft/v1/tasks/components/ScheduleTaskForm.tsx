@@ -169,8 +169,8 @@ export default function ScheduleTaskForm({
   // Validation states. These gate submission regardless of interaction, but
   // are only surfaced inline once the user has touched (blurred) the field so
   // a pristine form doesn't render red on load.
-  const nameError = trimmedName.length === 0 ? "Name is required." : null;
-  const promptError = trimmedPrompt.length === 0 ? "Prompt is required." : null;
+  const nameError = trimmedName.length === 0 ? t("craft.nameRequired") : null;
+  const promptError = trimmedPrompt.length === 0 ? t("craft.promptRequired") : null;
   const scheduleError = !compiled.ok ? compiled.error : null;
 
   const shownNameError = nameTouched ? nameError : null;
@@ -182,7 +182,7 @@ export default function ScheduleTaskForm({
   // tooltip. A natively-disabled <button> is inert and never fires hover
   // events, so the tooltip must live on the (interactive) wrapper instead.
   const disabledReason = saving
-    ? "Saving..."
+    ? t("craft.savingEllipsis")
     : (nameError ?? promptError ?? scheduleError ?? undefined);
 
   const submit = useCallback(
@@ -203,7 +203,7 @@ export default function ScheduleTaskForm({
             initial.taskId,
             body
           );
-          toast.success("Scheduled task updated.");
+          toast.success(t("scheduledTasks.toastUpdated"));
           router.push(taskDetailPath(updated.id));
         } else {
           const body: ScheduledTaskCreateBody = {
@@ -217,14 +217,14 @@ export default function ScheduleTaskForm({
           await createScheduledTask(body);
           toast.success(
             runImmediately
-              ? "Scheduled task created and queued."
-              : "Scheduled task created."
+              ? t("scheduledTasks.toastCreatedQueued")
+              : t("scheduledTasks.toastCreated")
           );
           router.push(TASKS_PATH);
         }
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Failed to save scheduled task"
+          err instanceof Error ? err.message : t("craft.failedToSaveScheduledTask")
         );
       } finally {
         setSaving(false);
@@ -240,6 +240,7 @@ export default function ScheduleTaskForm({
       router,
       trimmedName,
       trimmedPrompt,
+      t,
     ]
   );
 
@@ -260,7 +261,7 @@ export default function ScheduleTaskForm({
               onClick={() => router.push(TASKS_PATH)}
               disabled={saving}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             {!isEdit && (
               <Disabled
@@ -276,7 +277,7 @@ export default function ScheduleTaskForm({
                   onClick={() => void submit(true)}
                   data-testid="save-and-run-now"
                 >
-                  Save and run now
+                  {t("craft.saveAndRunNow")}
                 </Button>
               </Disabled>
             )}
@@ -293,7 +294,7 @@ export default function ScheduleTaskForm({
                 onClick={() => void submit(false)}
                 data-testid="save-task"
               >
-                {isEdit ? "Save changes" : "Save"}
+                {isEdit ? t("craft.saveChanges") : t("common.save")}
               </Button>
             </Disabled>
           </div>
@@ -302,12 +303,12 @@ export default function ScheduleTaskForm({
 
       <SettingsLayouts.Body>
         <GeneralLayouts.Section>
-          <InputVertical withLabel title={t("name")}>
+          <InputVertical withLabel title={t("connectorCCPair.name")}>
             <InputTypeIn
               value={name}
               onChange={(e) => setName(e.target.value)}
               onBlur={() => setNameTouched(true)}
-              placeholder={t("taskNamePlaceholder")}
+              placeholder={t("connectorCCPair.taskNamePlaceholder")}
               data-testid="task-name-input"
               variant={shownNameError ? "error" : undefined}
             />
@@ -320,8 +321,8 @@ export default function ScheduleTaskForm({
 
           <InputVertical
             withLabel
-            title={t("prompt")}
-            description={t("promptDesc")}
+            title={t("connectorCCPair.prompt")}
+            description={t("connectorCCPair.promptDesc")}
           >
             <InputTextArea
               ref={promptTextareaRef}
@@ -330,7 +331,7 @@ export default function ScheduleTaskForm({
               onKeyUp={handlePromptCursorChange}
               onClick={handlePromptCursorChange}
               onBlur={() => setPromptTouched(true)}
-              placeholder={t("taskPromptPlaceholder")}
+              placeholder={t("connectorCCPair.taskPromptPlaceholder")}
               rows={6}
               autoResize
               maxRows={12}
@@ -356,7 +357,7 @@ export default function ScheduleTaskForm({
         <Divider paddingParallel="fit" paddingPerpendicular="fit" />
 
         <GeneralLayouts.Section>
-          <InputVertical title={t("schedule")}>
+          <InputVertical title={t("connectorCCPair.schedule")}>
             <ScheduleEditor
               mode={mode}
               onModeChange={setMode}
@@ -371,8 +372,8 @@ export default function ScheduleTaskForm({
 
         <GeneralLayouts.Section>
           <InputVertical
-            title={t("preApprovedApps")}
-            description={t("preApprovedAppsDescription")}
+            title={t("connectorCCPair.preApprovedApps")}
+            description={t("craft.preApprovedAppsDescription")}
           >
             <PreApprovalPicker
               selectedIds={preApprovedAppIds}

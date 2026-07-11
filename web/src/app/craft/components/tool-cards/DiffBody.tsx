@@ -6,6 +6,7 @@ import { Text, Button } from "@opal/components";
 import { SvgColumn, SvgMenu } from "@opal/icons";
 import ToolCardSurface from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 type DiffLineType = "added" | "removed" | "unchanged" | "header";
 
@@ -103,6 +104,7 @@ function computeDiff(oldText: string, newText: string): DiffLine[] {
 
 function collapseUnchanged(
   lines: DiffLine[],
+  t: (key: string, options?: any) => string,
   contextLines: number = 3
 ): DiffLine[] {
   const result: DiffLine[] = [];
@@ -116,7 +118,7 @@ function collapseUnchanged(
 
   if (changeIndices.length === 0) {
     if (lines.length > 10) {
-      return [{ type: "header", content: `${lines.length} unchanged lines` }];
+      return [{ type: "header", content: t("craft.unchangedLines", { count: lines.length }) }];
     }
     return lines;
   }
@@ -136,7 +138,9 @@ function collapseUnchanged(
     if (count <= 0) return;
     result.push({
       type: "header",
-      content: `${count} unchanged line${count > 1 ? "s" : ""}`,
+      content: count > 1
+        ? t("craft.unchangedLines", { count })
+        : t("craft.unchangedLine", { count }),
     });
   };
 
@@ -219,6 +223,7 @@ function UnifiedDiff({ lines }: { lines: DiffLine[] }) {
   );
 }
 
+// SideBySideDiff
 function SideBySideDiff({ lines }: { lines: DiffLine[] }) {
   return (
     <div className="overflow-auto max-h-[24rem] grid grid-cols-2 divide-x divide-border-01">
@@ -277,13 +282,14 @@ function SideBySideDiff({ lines }: { lines: DiffLine[] }) {
  * larger than SIDE_BY_SIDE_AUTO_THRESHOLD.
  */
 export default function DiffBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const oldContent = toolCall.oldContent ?? "";
   const newContent = toolCall.newContent ?? "";
 
   const diffLines = useMemo(() => {
     const rawDiff = computeDiff(oldContent, newContent);
-    return collapseUnchanged(rawDiff);
-  }, [oldContent, newContent]);
+    return collapseUnchanged(rawDiff, t);
+  }, [oldContent, newContent, t]);
 
   const stats = useMemo(() => {
     const added = diffLines.filter((l) => l.type === "added").length;
@@ -341,8 +347,8 @@ export default function DiffBody({ toolCall }: ToolCardBodyProps) {
             }
             tooltip={
               mode === "unified"
-                ? "Switch to side-by-side"
-                : "Switch to unified"
+                ? t("craft.switchToSideBySide")
+                : t("craft.switchToUnified")
             }
           />
         </div>

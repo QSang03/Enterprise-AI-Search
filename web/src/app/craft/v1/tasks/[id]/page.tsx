@@ -65,22 +65,22 @@ export default function ScheduledTaskDetailPage() {
     try {
       const updated = await updateScheduledTask(data.id, { status: next });
       await mutate(updated, { revalidate: false });
-      toast.success(next === "ACTIVE" ? "Task resumed." : "Task paused.");
+      toast.success(next === "ACTIVE" ? t("craft.taskResumed") : t("craft.taskPaused"));
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Failed to update status"
+        err instanceof Error ? err.message : t("craft.failedToUpdateStatus")
       );
     } finally {
       setBusy(false);
     }
-  }, [data, mutate]);
+  }, [data, mutate, t]);
 
   const handleRunNow = useCallback(async () => {
     if (!data) return;
     setBusy(true);
     try {
       await runScheduledTaskNow(data.id);
-      toast.success(`Queued run for "${data.name}".`);
+      toast.success(t("craft.queuedRunForTask", { name: data.name }));
       void mutate();
       // The run history table owns paginated SWR keys under this prefix —
       // invalidate every variant so the new ``manual_run_now`` row appears.
@@ -89,36 +89,36 @@ export default function ScheduledTaskDetailPage() {
         (key) => typeof key === "string" && key.startsWith(runsPrefix)
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to start run");
+      toast.error(err instanceof Error ? err.message : t("craft.failedToStartRun"));
     } finally {
       setBusy(false);
     }
-  }, [data, mutate, globalMutate]);
+  }, [data, mutate, globalMutate, t]);
 
   const handleDelete = useCallback(async () => {
     if (!data) return;
     setBusy(true);
     try {
       await deleteScheduledTask(data.id);
-      toast.success(`Deleted "${data.name}".`);
+      toast.success(t("craft.deletedTaskWithName", { name: data.name }));
       router.push(TASKS_PATH);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete task");
+      toast.error(err instanceof Error ? err.message : t("craft.failedToDeleteTask"));
       setBusy(false);
     }
-  }, [data, router]);
+  }, [data, router, t]);
 
   if (!taskId) {
     return (
       <SettingsLayouts.Root width="lg">
         <SettingsLayouts.Header
           icon={SvgClock}
-          title={t("scheduledTask")}
+          title={t("connectorCCPair.scheduledTask")}
           backButton={handleBack}
         />
         <SettingsLayouts.Body>
           <Text font="main-ui-body" color="text-03">
-            Missing task id.
+            {t("craft.missingTaskId")}
           </Text>
         </SettingsLayouts.Body>
       </SettingsLayouts.Root>
@@ -129,7 +129,7 @@ export default function ScheduledTaskDetailPage() {
     <SettingsLayouts.Root width="lg">
       <SettingsLayouts.Header
         icon={SvgClock}
-        title={data?.name ?? t("scheduledTask")}
+        title={data?.name ?? t("connectorCCPair.scheduledTask")}
         description={scheduleDescription}
         backButton={handleBack}
         rightChildren={
@@ -144,7 +144,7 @@ export default function ScheduledTaskDetailPage() {
                 disabled={busy}
                 data-testid="run-now-button"
               >
-                Run now
+                {t("craft.runHistoryRunNow")}
               </Button>
               <Button
                 icon={data.status === "ACTIVE" ? SvgPauseCircle : SvgPlayCircle}
@@ -154,7 +154,7 @@ export default function ScheduledTaskDetailPage() {
                 disabled={busy}
                 data-testid="status-toggle"
               >
-                {data.status === "ACTIVE" ? "Pause" : "Resume"}
+                {data.status === "ACTIVE" ? t("connectorCCPair.pauseBtn") : t("connectorCCPair.resumeBtn")}
               </Button>
               <Button
                 icon={SvgEdit}
@@ -163,7 +163,7 @@ export default function ScheduledTaskDetailPage() {
                 href={taskEditPath(data.id)}
                 disabled={busy}
               >
-                Edit
+                {t("common.edit")}
               </Button>
               <Button
                 icon={SvgTrash}
@@ -173,7 +173,7 @@ export default function ScheduledTaskDetailPage() {
                 disabled={busy}
                 data-testid="delete-button"
               >
-                Delete
+                {t("common.delete")}
               </Button>
             </div>
           ) : undefined
@@ -186,7 +186,7 @@ export default function ScheduledTaskDetailPage() {
           </div>
         ) : error || !data ? (
           <Text font="main-ui-body" color="text-03">
-            Failed to load scheduled task.
+            {t("craft.failedToLoadScheduledTask")}
           </Text>
         ) : (
           <div className="flex flex-col gap-6">
@@ -201,8 +201,8 @@ export default function ScheduledTaskDetailPage() {
       {confirmDelete && data && (
         <ConfirmationModalLayout
           icon={SvgTrash}
-          title={`Delete "${data.name}"?`}
-          description={t("stopTaskDescription")}
+          title={t("connectorCCPair.deleteTask", { name: data.name })}
+          description={t("connectorCCPair.deleteTaskDesc")}
           onClose={() => setConfirmDelete(false)}
           submit={
             <Button
@@ -212,7 +212,7 @@ export default function ScheduledTaskDetailPage() {
               disabled={busy}
               data-testid="confirm-delete-task"
             >
-              {busy ? "Deleting..." : "Delete"}
+              {busy ? t("craft.deletingEllipsis") : t("common.delete")}
             </Button>
           }
         />

@@ -12,6 +12,7 @@ import {
 } from "@/app/craft/onboarding/constants";
 import { useLLMProviderOptions } from "@/lib/hooks/useLLMProviderOptions";
 import { getProvider } from "@/lib/languageModels";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export type { ProviderKey };
 
@@ -81,6 +82,7 @@ function ModelSelectButton({
   recommended,
   disabled,
 }: ModelSelectButtonProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center gap-1 w-full">
       <Disabled disabled={disabled} allowClick>
@@ -102,7 +104,7 @@ function ModelSelectButton({
       </Disabled>
       {recommended && (
         <Text font="figure-small-label" color="text-02">
-          Recommended
+          {t("craft.onboardingRecommended")}
         </Text>
       )}
     </div>
@@ -138,6 +140,7 @@ export default function OnboardingLlmSetup({
   onConnectionStatusChange,
   onErrorMessageChange,
 }: OnboardingLlmSetupProps) {
+  const { t } = useTranslation();
   const { llmProviderOptions } = useLLMProviderOptions();
 
   const knownModelsFor = (providerType: string) =>
@@ -182,14 +185,14 @@ export default function OnboardingLlmSetup({
       {/* Header */}
       <div className="flex items-center justify-center">
         <Text font="heading-h2" color="text-05">
-          Connect your LLM
+          {t("craft.onboardingConnectYourLlm")}
         </Text>
       </div>
 
       {/* Provider selection */}
       <div className="flex flex-col gap-3 items-center">
         <Text font="main-ui-body" color="text-04">
-          Provider
+          {t("craft.onboardingProvider")}
         </Text>
         <div className="flex justify-center gap-3 w-full max-w-md">
           {CRAFT_PROVIDERS.map(({ key, recommended }) => {
@@ -201,15 +204,15 @@ export default function OnboardingLlmSetup({
                   onClick={() => handleProviderChange(key)}
                   subtext={
                     isConfigured
-                      ? "Already configured"
+                      ? t("craft.onboardingAlreadyConfigured")
                       : recommended
-                        ? "Recommended"
+                        ? t("craft.onboardingRecommended")
                         : undefined
                   }
                   disabled={connectionStatus === "testing" || isConfigured}
                   tooltip={
                     isConfigured
-                      ? "This provider is already configured"
+                      ? t("craft.onboardingAlreadyConfiguredTooltip")
                       : undefined
                   }
                 >
@@ -224,7 +227,7 @@ export default function OnboardingLlmSetup({
       {/* Model selection */}
       <div className="flex flex-col gap-3 items-center">
         <Text font="main-ui-body" color="text-04">
-          Default Model
+          {t("craft.onboardingDefaultModel")}
         </Text>
         <div className="flex justify-center gap-3 flex-wrap w-full max-w-md">
           {currentModels.map((model) => (
@@ -244,7 +247,7 @@ export default function OnboardingLlmSetup({
       {/* API Key input */}
       <div className="flex flex-col gap-3 items-center">
         <Text font="main-ui-body" color="text-04">
-          API Key
+          {t("craft.onboardingApiKey")}
         </Text>
         <div className="w-full max-w-md">
           <Disabled disabled={connectionStatus === "testing"} allowClick>
@@ -275,7 +278,7 @@ export default function OnboardingLlmSetup({
             >
               <SvgCheckCircle className="w-4 h-4 stroke-status-success-05 shrink-0" />
               <Text font="secondary-body" color="status-success-05">
-                Success!
+                {t("craft.onboardingSuccess")}
               </Text>
             </div>
           </div>

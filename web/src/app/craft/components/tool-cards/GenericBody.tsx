@@ -9,6 +9,7 @@ import ToolCardSurface, {
   MONO_STYLE,
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * GenericBody - Fallback body for tools without a specialized renderer. Renders
@@ -16,6 +17,7 @@ import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interf
  * highlighting when a language can be derived.
  */
 export default function GenericBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const content = toolCall.rawOutput;
   const hint = getLanguageHint(toolCall);
   const lang = hint?.includes(".") ? getLanguageFromPath(hint) : hint;
@@ -39,7 +41,7 @@ export default function GenericBody({ toolCall }: ToolCardBodyProps) {
           )
         ) : (
           <Text font="secondary-mono" color="text-02">
-            No output yet...
+            {t("craft.noOutputYet")}
           </Text>
         )}
       </ToolCardSection>

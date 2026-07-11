@@ -10,6 +10,7 @@ import ToolCardSurface, {
   MONO_STYLE,
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 const PREVIEW_LINE_COUNT = 8;
 
@@ -22,6 +23,7 @@ const PREVIEW_LINE_COUNT = 8;
  * registered language.
  */
 export default function ReadBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   // The Read tool stores file content in rawOutput. The Write tool (when
   // routed here for new files) stores it in newContent instead. Fall back
@@ -38,7 +40,7 @@ export default function ReadBody({ toolCall }: ToolCardBodyProps) {
       <ToolCardSurface scroll={false}>
         <ToolCardSection>
           <Text font="secondary-mono" color="text-03">
-            (empty file)
+            {t("craft.emptyFile")}
           </Text>
         </ToolCardSection>
       </ToolCardSurface>
@@ -92,7 +94,9 @@ export default function ReadBody({ toolCall }: ToolCardBodyProps) {
           className="py-0.5 px-2 flex items-center justify-between"
         >
           <Text font="secondary-body" color="text-02">
-            {`${hiddenCount} more line${hiddenCount === 1 ? "" : "s"}`}
+            {hiddenCount === 1
+              ? t("craft.moreLine", { count: hiddenCount })
+              : t("craft.moreLines", { count: hiddenCount })}
           </Text>
           <Button
             variant="default"
@@ -101,7 +105,7 @@ export default function ReadBody({ toolCall }: ToolCardBodyProps) {
             icon={SvgChevronDown}
             onClick={() => setExpanded(true)}
           >
-            Show all
+            {t("craft.showAll")}
           </Button>
         </ToolCardSection>
       )}

@@ -38,13 +38,13 @@ export default function EditScheduledTaskPage() {
       <SettingsLayouts.Root>
         <SettingsLayouts.Header
           icon={SvgClock}
-          title={t("editScheduledTask")}
+          title={t("connectorCCPair.editScheduledTask")}
           backButton={handleBack}
           divider
         />
         <SettingsLayouts.Body>
           <Text font="main-ui-body" color="text-03">
-            Missing task id.
+            {t("craft.missingTaskId")}
           </Text>
         </SettingsLayouts.Body>
       </SettingsLayouts.Root>
@@ -56,7 +56,7 @@ export default function EditScheduledTaskPage() {
       <SettingsLayouts.Root>
         <SettingsLayouts.Header
           icon={SvgClock}
-          title={data ? `${t("edit")} "${data.name}"` : t("editScheduledTask")}
+          title={data ? t("craft.editTaskWithName", { name: data.name }) : t("connectorCCPair.editScheduledTask")}
           backButton={handleBack}
           divider
         />
@@ -67,7 +67,7 @@ export default function EditScheduledTaskPage() {
             </div>
           ) : (
             <Text font="main-ui-body" color="text-03">
-              Failed to load scheduled task.
+              {t("craft.failedToLoadScheduledTask")}
             </Text>
           )}
         </SettingsLayouts.Body>
@@ -79,7 +79,7 @@ export default function EditScheduledTaskPage() {
     <ScheduleTaskForm
       initial={toFormInitial(data)}
       isEdit
-      title={`Edit "${data.name}"`}
+      title={t("craft.editTaskWithName", { name: data.name })}
       onBack={handleBack}
     />
   );

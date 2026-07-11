@@ -6,6 +6,7 @@ import { Text } from "@opal/components";
 import { SvgLock, SvgArrowRight } from "@opal/icons";
 import { logout } from "@/lib/user";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface NoLlmProvidersModalProps {
   open: boolean;
@@ -20,6 +21,7 @@ export default function NoLlmProvidersModal({
   open,
   onClose,
 }: NoLlmProvidersModalProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,15 +55,13 @@ export default function NoLlmProvidersModal({
             {/* Header */}
             <div className="flex flex-col items-center gap-2 text-center max-w-sm">
               <Text font="heading-h2" color="text-05">
-                LLM Provider Required
+                {t("craft.noLlmTitle")}
               </Text>
               <Text font="main-ui-body" color="text-03">
-                Onyx Craft requires an LLM provider to be configured, but only
-                admins can set this up.
+                {t("craft.noLlmDesc1")}
               </Text>
               <Text font="main-ui-body" color="text-03">
-                Please ask your admin to configure an LLM provider, or create a
-                new Onyx account to become an admin yourself!
+                {t("craft.noLlmDesc2")}
               </Text>
             </div>
           </div>
@@ -74,7 +74,7 @@ export default function NoLlmProvidersModal({
               className="flex items-center gap-1.5 px-4 py-2 rounded-12 border border-border-01 bg-background-tint-00 text-text-04 hover:bg-background-tint-02 transition-colors"
             >
               <Text font="main-ui-action" color="text-05">
-                Go Back
+                {t("craft.noLlmGoBack")}
               </Text>
             </button>
             <button
@@ -92,7 +92,7 @@ export default function NoLlmProvidersModal({
                 font="main-ui-action"
                 color={!isLoading ? "text-inverted-05" : "text-02"}
               >
-                {isLoading ? "Signing out..." : "Create a new account"}
+                {isLoading ? t("craft.noLlmSigningOut") : t("craft.noLlmCreateAccount")}
               </Text>
               {!isLoading && (
                 <SvgArrowRight className="w-4 h-4 text-white dark:text-black" />

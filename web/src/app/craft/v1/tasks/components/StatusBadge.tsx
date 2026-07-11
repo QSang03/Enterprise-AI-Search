@@ -19,11 +19,18 @@ import type {
 // Task status (active / paused)
 // ---------------------------------------------------------------------------
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
+// ---------------------------------------------------------------------------
+// Task status (active / paused)
+// ---------------------------------------------------------------------------
+
 interface TaskStatusBadgeProps {
   status: ScheduledTaskStatus;
 }
 
 export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
+  const { t } = useTranslation();
   const isActive = status === "ACTIVE";
   const Icon = isActive ? SvgPlayCircle : SvgPauseCircle;
   return (
@@ -39,7 +46,7 @@ export function TaskStatusBadge({ status }: TaskStatusBadgeProps) {
         className={isActive ? "text-status-success-05" : "text-text-03"}
       />
       <Text font="figure-small-label" color="text-03">
-        {isActive ? "Active" : "Paused"}
+        {isActive ? t("craft.taskStatusActive") : t("craft.taskStatusPaused")}
       </Text>
     </div>
   );
@@ -60,46 +67,46 @@ interface RunStatusDisplay {
   iconClassName: string;
 }
 
-function getRunStatusDisplay(status: ScheduledTaskRunStatus): RunStatusDisplay {
+function getRunStatusDisplay(status: ScheduledTaskRunStatus, t: (key: string) => string): RunStatusDisplay {
   switch (status) {
     case "SUCCEEDED":
       return {
-        label: "Succeeded",
+        label: t("craft.runStatusSucceeded"),
         icon: SvgCheckCircle,
         className: "bg-status-success-01",
         iconClassName: "text-status-success-05",
       };
     case "FAILED":
       return {
-        label: "Failed",
+        label: t("craft.runStatusFailed"),
         icon: SvgAlertCircle,
         className: "bg-status-error-01",
         iconClassName: "text-status-error-05",
       };
     case "RUNNING":
       return {
-        label: "Running",
+        label: t("craft.runStatusRunning"),
         icon: SvgLoader,
         className: "bg-status-info-01",
         iconClassName: "text-status-info-05 animate-spin",
       };
     case "QUEUED":
       return {
-        label: "Queued",
+        label: t("craft.runStatusQueued"),
         icon: SvgClock,
         className: "bg-background-tint-02",
         iconClassName: "text-text-03",
       };
     case "SKIPPED":
       return {
-        label: "Skipped",
+        label: t("craft.runStatusSkipped"),
         icon: SvgClock,
         className: "bg-background-tint-02",
         iconClassName: "text-text-03",
       };
     case "AWAITING_APPROVAL":
       return {
-        label: "Awaiting approval",
+        label: t("craft.runStatusAwaitingApproval"),
         icon: SvgClock,
         className: "bg-status-warning-01",
         iconClassName: "text-status-warning-05",
@@ -108,7 +115,8 @@ function getRunStatusDisplay(status: ScheduledTaskRunStatus): RunStatusDisplay {
 }
 
 export function RunStatusBadge({ status }: RunStatusBadgeProps) {
-  const display = getRunStatusDisplay(status);
+  const { t } = useTranslation();
+  const display = getRunStatusDisplay(status, t);
   const Icon = display.icon;
   return (
     <div

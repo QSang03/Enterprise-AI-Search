@@ -56,7 +56,7 @@ interface RowActionHandlers {
 function buildColumns(handlers: RowActionHandlers, t: (key: string) => string) {
   return [
     tc.column("name", {
-      header: "Name",
+      header: t("craft.tasksName"),
       weight: 25,
       enableSorting: false,
       cell: (value) => (
@@ -66,7 +66,7 @@ function buildColumns(handlers: RowActionHandlers, t: (key: string) => string) {
       ),
     }),
     tc.column("human_readable_schedule", {
-      header: "Schedule",
+      header: t("craft.tasksSchedule"),
       weight: 22,
       enableSorting: false,
       cell: (value) => (
@@ -76,13 +76,13 @@ function buildColumns(handlers: RowActionHandlers, t: (key: string) => string) {
       ),
     }),
     tc.column("status", {
-      header: "Status",
+      header: t("craft.tasksStatus"),
       weight: 12,
       enableSorting: false,
       cell: (status) => <TaskStatusBadge status={status} />,
     }),
     tc.column("last_run", {
-      header: "Last run",
+      header: t("craft.tasksLastRun"),
       weight: 18,
       enableSorting: false,
       cell: (lastRun) => {
@@ -104,7 +104,7 @@ function buildColumns(handlers: RowActionHandlers, t: (key: string) => string) {
       },
     }),
     tc.column("next_run_at", {
-      header: "Next run",
+      header: t("craft.tasksNextRun"),
       weight: 13,
       enableSorting: false,
       cell: (nextRunAt) => {
@@ -164,15 +164,15 @@ export default function ScheduledTasksListPage() {
     setBusyTaskId(pendingDelete.id);
     try {
       await deleteScheduledTask(pendingDelete.id);
-      toast.success(`Deleted "${pendingDelete.name}".`);
+      toast.success(t("craft.deletedTaskWithName", { name: pendingDelete.name }));
       setPendingDelete(null);
       refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete task");
+      toast.error(err instanceof Error ? err.message : t("craft.failedToDeleteTask"));
     } finally {
       setBusyTaskId(null);
     }
-  }, [pendingDelete, refresh]);
+  }, [pendingDelete, refresh, t]);
 
   const columns = useMemo(
     () =>
@@ -195,18 +195,18 @@ export default function ScheduledTasksListPage() {
         href={NEW_TASK_PATH}
         data-testid="new-task-button"
       >
-        New Scheduled Task
+        {t("craft.newScheduledTask")}
       </Button>
     ),
-    []
+    [t]
   );
 
   return (
     <SettingsLayouts.Root>
       <SettingsLayouts.Header
         icon={SvgClock}
-        title={t("scheduledTasks")}
-        description={t("scheduledTasksDesc")}
+        title={t("connectorCCPair.scheduledTasks")}
+        description={t("connectorCCPair.scheduledTasksDesc")}
         rightChildren={headerActions}
       />
       <SettingsLayouts.Body>
@@ -217,7 +217,7 @@ export default function ScheduledTasksListPage() {
         ) : error ? (
           <Section gap={0.5}>
             <Text font="main-ui-body" color="text-03">
-              {t("failedToLoadScheduledTasks")}
+              {t("connectorCCPair.failedToLoadScheduledTasks")}
             </Text>
             <Button
               variant="default"
@@ -225,7 +225,7 @@ export default function ScheduledTasksListPage() {
               icon={SvgRefreshCw}
               onClick={refresh}
             >
-              {t("tryAgain")}
+              {t("connectorCCPair.tryAgain")}
             </Button>
           </Section>
         ) : (
@@ -241,8 +241,8 @@ export default function ScheduledTasksListPage() {
             emptyState={
               <IllustrationContent
                 illustration={SvgNoResult}
-                title={t("noScheduledTasksFound")}
-                description={t("noScheduledTasksDesc")}
+                title={t("connectorCCPair.noScheduledTasksFound")}
+                description={t("connectorCCPair.noScheduledTasksDesc")}
               />
             }
           />
@@ -252,8 +252,8 @@ export default function ScheduledTasksListPage() {
       {pendingDelete && (
         <ConfirmationModalLayout
           icon={SvgTrash}
-          title={t("deleteTask", { name: pendingDelete.name })}
-          description={t("deleteTaskDesc")}
+          title={t("connectorCCPair.deleteTask", { name: pendingDelete.name })}
+          description={t("connectorCCPair.deleteTaskDesc")}
           onClose={() => setPendingDelete(null)}
           submit={
             <Button
@@ -263,7 +263,7 @@ export default function ScheduledTasksListPage() {
               disabled={busyTaskId === pendingDelete.id}
               data-testid="confirm-delete-task"
             >
-              {busyTaskId === pendingDelete.id ? "Deleting..." : "Delete"}
+              {busyTaskId === pendingDelete.id ? t("craft.deletingEllipsis") : t("common.delete")}
             </Button>
           }
         />

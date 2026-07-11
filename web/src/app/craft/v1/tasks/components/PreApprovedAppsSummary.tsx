@@ -3,6 +3,7 @@
 import { Tag, Text } from "@opal/components";
 import useUserExternalApps from "@/hooks/useUserExternalApps";
 import { getAppTypeLogo } from "@/app/craft/v1/apps/registry";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PreApprovedAppsSummaryProps {
   appIds: number[];
@@ -11,6 +12,7 @@ interface PreApprovedAppsSummaryProps {
 export default function PreApprovedAppsSummary({
   appIds,
 }: PreApprovedAppsSummaryProps) {
+  const { t } = useTranslation();
   const { data, isLoading } = useUserExternalApps();
   if (appIds.length === 0) return null;
   // Wait for names so the tags never flash raw "App #id" fallbacks.
@@ -20,7 +22,7 @@ export default function PreApprovedAppsSummary({
   return (
     <div className="flex flex-col gap-2">
       <Text font="main-ui-action" color="text-03">
-        Pre-approved apps
+        {t("connectorCCPair.preApprovedApps")}
       </Text>
       <div className="flex flex-wrap gap-2">
         {appIds.map((id) => {

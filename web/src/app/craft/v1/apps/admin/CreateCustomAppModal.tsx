@@ -99,15 +99,15 @@ export default function CreateCustomAppModal({
   // Headers and org credentials are optional; name + at least one upstream
   // pattern are required. A bundle is required only on create (optional on edit).
   const disabledCreateReason = (() => {
-    if (isSaving) return "Save is already in progress.";
+    if (isSaving) return t("craft.customAppErrorSavingInProgress");
     if (name.trim().length === 0) {
-      return "Enter a name before creating this custom app.";
+      return t("craft.customAppErrorEnterName");
     }
     if (upstreamPatterns.length === 0) {
-      return "Add at least one upstream URL pattern. Type a pattern and press Enter.";
+      return t("craft.customAppErrorAddPattern");
     }
     if (!isEdit && file === null) {
-      return "Upload a bundle .zip file before creating this custom app.";
+      return t("craft.customAppErrorUploadBundle");
     }
     return null;
   })();
@@ -115,11 +115,11 @@ export default function CreateCustomAppModal({
     <Button onClick={save} disabled={disabledCreateReason !== null}>
       {isSaving
         ? isEdit
-          ? "Saving…"
-          : "Creating…"
+          ? t("craft.savingEllipsis")
+          : t("craft.customAppCreatingEllipsis")
         : isEdit
-          ? "Save"
-          : "Create"}
+          ? t("common.save")
+          : t("common.create")}
     </Button>
   );
 
@@ -166,7 +166,7 @@ export default function CreateCustomAppModal({
       const detail = e instanceof Error ? e.message : String(e);
       setError(
         bundleSaved
-          ? `The new bundle was saved, but updating the other fields failed — retry to finish: ${detail}`
+          ? t("craft.customAppBundleSavedPartialError", { detail })
           : detail
       );
     } finally {
@@ -272,17 +272,17 @@ export default function CreateCustomAppModal({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {file
-                    ? "Change file"
+                    ? t("craft.customAppChangeFile")
                     : isEdit
-                      ? "Choose new zip"
-                      : "Choose zip"}
+                      ? t("craft.customAppChooseNewZip")
+                      : t("craft.customAppChooseZip")}
                 </Button>
                 <Text font="main-ui-body" color="text-03">
                   {file
                     ? file.name
                     : isEdit
-                      ? "Keeping current bundle"
-                      : "No file selected"}
+                      ? t("craft.customAppKeepingCurrentBundle")
+                      : t("craft.customAppNoFileSelected")}
                 </Text>
               </div>
             </div>
@@ -303,7 +303,7 @@ export default function CreateCustomAppModal({
               onClick={onClose}
               disabled={isSaving}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             {disabledCreateReason ? (
               <Tooltip tooltip={disabledCreateReason}>

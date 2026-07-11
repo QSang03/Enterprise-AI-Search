@@ -194,8 +194,8 @@ export default function ConfigureProviderModal({
   }
 
   const headerTitle = existingApp
-    ? `Edit ${existingApp.name}`
-    : `Add ${descriptor.name}`;
+    ? t("craft.editAppWithName", { name: existingApp.name })
+    : t("craft.addAppWithName", { name: descriptor.name });
 
   return (
     <Modal open={open} onOpenChange={(o) => !o && onClose()}>
@@ -258,9 +258,7 @@ export default function ConfigureProviderModal({
               <div className="flex flex-col gap-2 pt-2">
                 <Text font="main-ui-action">{t("permissions")}</Text>
                 <Text font="secondary-body" color="text-03">
-                  Choose what the agent may do with this app. “Ask” prompts you
-                  in chat before each action runs; “Auto-approve” lets it run
-                  without prompting. Use Advanced to set a policy per action.
+                  {t("craft.permissionsDesc")}
                 </Text>
 
                 <InputSelect
@@ -335,10 +333,14 @@ export default function ConfigureProviderModal({
               onClick={onClose}
               disabled={isSaving}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button onClick={save} disabled={!canSave}>
-              {isSaving ? "Saving…" : existingApp ? "Save" : "Add"}
+              {isSaving
+                ? t("craft.savingEllipsis")
+                : existingApp
+                  ? t("common.save")
+                  : t("craft.add")}
             </Button>
           </div>
         </Modal.Footer>
@@ -346,4 +348,3 @@ export default function ConfigureProviderModal({
     </Modal>
   );
 }
-

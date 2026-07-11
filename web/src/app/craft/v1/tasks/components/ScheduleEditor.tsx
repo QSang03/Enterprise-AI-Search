@@ -29,6 +29,8 @@ const INTERVAL_UNITS: ReadonlyArray<{ value: IntervalUnit; label: string }> = [
   { value: "hours", label: "hours" },
 ];
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export interface ScheduleEditorProps {
   mode: EditorMode;
   onModeChange: (mode: EditorMode) => void;
@@ -45,12 +47,14 @@ export default function ScheduleEditor({
   onPayloadChange,
   error,
 }: ScheduleEditorProps) {
+  const { t } = useTranslation();
+
   // Cache the active payload per mode so flipping tabs back and forth doesn't
   // wipe out a partially-filled form on the other tab.
   const tabContent = useMemo(
     () => ({
       interval: {
-        name: "Interval",
+        name: t("craft.scheduleInterval"),
         content: (
           <IntervalEditor
             payload={
@@ -63,7 +67,7 @@ export default function ScheduleEditor({
         ),
       },
       daily_weekly: {
-        name: "Daily / Weekly",
+        name: t("craft.scheduleDailyWeekly"),
         content: (
           <DailyWeeklyEditor
             payload={
@@ -76,7 +80,7 @@ export default function ScheduleEditor({
         ),
       },
     }),
-    [mode, payload, onPayloadChange]
+    [mode, payload, onPayloadChange, t]
   );
 
   const tabEntries = Object.entries(tabContent);
@@ -153,11 +157,12 @@ interface IntervalEditorProps {
 }
 
 function IntervalEditor({ payload, onChange }: IntervalEditorProps) {
+  const { t } = useTranslation();
   return (
     <Section gap={0.5}>
       <div className="flex items-center gap-2 flex-wrap">
         <Text font="main-ui-body" color="text-05">
-          Every
+          {t("craft.scheduleEvery")}
         </Text>
         <div className="w-28">
           <InputTypeIn
@@ -181,7 +186,7 @@ function IntervalEditor({ payload, onChange }: IntervalEditorProps) {
             <InputSelect.Content>
               {INTERVAL_UNITS.map((u) => (
                 <InputSelect.Item key={u.value} value={u.value}>
-                  {u.label}
+                  {u.value === "minutes" ? t("craft.scheduleMinutes") : t("craft.scheduleHours")}
                 </InputSelect.Item>
               ))}
             </InputSelect.Content>
@@ -202,19 +207,36 @@ interface DailyWeeklyEditorProps {
 }
 
 function DailyWeeklyEditor({ payload, onChange }: DailyWeeklyEditorProps) {
+  const { t } = useTranslation();
   const weekdaySet = new Set(payload.weekdays ?? []);
+
+  const getWeekdayLabel = (val: number) => {
+    switch (val) {
+      case 0: return t("craft.scheduleSun");
+      case 1: return t("craft.scheduleMon");
+      case 2: return t("craft.scheduleTue");
+      case 3: return t("craft.scheduleWed");
+      case 4: return t("craft.scheduleThu");
+      case 5: return t("craft.scheduleFri");
+      case 6: return t("craft.scheduleSat");
+      default: return "";
+    }
+  };
+
   const selectedDays = WEEKDAY_LABELS.filter((d) =>
     weekdaySet.has(d.value)
-  ).map((d) => d.short);
+  ).map((d) => getWeekdayLabel(d.value));
+
   const scheduleNote =
     selectedDays.length === 0
-      ? "Runs every day"
-      : `Runs on ${selectedDays.join(", ")}`;
+      ? t("craft.scheduleRunsEveryDay")
+      : t("craft.scheduleRunsOnDays", { days: selectedDays.join(", ") });
+
   return (
     <Section gap={0.5}>
       <div className="flex items-center gap-2">
         <Text font="main-ui-body" color="text-05">
-          At
+          {t("craft.scheduleAt")}
         </Text>
         <div className="w-44">
           <InputTypeIn
@@ -229,7 +251,7 @@ function DailyWeeklyEditor({ payload, onChange }: DailyWeeklyEditorProps) {
       </div>
       <div className="flex flex-col gap-1">
         <Text font="secondary-body" color="text-03">
-          On these days
+          {t("craft.scheduleOnTheseDays")}
         </Text>
         <div className="flex items-center gap-1 flex-wrap">
           {WEEKDAY_LABELS.map((day) => {
@@ -256,7 +278,7 @@ function DailyWeeklyEditor({ payload, onChange }: DailyWeeklyEditorProps) {
                     : "bg-background-neutral-00 border-border-02 text-text-03 hover:bg-background-tint-01"
                 )}
               >
-                {day.short}
+                {getWeekdayLabel(day.value)}
               </button>
             );
           })}

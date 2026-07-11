@@ -16,6 +16,7 @@ import {
   SvgLoader,
 } from "@/app/craft/components/tool-cards/helpers";
 import type { ToolCallState } from "@/app/craft/types/displayTypes";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface CraftToolGroupProps {
   toolCalls: ToolCallState[];
@@ -53,6 +54,7 @@ export default function CraftToolGroup({
   autoCollapse = false,
   defaultOpen,
 }: CraftToolGroupProps) {
+  const { t } = useTranslation();
   const aggregate = aggregateStatus(toolCalls);
   // Open while the run is active so streaming calls stay visible and nothing
   // collapses as new calls append; settled groups start collapsed.
@@ -92,18 +94,18 @@ export default function CraftToolGroup({
               <div className="flex items-center gap-2 min-w-0 w-full">
                 {renderStatusIcon(toolCalls)}
                 <Text font="main-ui-muted" color="text-04" nowrap>
-                  Working
+                  {t("craft.working")}
                 </Text>
                 <span className="ml-auto shrink-0 flex items-center gap-2">
                   {failedCount > 0 && (
                     <Tag
-                      title={`${failedCount} failed`}
+                      title={t("craft.failedCount", { count: failedCount })}
                       size="sm"
                       color="red"
                     />
                   )}
                   <Tag
-                    title={`${toolCalls.length} calls`}
+                    title={t("craft.callsCount", { count: toolCalls.length })}
                     size="sm"
                     color="gray"
                   />

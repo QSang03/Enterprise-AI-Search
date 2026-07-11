@@ -14,6 +14,7 @@ import {
   useBuildSessionStore,
 } from "@/app/craft/hooks/useBuildSessionStore";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * TaskBody - The whole "Spawning subagent: …" row. An accent-tinted, clickable
@@ -21,6 +22,7 @@ import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interf
  * icon. (Rendered directly by CraftToolCard — no collapsible body.)
  */
 export default function TaskBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const subagents = useSubagents();
   const viewSubagent = useBuildSessionStore((s) => s.viewSubagent);
 
@@ -37,7 +39,7 @@ export default function TaskBody({ toolCall }: ToolCardBodyProps) {
         ? "failed"
         : "running");
 
-  const label = toolCall.description || "Spawning subagent";
+  const label = toolCall.description || t("craft.spawningSubagent");
 
   function open() {
     const sessionId = useBuildSessionStore.getState().currentSessionId;
@@ -49,7 +51,7 @@ export default function TaskBody({ toolCall }: ToolCardBodyProps) {
       type="button"
       disabled={!subagent}
       onClick={open}
-      aria-label={subagent ? `View subagent: ${label}` : label}
+      aria-label={subagent ? t("craft.viewSubagentWithName", { name: label }) : label}
       className={cn(
         "group/task flex w-full items-center gap-2 rounded-08 px-3 py-2 text-left",
         subagent

@@ -16,6 +16,7 @@ import {
   fetchDirectoryListing,
 } from "@/app/craft/services/apiServices";
 import { useBuildSessionStore } from "@/app/craft/hooks/useBuildSessionStore";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * Upload File Status - tracks the state of files being uploaded
@@ -87,15 +88,16 @@ interface FileValidationResult {
 }
 
 /** Validate a single file before upload */
-function validateFile(file: File): FileValidationResult {
+function validateFile(file: File, t: (key: string, options?: any) => string): FileValidationResult {
   // Check file size. Extension/type are intentionally not restricted - uploaded
   // files only run inside the isolated sandbox, which is the security boundary.
   if (file.size > MAX_FILE_SIZE_BYTES) {
     return {
       valid: false,
-      error: `File too large (${formatBytes(
-        file.size
-      )}). Maximum is ${formatBytes(MAX_FILE_SIZE_BYTES)}.`,
+      error: t("craft.fileTooLarge", {
+        size: formatBytes(file.size),
+        maxSize: formatBytes(MAX_FILE_SIZE_BYTES),
+      }),
     };
   }
 
@@ -105,13 +107,14 @@ function validateFile(file: File): FileValidationResult {
 /** Validate total files and size constraints */
 function validateBatch(
   newFiles: File[],
-  existingFiles: BuildFile[]
+  existingFiles: BuildFile[],
+  t: (key: string, options?: any) => string
 ): FileValidationResult {
   const totalCount = existingFiles.length + newFiles.length;
   if (totalCount > MAX_FILES_PER_SESSION) {
     return {
       valid: false,
-      error: `Too many files. Maximum is ${MAX_FILES_PER_SESSION} files per session.`,
+      error: t("craft.tooManyFiles", { max: MAX_FILES_PER_SESSION }),
     };
   }
 
@@ -122,9 +125,9 @@ function validateBatch(
   if (totalSize > MAX_TOTAL_SIZE_BYTES) {
     return {
       valid: false,
-      error: `Total size exceeds limit. Maximum is ${formatBytes(
-        MAX_TOTAL_SIZE_BYTES
-      )} per session.`,
+      error: t("craft.totalSizeExceeds", {
+        max: formatBytes(MAX_TOTAL_SIZE_BYTES),
+      }),
     };
   }
 
@@ -169,27 +172,31 @@ export enum UploadErrorType {
   UNKNOWN = "UNKNOWN",
 }
 
-function classifyError(error: unknown): {
+function classifyError(
+  error: unknown,
+  t?: (key: string, options?: any) => string
+): {
   type: UploadErrorType;
   message: string;
 } {
+  const translate = t || ((k: string) => k);
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
     if (message.includes("401") || message.includes("unauthorized")) {
-      return { type: UploadErrorType.AUTH, message: "Session expired" };
+      return { type: UploadErrorType.AUTH, message: translate("craft.sessionExpired") };
     }
     if (message.includes("404") || message.includes("not found")) {
-      return { type: UploadErrorType.NOT_FOUND, message: "Resource not found" };
+      return { type: UploadErrorType.NOT_FOUND, message: translate("craft.resourceNotFound") };
     }
     if (message.includes("500") || message.includes("server")) {
-      return { type: UploadErrorType.SERVER, message: "Server error" };
+      return { type: UploadErrorType.SERVER, message: translate("craft.serverError") };
     }
     if (message.includes("network") || message.includes("fetch")) {
-      return { type: UploadErrorType.NETWORK, message: "Network error" };
+      return { type: UploadErrorType.NETWORK, message: translate("craft.networkError") };
     }
     return { type: UploadErrorType.UNKNOWN, message: error.message };
   }
-  return { type: UploadErrorType.UNKNOWN, message: "Upload failed" };
+  return { type: UploadErrorType.UNKNOWN, message: translate("craft.uploadFailed") };
 }
 
 /**
@@ -263,6 +270,7 @@ export interface UploadFilesProviderProps {
 }
 
 export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
+  const { t } = useTranslation();
   // =========================================================================
   // State
   // =========================================================================
@@ -347,7 +355,7 @@ export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
               const result = await uploadFileApi(sessionId, file.file!);
               return { id: file.id, success: true as const, result };
             } catch (error) {
-              const { message } = classifyError(error);
+              const { message } = classifyError(error, t);
               return {
                 id: file.id,
                 success: false as const,
@@ -450,7 +458,7 @@ export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
           });
         }
       } catch (error) {
-        const { type } = classifyError(error);
+        const { type } = classifyError(error, t);
         if (type !== UploadErrorType.NOT_FOUND) {
           console.error(
             "[UploadFilesContext] fetchExistingAttachments error:",
@@ -583,7 +591,7 @@ export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
       const existingFiles = currentMessageFiles;
 
       // Validate batch constraints first
-      const batchValidation = validateBatch(files, existingFiles);
+      const batchValidation = validateBatch(files, existingFiles, t);
       if (!batchValidation.valid) {
         // Create failed files for all with the batch error
         const failedFiles = files.map((f) =>
@@ -598,7 +606,7 @@ export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
       const failedFiles: BuildFile[] = [];
 
       for (const file of files) {
-        const validation = validateFile(file);
+        const validation = validateFile(file, t);
         if (validation.valid) {
           validFiles.push(file);
         } else {
@@ -635,7 +643,7 @@ export function UploadFilesProvider({ children }: UploadFilesProviderProps) {
               result,
             };
           } catch (error) {
-            const { message } = classifyError(error);
+            const { message } = classifyError(error, t);
             return {
               id: optimisticFile.id,
               success: false as const,

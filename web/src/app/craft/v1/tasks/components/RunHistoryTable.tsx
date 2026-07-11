@@ -71,7 +71,7 @@ function NonClickableCell({ reason, children }: NonClickableCellProps) {
 function buildColumns(t: (key: string) => string) {
   return [
     tc.column("started_at", {
-      header: "Started",
+      header: t("craft.runHistoryStarted"),
       weight: 22,
       enableSorting: false,
       cell: (value, row) => (
@@ -88,7 +88,7 @@ function buildColumns(t: (key: string) => string) {
       ),
     }),
     tc.column("status", {
-      header: "Status",
+      header: t("craft.tasksStatus"),
       weight: 14,
       enableSorting: false,
       cell: (status, row) => {
@@ -106,7 +106,7 @@ function buildColumns(t: (key: string) => string) {
                 <SvgLock
                   size={12}
                   className="text-text-03"
-                  aria-label={t("notOpenable")}
+                  aria-label={t("connectorCCPair.notOpenable")}
                 />
               )}
             </div>
@@ -116,7 +116,7 @@ function buildColumns(t: (key: string) => string) {
     }),
     tc.displayColumn({
       id: "duration",
-      header: "Duration",
+      header: t("craft.runHistoryDuration"),
       width: { weight: 12 },
       cell: (row) => (
         <NonClickableCell reason={getNonClickableReason(row)}>
@@ -128,7 +128,7 @@ function buildColumns(t: (key: string) => string) {
     }),
     tc.displayColumn({
       id: "summary",
-      header: "Summary",
+      header: t("craft.runHistorySummary"),
       width: { weight: 38 },
       cell: (row) => (
         <NonClickableCell reason={getNonClickableReason(row)}>
@@ -139,13 +139,13 @@ function buildColumns(t: (key: string) => string) {
       ),
     }),
     tc.column("trigger_source", {
-      header: "Trigger",
+      header: t("craft.runHistoryTrigger"),
       weight: 14,
       enableSorting: false,
       cell: (value, row) => (
         <NonClickableCell reason={getNonClickableReason(row)}>
           <Text font="main-ui-body" color="text-03" nowrap>
-            {value === "MANUAL_RUN_NOW" ? "Run Now" : "Schedule"}
+            {value === "MANUAL_RUN_NOW" ? t("craft.runHistoryRunNow") : t("craft.runHistorySchedule")}
           </Text>
         </NonClickableCell>
       ),
@@ -233,7 +233,7 @@ export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
     return (
       <Section gap={0.5}>
         <Text font="main-ui-body" color="text-03">
-          Failed to load run history.
+          {t("craft.failedToLoadRunHistory")}
         </Text>
         <Button
           variant="default"
@@ -241,7 +241,7 @@ export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
           onClick={refresh}
           size="sm"
         >
-          Try again
+          {t("connectorCCPair.tryAgain")}
         </Button>
       </Section>
     );
@@ -251,8 +251,7 @@ export default function RunHistoryTable({ taskId }: RunHistoryTableProps) {
     return (
       <div className="py-6 text-center">
         <Text font="main-ui-body" color="text-03">
-          No runs yet. The task will create one each time it fires, or use Run
-          Now above.
+          {t("craft.noRunsYetInstructions")}
         </Text>
       </div>
     );

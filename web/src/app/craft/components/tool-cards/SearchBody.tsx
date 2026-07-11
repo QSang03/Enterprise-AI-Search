@@ -5,6 +5,7 @@ import ToolCardSurface, {
   ToolCardSection,
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * SearchBody - glob/grep results rendered as a single monospace block, matching
@@ -12,6 +13,7 @@ import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interf
  * (grep) exactly as the tool emitted it — no per-line icon rows.
  */
 export default function SearchBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const output = toolCall.rawOutput?.trim();
 
   if (!output) {
@@ -19,7 +21,7 @@ export default function SearchBody({ toolCall }: ToolCardBodyProps) {
       <ToolCardSurface>
         <ToolCardSection>
           <Text font="secondary-mono" color="text-02">
-            No matches
+            {t("craft.noMatches")}
           </Text>
         </ToolCardSection>
       </ToolCardSurface>

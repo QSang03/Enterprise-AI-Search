@@ -23,6 +23,7 @@ import OnboardingLlmSetup, {
 import { craftModelName } from "@/app/craft/onboarding/constants";
 import { useLLMProviderOptions } from "@/lib/hooks/useLLMProviderOptions";
 import { getProvider } from "@/lib/languageModels";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface BuildOnboardingModalProps {
   mode: OnboardingModalMode;
@@ -69,6 +70,8 @@ export default function BuildOnboardingModal({
   onLlmComplete,
   onClose,
 }: BuildOnboardingModalProps) {
+  const { t } = useTranslation();
+
   // Compute steps based on mode
   const steps = useMemo(
     () => getStepsForMode(mode, isAdmin, hasAnyProvider),
@@ -189,7 +192,7 @@ export default function BuildOnboardingModal({
 
     if (!testResult.ok) {
       setErrorMessage(
-        "There was an issue with this provider and model, please try a different one."
+        t("craft.onboardingErrorProviderModel")
       );
       setConnectionStatus("error");
       return;
@@ -216,8 +219,8 @@ export default function BuildOnboardingModal({
         setErrorMessage(
           detail ??
             (isConflict
-              ? `A provider named "${providerName}" already exists — remove or rename it in Admin → LLM Providers, then retry.`
-              : "There was an issue creating the provider. Please try again.")
+              ? t("craft.onboardingErrorProviderExists", { providerName })
+              : t("craft.onboardingErrorCreatingProvider"))
         );
         setConnectionStatus("error");
         return;
@@ -245,7 +248,7 @@ export default function BuildOnboardingModal({
     } catch (error) {
       console.error("Error connecting LLM provider:", error);
       setErrorMessage(
-        "There was an issue connecting the provider. Please try again."
+        t("craft.onboardingErrorConnectingProvider")
       );
       setConnectionStatus("error");
     }
@@ -285,7 +288,7 @@ export default function BuildOnboardingModal({
     } catch (error) {
       console.error("Error completing onboarding:", error);
       setErrorMessage(
-        "There was an issue completing onboarding. Please try again."
+        t("craft.onboardingErrorCompleting")
       );
     } finally {
       setIsSubmitting(false);
@@ -349,7 +352,7 @@ export default function BuildOnboardingModal({
                 >
                   <SvgArrowLeft className="w-4 h-4" />
                   <Text font="main-ui-action" color="text-05">
-                    Back
+                    {t("craft.onboardingBack")}
                   </Text>
                 </button>
               )}
@@ -393,9 +396,9 @@ export default function BuildOnboardingModal({
                 >
                   {isLastStep
                     ? isSubmitting
-                      ? "Saving..."
-                      : "Get Started!"
-                    : "Continue"}
+                      ? t("craft.onboardingSaving")
+                      : t("craft.onboardingGetStarted")
+                    : t("craft.onboardingContinue")}
                 </Text>
                 {!isLastStep && (
                   <SvgArrowRight className="w-4 h-4 text-white dark:text-black" />
@@ -414,7 +417,7 @@ export default function BuildOnboardingModal({
                     className="flex items-center gap-1.5 px-4 py-2 rounded-12 border border-border-01 bg-background-tint-00 text-text-04 hover:bg-background-tint-02 transition-colors"
                   >
                     <Text font="main-ui-action" color="text-05">
-                      Skip
+                      {t("craft.onboardingSkip")}
                     </Text>
                     <SvgArrowRight className="w-4 h-4" />
                   </button>
@@ -439,7 +442,7 @@ export default function BuildOnboardingModal({
                         : "text-02"
                     }
                   >
-                    {isConnecting ? "Connecting..." : "Connect"}
+                    {isConnecting ? t("craft.onboardingConnecting") : t("craft.onboardingConnect")}
                   </Text>
                 </button>
               </div>
@@ -452,7 +455,7 @@ export default function BuildOnboardingModal({
                 className="flex items-center gap-1.5 px-4 py-2 rounded-12 bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition-colors"
               >
                 <Text font="main-ui-action" color="text-inverted-05">
-                  {isLastStep ? "Done" : "Continue"}
+                  {isLastStep ? t("craft.onboardingDone") : t("craft.onboardingContinue")}
                 </Text>
                 {!isLastStep && (
                   <SvgArrowRight className="w-4 h-4 text-white dark:text-black" />

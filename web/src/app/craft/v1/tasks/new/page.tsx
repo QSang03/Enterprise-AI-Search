@@ -61,8 +61,8 @@ export default function NewScheduledTaskPage() {
     <ScheduleTaskForm
       initial={initial}
       isEdit={false}
-      title={t("newScheduledTask")}
-      description={t("newScheduledTaskDesc")}
+      title={t("connectorCCPair.newScheduledTask")}
+      description={t("connectorCCPair.newScheduledTaskDesc")}
       onBack={handleBack}
     />
   );

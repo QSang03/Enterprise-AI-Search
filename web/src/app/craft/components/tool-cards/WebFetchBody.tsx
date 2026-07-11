@@ -5,19 +5,21 @@ import ToolCardSurface, {
   ToolCardSection,
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * WebFetchBody - Response body for webfetch. The URL is rendered by the
  * card header (toolCall.description), so we only show the body here.
  */
 export default function WebFetchBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const body = toolCall.rawOutput;
 
   return (
     <ToolCardSurface>
       <ToolCardSection className="whitespace-pre-wrap wrap-break-word">
         <Text as="p" font="secondary-mono" color="text-03">
-          {body || "No response body"}
+          {body || t("craft.noResponseBody")}
         </Text>
       </ToolCardSection>
     </ToolCardSurface>

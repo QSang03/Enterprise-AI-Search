@@ -9,6 +9,8 @@ import {
   type ExternalAppUserResponse,
 } from "@/app/craft/v1/apps/registry";
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 interface PreApprovalPickerProps {
   selectedIds: number[];
   onChange: (ids: number[]) => void;
@@ -18,6 +20,7 @@ export default function PreApprovalPicker({
   selectedIds,
   onChange,
 }: PreApprovalPickerProps) {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useUserExternalApps();
 
   const selected = new Set(selectedIds);
@@ -35,7 +38,7 @@ export default function PreApprovalPicker({
     return (
       <Card background="none" border="dashed" rounding="lg">
         <Text font="secondary-body" color="text-03">
-          Loading apps…
+          {t("craft.loadingAppsEllipsis")}
         </Text>
       </Card>
     );
@@ -45,7 +48,7 @@ export default function PreApprovalPicker({
     return (
       <Card background="none" border="dashed" rounding="lg">
         <Text font="secondary-body" color="text-03">
-          Couldn’t load your apps. Refresh to try again.
+          {t("craft.couldNotLoadAppsRefresh")}
         </Text>
       </Card>
     );
@@ -55,8 +58,7 @@ export default function PreApprovalPicker({
     return (
       <Card background="none" border="dashed" rounding="lg">
         <Text font="secondary-body" color="text-03">
-          No external apps are enabled for your org yet. Ask an admin to enable
-          one.
+          {t("craft.noAppsEnabled")}
         </Text>
       </Card>
     );
