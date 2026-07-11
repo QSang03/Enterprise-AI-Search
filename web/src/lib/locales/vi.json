@@ -1399,7 +1399,15 @@
       "tts1Desc": "Mô hình chuyển văn bản thành giọng nói của OpenAI được tối ưu hóa cho tốc độ.",
       "tts1HdDesc": "Mô hình chuyển văn bản thành giọng nói của OpenAI được tối ưu hóa cho chất lượng.",
       "azureSpeechTtsDesc": "Chuyển văn bản thành giọng nói trong công cụ Microsoft Foundry.",
-      "elevenlabsTtsDesc": "API chuyển văn bản thành giọng nói của ElevenLabs."
+      "elevenlabsTtsDesc": "API chuyển văn bản thành giọng nói của ElevenLabs.",
+      "whisperLabel": "Whisper",
+      "azureSpeechLabel": "Azure Speech",
+      "elevenlabsLabel": "ElevenAPI",
+      "tts1Label": "TTS-1",
+      "tts1HdLabel": "TTS-1 HD",
+      "openaiLabel": "OpenAI",
+      "azureLabel": "Azure",
+      "elevenlabsProviderLabel": "ElevenLabs"
     },
     "webSearch": {
       "title": "Tìm kiếm Web (Web Search)",
@@ -1608,7 +1616,9 @@
       "roleAdminDesc": "Quyền quản trị đầy đủ đối với tất cả các endpoint API của Onyx.",
       "roleBasicDesc": "Quyền truy cập người dùng tiêu chuẩn đối với các endpoint API của Onyx.",
       "upgradeTitle": "Nâng cấp lên gói trả phí để tạo khóa API.",
-      "upgradeDesc": "Tài khoản dùng thử không bao gồm quyền truy cập khóa API — hãy mua gói đăng ký trả phí để mở khóa tính năng này."
+      "upgradeDesc": "Tài khoản dùng thử không bao gồm quyền truy cập khóa API — hãy mua gói đăng ký trả phí để mở khóa tính năng này.",
+      "regenerateConfirmDesc": "Khóa API hiện tại của bạn *{name}* (`{display}`) sẽ bị thu hồi và một khóa mới sẽ được tạo. Bạn sẽ cần cập nhật bất kỳ ứng dụng nào đang sử dụng khóa này bằng khóa mới.",
+      "deleteConfirmDesc": "Bất kỳ ứng dụng nào sử dụng khóa API của tài khoản *{name}* (`{display}`) sẽ mất quyền truy cập vào Onyx."
     },
     "languageModels": {
       "displayName": "Tên hiển thị",

@@ -40,20 +40,20 @@ interface ProviderGroup {
 const STT_MODELS: ModelDetails[] = [
   {
     id: "whisper",
-    label: "Whisper",
-    subtitle: "OpenAI's general purpose speech recognition model.",
+    label: "whisper",
+    subtitle: "whisper",
     providerType: "openai",
   },
   {
     id: "azure-speech-stt",
-    label: "Azure Speech",
-    subtitle: "Speech to text in Microsoft Foundry Tools.",
+    label: "azure-speech-stt",
+    subtitle: "azure-speech-stt",
     providerType: "azure",
   },
   {
     id: "elevenlabs-stt",
-    label: "ElevenAPI",
-    subtitle: "ElevenLabs Speech to Text API.",
+    label: "elevenlabs-stt",
+    subtitle: "elevenlabs-stt",
     providerType: "elevenlabs",
   },
 ];
@@ -62,42 +62,42 @@ const STT_MODELS: ModelDetails[] = [
 const TTS_PROVIDER_GROUPS: ProviderGroup[] = [
   {
     providerType: "openai",
-    providerLabel: "OpenAI",
+    providerLabel: "openai",
     models: [
       {
         id: "tts-1",
-        label: "TTS-1",
-        subtitle: "OpenAI's text-to-speech model optimized for speed.",
+        label: "tts-1",
+        subtitle: "tts-1",
         providerType: "openai",
       },
       {
         id: "tts-1-hd",
-        label: "TTS-1 HD",
-        subtitle: "OpenAI's text-to-speech model optimized for quality.",
+        label: "tts-1-hd",
+        subtitle: "tts-1-hd",
         providerType: "openai",
       },
     ],
   },
   {
     providerType: "azure",
-    providerLabel: "Azure",
+    providerLabel: "azure",
     models: [
       {
         id: "azure-speech-tts",
-        label: "Azure Speech",
-        subtitle: "Text to speech in Microsoft Foundry Tools.",
+        label: "azure-speech-tts",
+        subtitle: "azure-speech-tts",
         providerType: "azure",
       },
     ],
   },
   {
     providerType: "elevenlabs",
-    providerLabel: "ElevenLabs",
+    providerLabel: "elevenlabs",
     models: [
       {
         id: "elevenlabs-tts",
-        label: "ElevenAPI",
-        subtitle: "ElevenLabs Text to Speech API.",
+        label: "elevenlabs-tts",
+        subtitle: "elevenlabs-tts",
         providerType: "elevenlabs",
       },
     ],
@@ -117,6 +117,40 @@ interface ModelCardProps {
   onDeselect: () => void;
   onMutate: () => void;
 }
+
+const getModelLabel = (modelId: string, fallback: string, t: any) => {
+  switch (modelId) {
+    case "whisper":
+      return t("admin.voice.whisperLabel");
+    case "azure-speech-stt":
+      return t("admin.voice.azureSpeechLabel");
+    case "elevenlabs-stt":
+      return t("admin.voice.elevenlabsLabel");
+    case "tts-1":
+      return t("admin.voice.tts1Label");
+    case "tts-1-hd":
+      return t("admin.voice.tts1HdLabel");
+    case "azure-speech-tts":
+      return t("admin.voice.azureSpeechLabel");
+    case "elevenlabs-tts":
+      return t("admin.voice.elevenlabsLabel");
+    default:
+      return fallback;
+  }
+};
+
+const getProviderLabel = (providerType: string, fallback: string, t: any) => {
+  switch (providerType) {
+    case "openai":
+      return t("admin.voice.openaiLabel");
+    case "azure":
+      return t("admin.voice.azureLabel");
+    case "elevenlabs":
+      return t("admin.voice.elevenlabsProviderLabel");
+    default:
+      return fallback;
+  }
+};
 
 const getModelSubtitle = (modelId: string, fallback: string, t: any) => {
   switch (modelId) {

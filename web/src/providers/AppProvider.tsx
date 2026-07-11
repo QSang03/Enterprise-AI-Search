@@ -74,8 +74,8 @@ interface AppProviderProps {
 export default function AppProvider({ children }: AppProviderProps) {
   return (
     <SettingsProvider>
-      <UserProvider>
-        <LanguageProvider>
+      <LanguageProvider>
+        <UserProvider>
           <AppBackgroundProvider>
             <ProviderContextProvider>
               <ModalProvider>
@@ -89,8 +89,8 @@ export default function AppProvider({ children }: AppProviderProps) {
               </ModalProvider>
             </ProviderContextProvider>
           </AppBackgroundProvider>
-        </LanguageProvider>
-      </UserProvider>
+        </UserProvider>
+      </LanguageProvider>
     </SettingsProvider>
   );
 }

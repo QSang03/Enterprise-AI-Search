@@ -1399,7 +1399,15 @@
       "tts1Desc": "OpenAI's text-to-speech model optimized for speed.",
       "tts1HdDesc": "OpenAI's text-to-speech model optimized for quality.",
       "azureSpeechTtsDesc": "Text to speech in Microsoft Foundry Tools.",
-      "elevenlabsTtsDesc": "ElevenLabs Text to Speech API."
+      "elevenlabsTtsDesc": "ElevenLabs Text to Speech API.",
+      "whisperLabel": "Whisper",
+      "azureSpeechLabel": "Azure Speech",
+      "elevenlabsLabel": "ElevenAPI",
+      "tts1Label": "TTS-1",
+      "tts1HdLabel": "TTS-1 HD",
+      "openaiLabel": "OpenAI",
+      "azureLabel": "Azure",
+      "elevenlabsProviderLabel": "ElevenLabs"
     },
     "webSearch": {
       "title": "Web Search",
@@ -1608,7 +1616,9 @@
       "roleAdminDesc": "Full administrative access to all Onyx API endpoints.",
       "roleBasicDesc": "Standard user access to Onyx API endpoints.",
       "upgradeTitle": "Upgrade to a paid plan to create API keys.",
-      "upgradeDesc": "Trial accounts do not include API key access — purchase a paid subscription to unlock this feature."
+      "upgradeDesc": "Trial accounts do not include API key access — purchase a paid subscription to unlock this feature.",
+      "regenerateConfirmDesc": "Your current API key *{name}* (`{display}`) will be revoked and a new key will be generated. You will need to update any applications using this key with the new one.",
+      "deleteConfirmDesc": "Any application using the API key of account *{name}* (`{display}`) will lose access to Onyx."
     },
     "languageModels": {
       "displayName": "Display Name",

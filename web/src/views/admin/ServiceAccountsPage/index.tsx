@@ -417,11 +417,10 @@ export default function ServiceAccountsPage() {
         >
           <Text as="p" color="text-03">
             {markdown(
-              `Your current API key *${
-                regenerateTarget.api_key_name || t("admin.serviceAccounts.unnamed")
-              }* (\`${
-                regenerateTarget.api_key_display
-              }\`) will be revoked and a new key will be generated. You will need to update any applications using this key with the new one.`
+              t("admin.serviceAccounts.regenerateConfirmDesc", { 
+                name: regenerateTarget.api_key_name || t("admin.serviceAccounts.unnamed"),
+                display: regenerateTarget.api_key_display
+              })
             )}
           </Text>
         </ConfirmationModalLayout>
@@ -447,11 +446,10 @@ export default function ServiceAccountsPage() {
           <Section alignItems="start" gap={0.5}>
             <Text as="p" color="text-03">
               {markdown(
-                `Any application using the API key of account *${
-                  deleteTarget.api_key_name || t("admin.serviceAccounts.unnamed")
-                }* (\`${
-                  deleteTarget.api_key_display
-                }\`) will lose access to Onyx.`
+                t("admin.serviceAccounts.deleteConfirmDesc", { 
+                  name: deleteTarget.api_key_name || t("admin.serviceAccounts.unnamed"),
+                  display: deleteTarget.api_key_display
+                })
               )}
             </Text>
             <Text as="p" color="text-03">
