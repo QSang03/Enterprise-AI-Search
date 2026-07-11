@@ -13,6 +13,7 @@ import MarkdownFilePreview, {
 } from "@/app/craft/components/output-panel/MarkdownFilePreview";
 import PptxPreview from "@/app/craft/components/output-panel/PptxPreview";
 import PdfPreview from "@/app/craft/components/output-panel/PdfPreview";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // ── Preview registry ─────────────────────────────────────────────────────
 // Unified registry for all file preview types. First match wins.
@@ -154,6 +155,7 @@ function FetchedFilePreview({
   fullHeight,
   refreshKey,
 }: FetchedFilePreviewProps) {
+  const { t } = useTranslation();
   const { data, error, isLoading, mutate } = useSWR(
     SWR_KEYS.buildSessionArtifactFile(sessionId, filePath),
     () => fetchFileContent(sessionId, filePath),
@@ -180,7 +182,7 @@ function FetchedFilePreview({
           padding={2}
         >
           <Text font="secondary-body" color="text-03">
-            Loading file...
+            {t("craft.loadingFile")}
           </Text>
         </Section>
       );
@@ -188,7 +190,7 @@ function FetchedFilePreview({
     return (
       <div className="p-4">
         <Text font="secondary-body" color="text-03">
-          Loading file...
+          {t("craft.loadingFile")}
         </Text>
       </div>
     );
@@ -205,7 +207,7 @@ function FetchedFilePreview({
         >
           <SvgFileText size={48} className="stroke-text-02" />
           <Text font="heading-h3" color="text-03">
-            Error loading file
+            {t("craft.errorLoadingFile")}
           </Text>
           <Text font="secondary-body" color="text-02">
             {error.message}
@@ -216,7 +218,7 @@ function FetchedFilePreview({
     return (
       <div className="p-4">
         <Text font="secondary-body" color="text-02">
-          {`Error: ${error.message}`}
+          {`${t("common.error")}: ${error.message}`}
         </Text>
       </div>
     );
@@ -232,7 +234,7 @@ function FetchedFilePreview({
           padding={2}
         >
           <Text font="secondary-body" color="text-03">
-            No content
+            {t("craft.noContent")}
           </Text>
         </Section>
       );
@@ -240,7 +242,7 @@ function FetchedFilePreview({
     return (
       <div className="p-4">
         <Text font="secondary-body" color="text-03">
-          No content
+          {t("craft.noContent")}
         </Text>
       </div>
     );
@@ -257,7 +259,7 @@ function FetchedFilePreview({
         >
           <SvgFileText size={48} className="stroke-text-02" />
           <Text font="heading-h3" color="text-03">
-            Cannot preview file
+            {t("craft.cannotPreviewFile")}
           </Text>
           <div className="text-center max-w-md">
             <Text font="secondary-body" color="text-02">

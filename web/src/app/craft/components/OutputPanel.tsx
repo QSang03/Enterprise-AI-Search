@@ -407,7 +407,7 @@ const BuildOutputPanel = memo(({ isOpen }: BuildOutputPanelProps) => {
                   disabled={isDisabled}
                   title={
                     isDisabled
-                      ? "Start building something to see artifacts!"
+                      ? t("craft.startBuildingToSeeArtifacts")
                       : undefined
                   }
                   className={cn(
@@ -582,10 +582,10 @@ const BuildOutputPanel = memo(({ isOpen }: BuildOutputPanelProps) => {
         }
         downloadRawTooltip={
           isPdfPreview
-            ? "Download PDF"
+            ? t("craft.downloadPdf")
             : isPptxPreview
-              ? "Download PPTX"
-              : "Download MD file"
+              ? t("craft.downloadPptx")
+              : t("craft.downloadMd")
         }
         onDownload={isMarkdownPreview ? handleDocxDownload : undefined}
         isDownloading={isExportingDocx}

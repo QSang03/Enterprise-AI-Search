@@ -11,9 +11,8 @@ export default function OAuthConfigCallbackPage() {
         processingMessage: t("processingEllipsis"),
         processingDetails: t("pleaseWaitSecureStore"),
         successMessage: t("success"),
-        successDetailsTemplate:
-          "You have successfully authorized the tool to access your {serviceName} account.",
-        errorMessage: "Authorization Failed",
+        successDetailsTemplate: t("oauthCallback.successDetailsTool"),
+        errorMessage: t("oauthCallback.errorMessageFailed"),
         backButtonText: t("backToChat"),
         autoRedirectDelay: 2000,
       }}

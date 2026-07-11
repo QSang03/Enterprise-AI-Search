@@ -60,24 +60,25 @@ import { useTranslation } from "@/providers/LanguageProvider";
 // ============================================================================
 
 const DELETING_MESSAGES = [
-  "Mining away your blocks...",
-  "Returning diamonds to the caves...",
-  "Creeper blew up your save file...",
-  "Throwing items into lava...",
-  "Despawning your entities...",
-  "Breaking bedrock illegally...",
-  "Enderman teleported your data away...",
-  "Falling into the void...",
-  "Your build ran out of hearts...",
-  "Respawning at world spawn...",
-  "Feeding your code to the Ender Dragon...",
-  "Activating TNT chain reaction...",
-  "Zombie horde consumed your bytes...",
-  "Wither withering your session...",
-  "Herobrine deleted your world...",
+  "craft.deletingMsg0",
+  "craft.deletingMsg1",
+  "craft.deletingMsg2",
+  "craft.deletingMsg3",
+  "craft.deletingMsg4",
+  "craft.deletingMsg5",
+  "craft.deletingMsg6",
+  "craft.deletingMsg7",
+  "craft.deletingMsg8",
+  "craft.deletingMsg9",
+  "craft.deletingMsg10",
+  "craft.deletingMsg11",
+  "craft.deletingMsg12",
+  "craft.deletingMsg13",
+  "craft.deletingMsg14",
 ];
 
 function DeletingMessage() {
+  const { t } = useTranslation();
   const [messageIndex, setMessageIndex] = useState(() =>
     Math.floor(Math.random() * DELETING_MESSAGES.length)
   );
@@ -98,7 +99,7 @@ function DeletingMessage() {
   return (
     <div className="animate-subtle-pulse">
       <Text as="p" color="text-03">
-        {DELETING_MESSAGES[messageIndex]}
+        {t(DELETING_MESSAGES[messageIndex]!)}
       </Text>
     </div>
   );

@@ -6,6 +6,7 @@ import { BuildLLMPopover } from "@/app/craft/components/BuildLLMPopover";
 import { useOnboarding } from "@/app/craft/onboarding/BuildOnboardingProvider";
 import { useLLMProviders } from "@/lib/languageModels/hooks";
 import { getModelIcon } from "@/lib/languageModels";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   BuildLlmSelection,
   getDefaultLlmSelection,
@@ -24,6 +25,7 @@ export default function ModelPickerButton({
   onChange,
   disabled = false,
 }: ModelPickerButtonProps) {
+  const { t } = useTranslation();
   const { llmProviders } = useLLMProviders();
   const { openLlmSetup } = useOnboarding();
 
@@ -33,7 +35,7 @@ export default function ModelPickerButton({
   );
 
   const displayName = useMemo(() => {
-    if (!effective) return "Select model";
+    if (!effective) return t("craft.selectModel");
     for (const provider of llmProviders ?? []) {
       const config = provider.model_configurations.find(
         (m) => m.name === effective.modelName

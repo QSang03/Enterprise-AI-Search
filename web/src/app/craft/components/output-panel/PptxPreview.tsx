@@ -9,6 +9,7 @@ import { SvgChevronLeft, SvgChevronRight, SvgFileText } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import { fetchPptxPreview } from "@/app/craft/services/apiServices";
 import { getArtifactUrl } from "@/lib/build/client";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PptxPreviewProps {
   sessionId: string;
@@ -26,6 +27,7 @@ export default function PptxPreview({
   filePath,
   refreshKey,
 }: PptxPreviewProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [imageLoading, setImageLoading] = useState(true);
 
@@ -87,7 +89,7 @@ export default function PptxPreview({
         padding={2}
       >
         <Text font="secondary-body" color="text-03">
-          Converting presentation...
+          {t("craft.convertingPresentation")}
         </Text>
       </Section>
     );
@@ -103,7 +105,7 @@ export default function PptxPreview({
       >
         <SvgFileText size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          Cannot preview presentation
+          {t("craft.cannotPreviewPresentation")}
         </Text>
         <div className="text-center max-w-md">
           <Text font="secondary-body" color="text-02">
@@ -124,7 +126,7 @@ export default function PptxPreview({
       >
         <SvgFileText size={48} className="stroke-text-02" />
         <Text font="secondary-body" color="text-03">
-          No slides in this presentation
+          {t("craft.noSlidesInPresentation")}
         </Text>
       </Section>
     );
@@ -140,13 +142,13 @@ export default function PptxPreview({
         {imageLoading && (
           <div className="absolute">
             <Text font="secondary-body" color="text-03">
-              Loading slide...
+              {t("craft.loadingSlide")}
             </Text>
           </div>
         )}
         <img
           src={slideUrl}
-          alt={`Slide ${currentSlide + 1} of ${slideCount}`}
+          alt={t("craft.slideOf", { current: currentSlide + 1, total: slideCount })}
           className={cn(
             "max-w-full max-h-full object-contain transition-opacity",
             imageLoading ? "opacity-0" : "opacity-100"
@@ -172,7 +174,7 @@ export default function PptxPreview({
             <SvgChevronLeft size={16} className="stroke-text-02" />
           </button>
           <Text font="secondary-body" color="text-03">
-            {`Slide ${currentSlide + 1} of ${slideCount}`}
+            {t("craft.slideOf", { current: currentSlide + 1, total: slideCount })}
           </Text>
           <button
             onClick={goToNext}

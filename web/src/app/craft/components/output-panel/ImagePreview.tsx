@@ -5,6 +5,7 @@ import { cn } from "@opal/utils";
 import { Text } from "@opal/components";
 import { SvgImage } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface ImagePreviewProps {
   src: string;
@@ -16,6 +17,7 @@ interface ImagePreviewProps {
  * Includes proper accessibility attributes
  */
 export default function ImagePreview({ src, fileName }: ImagePreviewProps) {
+  const { t } = useTranslation();
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
 
@@ -38,10 +40,10 @@ export default function ImagePreview({ src, fileName }: ImagePreviewProps) {
       >
         <SvgImage size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          Failed to load image
+          {t("craft.failedLoadImage")}
         </Text>
         <Text font="secondary-body" color="text-02">
-          The image could not be displayed
+          {t("craft.imageNotDisplayed")}
         </Text>
       </Section>
     );
@@ -53,7 +55,7 @@ export default function ImagePreview({ src, fileName }: ImagePreviewProps) {
         {imageLoading && (
           <div className="absolute">
             <Text font="secondary-body" color="text-03">
-              Loading image...
+              {t("craft.loadingImage")}
             </Text>
           </div>
         )}

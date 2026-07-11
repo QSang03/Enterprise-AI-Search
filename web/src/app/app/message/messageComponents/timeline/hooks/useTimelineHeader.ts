@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "@/providers/LanguageProvider";
 import { TurnGroup } from "../transformers";
 import {
   PacketType,
@@ -26,33 +27,34 @@ export function useTimelineHeader(
   stopReason?: StopReason,
   isGeneratingImage?: boolean
 ): TimelineHeaderResult {
+  const { t } = useTranslation();
   return useMemo(() => {
     const hasPackets = turnGroups.length > 0;
     const userStopped = stopReason === StopReason.USER_CANCELLED;
 
     // If generating image with no tool packets, show image generation header
     if (isGeneratingImage && !hasPackets) {
-      return { headerText: "Generating image...", hasPackets, userStopped };
+      return { headerText: t("generatingImage"), hasPackets, userStopped };
     }
 
     if (!hasPackets) {
-      return { headerText: "Thinking...", hasPackets, userStopped };
+      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
     }
 
     // Get the last (current) turn group
     const currentTurn = turnGroups[turnGroups.length - 1];
     if (!currentTurn) {
-      return { headerText: "Thinking...", hasPackets, userStopped };
+      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const currentStep = currentTurn.steps[0];
     if (!currentStep?.packets?.length) {
-      return { headerText: "Thinking...", hasPackets, userStopped };
+      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const firstPacket = currentStep.packets[0];
     if (!firstPacket) {
-      return { headerText: "Thinking...", hasPackets, userStopped };
+      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const packetType = firstPacket.obj.type;
@@ -64,9 +66,9 @@ export function useTimelineHeader(
       );
       let headerText: string;
       if (searchState.hasResults && !searchState.isInternetSearch) {
-        headerText = "Reading";
+        headerText = t("reading");
       } else if (searchState.isInternetSearch) {
-        headerText = "Searching the web";
+        headerText = t("searchingWeb");
       } else {
         // A source filter overrides the header with the connector(s).
         headerText = formatSearchHeader(searchState.sourceFilters);
@@ -75,25 +77,25 @@ export function useTimelineHeader(
     }
 
     if (packetType === PacketType.FETCH_TOOL_START) {
-      return { headerText: "Reading", hasPackets, userStopped };
+      return { headerText: t("reading"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.PYTHON_TOOL_START) {
-      return { headerText: "Executing code", hasPackets, userStopped };
+      return { headerText: t("executingCode"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.IMAGE_GENERATION_TOOL_START) {
-      return { headerText: "Generating images", hasPackets, userStopped };
+      return { headerText: t("generatingImages"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.FILE_READER_START) {
-      return { headerText: "Reading file", hasPackets, userStopped };
+      return { headerText: t("readingFile"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.CUSTOM_TOOL_START) {
       const toolName = (firstPacket.obj as CustomToolStart).tool_name;
       return {
-        headerText: toolName ? `Executing ${toolName}` : "Executing tool",
+        headerText: toolName ? t("executingToolName", { toolName }) : t("executingTool"),
         hasPackets,
         userStopped,
       };
@@ -103,21 +105,21 @@ export function useTimelineHeader(
       packetType === PacketType.MEMORY_TOOL_START ||
       packetType === PacketType.MEMORY_TOOL_NO_ACCESS
     ) {
-      return { headerText: "Updating memory...", hasPackets, userStopped };
+      return { headerText: t("updatingMemory"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.REASONING_START) {
-      return { headerText: "Thinking", hasPackets, userStopped };
+      return { headerText: t("thinking"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.DEEP_RESEARCH_PLAN_START) {
-      return { headerText: "Generating plan", hasPackets, userStopped };
+      return { headerText: t("generatingPlan"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.RESEARCH_AGENT_START) {
-      return { headerText: "Researching", hasPackets, userStopped };
+      return { headerText: t("researching"), hasPackets, userStopped };
     }
 
-    return { headerText: "Thinking...", hasPackets, userStopped };
-  }, [turnGroups, stopReason, isGeneratingImage]);
+    return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+  }, [turnGroups, stopReason, isGeneratingImage, t]);
 }

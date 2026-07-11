@@ -82,13 +82,23 @@ export function citationsToSourceInfoArray(
   return sources;
 }
 
+/** Source types that store file/document paths rather than web pages. */
+const FILE_STORAGE_SOURCES = new Set([
+  ValidSources.Smb,
+  ValidSources.File,
+  ValidSources.UserFile,
+  ValidSources.CraftFile,
+]);
+
 /**
  * Get a display name for a source, used for inline citations
  */
 export function getDisplayNameForSource(doc: OnyxDocument): string {
   const sourceType = doc.source_type as ValidSources;
 
-  if (sourceType === ValidSources.Web || doc.is_internet) {
+  // For file-based sources (SMB, File, etc.), show the filename
+  // rather than the generic source type label.
+  if (FILE_STORAGE_SOURCES.has(sourceType) || doc.is_internet) {
     return truncateText(doc.semantic_identifier || "", MAX_TITLE_LENGTH);
   }
 

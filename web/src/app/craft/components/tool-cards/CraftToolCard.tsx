@@ -19,6 +19,7 @@ import WebSearchBody from "@/app/craft/components/tool-cards/WebSearchBody";
 import WebFetchBody from "@/app/craft/components/tool-cards/WebFetchBody";
 import TaskBody from "@/app/craft/components/tool-cards/TaskBody";
 import GenericBody from "@/app/craft/components/tool-cards/GenericBody";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   getStatusDisplay,
   getToolIcon,
@@ -78,7 +79,7 @@ function verbWithCode(verb: string, code: string, suffix?: string): ReactNode {
  * lead with a verb plus the actual command / pattern / file path in a
  * code-formatted chip; everything else is plain text from `primaryText`.
  */
-function renderPrimary(toolCall: ToolCallState): ReactNode {
+function renderPrimary(toolCall: ToolCallState, t: (key: string) => string): ReactNode {
   if (toolCall.kind === "execute" && toolCall.command) {
     if (toolCall.skillName && toolCall.description) {
       return (
@@ -87,13 +88,13 @@ function renderPrimary(toolCall: ToolCallState): ReactNode {
         </Text>
       );
     }
-    return verbWithCode("Running ", toolCall.command);
+    return verbWithCode(t("craft.toolRunning"), toolCall.command);
   }
   if (toolCall.kind === "search" && toolCall.description) {
-    return verbWithCode("Searching for ", toolCall.description);
+    return verbWithCode(t("craft.toolSearchingFor"), toolCall.description);
   }
   if (toolCall.toolName === "skill" && toolCall.skillName) {
-    return verbWithCode("Using ", toolCall.skillName, " skill");
+    return verbWithCode(t("craft.toolUsing"), toolCall.skillName, t("craft.toolSkillSuffix"));
   }
   if (
     (toolCall.kind === "read" || toolCall.kind === "edit") &&
@@ -196,6 +197,7 @@ export default function CraftToolCard({
   dense = false,
   nested = false,
 }: CraftToolCardProps) {
+  const { t } = useTranslation();
   const failed = toolCall.status === "failed";
   // Failed calls are always expandable so the error is reachable, even when
   // there's no normal body content.
@@ -211,7 +213,7 @@ export default function CraftToolCard({
   const headerRow = (
     <div className="flex items-center gap-2 min-w-0 w-full">
       {renderStatusIcon(toolCall)}
-      <span className="truncate min-w-0">{renderPrimary(toolCall)}</span>
+      <span className="truncate min-w-0">{renderPrimary(toolCall, t)}</span>
       {/* Pinned right so the skill badge aligns across rows. */}
       <span className="ml-auto flex items-center gap-2 shrink-0">
         {toolCall.skillName && toolCall.toolName !== "skill" && (

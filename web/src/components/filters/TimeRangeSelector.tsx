@@ -1,4 +1,5 @@
 import { DefaultDropdownElement } from "../Dropdown";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function TimeRangeSelector({
   value,
@@ -10,24 +11,29 @@ export function TimeRangeSelector({
   onValueChange: any;
   className: any;
 
-  timeRangeValues: { label: string; value: Date }[];
+  timeRangeValues: { labelKey: string; value: Date }[];
 }) {
+  const { t } = useTranslation();
   return (
     <div className={className}>
-      {timeRangeValues.map((timeRangeValue) => (
-        <DefaultDropdownElement
-          key={timeRangeValue.label}
-          name={timeRangeValue.label}
-          onSelect={() =>
-            onValueChange({
-              to: new Date(),
-              from: timeRangeValue.value,
-              selectValue: timeRangeValue.label,
-            })
-          }
-          isSelected={value?.selectValue === timeRangeValue.label}
-        />
-      ))}
+      {timeRangeValues.map((timeRangeValue) => {
+        const translatedLabel = t(timeRangeValue.labelKey);
+        return (
+          <DefaultDropdownElement
+            key={timeRangeValue.labelKey}
+            name={translatedLabel}
+            onSelect={() =>
+              onValueChange({
+                to: new Date(),
+                from: timeRangeValue.value,
+                selectValue: translatedLabel,
+                selectValueKey: timeRangeValue.labelKey,
+              })
+            }
+            isSelected={value?.selectValueKey === timeRangeValue.labelKey}
+          />
+        );
+      })}
     </div>
   );
 }

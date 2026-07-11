@@ -4,6 +4,7 @@ import { CustomDropdown } from "../Dropdown";
 import { timeRangeValues } from "@/app/config/timeRange";
 import { TimeRangeSelector } from "@/components/filters/TimeRangeSelector";
 import { cn } from "@opal/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function SearchDateRangeSelector({
   value,
@@ -16,6 +17,7 @@ export function SearchDateRangeSelector({
   isHorizontal?: boolean;
   className?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div>
       <CustomDropdown
@@ -47,11 +49,11 @@ export function SearchDateRangeSelector({
           <FiCalendar className="flex-none my-auto mr-2" />{" "}
           <p className="line-clamp-1">
             {isHorizontal ? (
-              "Date"
+              t("search.date")
             ) : value?.selectValue ? (
               <div className="text-text-darker">{value.selectValue}</div>
             ) : (
-              "Any time..."
+              t("search.anyTimeEllipsis")
             )}
           </p>
           {value?.selectValue ? (

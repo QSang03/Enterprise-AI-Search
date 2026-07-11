@@ -6,6 +6,7 @@ import { Text } from "@opal/components";
 import { SvgFileText } from "@opal/icons";
 import { Section } from "@/layouts/general-layouts";
 import { getArtifactUrl } from "@/lib/build/client";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 interface PdfPreviewProps {
   sessionId: string;
@@ -24,6 +25,7 @@ export default function PdfPreview({
   filePath,
   refreshKey,
 }: PdfPreviewProps) {
+  const { t } = useTranslation();
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -83,11 +85,11 @@ export default function PdfPreview({
       >
         <SvgFileText size={48} className="stroke-text-02" />
         <Text font="heading-h3" color="text-03">
-          Cannot preview PDF
+          {t("craft.cannotPreviewPdf")}
         </Text>
         <div className="text-center max-w-md">
           <Text font="secondary-body" color="text-02">
-            The PDF file could not be loaded.
+            {t("craft.failedLoadPdf")}
           </Text>
         </div>
       </Section>
@@ -103,7 +105,7 @@ export default function PdfPreview({
         padding={2}
       >
         <Text font="secondary-body" color="text-03">
-          Loading PDF...
+          {t("craft.loadingPdf")}
         </Text>
       </Section>
     );

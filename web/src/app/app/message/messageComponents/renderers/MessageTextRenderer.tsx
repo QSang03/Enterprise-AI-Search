@@ -7,6 +7,7 @@ import rehypeHighlight from "rehype-highlight";
 import { useHighlightLanguages } from "@/hooks/useHighlightLanguages";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 import { useTypewriter } from "@/hooks/useTypewriter";
 import Text from "@/refresh-components/texts/Text";
@@ -100,6 +101,7 @@ export const MessageTextRenderer: MessageRenderer<
   stopReason,
   children,
 }) => {
+  const { t } = useTranslation();
   const { enabled: smoothStreamingEnabled } = useSmoothStreaming();
   const setLatestMessageRenderComplete = useChatSessionStore(
     (state) => state.setLatestMessageRenderComplete
@@ -449,7 +451,7 @@ export const MessageTextRenderer: MessageRenderer<
       content:
         shouldShowThinkingPlaceholder || shouldShowSpeechWarmupIndicator ? (
           <Text as="span" secondaryBody text04 className="italic">
-            Thinking
+            {t("tools.thinking")}
           </Text>
         ) : displayedContent.length > 0 ? (
           <div

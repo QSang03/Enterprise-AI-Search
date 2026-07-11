@@ -65,13 +65,13 @@ export const StandardAnswerCreationForm = ({
           }}
           validationSchema={Yup.object().shape({
             keyword: Yup.string()
-              .required("Keywords or pattern is required")
+              .required(t("standardAnswers.keywordsRequired"))
               .max(255)
               .min(1),
-            answer: Yup.string().required("Answer is required").min(1),
+            answer: Yup.string().required(t("standardAnswers.answerRequired")).min(1),
             categories: Yup.array()
               .required()
-              .min(1, "At least one category is required"),
+              .min(1, t("standardAnswers.categoryRequired")),
           })}
           onSubmit={async (values, formikHelpers) => {
             formikHelpers.setSubmitting(true);
@@ -101,8 +101,8 @@ export const StandardAnswerCreationForm = ({
               const errorMsg = responseJson.detail || responseJson.message;
               toast.error(
                 isUpdate
-                  ? `Error updating Standard Answer - ${errorMsg}`
-                  : `Error creating Standard Answer - ${errorMsg}`
+                  ? t("failedToUpdateStandardAnswer", { errorMsg })
+                  : t("failedToCreateStandardAnswer", { errorMsg })
               );
             }
           }}
@@ -206,7 +206,7 @@ export const StandardAnswerCreationForm = ({
                   disabled={isSubmitting}
                   className="mx-auto w-64"
                 >
-                  {isUpdate ? "Update!" : "Create!"}
+                  {isUpdate ? t("standardAnswers.updateBtn") : t("standardAnswers.createBtn")}
                 </Button>
               </div>
             </Form>

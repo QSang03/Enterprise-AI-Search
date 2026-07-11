@@ -7,6 +7,7 @@ import ToolCardSurface, {
   MONO_STYLE,
 } from "@/app/craft/components/tool-cards/ToolCardSurface";
 import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interfaces";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 /**
  * BashBody - command + stdout/stderr. The command sits in its own section with
@@ -15,6 +16,7 @@ import type { ToolCardBodyProps } from "@/app/craft/components/tool-cards/interf
  * monospace size so the result never looks larger than the command.
  */
 export default function BashBody({ toolCall }: ToolCardBodyProps) {
+  const { t } = useTranslation();
   const command = toolCall.command;
   const output = toolCall.rawOutput;
   const highlight = useCodeHighlighter(!!command);
@@ -51,7 +53,7 @@ export default function BashBody({ toolCall }: ToolCardBodyProps) {
       {!command && !output && (
         <ToolCardSection>
           <Text font="secondary-mono" color="text-03">
-            No output
+            {t("common.noOutput")}
           </Text>
         </ToolCardSection>
       )}

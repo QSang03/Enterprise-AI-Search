@@ -156,6 +156,7 @@ function StructuredPayloadView({
 }: {
   payload: Record<string, unknown>;
 }) {
+  const { t } = useTranslation();
   const entries = Object.entries(payload).filter(
     ([, v]) => v !== null && v !== undefined
   );
@@ -163,7 +164,7 @@ function StructuredPayloadView({
     return (
       <InsetBlock>
         <Text font="secondary-body" color="text-03">
-          No payload.
+          {t("craft.noPayload")}
         </Text>
       </InsetBlock>
     );

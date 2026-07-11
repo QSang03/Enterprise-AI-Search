@@ -283,7 +283,7 @@ const StandardAnswersTable = ({
               <FiTag size={16} />
             </div>
           }
-          defaultDisplay="All Categories"
+          defaultDisplay={t("standardAnswers.allCategories")}
         />
         <div className="flex flex-wrap pb-4 mt-3">
           {selectedCategories.map((category) => (
@@ -410,7 +410,7 @@ function Main() {
         prominence="secondary"
         href="/admin/standard-answer/new"
       >
-        New Standard Answer
+        {t("newStandardAnswer")}
       </Button>
 
       <Divider />

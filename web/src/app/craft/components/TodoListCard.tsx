@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
 } from "@/refresh-components/Collapsible";
 import { SvgChevronDown, SvgCheckCircle } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 import {
   TodoListState,
   TodoItem,
@@ -80,6 +81,7 @@ export default function TodoListCard({
   todoList,
   defaultOpen = true,
 }: TodoListCardProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   // Update isOpen when defaultOpen changes (for auto-collapse behavior)
@@ -126,12 +128,12 @@ export default function TodoListCard({
 
               {/* Title */}
               <Text font="main-ui-action" color="text-04" nowrap>
-                Tasks
+                {t("craft.tasks")}
               </Text>
 
               {/* Progress count */}
               <Text font="secondary-body" color="text-03" nowrap>
-                {`${completed}/${total} completed`}
+                {t("craft.completedOf", { completed, total })}
               </Text>
             </div>
 
@@ -153,7 +155,7 @@ export default function TodoListCard({
             {todoList.todos.length === 0 && (
               <span className="italic">
                 <Text font="main-ui-body" color="text-03">
-                  No tasks
+                  {t("craft.noTasks")}
                 </Text>
               </span>
             )}

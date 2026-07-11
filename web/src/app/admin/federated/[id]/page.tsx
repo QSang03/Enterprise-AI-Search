@@ -31,7 +31,7 @@ export default function EditFederatedConnectorPage(props: {
                 {t("loadingConnectorConfig")}
               </p>
               <p className="text-sm text-gray-500">
-                Retrieving connector details and credential schema
+                {t("retrievingConnectorDetails")}
               </p>
             </div>
           </div>

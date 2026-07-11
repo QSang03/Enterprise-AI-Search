@@ -1,9 +1,9 @@
 import { getXDaysAgo, getXYearsAgo } from "@/lib/dateUtils";
 
 export const timeRangeValues = [
-  { label: "Last 2 years", value: getXYearsAgo(2) },
-  { label: "Last year", value: getXYearsAgo(1) },
-  { label: "Last 30 days", value: getXDaysAgo(30) },
-  { label: "Last 7 days", value: getXDaysAgo(7) },
-  { label: "Today", value: getXDaysAgo(1) },
+  { labelKey: "search.last2Years", value: getXYearsAgo(2) },
+  { labelKey: "search.lastYear", value: getXYearsAgo(1) },
+  { labelKey: "search.last30Days", value: getXDaysAgo(30) },
+  { labelKey: "search.last7Days", value: getXDaysAgo(7) },
+  { labelKey: "search.today", value: getXDaysAgo(1) },
 ];

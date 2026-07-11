@@ -72,7 +72,7 @@ function Main({ documentSetId }: { documentSetId: number }) {
     return (
       <ErrorCallout
         errorTitle={t("documentSetNotFound")}
-        errorMsg={`Document set with id ${documentSetId} not found`}
+        errorMsg={t("documentSetNotFoundMsg", { id: String(documentSetId) })}
       />
     );
   }
