@@ -34,27 +34,27 @@ export function useTimelineHeader(
 
     // If generating image with no tool packets, show image generation header
     if (isGeneratingImage && !hasPackets) {
-      return { headerText: t("generatingImage"), hasPackets, userStopped };
+      return { headerText: t("chat.generatingImage"), hasPackets, userStopped };
     }
 
     if (!hasPackets) {
-      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+      return { headerText: t("chat.thinkingEllipsis"), hasPackets, userStopped };
     }
 
     // Get the last (current) turn group
     const currentTurn = turnGroups[turnGroups.length - 1];
     if (!currentTurn) {
-      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+      return { headerText: t("chat.thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const currentStep = currentTurn.steps[0];
     if (!currentStep?.packets?.length) {
-      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+      return { headerText: t("chat.thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const firstPacket = currentStep.packets[0];
     if (!firstPacket) {
-      return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+      return { headerText: t("chat.thinkingEllipsis"), hasPackets, userStopped };
     }
 
     const packetType = firstPacket.obj.type;
@@ -66,9 +66,9 @@ export function useTimelineHeader(
       );
       let headerText: string;
       if (searchState.hasResults && !searchState.isInternetSearch) {
-        headerText = t("reading");
+        headerText = t("chat.reading");
       } else if (searchState.isInternetSearch) {
-        headerText = t("searchingWeb");
+        headerText = t("chat.searchingWeb");
       } else {
         // A source filter overrides the header with the connector(s).
         headerText = formatSearchHeader(searchState.sourceFilters);
@@ -77,25 +77,25 @@ export function useTimelineHeader(
     }
 
     if (packetType === PacketType.FETCH_TOOL_START) {
-      return { headerText: t("reading"), hasPackets, userStopped };
+      return { headerText: t("chat.reading"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.PYTHON_TOOL_START) {
-      return { headerText: t("executingCode"), hasPackets, userStopped };
+      return { headerText: t("chat.executingCode"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.IMAGE_GENERATION_TOOL_START) {
-      return { headerText: t("generatingImages"), hasPackets, userStopped };
+      return { headerText: t("chat.generatingImages"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.FILE_READER_START) {
-      return { headerText: t("readingFile"), hasPackets, userStopped };
+      return { headerText: t("chat.readingFile"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.CUSTOM_TOOL_START) {
       const toolName = (firstPacket.obj as CustomToolStart).tool_name;
       return {
-        headerText: toolName ? t("executingToolName", { toolName }) : t("executingTool"),
+        headerText: toolName ? t("chat.executingToolName", { toolName }) : t("chat.executingTool"),
         hasPackets,
         userStopped,
       };
@@ -105,21 +105,21 @@ export function useTimelineHeader(
       packetType === PacketType.MEMORY_TOOL_START ||
       packetType === PacketType.MEMORY_TOOL_NO_ACCESS
     ) {
-      return { headerText: t("updatingMemory"), hasPackets, userStopped };
+      return { headerText: t("chat.updatingMemory"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.REASONING_START) {
-      return { headerText: t("thinking"), hasPackets, userStopped };
+      return { headerText: t("chat.thinking"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.DEEP_RESEARCH_PLAN_START) {
-      return { headerText: t("generatingPlan"), hasPackets, userStopped };
+      return { headerText: t("chat.generatingPlan"), hasPackets, userStopped };
     }
 
     if (packetType === PacketType.RESEARCH_AGENT_START) {
-      return { headerText: t("researching"), hasPackets, userStopped };
+      return { headerText: t("chat.researching"), hasPackets, userStopped };
     }
 
-    return { headerText: t("thinkingEllipsis"), hasPackets, userStopped };
+    return { headerText: t("chat.thinkingEllipsis"), hasPackets, userStopped };
   }, [turnGroups, stopReason, isGeneratingImage, t]);
 }
