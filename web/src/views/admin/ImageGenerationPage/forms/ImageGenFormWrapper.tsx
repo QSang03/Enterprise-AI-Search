@@ -140,7 +140,7 @@ export function ImageGenFormWrapper<T extends FormValues>({
         const parts = apiKeyValue.split(":");
         const providerIdStr = parts[1];
         if (!providerIdStr) {
-          throw new Error("Invalid provider selection");
+          throw new Error(t("invalidProviderSelection"));
         }
         const providerId = parseInt(providerIdStr, 10);
 

@@ -133,7 +133,7 @@ export default function AppHealthBanner() {
           try {
             const refreshTokenData = await refreshToken(refreshUrl);
             if (!refreshTokenData) {
-              throw new Error("Failed to refresh token");
+              throw new Error(t("failedToRefreshToken"));
             }
 
             const response = await fetch(

@@ -12,6 +12,7 @@ import { useUser } from "@/providers/UserProvider";
 import { useVoiceStatus } from "@/hooks/useVoiceStatus";
 import { INTERNAL_URL, IS_DEV } from "@/lib/constants";
 import { stripMarkdownForTTS as cleanTextForTTS } from "@/lib/voice/utils";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 // --- TTS Configuration Constants ---
 
@@ -144,6 +145,7 @@ function findChunkBoundary(text: string): number {
 }
 
 export function VoiceModeProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const { user } = useUser();
   const { ttsEnabled } = useVoiceStatus();
   const autoPlayback =
@@ -444,7 +446,7 @@ export function VoiceModeProvider({ children }: { children: React.ReactNode }) {
       credentials: "include",
     });
     if (!tokenResponse.ok) {
-      throw new Error("Failed to get WebSocket authentication token");
+      throw new Error(t("failedToGetWebSocketAuthToken"));
     }
     const { token } = await tokenResponse.json();
 

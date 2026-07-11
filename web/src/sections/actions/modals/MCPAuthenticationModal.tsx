@@ -328,7 +328,7 @@ export default function MCPAuthenticationModal({
       try {
         const parsed = JSON.parse(values.oauth_additional_auth_params);
         if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-          throw new Error("Additional auth params must be a JSON object");
+          throw new Error(t("additionalAuthParamsMustBeJSON"));
         }
         parsedAdditionalAuthParams = Object.fromEntries(
           Object.entries(parsed).map(([key, value]) => [key, String(value)])
@@ -443,7 +443,7 @@ export default function MCPAuthenticationModal({
           // Refresh server list so latest status is visible after auth failure
           await mutateMcpServers();
           toggle(false);
-          throw new Error("Failed to initiate OAuth: " + error.detail);
+          throw new Error(t("failedToInitiateOAuth", { error: error.detail }));
         }
 
         const { oauth_url } = await oauthResponse.json();

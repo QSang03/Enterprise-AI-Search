@@ -68,7 +68,7 @@ export default function OpenApiPageContent() {
   const handleConnect = useCallback(
     async (values: OpenAPIAuthFormValues) => {
       if (!selectedTool) {
-        throw new Error("No OpenAPI action selected for authentication.");
+        throw new Error(t("noOpenAPIActionSelected"));
       }
 
       try {

@@ -425,7 +425,7 @@ function GeneralSettings() {
         await refreshChatSessions();
         setShowDeleteConfirmation(false);
       } else {
-        throw new Error("Failed to delete all chat sessions");
+        throw new Error(t("failedToDeleteAllChatSessions"));
       }
     } catch (error) {
       toast.error(t("settings.deleteError"));
@@ -779,7 +779,7 @@ function PromptShortcuts() {
           await refresh();
           toast.success(t("settings.shortcutDeleted"));
         } else {
-          throw new Error("Failed to delete shortcut");
+          throw new Error(t("failedToDeleteShortcut"));
         }
       } catch (error) {
         toast.error(t("settings.failedDeleteShortcut"));
@@ -814,7 +814,7 @@ function PromptShortcuts() {
             await refresh();
             toast.success(t("settings.shortcutCreated"));
           } else {
-            throw new Error("Failed to create shortcut");
+            throw new Error(t("failedToCreateShortcut"));
           }
         } else {
           // Update existing shortcut
@@ -833,7 +833,7 @@ function PromptShortcuts() {
             await refresh();
             toast.success(t("settings.shortcutUpdated"));
           } else {
-            throw new Error("Failed to update shortcut");
+            throw new Error(t("failedToUpdateShortcut"));
           }
         }
       } catch (error) {
@@ -1849,7 +1849,7 @@ function FederatedConnectorCard({
         setShowDisconnectConfirmation(false);
         onDisconnectSuccess();
       } else {
-        throw new Error("Failed to disconnect");
+        throw new Error(t("failedToDisconnect"));
       }
     } catch (error) {
       toast.error(t("settings.failedDisconnect"));

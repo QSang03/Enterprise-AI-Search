@@ -426,7 +426,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update chat background");
+        throw new Error(t("failedToUpdateChatBackground"));
       }
     } catch (error) {
       console.error("Error updating chat background:", error);
@@ -459,7 +459,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update default model");
+        throw new Error(t("failedToUpdateDefaultModel"));
       }
     } catch (error) {
       console.error("Error updating default model:", error);
@@ -492,7 +492,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update default app mode");
+        throw new Error(t("failedToUpdateDefaultAppMode"));
       }
     } catch (error) {
       console.error("Error updating default app mode:", error);
@@ -536,7 +536,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         await refreshUser();
-        throw new Error("Failed to update voice settings");
+        throw new Error(t("failedToUpdateVoiceSettings"));
       }
     } catch (error) {
       console.error("Error updating voice settings:", error);

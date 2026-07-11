@@ -219,12 +219,12 @@ export function ProjectsProvider({ children }: ProjectsProviderProps) {
   const upsertInstructions = useCallback(
     async (instructions: string) => {
       if (!currentProjectId) {
-        throw new Error("No project selected");
+        throw new Error(t("noProjectSelected"));
       }
       await svcUpsertProjectInstructions(currentProjectId, instructions);
       await refreshCurrentProjectDetails();
     },
-    [currentProjectId, refreshCurrentProjectDetails]
+    [currentProjectId, refreshCurrentProjectDetails, t]
   );
 
   const createProject = useCallback(

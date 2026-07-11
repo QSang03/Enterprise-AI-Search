@@ -120,7 +120,7 @@ export default function OAuthFinalizePage() {
         );
 
         if (!response) {
-          throw new Error("Empty response from OAuth server.");
+          throw new Error(t("emptyResponseFromOAuthServer"));
         }
 
         setAccessibleResources(response.accessible_resources);
