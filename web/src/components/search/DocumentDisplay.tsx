@@ -10,6 +10,7 @@ import { SubQuestionDetail } from "@/app/app/interfaces";
 import { ValidSources } from "@/lib/types";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "@/providers/LanguageProvider";
+import { SmbPopover } from "@/components/SmbPopover";
 
 export const buildDocumentSummaryDisplay = (
   matchHighlights: string[],
@@ -135,54 +136,63 @@ export function CompactDocumentCard({
   const { t } = useTranslation();
   const isWebSource =
     document.is_internet || document.source_type === ValidSources.Web;
+  const isSmb = document.link?.startsWith("smb://") || document.link?.startsWith("smb:");
 
-  return (
-    <Card className="shadow-box-00 w-80">
-      <button
-        onClick={() => {
-          openDocument(document, updatePresentingDocument);
-        }}
-        className="max-w-80 p-3 flex flex-col gap-1"
-        aria-label={`Open document: ${
-          document.semantic_identifier ?? document.document_id
-        }`}
-      >
-        <div className="flex flex-row gap-2 items-center w-full">
-          {isWebSource && document.link ? (
-            <WebResultIcon url={document.link} size={18} />
-          ) : (
-            <SourceIcon sourceType={document.source_type} iconSize={18} />
-          )}
-          <Text as="p" text04 className="truncate m-0!">
-            {document.semantic_identifier ?? document.document_id}
-          </Text>
-        </div>
+  const content = (
+    <button
+      onClick={isSmb ? undefined : () => {
+        openDocument(document, updatePresentingDocument);
+      }}
+      className="max-w-80 p-3 flex flex-col gap-1 text-left w-full"
+      aria-label={`Open document: ${
+        document.semantic_identifier ?? document.document_id
+      }`}
+    >
+      <div className="flex flex-row gap-2 items-center w-full">
+        {isWebSource && document.link ? (
+          <WebResultIcon url={document.link} size={18} />
+        ) : (
+          <SourceIcon sourceType={document.source_type} iconSize={18} />
+        )}
+        <Text as="p" text04 className="truncate m-0!">
+          {document.semantic_identifier ?? document.document_id}
+        </Text>
+      </div>
 
-        {document.blurb && (
+      {document.blurb && (
+        <Text
+          as="p"
+          text03
+          secondaryBody
+          className="line-clamp-2 text-left m-0!"
+        >
+          {document.blurb}
+        </Text>
+      )}
+
+      {document.updated_at &&
+        !isNaN(new Date(document.updated_at).getTime()) && (
           <Text
             as="p"
             text03
-            secondaryBody
+            figureSmallLabel
             className="line-clamp-2 text-left m-0!"
           >
-            {document.blurb}
+            {t("documentDisplay.updated", {
+              date: new Date(document.updated_at).toLocaleDateString(),
+            })}
           </Text>
         )}
+    </button>
+  );
 
-        {document.updated_at &&
-          !isNaN(new Date(document.updated_at).getTime()) && (
-            <Text
-              as="p"
-              text03
-              figureSmallLabel
-              className="line-clamp-2 text-left m-0!"
-            >
-              {t("documentDisplay.updated", {
-                date: new Date(document.updated_at).toLocaleDateString(),
-              })}
-            </Text>
-          )}
-      </button>
+  return (
+    <Card className="shadow-box-00 w-80">
+      {isSmb && document.link ? (
+        <SmbPopover url={document.link}>{content}</SmbPopover>
+      ) : (
+        content
+      )}
     </Card>
   );
 }

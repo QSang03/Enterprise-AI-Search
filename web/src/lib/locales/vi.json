@@ -69,7 +69,10 @@
     "projectSearch": "Tìm kiếm dự án",
     "searchMemoriesPlaceholder": "Tìm kiếm...",
     "commandMenuTitle": "Menu lệnh",
-    "reAuthenticate": "Xác thực lại"
+    "reAuthenticate": "Xác thực lại",
+    "previous": "Trước",
+    "next": "Sau",
+    "pageNumber": "Trang {number}"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",
@@ -1899,6 +1902,8 @@
       "theme": "Chủ đề & Tùy chỉnh",
       "securityHardening": "Tăng cường bảo mật",
       "security": "Bảo mật & Tăng cường",
+      "standardAnswer": "Câu trả lời mẫu",
+      "debug": "Nhật ký lỗi (Debug)",
       "indexing": {
         "status": "Các kết nối hiện có",
         "processingJobs": "Bảng điều khiển xử lý",
@@ -1906,7 +1911,13 @@
         "settings": "Cấu hình lập chỉ mục lại"
       },
       "documents": {
-        "sets": "Bộ tài liệu"
+        "sets": "Bộ tài liệu",
+        "explorer": "Trình khám phá",
+        "feedback": "Phản hồi"
+      },
+      "actions": {
+        "mcp": "Hành động MCP",
+        "openApi": "Hành động OpenAPI"
       },
       "configuration": {
         "indexSettings": "Cấu hình chỉ mục",
@@ -1920,7 +1931,8 @@
       },
       "performance": {
         "usage": "Thống kê sử dụng",
-        "queryHistory": "Lịch sử truy vấn"
+        "queryHistory": "Lịch sử truy vấn",
+        "customAnalytics": "Phân tích tùy chỉnh"
       }
     },
     "sections": {

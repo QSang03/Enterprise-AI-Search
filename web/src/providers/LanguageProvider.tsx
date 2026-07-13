@@ -101,6 +101,8 @@ export function useTranslation() {
   return context;
 }
 
+// Force hot-reload comment to reload static JSON imports: 1
+
 export function translateOutsideReact(key: string, replacements?: Record<string, string | number>): string {
   let lang: Language = "vi";
   try {

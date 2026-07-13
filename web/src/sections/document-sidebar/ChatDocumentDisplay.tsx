@@ -11,6 +11,7 @@ import { ValidSources } from "@/lib/types";
 import { cn } from "@opal/utils";
 import Truncated from "@/refresh-components/texts/Truncated";
 import Text from "@/refresh-components/texts/Text";
+import { SmbPopover } from "@/components/SmbPopover";
 
 interface DocumentMetadataBlockProps {
   modal?: boolean;
@@ -78,9 +79,11 @@ export default function ChatDocumentDisplay({
   const hasMetadata =
     document.updated_at || Object.keys(document.metadata).length > 0;
 
-  return (
+  const isSmb = document.link?.startsWith("smb://") || document.link?.startsWith("smb:");
+
+  const content = (
     <div
-      onClick={() => openDocument(document, setPresentingDocument)}
+      onClick={isSmb ? undefined : () => openDocument(document, setPresentingDocument)}
       className={cn(
         "flex w-full flex-col p-3 gap-2 rounded-12 hover:bg-background-tint-00 cursor-pointer",
         isSelected && "bg-action-link-02"
@@ -106,4 +109,14 @@ export default function ChatDocumentDisplay({
       </Text>
     </div>
   );
+
+  if (isSmb && document.link) {
+    return (
+      <SmbPopover url={document.link}>
+        {content}
+      </SmbPopover>
+    );
+  }
+
+  return content;
 }

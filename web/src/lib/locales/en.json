@@ -69,7 +69,10 @@
     "projectSearch": "Project Search",
     "searchMemoriesPlaceholder": "Search...",
     "commandMenuTitle": "Command Menu",
-    "reAuthenticate": "Re-Authenticate"
+    "reAuthenticate": "Re-Authenticate",
+    "previous": "Previous",
+    "next": "Next",
+    "pageNumber": "Page {number}"
   },
   "agentEditor": {
     "searchForAnAgent": "Search for an agent...",
@@ -1899,6 +1902,8 @@
       "theme": "Theme & Customization",
       "securityHardening": "Security Hardening",
       "security": "Security & Hardening",
+      "standardAnswer": "Standard Answers",
+      "debug": "Debug Logs",
       "indexing": {
         "status": "Existing Connectors",
         "processingJobs": "Processing Dashboard",
@@ -1906,7 +1911,13 @@
         "settings": "Reindexing Settings"
       },
       "documents": {
-        "sets": "Document Sets"
+        "sets": "Document Sets",
+        "explorer": "Explorer",
+        "feedback": "Feedback"
+      },
+      "actions": {
+        "mcp": "MCP Actions",
+        "openApi": "OpenAPI Actions"
       },
       "configuration": {
         "indexSettings": "Index Settings",
@@ -1920,7 +1931,8 @@
       },
       "performance": {
         "usage": "Usage Statistics",
-        "queryHistory": "Query History"
+        "queryHistory": "Query History",
+        "customAnalytics": "Custom Analytics"
       }
     },
     "sections": {
