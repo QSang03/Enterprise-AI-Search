@@ -449,15 +449,15 @@ function LiteLLMProviderModal({
     >
       <ModalShell provider={provider} isEditing={isEditing}>
         <ApiUrlField
-          title="API Base URL"
-          placeholder="https://..."
-          subDescription={`Paste your ${provider.displayName}-compatible endpoint URL.`}
+          title={t("admin.indexSettings.apiBaseUrl")}
+          placeholder={t("admin.indexSettings.apiBaseUrlPlaceholder")}
+          subDescription={t("admin.indexSettings.liteLLMEndpointDesc", { name: provider.displayName })}
         />
 
         <ApiKeyField provider={provider} />
 
         <ModelSpecFields
-          modelNameSubDescription={`Onyx will connect to this model on your ${provider.displayName} proxy.`}
+          modelNameSubDescription={t("admin.indexSettings.liteLLMProxyModelDesc", { name: provider.displayName })}
         />
       </ModalShell>
     </Formik>

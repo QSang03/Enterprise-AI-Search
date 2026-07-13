@@ -6,6 +6,8 @@ import {
   SourceMetadata,
 } from "./interfaces";
 import { DateRangePickerValue } from "@/components/dateRangeSelectors/AdminDateRangeSelector";
+import { toast } from "@/hooks/useToast";
+import { copyText } from "@opal/utils";
 
 export const buildFilters = (
   sources: SourceMetadata[],
@@ -24,6 +26,41 @@ export const buildFilters = (
   return filters;
 };
 
+export function convertSmbToUnc(smbUrl: string): string {
+  let path = smbUrl.replace(/^smb:\/\/|^smb:/i, "");
+  path = path.replace(/^\/+/, "");
+  try {
+    path = decodeURIComponent(path);
+  } catch (e) {
+    // ignore
+  }
+  path = path.replace(/\//g, "\\");
+  return "\\\\" + path;
+}
+
+export function openLink(url: string) {
+  if (url.startsWith("smb://") || url.startsWith("smb:")) {
+    const uncPath = convertSmbToUnc(url);
+    copyText(uncPath)
+      .then(() => {
+        toast({
+          message: "Copied Windows path (UNC) to clipboard!",
+          description: uncPath,
+          level: "success",
+        });
+      })
+      .catch((err) => {
+        console.error("Failed to copy path: ", err);
+        toast({
+          message: "Failed to copy path to clipboard.",
+          level: "error",
+        });
+      });
+    return;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 // If we have a link, open it in a new tab (including if it's a file)
 // If above fails and we have a file, update the presenting document
 export const openDocument = (
@@ -31,7 +68,7 @@ export const openDocument = (
   updatePresentingDocument?: (document: MinimalOnyxDocument) => void
 ) => {
   if (document.link) {
-    window.open(document.link, "_blank");
+    openLink(document.link);
   } else if (
     document.source_type === ValidSources.File ||
     document.source_type === ValidSources.UserFile

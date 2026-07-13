@@ -64,7 +64,12 @@
     "dragAndDropMultiple": "Kéo và thả các tệp vào đây, hoặc nhấp để chọn tệp",
     "dragAndDropSingle": "Kéo và thả tệp vào đây, hoặc nhấp để chọn tệp",
     "selectedFile": "Tệp đã chọn",
-    "selectedFiles": "Các tệp đã chọn"
+    "selectedFiles": "Các tệp đã chọn",
+    "searchActionsPlaceholder": "Tìm kiếm hành động...",
+    "projectSearch": "Tìm kiếm dự án",
+    "searchMemoriesPlaceholder": "Tìm kiếm...",
+    "commandMenuTitle": "Menu lệnh",
+    "reAuthenticate": "Xác thực lại"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",
@@ -1674,7 +1679,11 @@
       "serviceAccountJsonRequired": "Yêu cầu nhập JSON tài khoản dịch vụ",
       "invalidGoogleJson": "Phải là tệp JSON tài khoản dịch vụ Google hợp lệ",
       "apiVersionRequired": "Yêu cầu nhập phiên bản API",
-      "deploymentNameRequired": "Yêu cầu nhập tên triển khai"
+      "deploymentNameRequired": "Yêu cầu nhập tên triển khai",
+      "apiBaseUrl": "URL cơ sở API",
+      "apiBaseUrlPlaceholder": "https://...",
+      "liteLLMEndpointDesc": "Dán URL endpoint tương thích {name} của bạn.",
+      "liteLLMProxyModelDesc": "Onyx sẽ kết nối với mô hình này trên proxy {name} của bạn."
     },
     "serviceAccounts": {
       "title": "Tài khoản dịch vụ",

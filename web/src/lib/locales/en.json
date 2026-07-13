@@ -64,7 +64,12 @@
     "dragAndDropMultiple": "Drag and drop some files here, or click to select files",
     "dragAndDropSingle": "Drag and drop a file here, or click to select a file",
     "selectedFile": "Selected File",
-    "selectedFiles": "Selected Files"
+    "selectedFiles": "Selected Files",
+    "searchActionsPlaceholder": "Search actions...",
+    "projectSearch": "Project Search",
+    "searchMemoriesPlaceholder": "Search...",
+    "commandMenuTitle": "Command Menu",
+    "reAuthenticate": "Re-Authenticate"
   },
   "agentEditor": {
     "searchForAnAgent": "Search for an agent...",
@@ -1674,7 +1679,11 @@
       "serviceAccountJsonRequired": "Service account JSON is required",
       "invalidGoogleJson": "Must be a valid Google service account JSON file",
       "apiVersionRequired": "API version is required",
-      "deploymentNameRequired": "Deployment name is required"
+      "deploymentNameRequired": "Deployment name is required",
+      "apiBaseUrl": "API Base URL",
+      "apiBaseUrlPlaceholder": "https://...",
+      "liteLLMEndpointDesc": "Paste your {name}-compatible endpoint URL.",
+      "liteLLMProxyModelDesc": "Onyx will connect to this model on your {name} proxy."
     },
     "serviceAccounts": {
       "title": "Service Accounts",

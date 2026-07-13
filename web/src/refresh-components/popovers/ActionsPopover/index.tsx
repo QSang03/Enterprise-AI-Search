@@ -732,7 +732,7 @@ export default function ActionsPopover({
         <Button icon={SvgChevronRight} prominence="tertiary" size="sm" />
       }
     >
-      Re-Authenticate
+      {t("common.reAuthenticate")}
     </LineItem>
   ) : undefined;
 
@@ -839,7 +839,7 @@ export default function ActionsPopover({
       {[
         <InputTypeIn
           key="search"
-          placeholder="Search actions..."
+          placeholder={t("common.searchActionsPlaceholder")}
           searchIcon
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}

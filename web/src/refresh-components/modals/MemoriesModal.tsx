@@ -277,7 +277,7 @@ export default function MemoriesModal({
         >
           <Section flexDirection="row" gap={0.5}>
             <InputTypeIn
-              placeholder="Search..."
+              placeholder={t("common.searchMemoriesPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               searchIcon

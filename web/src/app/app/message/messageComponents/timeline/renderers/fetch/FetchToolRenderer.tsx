@@ -16,6 +16,7 @@ import {
 import Text from "@/refresh-components/texts/Text";
 import { SvgCircle } from "@opal/icons";
 import { useTranslation } from "@/providers/LanguageProvider";
+import { openLink } from "@/lib/search/utils";
 
 const urlToSourceInfo = (url: string, index: number): SourceInfo => ({
   id: `url-${index}`,
@@ -97,7 +98,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
                 getKey={(doc: OnyxDocument) => doc.document_id}
                 toSourceInfo={(doc: OnyxDocument) => documentToSourceInfo(doc)}
                 onClick={(doc: OnyxDocument) => {
-                  if (doc.link) window.open(doc.link, "_blank");
+                  if (doc.link) openLink(doc.link);
                 }}
                 emptyState={!stopPacketSeen ? <BlinkingBar /> : undefined}
               />
@@ -108,7 +109,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
                 expansionCount={URLS_PER_EXPANSION}
                 getKey={(url: string) => url}
                 toSourceInfo={urlToSourceInfo}
-                onClick={(url: string) => window.open(url, "_blank")}
+                onClick={(url: string) => openLink(url)}
                 emptyState={!stopPacketSeen ? <BlinkingBar /> : undefined}
               />
             ) : (
@@ -136,7 +137,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
               getKey={(doc: OnyxDocument) => doc.document_id}
               toSourceInfo={(doc: OnyxDocument) => documentToSourceInfo(doc)}
               onClick={(doc: OnyxDocument) => {
-                if (doc.link) window.open(doc.link, "_blank");
+                if (doc.link) openLink(doc.link);
               }}
               emptyState={!stopPacketSeen ? <BlinkingBar /> : undefined}
             />
@@ -147,7 +148,7 @@ export const FetchToolRenderer: MessageRenderer<FetchToolPacket, {}> = ({
               expansionCount={URLS_PER_EXPANSION}
               getKey={(url: string) => url}
               toSourceInfo={urlToSourceInfo}
-              onClick={(url: string) => window.open(url, "_blank")}
+              onClick={(url: string) => openLink(url)}
               emptyState={!stopPacketSeen ? <BlinkingBar /> : undefined}
             />
           ) : (

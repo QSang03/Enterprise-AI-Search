@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import EnabledCount from "@/refresh-components/EnabledCount";
 import { Section } from "@/layouts/general-layouts";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ActionItemProps {
   tool?: ToolSnapshot;
@@ -64,12 +65,13 @@ export default function ActionLineItem({
   const router = useRouter();
   const { currentProjectId } = useProjectsContext();
 
+  const { t } = useTranslation();
   const Icon = tool ? getIconForAction(tool) : ProvidedIcon!;
   const toolName = tool?.name || providedLabel || "";
 
   let label = tool ? tool.display_name || tool.name : providedLabel!;
   if (!!currentProjectId && tool?.in_code_tool_id === SEARCH_TOOL_ID) {
-    label = "Project Search";
+    label = t("common.projectSearch");
   }
 
   const isSearchToolWithNoConnectors =

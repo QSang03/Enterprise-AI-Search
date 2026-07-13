@@ -19,6 +19,7 @@ import {
 } from "./searchStateUtils";
 import Text from "@/refresh-components/texts/Text";
 import { useTranslation } from "@/providers/LanguageProvider";
+import { openLink } from "@/lib/search/utils";
 
 const queryToSourceInfo = (query: string, index: number): SourceInfo => ({
   id: `query-${index}`,
@@ -110,7 +111,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
               toSourceInfo={(doc: OnyxDocument) => resultToSourceInfo(doc)}
               onClick={(doc: OnyxDocument) => {
                 if (doc.link) {
-                  window.open(doc.link, "_blank", "noopener,noreferrer");
+                  openLink(doc.link);
                 }
               }}
               emptyState={
@@ -173,7 +174,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
             toSourceInfo={(doc: OnyxDocument) => resultToSourceInfo(doc)}
             onClick={(doc: OnyxDocument) => {
               if (doc.link) {
-                window.open(doc.link, "_blank", "noopener,noreferrer");
+                openLink(doc.link);
               }
             }}
             emptyState={
@@ -230,7 +231,7 @@ export const InternalSearchToolRenderer: MessageRenderer<
                 toSourceInfo={(doc: OnyxDocument) => resultToSourceInfo(doc)}
                 onClick={(doc: OnyxDocument) => {
                   if (doc.link) {
-                    window.open(doc.link, "_blank", "noopener,noreferrer");
+                    openLink(doc.link);
                   }
                 }}
                 emptyState={

@@ -8,6 +8,7 @@ import Chip from "@/refresh-components/Chip";
 import { buildDocumentSummaryDisplay } from "@/components/search/DocumentDisplay";
 import { ValidSources } from "@/lib/types";
 import { MinimalOnyxDocument } from "@/lib/search/interfaces";
+import { openLink } from "@/lib/search/utils";
 import { Section } from "@/layouts/general-layouts";
 import { Interactive } from "@opal/core";
 import Truncated from "@/refresh-components/texts/Truncated";
@@ -38,7 +39,7 @@ export default function SearchCard({
 
   function handleClick() {
     if (document.link) {
-      window.open(document.link, "_blank", "noopener,noreferrer");
+      openLink(document.link);
       return;
     }
     onDocumentClick({

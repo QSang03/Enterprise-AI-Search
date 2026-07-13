@@ -17,7 +17,7 @@ import {
   questionToSourceInfo,
   getDisplayNameForSource,
 } from "@/refresh-components/buttons/source-tag/sourceTagUtils";
-import { openDocument } from "@/lib/search/utils";
+import { openDocument, openLink } from "@/lib/search/utils";
 import { ensureHrefProtocol } from "@/lib/utils";
 import { useTranslation } from "@/providers/LanguageProvider";
 
@@ -207,6 +207,24 @@ export const MemoizedLink = memo(
               document_id: fileId,
               semantic_identifier: filename,
             });
+          }}
+          className="cursor-pointer text-link hover:text-link-hover"
+        >
+          {rest.children}
+        </a>
+      );
+    }
+
+    const isSmb = url?.startsWith("smb://") || url?.startsWith("smb:");
+    if (isSmb) {
+      return (
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            if (url) {
+              openLink(url);
+            }
           }}
           className="cursor-pointer text-link hover:text-link-hover"
         >

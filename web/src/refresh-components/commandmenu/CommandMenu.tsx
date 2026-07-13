@@ -369,6 +369,7 @@ const CommandMenuContent = React.forwardRef<
 >(({ children }, ref) => {
   const { handleKeyDown } = useCommandMenuContext();
   const { centerX, hasContainerCenter } = useContainerCenter();
+  const { t } = useTranslation();
 
   return (
     <DialogPrimitive.Portal>
@@ -412,7 +413,7 @@ const CommandMenuContent = React.forwardRef<
         )}
       >
         <VisuallyHidden.Root asChild>
-          <DialogPrimitive.Title>Command Menu</DialogPrimitive.Title>
+          <DialogPrimitive.Title>{t("common.commandMenuTitle")}</DialogPrimitive.Title>
         </VisuallyHidden.Root>
         {children}
       </DialogPrimitive.Content>
