@@ -77,7 +77,7 @@ export function CreateStdOAuthCredential({
             ))}
 
             <div className="flex w-full">
-              <Button type="submit">{t("create")}</Button>
+              <Button type="submit">{t("common.create")}</Button>
             </div>
           </CardSection>
         </Form>

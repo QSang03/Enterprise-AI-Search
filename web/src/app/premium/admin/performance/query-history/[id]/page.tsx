@@ -22,12 +22,12 @@ function MessageDisplay({ message }: { message: MessageSnapshot }) {
   return (
     <div>
       <p className="text-xs font-bold mb-1">
-        {message.message_type === "user" ? t("user") : "AI"}
+        {message.message_type === "user" ? t("connectorCCPair.user") : "AI"}
       </p>
       <Text as="p">{message.message}</Text>
       {message.documents.length > 0 && (
         <div className="flex flex-col gap-y-2 mt-2">
-          <p className="font-bold text-xs">{t("referenceDocuments")}</p>
+          <p className="font-bold text-xs">{t("connectorCCPair.referenceDocuments")}</p>
           {message.documents.slice(0, 5).map((document) => {
             return (
               <div className="text-sm flex" key={document.document_id}>
@@ -55,7 +55,7 @@ function MessageDisplay({ message }: { message: MessageSnapshot }) {
       )}
       {message.feedback_type && (
         <div className="mt-2">
-          <p className="font-bold text-xs">{t("feedback")}</p>
+          <p className="font-bold text-xs">{t("connectorCCPair.feedback")}</p>
           {message.feedback_text && <Text as="p">{message.feedback_text}</Text>}
           <div className="mt-1">
             <FeedbackBadge feedback={message.feedback_type} />
@@ -86,8 +86,8 @@ export default function QueryPage(props: { params: Promise<{ id: string }> }) {
   if (!chatSessionSnapshot || error) {
     return (
       <ErrorCallout
-        errorTitle={t("somethingWentWrong")}
-        errorMsg={t("failedToFetchChatSession", { error })}
+        errorTitle={t("admin.somethingWentWrong")}
+        errorMsg={t("admin.failedToFetchChatSession", { error })}
       />
     );
   }
@@ -97,7 +97,7 @@ export default function QueryPage(props: { params: Promise<{ id: string }> }) {
       <BackButton />
 
       <CardSection className="mt-4">
-        <Title>{t("chatSessionDetails")}</Title>
+        <Title>{t("admin.chatSessionDetails")}</Title>
 
         <Spacer rem={0.25} />
         {chatSessionSnapshot.assistant_name && (

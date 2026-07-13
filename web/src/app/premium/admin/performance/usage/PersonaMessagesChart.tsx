@@ -126,9 +126,9 @@ export function PersonaMessagesChart({
       const messageData = messagesMap.get(dateStr);
       const uniqueUserData = uniqueUsersMap.get(dateStr);
       return {
-        Day: dateStr,
-        Messages: messageData?.total_messages || 0,
-        "Unique Users": uniqueUserData?.unique_users || 0,
+        [t("admin.day")]: dateStr,
+        [t("admin.messages")]: messageData?.total_messages || 0,
+        [t("admin.uniqueUsers")]: uniqueUserData?.unique_users || 0,
       };
     });
   }, [
@@ -136,6 +136,7 @@ export function PersonaMessagesChart({
     personaUniqueUsersData,
     timeRange.from,
     selectedPersonaId,
+    t,
   ]);
 
   let content;
@@ -168,8 +169,8 @@ export function PersonaMessagesChart({
       <AreaChartDisplay
         className="mt-4"
         data={chartData}
-        categories={[t("messages"), t("uniqueUsers")]}
-        index={t("day")}
+        categories={[t("admin.messages"), t("admin.uniqueUsers")]}
+        index={t("admin.day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />

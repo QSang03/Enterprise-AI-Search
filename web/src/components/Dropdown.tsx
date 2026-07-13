@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useRef, useState, JSX } from "react";
 import { FiCheck, FiChevronDown, FiInfo } from "react-icons/fi";
 import { Popover } from "@opal/components";
 import { Tooltip } from "@opal/components";
+import { useTranslation } from "@/providers/LanguageProvider";
 export interface Option<T> {
   name: string;
   value: T;
@@ -153,6 +154,7 @@ export const DefaultDropdown = forwardRef<HTMLDivElement, DefaultDropdownProps>(
     },
     ref
   ) => {
+    const { t } = useTranslation();
     const selectedOption = options.find((option) => option.value === selected);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -180,8 +182,8 @@ export const DefaultDropdown = forwardRef<HTMLDivElement, DefaultDropdownProps>(
             <p className="line-clamp-1">
               {selectedOption?.name ||
                 (includeDefault
-                  ? defaultValue || "Default"
-                  : "Select an option...")}
+                  ? defaultValue || t("common.default")
+                  : t("common.selectAnOption"))}
             </p>
             <FiChevronDown className="my-auto ml-auto" />
           </div>
@@ -206,7 +208,7 @@ export const DefaultDropdown = forwardRef<HTMLDivElement, DefaultDropdownProps>(
             {includeDefault && (
               <DefaultDropdownElement
                 key={-1}
-                name="Default"
+                name={t("common.default")}
                 onSelect={() => handleSelect(null)}
                 isSelected={selected === null}
               />

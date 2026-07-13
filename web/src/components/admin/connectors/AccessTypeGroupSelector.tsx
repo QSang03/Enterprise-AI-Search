@@ -85,7 +85,7 @@ export function AccessTypeGroupSelector({
   ]);
 
   if (userGroupsIsLoading) {
-    return <div>{t("loadingEllipsis")}</div>;
+    return <div>{t("common.loading")}</div>;
   }
   if (!businessTier) {
     return null;
@@ -96,8 +96,10 @@ export function AccessTypeGroupSelector({
       <>
         {userGroups && userGroups[0] !== undefined && (
           <div className="mb-1 font-medium text-base">
-            This Connector will be assigned to group <b>{userGroups[0].name}</b>
-            .
+            {t("isPublicGroupSelector.assignedToGroup", {
+              objectName: "Connector",
+              groupName: userGroups[0].name,
+            })}
           </div>
         )}
       </>
@@ -113,15 +115,15 @@ export function AccessTypeGroupSelector({
             <Divider />
             <div className="flex flex-col gap-3 pt-4">
               <Text as="p" mainUiAction text05>
-                Assign group access for this Connector
+                {t("isPublicGroupSelector.assignGroupAccess", { objectName: "Connector" })}
               </Text>
               {userGroupsIsLoading ? (
                 <div className="animate-pulse bg-background-200 h-8 w-32 rounded-sm" />
               ) : (
                 <Text as="p" mainUiMuted text03>
                   {isAdmin
-                    ? "This Connector will be visible/accessible by the groups selected below"
-                    : "Curators must select one or more groups to give access to this Connector"}
+                    ? t("isPublicGroupSelector.adminGroupSubtext", { objectName: "Connector" })
+                    : t("isPublicGroupSelector.curatorGroupSubtext", { objectName: "Connector" })}
                 </Text>
               )}
             </div>

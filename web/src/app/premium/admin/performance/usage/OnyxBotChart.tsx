@@ -33,7 +33,7 @@ export function OnyxBotChart({
   ) {
     chart = (
       <div className="h-80 text-red-600 text-bold flex flex-col">
-        <p className="m-auto">{t("failedToFetchFeedbackData")}</p>
+        <p className="m-auto">{t("admin.failedToFetchFeedbackData")}</p>
       </div>
     );
   } else {
@@ -54,14 +54,14 @@ export function OnyxBotChart({
         data={dateRange.map((dateStr) => {
           const onyxBotAnalyticsForDate = dateToOnyxBotAnalytics.get(dateStr);
           return {
-            Day: dateStr,
-            [t("totalQueries")]: onyxBotAnalyticsForDate?.total_queries || 0,
-            [t("automaticallyResolved")]:
+            [t("admin.day")]: dateStr,
+            [t("admin.totalQueries")]: onyxBotAnalyticsForDate?.total_queries || 0,
+            [t("admin.automaticallyResolved")]:
               onyxBotAnalyticsForDate?.auto_resolved || 0,
           };
         })}
-        categories={[t("totalQueries"), t("automaticallyResolved")]}
-        index={t("day")}
+        categories={[t("admin.totalQueries"), t("admin.automaticallyResolved")]}
+        index={t("admin.day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />
@@ -70,8 +70,8 @@ export function OnyxBotChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>{t("slackChannel")}</Title>
-      <Text as="p">{t("totalQueriesVsAutoResolved")}</Text>
+      <Title>{t("admin.slackChannel")}</Title>
+      <Text as="p">{t("admin.totalQueriesVsAutoResolved")}</Text>
       {chart}
     </CardSection>
   );

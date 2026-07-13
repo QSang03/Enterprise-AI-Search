@@ -56,6 +56,7 @@ function QueryHistoryTableRow({
 }: {
   chatSessionMinimal: ChatSessionMinimal;
 }) {
+  const { t } = useTranslation();
   return (
     <TableRow
       key={chatSessionMinimal.id}
@@ -77,7 +78,7 @@ function QueryHistoryTableRow({
         <FeedbackBadge feedback={chatSessionMinimal.feedback_type} />
       </TableCell>
       <TableCell>{chatSessionMinimal.user_email || "-"}</TableCell>
-      <TableCell>{chatSessionMinimal.assistant_name || "Unknown"}</TableCell>
+      <TableCell>{chatSessionMinimal.assistant_name || t("common.unknown")}</TableCell>
       <TableCell>
         {timestampToReadableDate(chatSessionMinimal.time_created)}
       </TableCell>
@@ -105,7 +106,7 @@ function SelectFeedbackType({
   return (
     <Section alignItems="start" gap={0.25}>
       <Text as="p" className="font-medium">
-        {t("feedbackType")}
+        {t("connectorCCPair.feedbackType")}
       </Text>
       <InputSelect
         value={value}
@@ -115,16 +116,16 @@ function SelectFeedbackType({
 
         <InputSelect.Content>
           <InputSelect.Item value="all" icon={SvgMinusCircle}>
-            {t("any")}
+            {t("connectorCCPair.any")}
           </InputSelect.Item>
           <InputSelect.Item value="like" icon={SvgThumbsUp}>
-            {t("like")}
+            {t("connectorCCPair.like")}
           </InputSelect.Item>
           <InputSelect.Item value="dislike" icon={SvgThumbsDown}>
-            {t("dislike")}
+            {t("connectorCCPair.dislike")}
           </InputSelect.Item>
           <InputSelect.Item value="mixed" icon={SvgMinus}>
-            {t("mixed")}
+            {t("connectorCCPair.mixed")}
           </InputSelect.Item>
         </InputSelect.Content>
       </InputSelect>
@@ -134,11 +135,11 @@ function SelectFeedbackType({
 
 function ExportBadge({ status }: { status: TaskStatus }) {
   const { t } = useTranslation();
-  if (status === "SUCCESS") return <Badge variant="success">{t("successBadge")}</Badge>;
+  if (status === "SUCCESS") return <Badge variant="success">{t("connectorCCPair.successBadge")}</Badge>;
   else if (status === "FAILURE")
-    return <Badge variant="destructive">{t("failureBadge")}</Badge>;
+    return <Badge variant="destructive">{t("connectorCCPair.failureBadge")}</Badge>;
   else if (status === "PENDING" || status === "STARTED")
-    return <Badge variant="in_progress">{t("pendingBadge")}</Badge>;
+    return <Badge variant="in_progress">{t("connectorCCPair.pendingBadge")}</Badge>;
   else return <></>;
 }
 
@@ -183,18 +184,18 @@ function PreviousQueryHistoryExportsModal({
       <Modal.Content width="full" height="full">
         <Modal.Header
           icon={SvgFileText}
-          title={t("previousQueryHistoryExports")}
+          title={t("connectorCCPair.previousQueryHistoryExports")}
           onClose={() => setShowModal(false)}
         />
         <Modal.Body>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t("generatedAt")}</TableHead>
-                <TableHead>{t("startRange")}</TableHead>
-                <TableHead>{t("endRange")}</TableHead>
-                <TableHead>{t("statusHeader")}</TableHead>
-                <TableHead>{t("downloadHeader")}</TableHead>
+                <TableHead>{t("connectorCCPair.generatedAt")}</TableHead>
+                <TableHead>{t("connectorCCPair.startRange")}</TableHead>
+                <TableHead>{t("connectorCCPair.endRange")}</TableHead>
+                <TableHead>{t("connectorCCPair.statusHeader")}</TableHead>
+                <TableHead>{t("connectorCCPair.downloadHeader")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,7 +218,7 @@ function PreviousQueryHistoryExportsModal({
                       disabled={task.status !== "SUCCESS"}
                       tooltip={
                         task.status !== "SUCCESS"
-                          ? t("exportNotReady")
+                          ? t("connectorCCPair.exportNotReady")
                           : undefined
                       }
                       href={
@@ -295,7 +296,7 @@ export function QueryHistoryTable() {
   if (error) {
     return (
       <ErrorCallout
-        errorTitle={t("errorFetchingQueryHistory")}
+        errorTitle={t("connectorCCPair.errorFetchingQueryHistory")}
         errorMsg={error?.message}
       />
     );
@@ -329,7 +330,7 @@ export function QueryHistoryTable() {
           <div className="flex flex-row w-full items-center gap-x-2">
             <KickoffCSVExport dateRange={dateRange} />
             <Button prominence="secondary" onClick={() => setShowModal(true)}>
-              {PREVIOUS_CSV_TASK_BUTTON_NAME}
+              {t("queryHistory.viewExportsBtn")}
             </Button>
           </div>
         </div>
@@ -338,12 +339,12 @@ export function QueryHistoryTable() {
           <Table className="mt-5">
             <TableHeader>
               <TableRow>
-                <TableHead>{t("firstUserMessage")}</TableHead>
-                <TableHead>{t("firstAIResponse")}</TableHead>
-                <TableHead>{t("feedback")}</TableHead>
-                <TableHead>{t("userHeader")}</TableHead>
-                <TableHead>{t("personaHeader")}</TableHead>
-                <TableHead>{t("dateHeader")}</TableHead>
+                <TableHead>{t("connectorCCPair.firstUserMessage")}</TableHead>
+                <TableHead>{t("connectorCCPair.firstAIResponse")}</TableHead>
+                <TableHead>{t("connectorCCPair.feedback")}</TableHead>
+                <TableHead>{t("connectorCCPair.userHeader")}</TableHead>
+                <TableHead>{t("connectorCCPair.personaHeader")}</TableHead>
+                <TableHead>{t("connectorCCPair.dateHeader")}</TableHead>
               </TableRow>
             </TableHeader>
             {isLoading ? (

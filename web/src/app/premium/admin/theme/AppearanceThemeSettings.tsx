@@ -233,7 +233,7 @@ export const AppearanceThemeSettings = forwardRef<
                 />
               }
             >
-              Application Display Name
+              {t("admin.applicationDisplayName")}
             </FormField.Label>
             <FormField.Control asChild>
               <InputTypeIn
@@ -249,7 +249,7 @@ export const AppearanceThemeSettings = forwardRef<
               />
             </FormField.Control>
             <FormField.Description>
-              This name will show across the app and replace "Onyx" in the UI.
+              {t("admin.applicationNameDescription")}
             </FormField.Description>
             <FormField.Message
               messages={{ error: errors.application_name as string }}
@@ -257,7 +257,7 @@ export const AppearanceThemeSettings = forwardRef<
           </FormField>
 
           <FormField state="idle">
-            <FormField.Label>{t("logoDisplayStyle")}</FormField.Label>
+            <FormField.Label>{t("admin.logoDisplayStyle")}</FormField.Label>
             <FormField.Control>
               <Tabs
                 value={values.logo_display_style}
@@ -268,49 +268,49 @@ export const AppearanceThemeSettings = forwardRef<
                 <Tabs.List>
                   <Tabs.Trigger
                     value="logo_and_name"
-                    tooltip={t("showLogoAndName")}
+                    tooltip={t("admin.showLogoAndName")}
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
                   >
-                    {t("logoAndName")}
+                    {t("admin.logoAndName")}
                   </Tabs.Trigger>
                   <Tabs.Trigger
                     value="logo_only"
                     disabled={!hasLogo}
                     tooltip={
                       hasLogo
-                        ? t("showLogoOnly")
-                        : t("uploadLogoToEnable")
+                        ? t("admin.showLogoOnly")
+                        : t("admin.uploadLogoToEnable")
                     }
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
                   >
-                    Logo Only
+                    {t("admin.logoOnly")}
                   </Tabs.Trigger>
                   <Tabs.Trigger
                     value="name_only"
                     disabled={!hasApplicationName}
                     tooltip={
                       hasApplicationName
-                        ? t("showNameOnly")
-                        : t("enterAppNameToEnable")
+                        ? t("admin.showNameOnly")
+                        : t("admin.enterAppNameToEnable")
                     }
                     tooltipSide="top"
                     {...getPreviewHandlers("sidebar")}
                   >
-                    Name Only
+                    {t("admin.nameOnly")}
                   </Tabs.Trigger>
                 </Tabs.List>
               </Tabs>
             </FormField.Control>
             <FormField.Description>
-              {t("chooseLogoDisplayDescription")}
+              {t("admin.chooseLogoDisplayDescription")}
             </FormField.Description>
           </FormField>
         </div>
 
         <FormField state="idle">
-          <FormField.Label>{t("applicationLogo")}</FormField.Label>
+          <FormField.Label>{t("admin.applicationLogo")}</FormField.Label>
           <FormField.Control>
             <InputImage
               src={logoSrc}
@@ -330,7 +330,7 @@ export const AppearanceThemeSettings = forwardRef<
               onClick={handleLogoEdit}
               icon={SvgEdit}
             >
-              Update
+              {t("common.update")}
             </Button>
           </div>
         </FormField>
@@ -343,13 +343,13 @@ export const AppearanceThemeSettings = forwardRef<
         logoDisplayStyle={values.logo_display_style}
         applicationDisplayName={values.application_name ?? ""}
         chat_footer_content={
-          values.custom_lower_disclaimer_content || "Chat Footer Content"
+          values.custom_lower_disclaimer_content || t("admin.chatFooterContent")
         }
         chat_header_content={
-          values.custom_header_content || "Chat Header Content"
+          values.custom_header_content || t("admin.chatHeaderContent")
         }
         greeting_message={
-          values.custom_greeting_message || "Welcome to Acme Chat"
+          values.custom_greeting_message || t("admin.welcomeToAcmeChat")
         }
         logoSrc={logoSrc}
         highlightTarget={highlightTarget}
@@ -364,7 +364,7 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          {t("greetingMessage")}
+          {t("admin.greetingMessage")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTypeIn
@@ -380,7 +380,7 @@ export const AppearanceThemeSettings = forwardRef<
           />
         </FormField.Control>
         <FormField.Description>
-          {t("greetingMessageDescription")}
+          {t("admin.greetingMessageDescription")}
         </FormField.Description>
         <FormField.Message
           messages={{ error: errors.custom_greeting_message as string }}
@@ -396,7 +396,7 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          {t("chatHeaderText")}
+          {t("admin.chatHeaderText")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTypeIn
@@ -427,14 +427,14 @@ export const AppearanceThemeSettings = forwardRef<
             />
           }
         >
-          {t("chatFooterText")}
+          {t("admin.chatFooterText")}
         </FormField.Label>
         <FormField.Control asChild>
           <InputTextArea
             ref={lowerDisclaimerInputRef}
             data-label="chat-footer-textarea"
             rows={3}
-            placeholder={t("markdownPlaceholder")}
+            placeholder={t("admin.markdownPlaceholder")}
             variant={
               errors.custom_lower_disclaimer_content ? "error" : undefined
             }
@@ -446,7 +446,7 @@ export const AppearanceThemeSettings = forwardRef<
           />
         </FormField.Control>
         <FormField.Description>
-          {t("chatFooterDescription")}
+          {t("admin.chatFooterDescription")}
         </FormField.Description>
         <FormField.Message
           messages={{ error: errors.custom_lower_disclaimer_content as string }}
@@ -455,7 +455,7 @@ export const AppearanceThemeSettings = forwardRef<
 
       <Disabled
         disabled={!enterpriseTier}
-        tooltip={t("customHelpLinkEnterprise")}
+        tooltip={t("admin.customHelpLinkEnterprise")}
       >
         <div className="flex gap-2 items-start">
           <FormField
@@ -463,7 +463,7 @@ export const AppearanceThemeSettings = forwardRef<
             className="flex-1"
           >
             <FormField.Label>
-              {t("customHelpLink")}
+              {t("admin.customHelpLink")}
               {!enterpriseTier && (
                 <Tag {...planTagProps("enterprise")} size="sm" />
               )}
@@ -473,7 +473,7 @@ export const AppearanceThemeSettings = forwardRef<
                 ref={customHelpLinkUrlInputRef}
                 data-label="custom-help-link-url-input"
                 clearButton
-                placeholder={t("urlPlaceholder")}
+                placeholder={t("admin.urlPlaceholder")}
                 variant={
                   !enterpriseTier
                     ? "disabled"
@@ -488,7 +488,7 @@ export const AppearanceThemeSettings = forwardRef<
               />
             </FormField.Control>
             <FormField.Description>
-              {t("customHelpLinkDescription")}
+              {t("admin.customHelpLinkDescription")}
             </FormField.Description>
             <FormField.Message
               messages={{ error: errors.custom_help_link_url as string }}
@@ -496,14 +496,14 @@ export const AppearanceThemeSettings = forwardRef<
           </FormField>
           <FormField state="idle" className="flex-1">
             <FormField.Label className="invisible" aria-hidden="true">
-              {t("customHelpLinkLabel")}
+              {t("admin.customHelpLinkLabel")}
             </FormField.Label>
             <FormField.Control asChild>
               <InputTypeIn
-                aria-label={t("customHelpLinkLabel")}
+                aria-label={t("admin.customHelpLinkLabel")}
                 data-label="custom-help-link-label-input"
                 clearButton
-                placeholder={t("linkLabelPlaceholder")}
+                placeholder={t("admin.linkLabelPlaceholder")}
                 variant={!enterpriseTier ? "disabled" : undefined}
                 value={values.custom_help_link_label}
                 onChange={(e) =>
@@ -517,19 +517,19 @@ export const AppearanceThemeSettings = forwardRef<
 
       <Disabled
         disabled={!enterpriseTier}
-        tooltip={t("hideOnyxBrandingEnterprise")}
+        tooltip={t("admin.hideOnyxBrandingEnterprise")}
       >
         <FormField state="idle" className="gap-0">
           <div className="flex justify-between items-center">
             <FormField.Label>
-              {t("hideOnyxBranding")}
+              {t("admin.hideOnyxBranding")}
               {!enterpriseTier && (
                 <Tag {...planTagProps("enterprise")} size="sm" />
               )}
             </FormField.Label>
             <FormField.Control>
               <Switch
-                aria-label={t("hideOnyxBranding")}
+                aria-label={t("admin.hideOnyxBranding")}
                 data-label="hide-onyx-branding-toggle"
                 checked={values.hide_onyx_branding}
                 onCheckedChange={(checked) =>
@@ -540,7 +540,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Control>
           </div>
           <FormField.Description>
-            {t("hideOnyxBrandingDescription")}
+            {t("admin.hideOnyxBrandingDescription")}
           </FormField.Description>
         </FormField>
       </Disabled>
@@ -550,10 +550,10 @@ export const AppearanceThemeSettings = forwardRef<
       <div className="flex flex-col gap-4 p-4 bg-background-tint-00 rounded-16">
         <FormField state="idle" className="gap-0">
           <div className="flex justify-between items-center">
-            <FormField.Label>{t("showFirstVisitNotice")}</FormField.Label>
+            <FormField.Label>{t("admin.showFirstVisitNotice")}</FormField.Label>
             <FormField.Control>
               <Switch
-                aria-label={t("showFirstVisitNotice")}
+                aria-label={t("admin.showFirstVisitNotice")}
                 data-label="first-visit-notice-toggle"
                 checked={values.show_first_visit_notice}
                 onCheckedChange={(checked) =>
@@ -563,7 +563,7 @@ export const AppearanceThemeSettings = forwardRef<
             </FormField.Control>
           </div>
           <FormField.Description>
-            {t("showFirstVisitNoticeDescription")}
+            {t("admin.showFirstVisitNoticeDescription")}
           </FormField.Description>
         </FormField>
 
@@ -579,7 +579,7 @@ export const AppearanceThemeSettings = forwardRef<
                   />
                 }
               >
-                {t("noticeHeader")}
+                {t("admin.noticeHeader")}
               </FormField.Label>
               <FormField.Control asChild>
                 <InputTypeIn
@@ -608,14 +608,14 @@ export const AppearanceThemeSettings = forwardRef<
                   />
                 }
               >
-                Notice Content
+                {t("admin.noticeContent")}
               </FormField.Label>
               <FormField.Control asChild>
                 <InputTextArea
                   ref={noticeContentInputRef}
                   data-label="notice-content-textarea"
                   rows={3}
-                  placeholder={t("markdownPlaceholder")}
+                  placeholder={t("admin.markdownPlaceholder")}
                   variant={errors.custom_popup_content ? "error" : undefined}
                   value={values.custom_popup_content}
                   onChange={(e) =>
@@ -630,10 +630,10 @@ export const AppearanceThemeSettings = forwardRef<
 
             <FormField state="idle" className="gap-0">
               <div className="flex justify-between items-center">
-                <FormField.Label>{t("requireConsentToNotice")}</FormField.Label>
+                <FormField.Label>{t("admin.requireConsentToNotice")}</FormField.Label>
                 <FormField.Control>
                   <Switch
-                    aria-label={t("requireConsentToNotice")}
+                    aria-label={t("admin.requireConsentToNotice")}
                     data-label="require-consent-toggle"
                     checked={values.enable_consent_screen}
                     onCheckedChange={(checked) =>
@@ -643,7 +643,7 @@ export const AppearanceThemeSettings = forwardRef<
                 </FormField.Control>
               </div>
               <FormField.Description>
-                {t("requireConsentDescription")}
+                {t("admin.requireConsentDescription")}
               </FormField.Description>
             </FormField>
 
@@ -660,14 +660,14 @@ export const AppearanceThemeSettings = forwardRef<
                     />
                   }
                 >
-                  {t("noticeConsentPrompt")}
+                  {t("admin.noticeConsentPrompt")}
                 </FormField.Label>
                 <FormField.Control asChild>
                   <InputTextArea
                     ref={consentPromptTextAreaRef}
                     data-label="consent-prompt-textarea"
                     rows={3}
-                    placeholder={t("markdownPlaceholder")}
+                    placeholder={t("admin.markdownPlaceholder")}
                     variant={errors.consent_screen_prompt ? "error" : undefined}
                     value={values.consent_screen_prompt}
                     onChange={(e) => {

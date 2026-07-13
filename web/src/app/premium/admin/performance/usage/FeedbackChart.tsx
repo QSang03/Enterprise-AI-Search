@@ -34,7 +34,7 @@ export function FeedbackChart({
   ) {
     chart = (
       <div className="h-80 text-red-600 text-bold flex flex-col">
-        <p className="m-auto">{t("failedToFetchFeedbackData")}</p>
+        <p className="m-auto">{t("admin.failedToFetchFeedbackData")}</p>
       </div>
     );
   } else {
@@ -54,13 +54,13 @@ export function FeedbackChart({
         data={dateRange.map((dateStr) => {
           const queryAnalyticsForDate = dateToQueryAnalytics.get(dateStr);
           return {
-            Day: dateStr,
-            [t("positiveFeedback")]: queryAnalyticsForDate?.total_likes || 0,
-            [t("negativeFeedback")]: queryAnalyticsForDate?.total_dislikes || 0,
+            [t("admin.day")]: dateStr,
+            [t("admin.positiveFeedback")]: queryAnalyticsForDate?.total_likes || 0,
+            [t("admin.negativeFeedback")]: queryAnalyticsForDate?.total_dislikes || 0,
           };
         })}
-        categories={[t("positiveFeedback"), t("negativeFeedback")]}
-        index={t("day")}
+        categories={[t("admin.positiveFeedback"), t("admin.negativeFeedback")]}
+        index={t("admin.day")}
         colors={["indigo", "fuchsia"]}
         yAxisWidth={60}
       />
@@ -69,8 +69,8 @@ export function FeedbackChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>{t("feedback")}</Title>
-      <Text as="p">{t("thumbsUpDownOverTime")}</Text>
+      <Title>{t("connectorCCPair.feedback")}</Title>
+      <Text as="p">{t("connectorCCPair.thumbsUpDownOverTime")}</Text>
       {chart}
     </CardSection>
   );

@@ -7,6 +7,7 @@ import { DateRangePickerValue } from "@/components/dateRangeSelectors/AdminDateR
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
 import { FilterDropdown } from "@/components/search/filtering/FilterDropdown";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface SourceSelectorProps {
   timeRange: DateRangePickerValue | null;
@@ -59,6 +60,7 @@ export function HorizontalFilters({
   availableDocumentSets,
   existingSources,
 }: SourceSelectorProps) {
+  const { t } = useTranslation();
   const handleSourceSelect = (source: SourceMetadata) => {
     setSelectedSources((prev: SourceMetadata[]) => {
       const prevSourceNames = prev.map((source) => source.internalName);
@@ -122,7 +124,7 @@ export function HorizontalFilters({
               <FiMap size={16} />
             </div>
           }
-          defaultDisplay="All Sources"
+          defaultDisplay={t("sourceSelector.allSources")}
         />
         {availableDocumentSets.length > 0 && (
           <FilterDropdown
@@ -147,7 +149,7 @@ export function HorizontalFilters({
                 <FiBook size={16} />
               </div>
             }
-            defaultDisplay="All Document Sets"
+            defaultDisplay={t("sourceSelector.allDocumentSets")}
           />
         )}
       </div>

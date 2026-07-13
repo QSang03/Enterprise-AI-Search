@@ -12,7 +12,7 @@ import { useSettings } from "@/lib/settings/hooks";
 import { ApplicationStatus } from "@/lib/settings/types";
 import Text from "@/refresh-components/texts/Text";
 import { SvgLock } from "@opal/icons";
-import { useTranslation } from "@/providers/LanguageProvider";
+import { useTranslation, translateOutsideReact } from "@/providers/LanguageProvider";
 
 const linkClassName = "text-action-link-05 hover:text-action-link-06 underline";
 
@@ -31,7 +31,7 @@ const fetchResubscriptionSession =
       },
     });
     if (!response.ok) {
-      throw new Error("Failed to create resubscription session");
+      throw new Error(translateOutsideReact("failedToCreateResubscriptionSession"));
     }
     return response.json();
   };

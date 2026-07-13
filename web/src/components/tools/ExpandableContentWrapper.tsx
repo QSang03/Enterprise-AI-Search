@@ -46,7 +46,7 @@ export default function ExpandableContentWrapper({
       <CardHeader className="w-full bg-background-tint-02 top-0 p-3">
         <div className="flex justify-between items-center">
           <Text className="text-ellipsis line-clamp-1" text03 mainUiAction>
-            {fileDescriptor.name || "Untitled"}
+            {fileDescriptor.name || t("expandableContent.untitled")}
           </Text>
           <div className="flex flex-row items-center justify-end gap-1">
             <Button
@@ -54,21 +54,21 @@ export default function ExpandableContentWrapper({
               size="sm"
               onClick={downloadFile}
               icon={SvgDownloadCloud}
-              tooltip={t("downloadFile")}
+              tooltip={t("expandableContent.downloadFile")}
             />
             <Button
               prominence="tertiary"
               size="sm"
               onClick={toggleExpand}
               icon={expanded ? SvgFold : SvgMaximize2}
-              tooltip={expanded ? t("minimize") : t("fullScreen")}
+              tooltip={expanded ? t("expandableContent.minimize") : t("expandableContent.fullScreen")}
             />
             <Button
               prominence="tertiary"
               size="sm"
               onClick={close}
               icon={SvgX}
-              tooltip={t("hide")}
+              tooltip={t("expandableContent.hide")}
             />
           </div>
         </div>

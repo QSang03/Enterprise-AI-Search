@@ -3,7 +3,7 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { toast } from "@/hooks/useToast";
 import { ValidSources } from "@/lib/types";
-import { useTranslation } from "@/providers/LanguageProvider";
+import { useTranslation, translateOutsideReact } from "@/providers/LanguageProvider";
 
 import {
   createCredential,
@@ -38,13 +38,13 @@ export async function submitCredential<T>(
       const parsed_response = await response.json();
       const credential = parsed_response.credential;
       isSuccess = true;
-      return { credential, message: "Success!", isSuccess: true };
+      return { credential, message: translateOutsideReact("connectorCCPair.success"), isSuccess: true };
     } else {
       const errorData = await response.json();
-      return { message: `Error: ${errorData.detail}`, isSuccess: false };
+      return { message: translateOutsideReact("connectorCCPair.errorPrefix", { error: errorData.detail }), isSuccess: false };
     }
   } catch (error) {
-    return { message: `Error: ${error}`, isSuccess: false };
+    return { message: translateOutsideReact("connectorCCPair.errorPrefix", { error: String(error) }), isSuccess: false };
   }
 }
 
@@ -102,9 +102,9 @@ export function CredentialForm<T extends Yup.AnyObject>({
                 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring
                 disabled:pointer-events-none disabled:opacity-50
                 shadow hover:bg-primary/90 h-9 px-4 py-2"
-                aria-label={t("updateCredentials")}
+                aria-label={t("connectorCCPair.updateCredentials")}
               >
-                Update
+                {t("connectorCCPair.updateCredentials")}
               </button>
             </div>
           </Form>

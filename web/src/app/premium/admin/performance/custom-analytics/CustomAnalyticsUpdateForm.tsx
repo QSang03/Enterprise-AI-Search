@@ -49,13 +49,13 @@ export default function CustomAnalyticsUpdateForm() {
         }}
       >
         <div className="mb-4">
-          <Label>{t("scriptLabel")}</Label>
+          <Label>{t("connectorCCPair.scriptLabel")}</Label>
           <Text as="p">
-            {t("scriptDesc")}
+            {t("connectorCCPair.scriptDesc")}
           </Text>
           <Spacer rem={0.75} />
           <Text as="p">
-            {markdown(t("scriptNote"))}
+            {markdown(t("connectorCCPair.scriptNote"))}
           </Text>
           <Spacer rem={0.5} />
           <InputTextArea
@@ -66,10 +66,10 @@ export default function CustomAnalyticsUpdateForm() {
           />
         </div>
 
-        <Label>{t("secretKey")}</Label>
+        <Label>{t("connectorCCPair.secretKey")}</Label>
         <SubLabel>
           <>
-            {t("secretKeyDesc")}
+            {t("connectorCCPair.secretKeyDesc")}
           </>
         </SubLabel>
         <input
@@ -86,7 +86,7 @@ export default function CustomAnalyticsUpdateForm() {
           onChange={(e) => setSecretKey(e.target.value)}
         />
         <Spacer rem={1} />
-        <Button type="submit">{t("update")}</Button>
+        <Button type="submit">{t("common.update")}</Button>
       </form>
     </div>
   );

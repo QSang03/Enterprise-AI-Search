@@ -92,7 +92,7 @@ export default function MCPApiKeyModal({
         onClose();
       } catch (error) {
         console.error("Error submitting credentials:", error);
-        let errorMessage = "Failed to save credentials";
+        let errorMessage = t("mcp.failedSaveCreds");
         if (error instanceof Error) {
           errorMessage = error.message;
         } else if (typeof error === "string") {
@@ -116,7 +116,7 @@ export default function MCPApiKeyModal({
         onClose();
       } catch (error) {
         console.error("Error submitting API key:", error);
-        let errorMessage = "Failed to save API key";
+        let errorMessage = t("mcp.failedSaveApiKey");
         if (error instanceof Error) {
           errorMessage = error.message;
         } else if (typeof error === "string") {
@@ -152,25 +152,25 @@ export default function MCPApiKeyModal({
     }));
   };
 
-  const credsType = isTemplateMode ? "Credentials" : "API Key";
+  const credsType = isTemplateMode ? t("mcp.credentials") : t("mcp.apiKey");
   return (
     <Modal open={isOpen} onOpenChange={handleClose}>
       <Modal.Content width="sm" height="sm">
         <Modal.Header
           icon={SvgKey}
-          title={isAuthenticated ? `Manage ${credsType}` : `Enter ${credsType}`}
+          title={isAuthenticated ? t("mcp.manageCreds", { credsType }) : t("mcp.enterCreds", { credsType })}
           onClose={handleClose}
         />
         <Modal.Body>
           <Text as="p">
             {isAuthenticated
-              ? `Update your ${credsType} for ${serverName}.`
-              : `Enter your ${credsType} for ${serverName} to enable authentication.`}
+              ? t("mcp.updateCredsFor", { credsType, serverName })
+              : t("mcp.enterCredsFor", { credsType, serverName })}
           </Text>
           <Text as="p" text02>
             {isAuthenticated
-              ? "Changes will be validated against the server before being saved."
-              : `Your ${credsType} will be validated against the server and stored securely.`}
+              ? t("mcp.validatedBeforeSave")
+              : t("mcp.validatedSaved", { credsType })}
           </Text>
 
           {error && (
@@ -201,7 +201,7 @@ export default function MCPApiKeyModal({
                         onChange={(e) =>
                           updateCredential(field, e.target.value)
                         }
-                        placeholder={`Enter your ${field.replace(/_/g, " ")}`}
+                        placeholder={t("mcp.enterYourField", { fieldName: field.replace(/_/g, " ") })}
                         className="pr-10"
                         required
                       />
@@ -211,8 +211,8 @@ export default function MCPApiKeyModal({
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-subtle hover:text-emphasis"
                         aria-label={
                           showCredentials[field]
-                            ? "Hide credential"
-                            : "Show credential"
+                            ? t("mcp.hideCredential")
+                            : t("mcp.showCredential")
                         }
                       >
                         {showCredentials[field] ? (
@@ -263,7 +263,7 @@ export default function MCPApiKeyModal({
                 prominence="secondary"
                 onClick={handleClose}
               >
-                Cancel
+                {t("common.cancel")}
               </Button>
               <Button
                 disabled={
@@ -277,10 +277,10 @@ export default function MCPApiKeyModal({
                 type="submit"
               >
                 {isSubmitting
-                  ? "Saving..."
+                  ? t("mcp.saving")
                   : isAuthenticated
-                    ? `Update ${credsType}`
-                    : `Save ${credsType}`}
+                    ? t("mcp.updateCreds", { credsType })
+                    : t("mcp.saveCreds", { credsType })}
               </Button>
             </div>
           </form>

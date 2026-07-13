@@ -7,6 +7,7 @@ import { cn } from "@opal/utils";
 import { format } from "date-fns";
 import { getXDaysAgo } from "./dateUtils";
 import { SvgCalendar } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
 export const THIRTY_DAYS = "30d";
 
 export type DateRangePickerValue = DateRange & {
@@ -27,18 +28,19 @@ export const AdminDateRangeSelector = memo(function AdminDateRangeSelector({
   value: DateRange;
   onValueChange: (value: DateRange) => void;
 }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
 
   const presets = [
     {
-      label: "Last 30 days",
+      label: t("dateRangeSelector.last30Days"),
       value: {
         from: getXDaysAgo(30),
         to: getXDaysAgo(0),
       },
     },
     {
-      label: "Today",
+      label: t("dateRangeSelector.today"),
       value: {
         from: getXDaysAgo(1),
         to: getXDaysAgo(0),
@@ -64,7 +66,7 @@ export const AdminDateRangeSelector = memo(function AdminDateRangeSelector({
                     "LLL dd, y"
                   )}`
                 : format(value.from, "LLL dd, y")
-              : "Pick a date range"}
+              : t("dateRangeSelector.pickDateRange")}
           </Button>
         </Popover.Trigger>
         <Popover.Content align="start">

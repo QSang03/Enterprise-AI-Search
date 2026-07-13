@@ -9,6 +9,7 @@ import { openDocument } from "@/lib/search/utils";
 import { SubQuestionDetail } from "@/app/app/interfaces";
 import { ValidSources } from "@/lib/types";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export const buildDocumentSummaryDisplay = (
   matchHighlights: string[],
@@ -131,6 +132,7 @@ export function CompactDocumentCard({
   document,
   updatePresentingDocument,
 }: CompactDocumentCardProps) {
+  const { t } = useTranslation();
   const isWebSource =
     document.is_internet || document.source_type === ValidSources.Web;
 
@@ -175,7 +177,9 @@ export function CompactDocumentCard({
               figureSmallLabel
               className="line-clamp-2 text-left m-0!"
             >
-              Updated {new Date(document.updated_at).toLocaleDateString()}
+              {t("documentDisplay.updated", {
+                date: new Date(document.updated_at).toLocaleDateString(),
+              })}
             </Text>
           )}
       </button>
@@ -192,24 +196,29 @@ export function CompactQuestionCard({
   question,
   openQuestion,
 }: CompactQuestionCardProps) {
+  const { t } = useTranslation();
   return (
     <div
       onClick={() => openQuestion(question)}
       className="max-w-[350px] gap-y-1 cursor-pointer pb-0 pt-0 mt-0 flex gap-y-0 flex-col content-start items-start gap-0"
     >
       <div className="text-sm pb-0! mb-0! font-semibold flex items-center gap-x-1 text-text-900 pt-0 mt-0 truncate w-full">
-        Question
+        {t("documentDisplay.question")}
       </div>
       <div className="text-xs mb-0 text-text-600 line-clamp-2">
         {question.question}
       </div>
       <div className="flex mt-0 pt-0 items-center justify-between w-full">
         <span className="text-xs text-text-500">
-          {question.context_docs?.top_documents.length || 0} context docs
+          {t("documentDisplay.contextDocs", {
+            count: question.context_docs?.top_documents.length || 0,
+          })}
         </span>
         {question.sub_queries && (
           <span className="text-xs text-text-500">
-            {question.sub_queries.length} subqueries
+            {t("documentDisplay.subqueries", {
+              count: question.sub_queries.length,
+            })}
           </span>
         )}
       </div>

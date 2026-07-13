@@ -77,33 +77,29 @@ export function AccessTypeForm({
 
   if (businessTier) {
     options.push({
-      name: "Private",
+      name: t("connectorCCPair.privateName"),
       value: "private",
-      description:
-        "Only users who have explicitly been given access to this connector (through the User Groups page) can access the documents pulled in by this connector",
+      description: t("connectorCCPair.privateDesc"),
       disabled: false,
       disabledReason: "",
     });
   }
 
   options.push({
-    name: "Public",
+    name: t("connectorCCPair.publicName"),
     value: "public",
-    description:
-      "Everyone with an account on Onyx can access the documents pulled in by this connector",
+    description: t("connectorCCPair.publicDesc"),
     disabled: false,
     disabledReason: "",
   });
 
   if (showAutoSync) {
     options.push({
-      name: "Auto Sync Permissions",
+      name: t("connectorCCPair.syncName"),
       value: "sync",
-      description:
-        "We will automatically sync permissions from the source. A document will be searchable in Onyx if and only if the user performing the search has permission to access the document in the source.",
+      description: t("connectorCCPair.syncDesc"),
       disabled: isSyncDisabledByAuth,
-      disabledReason:
-        "Current credential auth method doesn't support Auto Sync Permissions. Please change the credential auth method to a supported one.",
+      disabledReason: t("connectorCCPair.syncDisabledReason"),
     });
   }
 
@@ -112,9 +108,9 @@ export function AccessTypeForm({
   return (
     <>
       <div>
-        <label className="text-text-950 font-medium">{t("documentAccess")}</label>
+        <label className="text-text-950 font-medium">{t("connectorCCPair.documentAccess")}</label>
         <p className="text-sm text-text-500">
-          {t("documentAccessDesc")}
+          {t("connectorCCPair.documentAccessDesc")}
         </p>
       </div>
       <DefaultDropdown

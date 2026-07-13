@@ -69,16 +69,16 @@ function CredentialSelectionTable({
           <tr className="bg-neutral-100 dark:bg-neutral-900">
             <th className="p-2 text-left font-medium text-neutral-600 dark:text-neutral-400"></th>
             <th className="p-2 text-left font-medium text-neutral-600 dark:text-neutral-400">
-              ID
+              {t("modifyCredential.id")}
             </th>
             <th className="p-2 text-left font-medium text-neutral-600 dark:text-neutral-400">
-              Name
+              {t("modifyCredential.name")}
             </th>
             <th className="p-2 text-left font-medium text-neutral-600 dark:text-neutral-400">
-              Created
+              {t("modifyCredential.created")}
             </th>
             <th className="p-2 text-left font-medium text-neutral-600 dark:text-neutral-400">
-              Last Updated
+              {t("modifyCredential.lastUpdated")}
             </th>
             <th />
           </tr>
@@ -107,12 +107,12 @@ function CredentialSelectionTable({
                         className="form-radio ml-4 h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                       />
                     ) : (
-                      <Badge>{t("selected")}</Badge>
+                      <Badge>{t("modifyCredential.selected")}</Badge>
                     )}
                   </td>
                   <td className="p-2">{credential.id}</td>
                   <td className="p-2">
-                    <p>{credential.name ?? "Untitled"}</p>
+                    <p>{credential.name ?? t("modifyCredential.untitled")}</p>
                   </td>
                   <td className="p-2">
                     {new Date(credential.time_created).toLocaleString()}
@@ -133,7 +133,7 @@ function CredentialSelectionTable({
                         disabled={!editable}
                         onClick={() => onEditCredential(credential)}
                         className="cursor-pointer my-auto"
-                        aria-label={t("editCredential")}
+                        aria-label={t("modifyCredential.editCredential")}
                       >
                         <SvgEdit size={16} />
                       </button>
@@ -147,7 +147,7 @@ function CredentialSelectionTable({
       </table>
 
       {allCredentials.length == 0 && (
-        <p className="mt-4">{t("noCredentialsExist")}</p>
+        <p className="mt-4">{t("modifyCredential.noCredentialsExist")}</p>
       )}
     </div>
   );
@@ -201,12 +201,12 @@ export default function ModifyCredential({
           <Modal.Content width="sm" height="sm">
             <Modal.Header
               icon={SvgAlertTriangle}
-              title={t("confirmDeletion")}
+              title={t("modifyCredential.confirmDeletion")}
               onClose={() => setConfirmDeletionCredential(null)}
             />
             <Modal.Body>
               <Text as="p">
-                {t("deleteCredentialConfirm")}
+                {t("modifyCredential.deleteCredentialConfirm")}
               </Text>
             </Modal.Body>
             <Modal.Footer>
@@ -216,13 +216,13 @@ export default function ModifyCredential({
                   setConfirmDeletionCredential(null);
                 }}
               >
-                Confirm
+                {t("modifyCredential.confirm")}
               </Button>
               <Button
                 prominence="secondary"
                 onClick={() => setConfirmDeletionCredential(null)}
               >
-                Cancel
+                {t("modifyCredential.cancel")}
               </Button>
             </Modal.Footer>
           </Modal.Content>
@@ -231,8 +231,7 @@ export default function ModifyCredential({
 
       <div className="mb-0">
         <Text as="p" className="mb-4">
-          Select a credential as needed! Ensure that you have selected a
-          credential with the proper permissions for this connector!
+          {t("modifyCredential.selectCredentialPrompt")}
         </Text>
 
         <CredentialSelectionTable
@@ -263,7 +262,7 @@ export default function ModifyCredential({
           <div className="flex mt-8 justify-between">
             {onCreateNew ? (
               <Button onClick={onCreateNew} icon={SvgBubbleText}>
-                Create
+                {t("modifyCredential.create")}
               </Button>
             ) : (
               <div />
@@ -284,7 +283,7 @@ export default function ModifyCredential({
               }}
               icon={SvgArrowExchange}
             >
-              Select
+              {t("modifyCredential.select")}
             </Button>
           </div>
         )}

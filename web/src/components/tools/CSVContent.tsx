@@ -47,7 +47,7 @@ const CsvContent: React.FC<ContentComponentProps> = ({
         cache: "force-cache",
       });
       if (!response.ok) {
-        throw new Error(t("failedToFetchCSVFile"));
+        throw new Error(t("csvContent.failedToFetchCSVFile"));
       }
 
       const contentLength = response.headers.get("Content-Length");
@@ -57,14 +57,14 @@ const CsvContent: React.FC<ContentComponentProps> = ({
       const MAX_FILE_SIZE_MB = 5;
 
       if (fileSizeInMB > MAX_FILE_SIZE_MB) {
-        throw new Error(t("fileSizeExceedsLimit"));
+        throw new Error(t("csvContent.fileSizeExceedsLimit"));
       }
 
       const csvData = await response.text();
       const rows = parseCSV(csvData.trim());
       const firstRow = rows[0];
       if (!firstRow) {
-        throw new Error(t("csvFileIsEmpty"));
+        throw new Error(t("csvContent.csvFileIsEmpty"));
       }
       const parsedHeaders = firstRow;
       setHeaders(parsedHeaders);
@@ -151,12 +151,12 @@ const CsvContent: React.FC<ContentComponentProps> = ({
                   <SvgAlertCircle className="w-8 h-8 stroke-error" />
                   <Text as="p" text03 mainUiBody>
                     {headers.length === 0
-                      ? "Error loading CSV"
-                      : "No data available"}
+                      ? t("csvContent.errorLoadingCSV")
+                      : t("csvContent.noDataAvailable")}
                   </Text>
                   <Text as="p" text04 mainUiBody>
                     {headers.length === 0
-                      ? "The CSV file may be too large or couldn't be loaded properly."
+                      ? t("csvContent.csvTooLargeOrFailedToLoad")
                       : ""}
                   </Text>
                 </div>

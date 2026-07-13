@@ -15,8 +15,8 @@ function Main() {
     return (
       <div>
         <div className="mt-4">
-          <Callout type="danger" title={t("customAnalyticsNotEnabled")}>
-            {t("customAnalyticsSetupInstructions")}
+          <Callout type="danger" title={t("admin.customAnalyticsNotEnabled")}>
+            {t("admin.customAnalyticsSetupInstructions")}
           </Callout>
         </div>
       </div>
@@ -26,7 +26,7 @@ function Main() {
   return (
     <div>
       <Text as="p">
-        {t("customAnalyticsDescription")}
+        {t("admin.customAnalyticsDescription")}
       </Text>
       <Spacer rem={2} />
 

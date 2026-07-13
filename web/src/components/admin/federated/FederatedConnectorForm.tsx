@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DropdownMenuItemWithTooltip } from "@/components/ui/dropdown-menu-with-tooltip";
 import { toast } from "@/hooks/useToast";
-import { useTranslation } from "@/providers/LanguageProvider";
+import { useTranslation, translateOutsideReact } from "@/providers/LanguageProvider";
 
 import { Badge } from "@/components/ui/badge";
 import { Tooltip } from "@opal/components";
@@ -88,10 +88,17 @@ async function validateCredentials(
     const result = await response.json();
     return {
       success: result,
-      message: result ? "Credentials are valid" : "Credentials are invalid",
+      message: result
+        ? translateOutsideReact("federatedConnector.validationSuccess")
+        : translateOutsideReact("federatedConnector.validationFailure"),
     };
   } catch (error) {
-    return { success: false, message: `Validation error: ${error}` };
+    return {
+      success: false,
+      message: translateOutsideReact("federatedConnector.validationError", {
+        error: String(error),
+      }),
+    };
   }
 }
 
@@ -116,17 +123,24 @@ async function createFederatedConnector(
     if (response.ok) {
       return {
         success: true,
-        message: "Federated connector created successfully!",
+        message: translateOutsideReact("federatedConnector.createSuccess"),
       };
     } else {
       const errorData = await response.json();
       return {
         success: false,
-        message: errorData.detail || "Failed to create federated connector",
+        message:
+          errorData.detail ||
+          translateOutsideReact("federatedConnector.createFailure"),
       };
     }
   } catch (error) {
-    return { success: false, message: `Error: ${error}` };
+    return {
+      success: false,
+      message: translateOutsideReact("federatedConnector.errorPrefix", {
+        error: String(error),
+      }),
+    };
   }
 }
 
@@ -150,17 +164,24 @@ async function updateFederatedConnector(
     if (response.ok) {
       return {
         success: true,
-        message: "Federated connector updated successfully!",
+        message: translateOutsideReact("federatedConnector.updateSuccess"),
       };
     } else {
       const errorData = await response.json();
       return {
         success: false,
-        message: errorData.detail || "Failed to update federated connector",
+        message:
+          errorData.detail ||
+          translateOutsideReact("federatedConnector.updateFailure"),
       };
     }
   } catch (error) {
-    return { success: false, message: `Error: ${error}` };
+    return {
+      success: false,
+      message: translateOutsideReact("federatedConnector.errorPrefix", {
+        error: String(error),
+      }),
+    };
   }
 }
 
@@ -175,17 +196,24 @@ async function deleteFederatedConnector(
     if (response.ok) {
       return {
         success: true,
-        message: "Federated connector deleted successfully!",
+        message: translateOutsideReact("federatedConnector.deleteSuccess"),
       };
     } else {
       const errorData = await response.json();
       return {
         success: false,
-        message: errorData.detail || "Failed to delete federated connector",
+        message:
+          errorData.detail ||
+          translateOutsideReact("federatedConnector.deleteFailure"),
       };
     }
   } catch (error) {
-    return { success: false, message: `Error: ${error}` };
+    return {
+      success: false,
+      message: translateOutsideReact("federatedConnector.errorPrefix", {
+        error: String(error),
+      }),
+    };
   }
 }
 
@@ -308,7 +336,7 @@ export function FederatedConnectorForm({
         console.error("Error fetching configuration schema:", error);
         setFormState((prev) => ({
           ...prev,
-          configurationSchemaError: `Failed to load configuration schema: ${error}`,
+          configurationSchemaError: t("federatedConnector.errorPrefix", { error: String(error) }),
         }));
       }
     };
@@ -324,10 +352,10 @@ export function FederatedConnectorForm({
           <Loader2 className="h-8 w-8 animate-spin text-blue-500 mb-4" />
           <div className="text-center">
             <p className="text-lg font-medium text-gray-700 mb-2">
-              Loading credential schema...
+              {t("federatedConnector.loadingSchema")}
             </p>
             <p className="text-sm text-gray-500">
-              Retrieving required fields for this connector type
+              {t("federatedConnector.retrievingFields")}
             </p>
           </div>
         </div>
@@ -359,7 +387,7 @@ export function FederatedConnectorForm({
   const handleValidateCredentials = async () => {
     if (!formState.schema) return;
     if (isEditMode && !credentialsModified) {
-      setSubmitMessage("Enter new credential values before validating.");
+      setSubmitMessage(t("federatedConnector.enterNewValuesToValidate"));
       setSubmitSuccess(false);
       return;
     }
@@ -376,7 +404,7 @@ export function FederatedConnectorForm({
       setSubmitMessage(result.message);
       setSubmitSuccess(result.success);
     } catch (error) {
-      setSubmitMessage(`Validation error: ${error}`);
+      setSubmitMessage(t("federatedConnector.validationError", { error: String(error) }));
       setSubmitSuccess(false);
     } finally {
       setIsValidating(false);
@@ -386,7 +414,7 @@ export function FederatedConnectorForm({
   const handleDeleteConnector = async () => {
     if (!connectorId) return;
 
-    const confirmed = window.confirm(t("deleteFederatedConnectorConfirm"));
+    const confirmed = window.confirm(t("connectorCCPair.deleteFederatedConnectorConfirm"));
 
     if (!confirmed) return;
 
@@ -405,7 +433,7 @@ export function FederatedConnectorForm({
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error(`Error deleting connector: ${error}`);
+      toast.error(t("federatedConnector.deleteError", { error: String(error) }));
     } finally {
       setIsDeleting(false);
     }
@@ -430,7 +458,7 @@ export function FederatedConnectorForm({
 
         if (missingRequired.length > 0) {
           setSubmitMessage(
-            `Missing required fields: ${missingRequired.join(", ")}`
+            t("federatedConnector.missingRequired", { fields: missingRequired.join(", ") })
           );
           setSubmitSuccess(false);
           setIsSubmitting(false);
@@ -459,7 +487,7 @@ export function FederatedConnectorForm({
         );
         if (!validation.success) {
           setSubmitMessage(
-            `Credential validation failed: ${validation.message}`
+            t("federatedConnector.validationFailedPrefix", { message: validation.message })
           );
           setSubmitSuccess(false);
           setIsSubmitting(false);
@@ -492,7 +520,7 @@ export function FederatedConnectorForm({
         }, 500);
       }
     } catch (error) {
-      setSubmitMessage(`Error: ${error}`);
+      setSubmitMessage(t("federatedConnector.errorPrefix", { error: String(error) }));
       setSubmitSuccess(false);
       setIsSubmitting(false);
     }
@@ -520,7 +548,7 @@ export function FederatedConnectorForm({
     if (!formState.schema) {
       return (
         <div className="text-sm text-gray-500">
-          No credential schema available for this connector type.
+          {t("federatedConnector.noSchema")}
         </div>
       );
     }
@@ -552,7 +580,7 @@ export function FederatedConnectorForm({
               type={fieldSpec.secret ? "password" : "text"}
               placeholder={
                 isEditMode && !credentialsModified
-                  ? "••••••••  (leave blank to keep current value)"
+                  ? t("federatedConnector.leaveBlankToKeep")
                   : fieldSpec.example
                     ? String(fieldSpec.example)
                     : fieldSpec.description
@@ -599,7 +627,7 @@ export function FederatedConnectorForm({
           formState.config.channels.length === 0)
       ) {
         errors.channels =
-          "At least one channel is required when 'Search All Channels' is disabled";
+          t("federatedConnector.slackChannelError");
       }
     }
 
@@ -619,13 +647,13 @@ export function FederatedConnectorForm({
     if (!formState.configurationSchema) {
       return (
         <div className="text-sm text-gray-500">
-          No search configuration available for this connector type.
+          {t("federatedConnector.noConfig")}
         </div>
       );
     }
 
     const channelInputPlaceholder =
-      "Type channel name or regex pattern and press Enter";
+      t("federatedConnector.channelPlaceholder");
 
     return (
       <>
@@ -699,7 +727,7 @@ export function FederatedConnectorForm({
                             fieldKey === "channels" ||
                             fieldKey === "exclude_channels"
                               ? channelInputPlaceholder
-                              : "Type and press Enter to add an item"
+                              : t("federatedConnector.itemPlaceholder")
                           }
                           disabled={disableSlackChannelInput(fieldKey)}
                           error={!!configValidationErrors[fieldKey]}
@@ -774,15 +802,15 @@ export function FederatedConnectorForm({
         <div className="ml-2 overflow-hidden text-ellipsis whitespace-nowrap flex-1 mr-4">
           <div className="text-2xl font-bold text-text-default flex items-center gap-2">
             <span>
-              {isEditMode ? "Edit" : "Setup"} {sourceMetadata.displayName}
+              {isEditMode ? t("federatedConnector.editPrefix") : t("federatedConnector.setupPrefix")} {sourceMetadata.displayName}
             </span>
             <Badge variant="outline" className="text-xs">
-              Federated
+              {t("federatedConnector.federated")}
             </Badge>
             <Tooltip
               tooltip={
                 sourceMetadata.federatedTooltip ||
-                "This is a federated connector. It will result in greater latency and lower search quality compared to regular connectors."
+                t("federatedConnector.federatedTooltip")
               }
               side="bottom"
             >
@@ -797,7 +825,7 @@ export function FederatedConnectorForm({
               <DropdownMenuTrigger asChild>
                 <div>
                   <OpalButton prominence="secondary" icon={SvgSettings}>
-                    Manage
+                    {t("federatedConnector.manage")}
                   </OpalButton>
                 </div>
               </DropdownMenuTrigger>
@@ -806,10 +834,10 @@ export function FederatedConnectorForm({
                   onClick={handleDeleteConnector}
                   disabled={isDeleting}
                   className="flex items-center gap-x-2 cursor-pointer px-3 py-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                  tooltip={isDeleting ? "Deletion in progress" : undefined}
+                  tooltip={isDeleting ? t("federatedConnector.deletionInProgress") : undefined}
                 >
                   <Trash2Icon className="h-4 w-4" />
-                  <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+                  <span>{isDeleting ? t("federatedConnector.deleting") : t("federatedConnector.delete")}</span>
                 </DropdownMenuItemWithTooltip>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -818,22 +846,22 @@ export function FederatedConnectorForm({
       </div>
 
       <Title className="mb-2 mt-6" size="md">
-        Federated Connector Configuration
+        {t("federatedConnector.configurationTitle")}
       </Title>
 
       <Card className="px-8 py-4">
         <CardContent className="p-0">
           <form onSubmit={handleSubmit}>
             <Text as="p" headingH3>
-              Credentials
+              {t("federatedConnector.credentials")}
             </Text>
             <Text as="p" mainUiMuted>
-              Enter the credentials for this connector.
+              {t("federatedConnector.enterCredentials")}
             </Text>
             <div className="space-y-4">{renderCredentialFields()}</div>
             <Divider />
             <Text as="p" headingH3>
-              Configuration
+              {t("federatedConnector.configuration")}
             </Text>
             <div className="space-y-4">{renderConfigFields()}</div>
 
@@ -863,7 +891,7 @@ export function FederatedConnectorForm({
                 disabled={isValidating || !formState.schema}
                 className="flex ml-auto"
               >
-                {isValidating ? "Validating..." : "Validate"}
+                {isValidating ? t("federatedConnector.validating") : t("federatedConnector.validate")}
               </Button>
               {/* TODO(@raunakab): migrate to opal Button once className/iconClassName is resolved */}
               <Button
@@ -874,11 +902,11 @@ export function FederatedConnectorForm({
               >
                 {isSubmitting
                   ? isEditMode
-                    ? "Updating..."
-                    : "Creating..."
+                    ? t("federatedConnector.updating")
+                    : t("federatedConnector.creating")
                   : isEditMode
-                    ? "Update"
-                    : "Create"}
+                    ? t("federatedConnector.update")
+                    : t("federatedConnector.create")}
               </Button>
             </div>
           </form>

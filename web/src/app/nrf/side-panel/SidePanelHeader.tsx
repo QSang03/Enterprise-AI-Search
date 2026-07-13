@@ -28,13 +28,13 @@ export default function SidePanelHeader({
           prominence="tertiary"
           icon={SvgEditBig}
           onClick={onNewChat}
-          tooltip={t("newChat")}
+          tooltip={t("common.newChat")}
         />
         <Button
           prominence="tertiary"
           icon={SvgExternalLink}
           onClick={handleOpenInOnyx}
-          tooltip={t("openInOnyx")}
+          tooltip={t("common.openInOnyx")}
         />
       </div>
     </header>

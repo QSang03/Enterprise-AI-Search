@@ -54,16 +54,16 @@ export function AgentStats({ agentId }: { agentId: number }) {
 
         if (!res.ok) {
           if (res.status === 403) {
-            throw new Error(t("noPermissionToViewStats"));
+            throw new Error(t("admin.noPermissionToViewStats"));
           }
-          throw new Error(t("failedToFetchAgentStats"));
+          throw new Error(t("admin.failedToFetchAgentStats"));
         }
 
         const data = (await res.json()) as AgentStatsResponse;
         setAgentStats(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : t("unknownErrorOccurred")
+          err instanceof Error ? err.message : t("admin.unknownErrorOccurred")
         );
       } finally {
         setIsLoading(false);
@@ -71,7 +71,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
     }
 
     fetchStats();
-  }, [agentId, dateRange]);
+  }, [agentId, dateRange, t]);
 
   const chartData = useMemo(() => {
     if (!agentStats?.daily_stats?.length || !dateRange) {
@@ -100,12 +100,12 @@ export function AgentStats({ agentId }: { agentId: number }) {
       .map((dateStr) => {
         const dayData = statsMap.get(dateStr);
         return {
-          Day: dateStr,
-          Messages: dayData?.total_messages || 0,
-          "Unique Users": dayData?.total_unique_users || 0,
+          [t("admin.day")]: dateStr,
+          [t("admin.messages")]: dayData?.total_messages || 0,
+          [t("admin.uniqueUsers")]: dayData?.total_unique_users || 0,
         };
       });
-  }, [agentStats, dateRange]);
+  }, [agentStats, dateRange, t]);
 
   const totalMessages = agentStats?.total_messages ?? 0;
   const totalUniqueUsers = agentStats?.total_unique_users ?? 0;
@@ -127,7 +127,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
     content = (
       <div className="h-80 text-text-500 flex flex-col">
         <p className="m-auto">
-          {t("noDataFoundForAgent")}
+          {t("admin.noDataFoundForAgent")}
         </p>
       </div>
     );
@@ -136,8 +136,8 @@ export function AgentStats({ agentId }: { agentId: number }) {
       <AreaChartDisplay
         className="mt-4"
         data={chartData}
-        categories={[t("messages"), t("uniqueUsers")]}
-        index={t("day")}
+        categories={[t("admin.messages"), t("admin.uniqueUsers")]}
+        index={t("admin.day")}
         colors={["#4A4A4A", "#A0A0A0"]}
         yAxisWidth={60}
       />
@@ -147,7 +147,7 @@ export function AgentStats({ agentId }: { agentId: number }) {
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <p className="text-base font-normal text-2xl">{t("agentAnalytics")}</p>
+        <p className="text-base font-normal text-2xl">{t("admin.agentAnalytics")}</p>
         <AdminDateRangeSelector
           value={dateRange}
           onValueChange={setDateRange}
@@ -171,13 +171,13 @@ export function AgentStats({ agentId }: { agentId: number }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium text-text-500">
-                    {t("totalMessages")}
+                    {t("admin.totalMessages")}
                   </p>
                   <p className="text-2xl font-normal">{totalMessages}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-text-500">
-                    {t("totalUniqueUsers")}
+                    {t("admin.totalUniqueUsers")}
                   </p>
                   <p className="text-2xl font-normal">{totalUniqueUsers}</p>
                 </div>

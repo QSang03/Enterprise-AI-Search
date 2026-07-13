@@ -42,7 +42,7 @@ export function QueryPerformanceChart({
   ) {
     chart = (
       <div className="h-80 text-red-600 text-bold flex flex-col">
-        <p className="m-auto">{t("failedToFetchQueryData")}</p>
+        <p className="m-auto">{t("admin.failedToFetchQueryData")}</p>
       </div>
     );
   } else {
@@ -70,13 +70,13 @@ export function QueryPerformanceChart({
           const queryAnalyticsForDate = dateToQueryAnalytics.get(dateStr);
           const userAnalyticsForDate = dateToUserAnalytics.get(dateStr);
           return {
-            Day: dateStr,
-            [t("queries")]: queryAnalyticsForDate?.total_queries || 0,
-            [t("uniqueUsers")]: userAnalyticsForDate?.total_active_users || 0,
+            [t("admin.day")]: dateStr,
+            [t("admin.queries")]: queryAnalyticsForDate?.total_queries || 0,
+            [t("admin.uniqueUsers")]: userAnalyticsForDate?.total_active_users || 0,
           };
         })}
-        categories={[t("queries"), t("uniqueUsers")]}
-        index={t("day")}
+        categories={[t("admin.queries"), t("admin.uniqueUsers")]}
+        index={t("admin.day")}
         colors={["indigo", "fuchsia"]}
         yAxisFormatter={(number: number) =>
           new Intl.NumberFormat("en-US", {
@@ -99,8 +99,8 @@ export function QueryPerformanceChart({
 
   return (
     <CardSection className="mt-8">
-      <Title>{t("usage")}</Title>
-      <Text as="p">{t("usageOverTime")}</Text>
+      <Title>{t("connectorCCPair.usage")}</Title>
+      <Text as="p">{t("connectorCCPair.usageOverTime")}</Text>
       {chart}
     </CardSection>
   );

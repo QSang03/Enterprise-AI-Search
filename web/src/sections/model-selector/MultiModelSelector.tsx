@@ -15,6 +15,7 @@ import { useSettings } from "@/lib/settings/hooks";
 import { LLMOption, buildLlmOptions } from "@/lib/languageModels/options";
 import { useCurrentAgentLLMProviders } from "@/lib/languageModels/hooks";
 import ModelSelectorContent from "@/sections/model-selector/ModelSelectorContent";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export const MAX_MODELS = 3;
 
@@ -42,6 +43,7 @@ export default function MultiModelSelector({
   onRemove,
   onReplace,
 }: MultiModelSelectorProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
   const anchorRef = useRef<HTMLElement | null>(null);
@@ -64,10 +66,10 @@ export default function MultiModelSelector({
   // precedence; otherwise it labels the add affordance. When at max there is
   // no add action, so the tooltip is omitted.
   const selectorTooltip = noModelsToSelect
-    ? "No models currently configured"
+    ? t("multiModelSelector.noModelsConfigured")
     : atMax
       ? undefined
-      : "Add Model";
+      : t("multiModelSelector.addModel");
 
   const selectedKeys = useMemo(
     () => new Set(selectedModels.map((m) => modelKey(m.provider, m.modelName))),

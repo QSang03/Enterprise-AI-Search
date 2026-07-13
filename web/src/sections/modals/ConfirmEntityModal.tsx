@@ -3,6 +3,7 @@ import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { SvgAlertCircle } from "@opal/icons";
 import type { IconProps } from "@opal/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface ConfirmEntityModalProps {
   danger?: boolean;
@@ -41,12 +42,17 @@ export function ConfirmEntityModal({
 
   removeConfirmationText = false,
 }: ConfirmEntityModalProps) {
+  const { t } = useTranslation();
   const buttonText = actionButtonText
     ? actionButtonText
     : danger
-      ? "Delete"
-      : "Confirm";
-  const actionText = action ? action : danger ? "delete" : "modify";
+      ? t("confirmEntityModal.delete")
+      : t("confirmEntityModal.confirm");
+  const actionText = action
+    ? action
+    : danger
+      ? t("confirmEntityModal.delete").toLowerCase()
+      : "modify";
 
   return (
     <Modal
@@ -62,7 +68,10 @@ export function ConfirmEntityModal({
       <div className="flex flex-col gap-4">
         {!removeConfirmationText && (
           <Text as="p">
-            Are you sure you want to {actionText} <b>{entityName}</b>?
+            {t("confirmEntityModal.areYouSure", {
+              action: actionText,
+              name: entityName,
+            })}
           </Text>
         )}
 

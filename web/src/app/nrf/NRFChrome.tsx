@@ -103,7 +103,7 @@ export default function NRFChrome() {
                     effectiveMode === "search" ? SvgSearchMenu : SvgBubbleText
                   }
                 >
-                  {effectiveMode === "search" ? "Search" : "Chat"}
+                  {effectiveMode === "search" ? t("common.search") : t("common.chat")}
                 </OpenButton>
               </Popover.Trigger>
               <Popover.Content align="start" width="lg">
@@ -117,7 +117,7 @@ export default function NRFChrome() {
                       setModePopoverOpen(false);
                     })}
                   >
-                    Search
+                    {t("common.search")}
                   </LineItem>
                   <LineItem
                     icon={SvgBubbleText}
@@ -128,7 +128,7 @@ export default function NRFChrome() {
                       setModePopoverOpen(false);
                     })}
                   >
-                    Chat
+                    {t("common.chat")}
                   </LineItem>
                 </Popover.Menu>
               </Popover.Content>

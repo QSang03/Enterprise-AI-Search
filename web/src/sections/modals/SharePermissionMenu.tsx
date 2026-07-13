@@ -3,6 +3,7 @@
 import { LineItemButton, OpenButton, Popover } from "@opal/components";
 import { SvgMinusCircle } from "@opal/icons";
 import type { IconFunctionComponent } from "@opal/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export interface SharePermissionMenuOption<T extends string> {
   value: T;
@@ -32,13 +33,15 @@ export function SharePermissionMenu<T extends string>({
   options,
   onChange,
   onRemove,
-  removeLabel = "Remove Access",
+  removeLabel,
   disabled = false,
   width = "fit",
   showTriggerIcon = true,
   menuWidth = "md",
   ariaLabel,
 }: SharePermissionMenuProps<T>) {
+  const { t } = useTranslation();
+  const resolvedRemoveLabel = removeLabel ?? t("sharePermissionMenu.removeAccess");
   const selectedOption =
     options.find((option) => option.value === value) ?? options[0];
 
@@ -108,7 +111,7 @@ export function SharePermissionMenu<T extends string>({
                 rounding="md"
                 selectVariant="select-heavy"
                 sizePreset="main-ui"
-                title={removeLabel}
+                title={resolvedRemoveLabel}
                 variant="section"
                 width="full"
               />

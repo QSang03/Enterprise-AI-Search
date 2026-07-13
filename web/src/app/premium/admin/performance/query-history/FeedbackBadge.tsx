@@ -1,31 +1,33 @@
 import { Badge } from "@/components/ui/badge";
 import { Feedback } from "@/lib/types";
+import { useTranslation } from "@/providers/LanguageProvider";
 
 export function FeedbackBadge({
   feedback,
 }: {
   feedback?: Feedback | "mixed" | null;
 }) {
+  const { t } = useTranslation();
   let feedbackBadge;
   switch (feedback) {
     case "like":
       feedbackBadge = (
         <Badge variant="success" className="text-sm">
-          Like
+          {t("queryHistory.feedbackLike")}
         </Badge>
       );
       break;
     case "dislike":
       feedbackBadge = (
         <Badge variant="destructive" className="text-sm">
-          Dislike
+          {t("queryHistory.feedbackDislike")}
         </Badge>
       );
       break;
     case "mixed":
       feedbackBadge = (
         <Badge variant="purple" className="text-sm">
-          Mixed
+          {t("queryHistory.feedbackMixed")}
         </Badge>
       );
       break;

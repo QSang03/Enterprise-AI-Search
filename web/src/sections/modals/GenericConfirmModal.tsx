@@ -2,6 +2,8 @@ import Modal from "@/refresh-components/Modal";
 import { Button } from "@opal/components";
 import Text from "@/refresh-components/texts/Text";
 import { SvgCheck } from "@opal/icons";
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export interface GenericConfirmModalProps {
   title: string;
   message: string;
@@ -13,10 +15,12 @@ export interface GenericConfirmModalProps {
 export default function GenericConfirmModal({
   title,
   message,
-  confirmText = "Confirm",
+  confirmText,
   onClose,
   onConfirm,
 }: GenericConfirmModalProps) {
+  const { t } = useTranslation();
+  const resolvedConfirmText = confirmText ?? t("genericConfirmModal.confirm");
   return (
     <Modal open onOpenChange={onClose}>
       <Modal.Content width="sm" height="sm">
@@ -25,7 +29,7 @@ export default function GenericConfirmModal({
           <Text as="p">{message}</Text>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={onConfirm}>{confirmText}</Button>
+          <Button onClick={onConfirm}>{resolvedConfirmText}</Button>
         </Modal.Footer>
       </Modal.Content>
     </Modal>
