@@ -1908,7 +1908,8 @@
       "usage": "Usage"
     },
     "enterpriseLicenseRequired": "This feature requires an Enterprise license. Contact your administrator.",
-    "businessLicenseRequired": "This feature requires a Business or Enterprise license. Contact your administrator."
+    "businessLicenseRequired": "This feature requires a Business or Enterprise license. Contact your administrator.",
+    "failedToFetchChatSession": "Failed to fetch chat session"
   },
   "banners": {
     "license": {

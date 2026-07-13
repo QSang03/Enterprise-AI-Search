@@ -1908,7 +1908,8 @@
       "usage": "Sử dụng"
     },
     "enterpriseLicenseRequired": "Tính năng này yêu cầu giấy phép Enterprise. Vui lòng liên hệ với quản trị viên.",
-    "businessLicenseRequired": "Tính năng này yêu cầu giấy phép Business hoặc Enterprise. Vui lòng liên hệ với quản trị viên."
+    "businessLicenseRequired": "Tính năng này yêu cầu giấy phép Business hoặc Enterprise. Vui lòng liên hệ với quản trị viên.",
+    "failedToFetchChatSession": "Không thể tải phiên trò chuyện"
   },
   "banners": {
     "license": {
