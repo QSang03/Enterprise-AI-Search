@@ -2,9 +2,11 @@ import json
 from collections.abc import Iterable
 from typing import Any
 
+from opensearchpy.helpers import bulk
 from opensearchpy.helpers.errors import BulkIndexError
 
 from onyx.access.models import DocumentAccess
+from onyx.configs.app_configs import DEFAULT_OPENSEARCH_QUERY_TIMEOUT_S
 from onyx.configs.app_configs import MAX_CHUNKS_PER_DOC_BATCH
 from onyx.configs.app_configs import VERIFY_CREATE_OPENSEARCH_INDEX_ON_INIT_MT
 from onyx.configs.constants import OnyxRedisLocks
@@ -33,6 +35,12 @@ from onyx.document_index.opensearch.client import OpenSearchClient
 from onyx.document_index.opensearch.client import OpenSearchIndexClient
 from onyx.document_index.opensearch.client import SearchHit
 from onyx.document_index.opensearch.cluster_settings import OPENSEARCH_CLUSTER_SETTINGS
+from onyx.document_index.opensearch.constants import (
+    DEFAULT_NUM_HYBRID_SUBQUERY_CANDIDATES,
+)
+from onyx.document_index.opensearch.constants import (
+    DEFAULT_OPENSEARCH_MAX_RESULT_WINDOW,
+)
 from onyx.document_index.opensearch.constants import OpenSearchSearchType
 from onyx.document_index.opensearch.schema import ACCESS_CONTROL_LIST_FIELD_NAME
 from onyx.document_index.opensearch.schema import CONTENT_FIELD_NAME
@@ -40,9 +48,21 @@ from onyx.document_index.opensearch.schema import DOCUMENT_SETS_FIELD_NAME
 from onyx.document_index.opensearch.schema import DocumentChunk
 from onyx.document_index.opensearch.schema import DocumentChunkWithoutVectors
 from onyx.document_index.opensearch.schema import DocumentSchema
+from onyx.document_index.opensearch.schema import EVENT_ACCESS_CONTROL_LIST_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_CHUNK_ID_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_CONTENT_EMBEDDING_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_CONTENT_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_DOCUMENT_ID_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_DOC_UPDATED_AT_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_ID_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_IS_PUBLIC_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_TENANT_ID_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_TITLE_EMBEDDING_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_TITLE_FIELD_NAME
 from onyx.document_index.opensearch.schema import get_opensearch_doc_chunk_id
 from onyx.document_index.opensearch.schema import GLOBAL_BOOST_FIELD_NAME
 from onyx.document_index.opensearch.schema import HIDDEN_FIELD_NAME
+from onyx.document_index.opensearch.schema import KnowledgeEventSchema
 from onyx.document_index.opensearch.schema import PERSONAS_FIELD_NAME
 from onyx.document_index.opensearch.schema import USER_PROJECTS_FIELD_NAME
 from onyx.document_index.opensearch.search import DocumentQuery
@@ -68,6 +88,10 @@ logger = setup_logger(__name__)
 
 VERIFY_INDEX_LOCK_TTL_S = 60
 VERIFY_INDEX_LOCK_BLOCKING_TIMEOUT_S = 60
+
+# Suffix used for the dedicated knowledge event index per document index.
+# e.g. ``danswer_index__knowledge_events``
+_KNOWLEDGE_EVENT_INDEX_SUFFIX = "__knowledge_events"
 
 
 # Per-process cache of indices we've already verified/created/applied the
@@ -289,6 +313,10 @@ class OpenSearchDocumentIndex(DocumentIndex):
         self._index_name: str = index_name
         self._tenant_state: TenantState = tenant_state
         self._client = OpenSearchIndexClient(index_name=self._index_name)
+        self._event_index_name: str = index_name + _KNOWLEDGE_EVENT_INDEX_SUFFIX
+        self._event_client = OpenSearchIndexClient(
+            index_name=self._event_index_name
+        )
 
         if (
             self._tenant_state.multitenant
@@ -362,6 +390,33 @@ class OpenSearchDocumentIndex(DocumentIndex):
                     logger.error(
                         "Failed to update mappings for index %s. This likely means a field type was changed which requires reindexing. Error: %s",
                         self._index_name,
+                        e,
+                    )
+                    raise
+
+            # ── Knowledge event index ────────────────────────────────────
+            event_mappings = KnowledgeEventSchema.get_event_schema(
+                embedding_dim, self._tenant_state.multitenant
+            )
+            if not self._event_client.index_exists():
+                event_settings = (
+                    KnowledgeEventSchema.get_index_settings_based_on_environment()
+                )
+                self._event_client.create_index(
+                    mappings=event_mappings,
+                    settings=event_settings,
+                )
+                logger.info(
+                    "[OpenSearchDocumentIndex] Created knowledge event index %s.",
+                    self._event_index_name,
+                )
+            else:
+                try:
+                    self._event_client.put_mapping(event_mappings)
+                except Exception as e:
+                    logger.error(
+                        "Failed to update mappings for event index %s: %s",
+                        self._event_index_name,
                         e,
                     )
                     raise
@@ -895,8 +950,86 @@ class OpenSearchDocumentIndex(DocumentIndex):
             documents=chunks, tenant_state=self._tenant_state, update_if_exists=True
         )
 
+    @property
+    def supports_knowledge_events(self) -> bool:
+        return True
+
     def index_knowledge_events(self, events: list[dict[str, Any]]) -> None:
-        pass
+        """Bulk-index knowledge events into the dedicated event index.
+
+        Each event dict should match the shape produced by
+        ``prepare_knowledge_event_vespa_doc``.  ``event_id`` is used as the
+        OpenSearch document ``_id`` so repeated calls are idempotent.
+        """
+        if not events:
+            return
+
+        data: list[dict[str, Any]] = []
+        for event in events:
+            event_id = event.get("event_id", "")
+            if not event_id:
+                continue
+
+            # Build the OpenSearch source document — strip fields that are only
+            # needed for the ``_id`` or are Vespa-specific wrappers.
+            source: dict[str, Any] = {
+                EVENT_ID_FIELD_NAME: event_id,
+                EVENT_DOCUMENT_ID_FIELD_NAME: event.get("document_id", ""),
+                EVENT_CHUNK_ID_FIELD_NAME: event.get("chunk_id", ""),
+                EVENT_TITLE_FIELD_NAME: event.get("event_title", ""),
+                EVENT_CONTENT_FIELD_NAME: event.get("event_content", ""),
+                EVENT_ENTITY_NAMES_FIELD_NAME: event.get("entity_names", []),
+                EVENT_CONTENT_EMBEDDING_FIELD_NAME: event.get(
+                    "content_embedding", {}
+                ).get("values", []),
+            }
+
+            # Optional fields — include only when present.
+            if event.get("event_category"):
+                source[EVENT_CATEGORY_FIELD_NAME] = event["event_category"]
+            if event.get("title_embedding"):
+                source[EVENT_TITLE_EMBEDDING_FIELD_NAME] = event[
+                    "title_embedding"
+                ].get("values", [])
+            if event.get("confidence") is not None:
+                source[EVENT_CONFIDENCE_FIELD_NAME] = float(event["confidence"])
+            if event.get("doc_updated_at") is not None:
+                source[EVENT_DOC_UPDATED_AT_FIELD_NAME] = event["doc_updated_at"]
+            if event.get("access_control_list") is not None:
+                source[EVENT_ACCESS_CONTROL_LIST_FIELD_NAME] = event[
+                    "access_control_list"
+                ]
+            if event.get("is_public") is not None:
+                source[EVENT_IS_PUBLIC_FIELD_NAME] = bool(event["is_public"])
+            if self._tenant_state.multitenant and event.get("tenant_id"):
+                source[EVENT_TENANT_ID_FIELD_NAME] = event["tenant_id"]
+
+            data.append(
+                {
+                    "_index": self._event_index_name,
+                    "_id": event_id,
+                    "_op_type": "index",
+                    "_source": source,
+                }
+            )
+
+        if not data:
+            return
+
+        successes, errors = bulk(
+            self._event_client._client,
+            data,
+            max_retries=3,
+            raise_on_error=True,
+            raise_on_exception=True,
+        )
+        if successes != len(data):
+            logger.warning(
+                "index_knowledge_events: indexed %d / %d events (errors=%s).",
+                successes,
+                len(data),
+                errors,
+            )
 
     def search_knowledge_events(
         self,
@@ -906,10 +1039,245 @@ class OpenSearchDocumentIndex(DocumentIndex):
         bypass_acl: bool = False,
         max_events: int = 50,
     ) -> list[dict[str, Any]]:
-        return []
+        """Search knowledge events with hybrid / semantic / keyword queries.
+
+        Behaviour mirrors ``VespaDocumentIndex.search_knowledge_events``:
+        - ``query_embedding`` present → kNN on ``content_embedding``.
+        - ``query_text`` present → full-text match on ``event_title`` /
+          ``event_content``.
+        - Both present → OpenSearch ``hybrid`` query with a min-max
+          normalization pipeline.
+        - ACL / tenant / document-scope filters are applied in a ``bool``
+          filter clause.
+        """
+        if max_events > DEFAULT_OPENSEARCH_MAX_RESULT_WINDOW:
+            max_events = DEFAULT_OPENSEARCH_MAX_RESULT_WINDOW
+
+        # ── Build filter clauses ────────────────────────────────────────
+        filter_clauses: list[dict[str, Any]] = []
+
+        # Tenant isolation
+        if self._tenant_state.multitenant:
+            filter_clauses.append(
+                {"term": {EVENT_TENANT_ID_FIELD_NAME: self._tenant_state.tenant_id}}
+            )
+
+        # Document-scope gating (from attached_document_ids on the filter)
+        if filters and filters.attached_document_ids is not None:
+            doc_ids = list(filters.attached_document_ids)
+            if doc_ids:
+                filter_clauses.append(
+                    {"terms": {EVENT_DOCUMENT_ID_FIELD_NAME: doc_ids}}
+                )
+            else:
+                # Empty list → no documents match
+                filter_clauses.append({"term": {EVENT_DOCUMENT_ID_FIELD_NAME: ""}})
+
+        # ACL filtering
+        if not bypass_acl:
+            acl_should: list[dict[str, Any]] = [
+                {"term": {EVENT_IS_PUBLIC_FIELD_NAME: True}}
+            ]
+            if filters and filters.access_control_list:
+                acl_should.append(
+                    {
+                        "terms": {
+                            EVENT_ACCESS_CONTROL_LIST_FIELD_NAME: list(
+                                filters.access_control_list
+                            )
+                        }
+                    }
+                )
+            filter_clauses.append({"bool": {"should": acl_should, "minimum_should_match": 1}})
+
+        # ── Build query ─────────────────────────────────────────────────
+        has_vector = query_embedding is not None and len(query_embedding) > 0
+        has_text = query_text is not None and query_text.strip()
+
+        if has_vector and has_text:
+            # Hybrid: combine kNN vector + keyword via OpenSearch hybrid query.
+            subqueries: list[dict[str, Any]] = [
+                {
+                    "knn": {
+                        EVENT_CONTENT_EMBEDDING_FIELD_NAME: {
+                            "vector": query_embedding,
+                            "k": max_events,
+                        }
+                    }
+                },
+                {
+                    "bool": {
+                        "should": [
+                            {
+                                "match": {
+                                    EVENT_TITLE_FIELD_NAME: {
+                                        "query": query_text,
+                                        "operator": "or",
+                                        "boost": 0.3,
+                                    }
+                                }
+                            },
+                            {
+                                "match": {
+                                    EVENT_CONTENT_FIELD_NAME: {
+                                        "query": query_text,
+                                        "operator": "or",
+                                        "boost": 1.0,
+                                    }
+                                }
+                            },
+                        ],
+                        "minimum_should_match": 1,
+                    }
+                },
+            ]
+            query_body: dict[str, Any] = {
+                "query": {
+                    "hybrid": {
+                        "queries": subqueries,
+                        "pagination_depth": DEFAULT_NUM_HYBRID_SUBQUERY_CANDIDATES,
+                        "filter": (
+                            {"bool": {"filter": filter_clauses}}
+                            if filter_clauses
+                            else None
+                        ),
+                    }
+                },
+                "size": max_events,
+                "timeout": f"{DEFAULT_OPENSEARCH_QUERY_TIMEOUT_S}s",
+                "_source": {
+                    "excludes": [
+                        EVENT_CONTENT_EMBEDDING_FIELD_NAME,
+                        EVENT_TITLE_EMBEDDING_FIELD_NAME,
+                    ]
+                },
+            }
+            search_pipeline_id = (
+                get_normalization_pipeline_name_and_config()[0]
+            )
+        elif has_vector:
+            # Semantic-only: kNN with optional filters.
+            knn_query: dict[str, Any] = {
+                "knn": {
+                    EVENT_CONTENT_EMBEDDING_FIELD_NAME: {
+                        "vector": query_embedding,
+                        "k": max_events,
+                    }
+                }
+            }
+            query_body = {
+                "query": knn_query,
+                "size": max_events,
+                "timeout": f"{DEFAULT_OPENSEARCH_QUERY_TIMEOUT_S}s",
+                "_source": {
+                    "excludes": [
+                        EVENT_CONTENT_EMBEDDING_FIELD_NAME,
+                        EVENT_TITLE_EMBEDDING_FIELD_NAME,
+                    ]
+                },
+            }
+            if filter_clauses:
+                query_body["query"] = {
+                    "bool": {
+                        "must": knn_query,
+                        "filter": filter_clauses,
+                    }
+                }
+            search_pipeline_id = None
+        elif has_text:
+            # Keyword-only: full-text match with optional filters.
+            bool_query: dict[str, Any] = {
+                "bool": {
+                    "should": [
+                        {
+                            "match": {
+                                EVENT_TITLE_FIELD_NAME: {
+                                    "query": query_text,
+                                    "operator": "or",
+                                    "boost": 0.3,
+                                }
+                            }
+                        },
+                        {
+                            "match": {
+                                EVENT_CONTENT_FIELD_NAME: {
+                                    "query": query_text,
+                                    "operator": "or",
+                                    "boost": 1.0,
+                                }
+                            }
+                        },
+                    ],
+                    "minimum_should_match": 1,
+                }
+            }
+            if filter_clauses:
+                bool_query["bool"]["filter"] = filter_clauses
+            query_body = {
+                "query": bool_query,
+                "size": max_events,
+                "timeout": f"{DEFAULT_OPENSEARCH_QUERY_TIMEOUT_S}s",
+            }
+            search_pipeline_id = None
+        else:
+            # No query at all — return most recent events (subject to filters).
+            query_body = {
+                "query": {"match_all": {}},
+                "size": max_events,
+                "timeout": f"{DEFAULT_OPENSEARCH_QUERY_TIMEOUT_S}s",
+                "sort": [{EVENT_DOC_UPDATED_AT_FIELD_NAME: {"order": "desc"}}],
+            }
+            if filter_clauses:
+                query_body["query"] = {
+                    "bool": {
+                        "must": {"match_all": {}},
+                        "filter": filter_clauses,
+                    }
+                }
+            search_pipeline_id = None
+
+        # ── Execute search ──────────────────────────────────────────────
+        params = {}
+        try:
+            result = self._event_client._client.search(
+                index=self._event_index_name,
+                body=query_body,
+                params=params,
+                search_pipeline=search_pipeline_id,
+            )
+        except Exception as e:
+            logger.warning(
+                "search_knowledge_events failed for index %s: %s",
+                self._event_index_name,
+                e,
+            )
+            return []
+
+        hits = result.get("hits", {}).get("hits", [])
+        return [hit.get("_source", {}) for hit in hits]
 
     def delete_knowledge_events_by_document(self, document_id: str) -> None:
-        pass
+        """Delete all knowledge events associated with a document."""
+        must_clauses: list[dict[str, Any]] = [
+            {"term": {EVENT_DOCUMENT_ID_FIELD_NAME: document_id}}
+        ]
+        if self._tenant_state.multitenant:
+            must_clauses.append(
+                {"term": {EVENT_TENANT_ID_FIELD_NAME: self._tenant_state.tenant_id}}
+            )
+
+        query_body: dict[str, Any] = {
+            "query": {"bool": {"must": must_clauses}}
+        }
+        try:
+            self._event_client.delete_by_query(query_body)
+        except Exception as e:
+            logger.warning(
+                "delete_knowledge_events_by_document failed for doc %s on index %s: %s",
+                document_id,
+                self._event_index_name,
+                e,
+            )
 
 
 
@@ -1066,6 +1434,10 @@ class OpenSearchIndexPair(DocumentIndex):
         self._primary.delete_knowledge_events_by_document(document_id)
         if self._secondary:
             self._secondary.delete_knowledge_events_by_document(document_id)
+
+    @property
+    def supports_knowledge_events(self) -> bool:
+        return self._primary.supports_knowledge_events
 
     @property
     def primary(self) -> OpenSearchDocumentIndex:

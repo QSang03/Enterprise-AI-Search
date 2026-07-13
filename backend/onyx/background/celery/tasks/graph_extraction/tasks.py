@@ -83,6 +83,7 @@ from onyx.db.models import Document
 from onyx.db.models import DocumentChunkV2
 from onyx.db.models import KnowledgeEvent
 from onyx.db.models import RelationEvidence
+from onyx.db.models import SearchSettings
 from onyx.indexing.indexing_pipeline import _check_and_trigger_wiki_stale_detection
 from onyx.redis.redis_pool import get_shared_redis_client
 from shared_configs.contextvars import CURRENT_TENANT_ID_CONTEXTVAR
@@ -881,6 +882,16 @@ def graph_extraction_task(
         from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
         from shared_configs.configs import MODEL_SERVER_HOST
         from shared_configs.configs import MODEL_SERVER_PORT
+
+        # Reload search_settings in the current session context to avoid
+        # lazy-load failures on relationships (cloud_provider, etc.) when
+        # the original Phase-0 session has been closed.
+        with get_session_with_current_tenant() as reload_session:
+            search_settings = (
+                reload_session.query(SearchSettings)
+                .filter(SearchSettings.id == search_settings.id)
+                .first()
+            )
 
         embedding_model = EmbeddingModel.from_db_model(
             search_settings=search_settings,

@@ -36,6 +36,22 @@ TITLE_FIELD_NAME = "title"
 TITLE_VECTOR_FIELD_NAME = "title_vector"
 CONTENT_FIELD_NAME = "content"
 CONTENT_VECTOR_FIELD_NAME = "content_vector"
+
+# Knowledge event field name constants
+EVENT_ID_FIELD_NAME = "event_id"
+EVENT_DOCUMENT_ID_FIELD_NAME = "document_id"
+EVENT_CHUNK_ID_FIELD_NAME = "chunk_id"
+EVENT_ENTITY_NAMES_FIELD_NAME = "entity_names"
+EVENT_TITLE_FIELD_NAME = "event_title"
+EVENT_CONTENT_FIELD_NAME = "event_content"
+EVENT_CATEGORY_FIELD_NAME = "event_category"
+EVENT_TITLE_EMBEDDING_FIELD_NAME = "title_embedding"
+EVENT_CONTENT_EMBEDDING_FIELD_NAME = "content_embedding"
+EVENT_CONFIDENCE_FIELD_NAME = "confidence"
+EVENT_DOC_UPDATED_AT_FIELD_NAME = "doc_updated_at"
+EVENT_ACCESS_CONTROL_LIST_FIELD_NAME = "access_control_list"
+EVENT_IS_PUBLIC_FIELD_NAME = "is_public"
+EVENT_TENANT_ID_FIELD_NAME = "tenant_id"
 SOURCE_TYPE_FIELD_NAME = "source_type"
 METADATA_LIST_FIELD_NAME = "metadata_list"
 LAST_UPDATED_FIELD_NAME = "last_updated"
@@ -600,6 +616,103 @@ class DocumentSchema:
                 "number_of_shards": number_of_shards,
                 "number_of_replicas": number_of_replicas,
                 # Required for vector search.
+                "knn": True,
+                "knn.algo_param.ef_search": EF_SEARCH,
+            }
+        }
+
+
+class KnowledgeEventSchema:
+    """Schema definition for the knowledge event OpenSearch index.
+
+    Mirrors the Vespa ``knowledge_event`` schema and the dict shape produced
+    by ``prepare_knowledge_event_vespa_doc``.
+    """
+
+    @staticmethod
+    def get_event_schema(vector_dimension: int, multitenant: bool) -> dict[str, Any]:
+        """Return the mapping for the knowledge event index."""
+        schema: dict[str, Any] = {
+            "dynamic": "strict",
+            "properties": {
+                EVENT_ID_FIELD_NAME: {"type": "keyword"},
+                EVENT_DOCUMENT_ID_FIELD_NAME: {"type": "keyword"},
+                EVENT_CHUNK_ID_FIELD_NAME: {"type": "keyword"},
+                EVENT_ENTITY_NAMES_FIELD_NAME: {"type": "keyword"},
+                EVENT_TITLE_FIELD_NAME: {
+                    "type": "text",
+                    "analyzer": OPENSEARCH_TEXT_ANALYZER,
+                    "fields": {
+                        "keyword": {"type": "keyword", "ignore_above": 256}
+                    },
+                    "index_options": "offsets",
+                },
+                EVENT_CONTENT_FIELD_NAME: {
+                    "type": "text",
+                    "store": True,
+                    "analyzer": OPENSEARCH_TEXT_ANALYZER,
+                    "index_options": "offsets",
+                },
+                EVENT_CATEGORY_FIELD_NAME: {"type": "keyword"},
+                EVENT_TITLE_EMBEDDING_FIELD_NAME: {
+                    "type": "knn_vector",
+                    "dimension": vector_dimension,
+                    "method": {
+                        "name": "hnsw",
+                        "space_type": "cosinesimil",
+                        "engine": OPENSEARCH_KNN_ENGINE,
+                        "parameters": {"ef_construction": EF_CONSTRUCTION, "m": M},
+                    },
+                },
+                EVENT_CONTENT_EMBEDDING_FIELD_NAME: {
+                    "type": "knn_vector",
+                    "dimension": vector_dimension,
+                    "method": {
+                        "name": "hnsw",
+                        "space_type": "cosinesimil",
+                        "engine": OPENSEARCH_KNN_ENGINE,
+                        "parameters": {"ef_construction": EF_CONSTRUCTION, "m": M},
+                    },
+                },
+                EVENT_CONFIDENCE_FIELD_NAME: {"type": "float"},
+                EVENT_DOC_UPDATED_AT_FIELD_NAME: {
+                    "type": "date",
+                    "format": "epoch_second",
+                    "doc_values": True,
+                },
+                EVENT_IS_PUBLIC_FIELD_NAME: {"type": "boolean"},
+                EVENT_ACCESS_CONTROL_LIST_FIELD_NAME: {"type": "keyword"},
+            },
+        }
+
+        if multitenant:
+            schema["properties"][EVENT_TENANT_ID_FIELD_NAME] = {"type": "keyword"}
+
+        return schema
+
+    @staticmethod
+    def get_index_settings_based_on_environment() -> dict[str, Any]:
+        """Return index settings suitable for the current environment."""
+        if USING_AWS_MANAGED_OPENSEARCH:
+            if MULTI_TENANT:
+                number_of_shards = 6
+                number_of_replicas = 2
+            else:
+                number_of_shards = 1
+                number_of_replicas = 2
+        else:
+            number_of_shards = 1
+            number_of_replicas = 1
+
+        if OPENSEARCH_INDEX_NUM_SHARDS is not None:
+            number_of_shards = OPENSEARCH_INDEX_NUM_SHARDS
+        if OPENSEARCH_INDEX_NUM_REPLICAS is not None:
+            number_of_replicas = OPENSEARCH_INDEX_NUM_REPLICAS
+
+        return {
+            "index": {
+                "number_of_shards": number_of_shards,
+                "number_of_replicas": number_of_replicas,
                 "knn": True,
                 "knn.algo_param.ef_search": EF_SEARCH,
             }
