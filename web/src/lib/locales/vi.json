@@ -1436,6 +1436,7 @@
       "targetUriRequired": "Target URI là bắt buộc",
       "targetUriInvalid": "Target URI phải là một URL hợp lệ chứa api-version và tên deployment",
       "apiKeyRequired": "API Key là bắt buộc",
+      "apiKeyValidationFailed": "Xác thực API key thất bại",
       "credentialsFileRequired": "Tệp chứng chỉ là bắt buộc",
       "locationRequired": "Vị trí/Khu vực là bắt buộc",
       "targetUriLabel": "URI đích",
@@ -1908,7 +1909,14 @@
         "sets": "Bộ tài liệu"
       },
       "configuration": {
-        "indexSettings": "Cấu hình chỉ mục"
+        "indexSettings": "Cấu hình chỉ mục",
+        "languageModels": "Mô hình ngôn ngữ",
+        "webSearch": "Tìm kiếm Web",
+        "imageGeneration": "Tạo hình ảnh",
+        "voice": "Giọng nói",
+        "codeInterpreter": "Trình biên dịch Code",
+        "chatPreferences": "Cấu hình trò chuyện",
+        "documentProcessing": "Xử lý tài liệu"
       },
       "performance": {
         "usage": "Thống kê sử dụng",

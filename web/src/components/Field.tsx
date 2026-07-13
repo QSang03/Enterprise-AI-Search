@@ -629,11 +629,12 @@ export const MarkdownFormField = ({
   name,
   label,
   error,
-  placeholder = "Enter your markdown here...",
+  placeholder,
 }: MarkdownPreviewProps) => {
   const { t } = useTranslation();
   const [field] = useField(name);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const resolvedPlaceholder = placeholder || t("admin.markdownPlaceholder");
 
   const togglePreview = () => {
     setIsPreviewOpen(!isPreviewOpen);
@@ -671,7 +672,7 @@ export const MarkdownFormField = ({
             <textarea
               {...field}
               rows={2}
-              placeholder={placeholder}
+              placeholder={resolvedPlaceholder}
               className={`w-full p-2 border border-border-02 rounded-md`}
             />
           </div>

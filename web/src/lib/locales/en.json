@@ -1436,6 +1436,7 @@
       "targetUriRequired": "Target URI is required",
       "targetUriInvalid": "Target URI must be a valid URL with api-version and deployment name",
       "apiKeyRequired": "API Key is required",
+      "apiKeyValidationFailed": "API key validation failed",
       "credentialsFileRequired": "Credentials file is required",
       "locationRequired": "Location is required",
       "targetUriLabel": "Target URI",
@@ -1908,7 +1909,14 @@
         "sets": "Document Sets"
       },
       "configuration": {
-        "indexSettings": "Index Settings"
+        "indexSettings": "Index Settings",
+        "languageModels": "Language Models",
+        "webSearch": "Web Search",
+        "imageGeneration": "Image Generation",
+        "voice": "Voice",
+        "codeInterpreter": "Code Interpreter",
+        "chatPreferences": "Chat Preferences",
+        "documentProcessing": "Document Processing"
       },
       "performance": {
         "usage": "Usage Statistics",

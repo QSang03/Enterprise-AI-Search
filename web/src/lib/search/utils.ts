@@ -41,6 +41,10 @@ export function convertSmbToUnc(smbUrl: string): string {
 export function openLink(url: string) {
   if (url.startsWith("smb://") || url.startsWith("smb:")) {
     const uncPath = convertSmbToUnc(url);
+    
+    // Try to open directly using the custom protocol
+    window.open(`onyx-open://open?path=${encodeURIComponent(uncPath)}`);
+
     copyText(uncPath)
       .then(() => {
         toast({

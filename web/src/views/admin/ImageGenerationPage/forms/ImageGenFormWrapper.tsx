@@ -155,7 +155,7 @@ export function ImageGenFormWrapper<T extends FormValues>({
 
         if (!result.ok) {
           setApiStatus("error");
-          setErrorMessage(result.errorMessage || "API key validation failed");
+          setErrorMessage(result.errorMessage || t("admin.imageGen.apiKeyValidationFailed"));
           setIsSubmitting(false);
           return;
         }
@@ -200,7 +200,7 @@ export function ImageGenFormWrapper<T extends FormValues>({
 
           if (!result.ok) {
             setApiStatus("error");
-            setErrorMessage(result.errorMessage || "API key validation failed");
+            setErrorMessage(result.errorMessage || t("admin.imageGen.apiKeyValidationFailed"));
             setIsSubmitting(false);
             return;
           }

@@ -155,7 +155,9 @@ describe("openLink", () => {
       description: "\\\\192.168.1.1\\share\\file.txt",
       level: "success",
     });
-    expect(windowOpen).not.toHaveBeenCalled();
+    expect(windowOpen).toHaveBeenCalledWith(
+      "onyx-open://open?path=%5C%5C192.168.1.1%5Cshare%5Cfile.txt"
+    );
   });
 
   it("calls window.open for non-SMB URLs", () => {
