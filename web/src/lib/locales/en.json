@@ -1865,13 +1865,7 @@
       "agents": "Agents",
       "mcp": "MCP Actions",
       "openapi": "OpenAPI Actions",
-      "indexing.status": "Existing Connectors",
-      "indexing.processingJobs": "Processing Dashboard",
-      "indexing.wikiGraph": "Wiki & Knowledge Graph",
       "addConnector": "Add Connector",
-      "documents.sets": "Document Sets",
-      "indexing.settings": "Reindexing Settings",
-      "configuration.indexSettings": "Index Settings",
       "apiKey": "API Keys",
       "serviceAccounts": "Service Accounts",
       "bots": "Slack Bots",
@@ -1881,15 +1875,29 @@
       "users": "Users",
       "groups": "Groups",
       "scim": "SCIM Directory Sync",
-      "usage": "Usage Statistics",
-      "performance.usage": "Usage Statistics",
       "rateLimits": "Token Rate Limits",
       "tokenRateLimits": "Spending Limits",
       "queryHistory": "Query History",
-      "performance.queryHistory": "Query History",
+      "usage": "Usage Statistics",
       "theme": "Theme & Customization",
       "securityHardening": "Security Hardening",
-      "security": "Security & Hardening"
+      "security": "Security & Hardening",
+      "indexing": {
+        "status": "Existing Connectors",
+        "processingJobs": "Processing Dashboard",
+        "wikiGraph": "Wiki & Knowledge Graph",
+        "settings": "Reindexing Settings"
+      },
+      "documents": {
+        "sets": "Document Sets"
+      },
+      "configuration": {
+        "indexSettings": "Index Settings"
+      },
+      "performance": {
+        "usage": "Usage Statistics",
+        "queryHistory": "Query History"
+      }
     },
     "sections": {
       "agentsAndActions": "Agents & Actions",

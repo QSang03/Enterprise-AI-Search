@@ -1865,13 +1865,7 @@
       "agents": "Tác nhân (Agents)",
       "mcp": "Hành động MCP",
       "openapi": "Hành động OpenAPI",
-      "indexing.status": "Các kết nối hiện có",
-      "indexing.processingJobs": "Bảng điều khiển xử lý",
-      "indexing.wikiGraph": "Wiki & Sơ đồ tri thức",
       "addConnector": "Thêm kết nối",
-      "documents.sets": "Bộ tài liệu",
-      "indexing.settings": "Cấu hình lập chỉ mục lại",
-      "configuration.indexSettings": "Cấu hình chỉ mục",
       "apiKey": "Khóa API",
       "serviceAccounts": "Tài khoản dịch vụ",
       "bots": "Bot Slack",
@@ -1881,15 +1875,29 @@
       "users": "Người dùng",
       "groups": "Nhóm",
       "scim": "Đồng bộ SCIM",
-      "usage": "Thống kê sử dụng",
-      "performance.usage": "Thống kê sử dụng",
       "rateLimits": "Giới hạn định mức Token",
       "tokenRateLimits": "Hạn mức chi tiêu",
       "queryHistory": "Lịch sử truy vấn",
-      "performance.queryHistory": "Lịch sử truy vấn",
+      "usage": "Thống kê sử dụng",
       "theme": "Chủ đề & Tùy chỉnh",
       "securityHardening": "Tăng cường bảo mật",
-      "security": "Bảo mật & Tăng cường"
+      "security": "Bảo mật & Tăng cường",
+      "indexing": {
+        "status": "Các kết nối hiện có",
+        "processingJobs": "Bảng điều khiển xử lý",
+        "wikiGraph": "Wiki & Sơ đồ tri thức",
+        "settings": "Cấu hình lập chỉ mục lại"
+      },
+      "documents": {
+        "sets": "Bộ tài liệu"
+      },
+      "configuration": {
+        "indexSettings": "Cấu hình chỉ mục"
+      },
+      "performance": {
+        "usage": "Thống kê sử dụng",
+        "queryHistory": "Lịch sử truy vấn"
+      }
     },
     "sections": {
       "agentsAndActions": "Tác nhân & Hành động",
