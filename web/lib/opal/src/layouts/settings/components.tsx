@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@opal/utils";
 import { Divider, Button, Spacer } from "@opal/components";
 import type {
@@ -12,7 +12,6 @@ import type {
 import { HtmlHTMLAttributes, useEffect, useRef, useState } from "react";
 import { Content } from "@opal/layouts";
 import { SvgArrowLeft } from "@opal/icons";
-
 // ---------------------------------------------------------------------------
 // Root
 // ---------------------------------------------------------------------------
@@ -72,6 +71,14 @@ export interface SettingsHeaderProps {
  * Back button: set `backButton` to show a "← Back" button. Supply a function
  * to override the default `router.back()` behavior.
  */
+const globalT = (key: string, replacements?: Record<string, string | number>): string => {
+  if (typeof window !== "undefined" && (window as any).__t) {
+    return (window as any).__t(key, replacements);
+  }
+  const keys = key.split(".");
+  return keys[keys.length - 1] || key;
+};
+
 function SettingsHeader({
   icon: Icon,
   title,
@@ -82,6 +89,7 @@ function SettingsHeader({
   divider,
 }: SettingsHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [showShadow, setShowShadow] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -108,6 +116,19 @@ function SettingsHeader({
     return () => scrollContainer.removeEventListener("scroll", handleScroll);
   }, [isSticky]);
 
+  let resolvedTitle = title;
+  if (typeof title === "string" && pathname) {
+    const cleanKey = pathname
+      .replace(/^\/admin\//, "")
+      .replace(/\//g, ".")
+      .replace(/-([a-z])/g, (_, p1) => p1.toUpperCase());
+    const localeKey = `admin.routes.${cleanKey}`;
+    const translated = globalT(localeKey);
+    if (translated !== localeKey) {
+      resolvedTitle = translated;
+    }
+  }
+
   return (
     <div
       ref={headerRef}
@@ -120,7 +141,7 @@ function SettingsHeader({
       {showBackButton && (
         <div className="px-2">
           <Button icon={SvgArrowLeft} prominence="tertiary" onClick={onBack}>
-            Back
+            {globalT("common.back") === "back" ? "Back" : globalT("common.back")}
           </Button>
         </div>
       )}
@@ -132,7 +153,7 @@ function SettingsHeader({
           <div aria-label="admin-page-title">
             <Content
               icon={Icon}
-              title={title}
+              title={resolvedTitle}
               description={description}
               sizePreset="headline"
               variant="heading"

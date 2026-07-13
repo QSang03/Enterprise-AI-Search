@@ -86,6 +86,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return value;
   };
 
+  if (typeof window !== "undefined") {
+    (window as any).__t = t;
+  }
+
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}

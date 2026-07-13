@@ -9,5 +9,6 @@ Windows Registry Editor Version 5.00
 [HKEY_CLASSES_ROOT\onyx-open\shell\open]
 
 [HKEY_CLASSES_ROOT\onyx-open\shell\open\command]
-@="powershell.exe -WindowStyle Hidden -Command \"$url = '%1'; $clean = $url -replace '^onyx-open://', ''; $parts = $clean -split '\\?', 2; $action = $parts[0]; $query = $parts[1]; $pathParam = ''; if ($query -match 'path=(.*)') { $pathParam = $Matches[1] }; $decoded = [uri]::UnescapeDataString($pathParam); if ($decoded -like '\\\\*' -or $decoded -match '^[A-Za-z]:\\\\') { if ($action -eq 'select') { explorer.exe \\\"/select,$decoded\\\" } else { Start-Process $decoded } }\""
+@="powershell.exe -WindowStyle Hidden -Command \"$url = '%1'; $clean = $url -replace '^onyx-open://', ''; $parts = $clean -split '\\?', 2; $action = $parts[0].TrimEnd('/'); $query = $parts[1]; $pathParam = ''; if ($query -match 'path=([^&]*)') { $pathParam = $Matches[1] }; $decoded = [uri]::UnescapeDataString($pathParam); if ($decoded -like '\\\\*' -or $decoded -match '^[A-Za-z]:\\\\') { if ($action -eq 'select') { Start-Process explorer.exe -ArgumentList \\\"/select,\`\\\"$decoded\`\\\"\\\" } else { Start-Process $decoded } }\""
+
 
