@@ -7,7 +7,7 @@ import {
 } from "./interfaces";
 import { DateRangePickerValue } from "@/components/dateRangeSelectors/AdminDateRangeSelector";
 import { toast } from "@/hooks/useToast";
-import { copyText } from "@opal/utils";
+import copy from "copy-to-clipboard";
 
 export const buildFilters = (
   sources: SourceMetadata[],
@@ -38,6 +38,18 @@ export function convertSmbToUnc(smbUrl: string): string {
   return "\\\\" + path;
 }
 
+export function syncCopy(text: string): boolean {
+  try {
+    if (typeof window !== "undefined" && window.navigator && window.navigator.clipboard) {
+      window.navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (err) {
+    console.error("navigator.clipboard failed, falling back", err);
+  }
+  return copy(text);
+}
+
 export function openLink(url: string) {
   if (url.startsWith("smb://") || url.startsWith("smb:")) {
     const uncPath = convertSmbToUnc(url);
@@ -45,21 +57,19 @@ export function openLink(url: string) {
     // Try to open directly using the custom protocol
     window.open(`onyx-open://open?path=${encodeURIComponent(uncPath)}`);
 
-    copyText(uncPath)
-      .then(() => {
-        toast({
-          message: "Copied Windows path (UNC) to clipboard!",
-          description: uncPath,
-          level: "success",
-        });
-      })
-      .catch((err) => {
-        console.error("Failed to copy path: ", err);
-        toast({
-          message: "Failed to copy path to clipboard.",
-          level: "error",
-        });
+    const success = syncCopy(uncPath);
+    if (success) {
+      toast({
+        message: "Copied Windows path (UNC) to clipboard!",
+        description: uncPath,
+        level: "success",
       });
+    } else {
+      toast({
+        message: "Failed to copy path to clipboard.",
+        level: "error",
+      });
+    }
     return;
   }
   window.open(url, "_blank", "noopener,noreferrer");

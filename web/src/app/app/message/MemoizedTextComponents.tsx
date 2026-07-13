@@ -17,12 +17,11 @@ import {
   questionToSourceInfo,
   getDisplayNameForSource,
 } from "@/refresh-components/buttons/source-tag/sourceTagUtils";
-import { openDocument, openLink, convertSmbToUnc } from "@/lib/search/utils";
+import { openDocument, openLink, convertSmbToUnc, syncCopy } from "@/lib/search/utils";
 import { ensureHrefProtocol } from "@/lib/utils";
 import { useTranslation } from "@/providers/LanguageProvider";
 import { Popover } from "@opal/components";
 import { FileText, FolderOpen, Copy, Question } from "@phosphor-icons/react";
-import { copyText } from "@opal/utils";
 import { toast } from "@/hooks/useToast";
 
 interface DocumentCardProps {
@@ -257,21 +256,19 @@ export const MemoizedLink = memo(
 
               <button
                 onClick={() => {
-                  copyText(uncPath)
-                    .then(() => {
-                      toast({
-                        message: "Copied Windows path (UNC) to clipboard!",
-                        description: uncPath,
-                        level: "success",
-                      });
-                    })
-                    .catch((err) => {
-                      console.error("Failed to copy path: ", err);
-                      toast({
-                        message: "Failed to copy path to clipboard.",
-                        level: "error",
-                      });
+                  const success = syncCopy(uncPath);
+                  if (success) {
+                    toast({
+                      message: "Copied Windows path (UNC) to clipboard!",
+                      description: uncPath,
+                      level: "success",
                     });
+                  } else {
+                    toast({
+                      message: "Failed to copy path to clipboard.",
+                      level: "error",
+                    });
+                  }
                 }}
                 className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-hover rounded-md text-left text-text"
               >

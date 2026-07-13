@@ -1,16 +1,16 @@
-import { ValidSources } from "../types";
-import { OnyxDocument } from "./interfaces";
-import { openDocument, openLink, convertSmbToUnc } from "./utils";
-
 const mockToast = jest.fn();
+const mockCopy = jest.fn().mockReturnValue(true);
+const mockClipboardWriteText = jest.fn().mockImplementation(() => Promise.resolve());
+
 jest.mock("@/hooks/useToast", () => ({
   toast: (...args: any[]) => mockToast(...args),
 }));
 
-const mockCopyText = jest.fn().mockImplementation(() => Promise.resolve());
-jest.mock("@opal/utils", () => ({
-  copyText: (...args: any[]) => mockCopyText(...args),
-}));
+jest.mock("copy-to-clipboard", () => (...args: any[]) => mockCopy(...args));
+
+import { ValidSources } from "../types";
+import { OnyxDocument } from "./interfaces";
+import { openDocument, openLink, convertSmbToUnc } from "./utils";
 
 function makeDocument(overrides: Partial<OnyxDocument>): OnyxDocument {
   return {
@@ -134,22 +134,50 @@ describe("openLink", () => {
 
   beforeEach(() => {
     mockToast.mockClear();
-    mockCopyText.mockClear();
+    mockClipboardWriteText.mockClear();
+    mockCopy.mockClear();
+    (global as any).navigator = {
+      clipboard: {
+        writeText: mockClipboardWriteText,
+      },
+    };
+    (global as any).document = {
+      execCommand: jest.fn().mockReturnValue(true),
+      body: {
+        appendChild: jest.fn(),
+        removeChild: jest.fn(),
+      },
+      createElement: jest.fn().mockReturnValue({
+        style: {},
+        setAttribute: jest.fn(),
+        textContent: "",
+      }),
+      createRange: jest.fn().mockReturnValue({
+        selectNodeContents: jest.fn(),
+      }),
+      getSelection: jest.fn().mockReturnValue({
+        removeAllRanges: jest.fn(),
+        addRange: jest.fn(),
+      }),
+    };
     windowOpen = jest.fn();
-    (global as unknown as { window: { open: jest.Mock } }).window = {
+    (global as unknown as { window: any }).window = {
       open: windowOpen,
+      prompt: jest.fn(),
+      navigator: {
+        clipboard: {
+          writeText: mockClipboardWriteText,
+        },
+      },
     };
   });
 
-  it("copies UNC path and shows toast for SMB URLs", async () => {
+  it("copies UNC path and shows toast for SMB URLs", () => {
     const smbUrl = "smb://192.168.1.1/share/file.txt";
     openLink(smbUrl);
 
-    expect(mockCopyText).toHaveBeenCalledWith("\\\\192.168.1.1\\share\\file.txt");
+    expect(mockClipboardWriteText).toHaveBeenCalledWith("\\\\192.168.1.1\\share\\file.txt");
     
-    // Wait for the promise in copyText to resolve
-    await new Promise(process.nextTick);
-
     expect(mockToast).toHaveBeenCalledWith({
       message: "Copied Windows path (UNC) to clipboard!",
       description: "\\\\192.168.1.1\\share\\file.txt",
@@ -165,7 +193,8 @@ describe("openLink", () => {
     openLink(normalUrl);
 
     expect(windowOpen).toHaveBeenCalledWith(normalUrl, "_blank", "noopener,noreferrer");
-    expect(mockCopyText).not.toHaveBeenCalled();
+    expect(mockClipboardWriteText).not.toHaveBeenCalled();
+    expect(mockCopy).not.toHaveBeenCalled();
     expect(mockToast).not.toHaveBeenCalled();
   });
 });
