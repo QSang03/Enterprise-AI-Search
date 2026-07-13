@@ -32,7 +32,7 @@ export function SmbPopover({ url, children, isInline = false }: SmbPopoverProps)
               e.stopPropagation();
               window.open(`onyx-open://open?path=${encodeURIComponent(uncPath)}`);
             }}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-hover rounded-md text-left text-text"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-background-tint-02 rounded-md text-left text-text transition-colors"
           >
             <FileText size={16} className="text-text-muted" />
             Mở trực tiếp (File)
@@ -43,7 +43,7 @@ export function SmbPopover({ url, children, isInline = false }: SmbPopoverProps)
               e.stopPropagation();
               window.open(`onyx-open://select?path=${encodeURIComponent(uncPath)}`);
             }}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-hover rounded-md text-left text-text"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-background-tint-02 rounded-md text-left text-text transition-colors"
           >
             <FolderOpen size={16} className="text-text-muted" />
             Mở thư mục chứa
@@ -66,7 +66,7 @@ export function SmbPopover({ url, children, isInline = false }: SmbPopoverProps)
                 });
               }
             }}
-            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-hover rounded-md text-left text-text"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-background-tint-02 rounded-md text-left text-text transition-colors"
           >
             <Copy size={16} className="text-text-muted" />
             Sao chép đường dẫn (UNC)
