@@ -15,8 +15,8 @@ export function DocumentUpdatedAtBadge({
       flexNone={modal}
       value={
         modal
-          ? timeAgo(updatedAt)
-          : t("documentDisplay.updatedTimeAgo", { time: timeAgo(updatedAt) })
+          ? (timeAgo(updatedAt) ?? "")
+          : (t("documentDisplay.updatedTimeAgo", { time: timeAgo(updatedAt) ?? "" }) ?? "")
       }
     />
   );
