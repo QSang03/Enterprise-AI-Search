@@ -28,6 +28,9 @@
     "documentSetPlural": "bộ tài liệu",
     "exitAdminPanel": "Thoát trang quản trị",
     "done": "Hoàn tất",
+    "startChat": "Bắt đầu trò chuyện",
+    "startNewSession": "Bắt đầu phiên mới",
+    "created": "Đã tạo: {time}",
     "back": "Quay lại",
     "save": "Lưu",
     "update": "Cập nhật",
@@ -309,6 +312,7 @@
     "waitAgentComplete": "Chờ tin nhắn của Trợ lý hoàn thành",
     "previous": "Trước",
     "next": "Sau",
+    "pageNumber": "Trang {number}",
     "repository": "Kho lưu trữ",
     "researchReport": "Báo cáo nghiên cứu",
     "addedToMemories": "Đã thêm vào ký ức",
@@ -608,6 +612,9 @@
     "shareAgent": "Chia sẻ tác nhân",
     "unpinFromSidebar": "Bỏ ghim khỏi thanh bên",
     "pinToSidebar": "Ghim vào thanh bên",
+    "noActions": "Không có hành động",
+    "actionsCount": "{count} hành động",
+    "actionsCountPlural": "{count} hành động",
     "filter": {
       "everyone": "Mọi người",
       "byCreator": "Bởi {email}",
@@ -3802,7 +3809,9 @@
     "toastUpdatedCredential": "Đã cập nhật thông tin xác thực",
     "toastUpdateError": "Gặp sự cố khi cập nhật thông tin xác thực",
     "toastCreatedNewCredential": "Đã tạo thông tin xác thực mới!",
-    "toastSubmitError": "Lỗi khi gửi thông tin xác thực"
+    "toastSubmitError": "Lỗi khi gửi thông tin xác thực",
+    "ensureProperPermissions": "Hãy đảm bảo rằng bạn cập nhật thông tin xác thực có quyền hạn phù hợp!",
+    "resetChanges": "Đặt lại thay đổi"
   },
   "customActions": {
     "toastMcpConnected": "Kết nối và lấy các công cụ thành công",
@@ -3897,7 +3906,9 @@
     "desc": "**Nhóm tài liệu** cho phép bạn nhóm các tài liệu có liên kết logic thành một gói duy nhất. Sau đó, chúng có thể được sử dụng làm bộ lọc khi thực hiện tìm kiếm để kiểm soát phạm vi thông tin mà Onyx tìm kiếm.",
     "newDocSet": "Nhóm tài liệu mới",
     "toastScheduledDelete": "Nhóm tài liệu \"{name}\" đã được lên lịch xóa",
-    "toastScheduledDeleteFailed": "Lên lịch xóa nhóm tài liệu thất bại - {error}"
+    "toastScheduledDeleteFailed": "Lên lịch xóa nhóm tài liệu thất bại - {error}",
+    "createDocSet": "Tạo nhóm tài liệu",
+    "updateDocSet": "Cập nhật nhóm tài liệu"
   },
   "rateLimits": {
     "noRateLimits": "Chưa có giới hạn token nào được thiết lập!",
@@ -3942,7 +3953,20 @@
     "fetchingParsingArtifacts": "Đang tải các thành phần phân tích...",
     "noDetailData": "Không có dữ liệu chi tiết trả về cho tiến trình này.",
     "documentId": "ID Tài liệu:",
-    "confidence": "Độ tin cậy:"
+    "confidence": "Độ tin cậy:",
+    "ingestionJobRuns": "Chạy tiến trình nạp ({count})",
+    "failedToLoadJobs": "Không thể tải các tiến trình xử lý tài liệu.",
+    "noJobsFound": "Không tìm thấy tiến trình xử lý nào. Hãy thử điều chỉnh bộ lọc hoặc bắt đầu nạp dữ liệu.",
+    "noLayoutBlocks": "Không có khối bố cục nào được trích xuất.",
+    "noOcrPages": "Không có trang OCR nào được ghi nhận.",
+    "viewRawOcrText": "Xem văn bản OCR thô",
+    "viewStackTrace": "Xem chi tiết lỗi (stack trace)",
+    "layoutBlocks": "Khối bố cục ({count})",
+    "ocrPages": "Trang OCR ({count})",
+    "errors": "Lỗi ({count})",
+    "stage": "Giai đoạn: {stage}",
+    "accurateShort": "Chính xác",
+    "fastShort": "Nhanh"
   },
   "wikiGraph": {
     "description": "Khám phá các thực thể ngữ nghĩa tự động trích xuất, quan hệ thực thể và các bài viết kiến thức kiểu wiki được tạo tự động.",

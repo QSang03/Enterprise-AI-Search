@@ -432,7 +432,7 @@ CommandMenuContent.displayName = "CommandMenuContent";
  * Arrow keys preventDefault at input level (to stop cursor movement) then bubble to Content.
  */
 function CommandMenuHeader({
-  placeholder = "Search...",
+  placeholder,
   filters = [],
   value = "",
   onValueChange,
@@ -441,6 +441,7 @@ function CommandMenuHeader({
   onEmptyBackspace,
 }: CommandMenuHeaderProps) {
   const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? (t("common.search") + "...");
   // Prevent default for arrow/enter keys so they don't move cursor or submit forms
   // The actual handling happens in Root's centralized handler via event bubbling
   const handleInputKeyDown = useCallback(
@@ -496,7 +497,7 @@ function CommandMenuHeader({
       <div className="px-2 pb-2 pt-0.5">
         <InputTypeIn
           variant="internal"
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           value={value}
           onChange={(e) => onValueChange?.(e.target.value)}
           onKeyDown={handleInputKeyDown}

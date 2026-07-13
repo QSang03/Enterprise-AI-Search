@@ -273,7 +273,7 @@ export const DocumentSetCreationForm = ({
                   className="w-56 mx-auto"
                   primary
                 >
-                  {isUpdate ? "Update Document Set" : "Create Document Set"}
+                  {isUpdate ? t("documents.updateDocSet") : t("documents.createDocSet")}
                 </Button>
               </div>
             </Form>

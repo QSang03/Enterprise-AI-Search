@@ -155,10 +155,10 @@ export default function AgentCard({ agent }: AgentCardProps) {
                 icon={SvgActions}
                 title={
                   agent.tools.length > 0
-                    ? `${agent.tools.length} Action${
-                        agent.tools.length > 1 ? "s" : ""
-                      }`
-                    : "No Actions"
+                    ? agent.tools.length > 1
+                      ? t("agents.actionsCountPlural", { count: agent.tools.length })
+                      : t("agents.actionsCount", { count: agent.tools.length })
+                    : t("agents.noActions")
                 }
                 sizePreset="secondary"
                 variant="body"
@@ -173,7 +173,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
                 rightIcon={SvgBubbleText}
                 onClick={noProp(handleStartChat)}
               >
-                Start Chat
+                {t("common.startChat")}
               </Button>
             </div>
           </div>

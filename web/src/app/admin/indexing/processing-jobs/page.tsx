@@ -45,7 +45,7 @@ export default function DocumentProcessingDashboard() {
     <SettingsLayouts.Root width="full">
       <SettingsLayouts.Header
         icon={route.icon}
-        title={route.title}
+        title={t("admin.routes.indexing.processingJobs")}
         description={t("processingJobs.description")}
       />
 
@@ -106,12 +106,12 @@ export default function DocumentProcessingDashboard() {
           <div className={`col-span-1 lg:col-span-7 bg-background p-5 rounded-2xl border border-border shadow-sm`}>
             <h3 className="text-base font-bold text-text mb-4 flex items-center gap-2">
               <SvgActivity className="w-5 h-5 text-accent-blue" />
-              Ingestion Job Runs ({jobsData?.total_count ?? 0})
+              {t("processingJobs.ingestionJobRuns", { count: jobsData?.total_count ?? 0 })}
             </h3>
 
             {jobsError && (
               <div className="p-3 bg-error-light text-error text-sm rounded-lg border border-error">
-                Failed to load document processing jobs.
+                {t("processingJobs.failedToLoadJobs")}
               </div>
             )}
 
@@ -123,7 +123,7 @@ export default function DocumentProcessingDashboard() {
               </div>
             ) : !jobsData?.jobs || jobsData.jobs.length === 0 ? (
               <div className="text-center py-10 text-text-subtle text-sm">
-                No processing jobs found. Try adjusting filters or starting ingestion.
+                {t("processingJobs.noJobsFound")}
               </div>
             ) : (
               <div className="space-y-3">
@@ -161,7 +161,9 @@ export default function DocumentProcessingDashboard() {
                                 : "bg-text-subtle/10 text-text-subtle border border-border"
                             }`}
                           >
-                            {job.parser_mode}
+                            {job.parser_mode === "accurate"
+                              ? t("processingJobs.accurateShort")
+                              : t("processingJobs.fastShort")}
                           </span>
 
                           <span
@@ -171,13 +173,13 @@ export default function DocumentProcessingDashboard() {
                                 : "bg-error/10 text-error border border-error/20"
                             }`}
                           >
-                            {job.status}
+                            {t(`processingJobs.${job.status}`)}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between text-2xs text-text-subtle">
-                        <span>Created: {createdTime}</span>
+                        <span>{t("common.created", { time: createdTime })}</span>
                         <span>Chunks: {job.chunk_count ?? 0}</span>
                       </div>
                     </div>
@@ -192,16 +194,16 @@ export default function DocumentProcessingDashboard() {
                     disabled={page === 0}
                     onClick={() => setPage(page - 1)}
                   >
-                    Previous
+                    {t("common.previous")}
                   </Button>
-                  <span className="text-xs text-text-subtle font-medium">Page {page + 1}</span>
+                  <span className="text-xs text-text-subtle font-medium">{t("common.pageNumber", { number: page + 1 })}</span>
                   <Button
                     variant="default"
                     prominence="secondary"
                     disabled={(page + 1) * 10 >= (jobsData?.total_count ?? 0)}
                     onClick={() => setPage(page + 1)}
                   >
-                    Next
+                    {t("common.next")}
                   </Button>
                 </div>
               </div>
@@ -259,7 +261,7 @@ export default function DocumentProcessingDashboard() {
                             : "border-transparent text-text-subtle hover:text-text"
                         }`}
                       >
-                        Layout Blocks ({detailData.blocks?.length ?? 0})
+                        {t("processingJobs.layoutBlocks", { count: detailData.blocks?.length ?? 0 })}
                       </button>
                       
                       <button
@@ -270,7 +272,7 @@ export default function DocumentProcessingDashboard() {
                             : "border-transparent text-text-subtle hover:text-text"
                         }`}
                       >
-                        OCR Pages ({detailData.pages?.length ?? 0})
+                        {t("processingJobs.ocrPages", { count: detailData.pages?.length ?? 0 })}
                       </button>
                     </>
                   )}
@@ -284,7 +286,7 @@ export default function DocumentProcessingDashboard() {
                           : "border-transparent text-text-subtle hover:text-text"
                       }`}
                     >
-                      Errors ({detailData.errors.length})
+                      {t("processingJobs.errors", { count: detailData.errors.length })}
                     </button>
                   )}
                 </div>
@@ -295,7 +297,7 @@ export default function DocumentProcessingDashboard() {
                     <div className="space-y-3">
                       {!detailData.blocks || detailData.blocks.length === 0 ? (
                         <div className="text-center py-10 text-xs text-text-subtle">
-                          No layout blocks extracted.
+                          {t("processingJobs.noLayoutBlocks")}
                         </div>
                       ) : (
                         detailData.blocks.map((block: any, idx: number) => (
@@ -305,7 +307,7 @@ export default function DocumentProcessingDashboard() {
                                 {block.block_type}
                               </span>
                               <span className="text-2xs font-semibold text-text-subtle">
-                                Page {block.page_number}
+                                {t("common.pageNumber", { number: block.page_number })}
                               </span>
                             </div>
                             <p className="text-xs text-text leading-relaxed whitespace-pre-wrap">
@@ -321,7 +323,7 @@ export default function DocumentProcessingDashboard() {
                     <div className="space-y-3">
                       {!detailData.pages || detailData.pages.length === 0 ? (
                         <div className="text-center py-10 text-xs text-text-subtle">
-                          No OCR pages captured.
+                          {t("processingJobs.noOcrPages")}
                         </div>
                       ) : (
                         detailData.pages.map((page: any) => {
@@ -329,7 +331,7 @@ export default function DocumentProcessingDashboard() {
                           return (
                             <div key={page.page_id} className="p-3 bg-background-strong rounded-xl border border-border flex flex-col gap-2">
                               <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-text">Page {page.page_number}</span>
+                                <span className="text-xs font-bold text-text">{t("common.pageNumber", { number: page.page_number })}</span>
                                 {score !== null && (
                                   <div className="flex items-center gap-2">
                                     <span className="text-2xs font-bold text-text-subtle">{t("processingJobs.confidence")}</span>
@@ -351,7 +353,7 @@ export default function DocumentProcessingDashboard() {
                               </div>
                               <details className="mt-1">
                                 <summary className="text-2xs font-bold text-accent cursor-pointer hover:underline outline-none">
-                                  View raw OCR text
+                                  {t("processingJobs.viewRawOcrText")}
                                 </summary>
                                 <pre className="mt-2 p-2 bg-background border border-border rounded-lg text-2xs text-text overflow-x-auto whitespace-pre-wrap leading-relaxed">
                                   {page.text_raw}
@@ -370,7 +372,7 @@ export default function DocumentProcessingDashboard() {
                         <div key={err.error_id} className="p-3 bg-error-light/5 rounded-xl border border-error/20 flex flex-col gap-2">
                           <div className="flex items-center justify-between">
                             <span className="text-2xs font-bold text-error uppercase bg-error/10 px-2 py-0.5 rounded-full border border-error/20">
-                              Stage: {err.stage}
+                              {t("processingJobs.stage", { stage: err.stage })}
                             </span>
                             <span className="text-2xs text-text-subtle">
                               {new Date(err.created_at).toLocaleString()}
@@ -385,7 +387,7 @@ export default function DocumentProcessingDashboard() {
                             <details className="mt-1">
                               <summary className="text-2xs font-bold text-text-subtle cursor-pointer hover:text-text hover:underline outline-none flex items-center gap-1">
                                 <SvgTerminal className="w-3.5 h-3.5" />
-                                View stack trace
+                                {t("processingJobs.viewStackTrace")}
                               </summary>
                               <pre className="mt-2 p-2 bg-background-strong border border-border rounded-lg text-3xs text-text-subtle font-mono overflow-x-auto whitespace-pre leading-relaxed">
                                 {err.stack_trace}

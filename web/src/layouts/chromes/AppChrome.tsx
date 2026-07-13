@@ -276,7 +276,7 @@ function Header() {
           onClose={() => setDeleteModalOpen(false)}
           submit={
             <Button variant="danger" onClick={handleDeleteChat}>
-              Delete
+              {t("common.delete")}
             </Button>
           }
         >

@@ -53,7 +53,7 @@ export default function EditCredential({
   return (
     <div className="flex flex-col gap-y-6">
       <Text as="p">
-        Ensure that you update to a credential with the proper permissions!
+        {t("credentials.ensureProperPermissions")}
       </Text>
 
       <Formik
@@ -96,10 +96,10 @@ export default function EditCredential({
             )}
             <div className="flex justify-between w-full">
               <Button onClick={() => resetForm()} icon={SvgTrash}>
-                Reset Changes
+                {t("credentials.resetChanges")}
               </Button>
               <Button disabled={isSubmitting} type="submit" icon={FaNewspaper}>
-                Update
+                {t("common.update")}
               </Button>
             </div>
           </Form>

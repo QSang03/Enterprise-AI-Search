@@ -11,7 +11,10 @@ import {
   SvgEditBig,
 } from "@opal/icons";
 
+import { useTranslation } from "@/providers/LanguageProvider";
+
 export default function SharedAppInputBar() {
+  const { t } = useTranslation();
   return (
     <div className="relative w-full">
       <div className="w-full flex flex-col shadow-box-01 bg-background-neutral-00 rounded-16">
@@ -47,7 +50,7 @@ export default function SharedAppInputBar() {
       {/* CTA button */}
       <div className="absolute inset-0 flex items-center justify-center">
         <Button prominence="secondary" icon={SvgEditBig} href="/app">
-          Start New Session
+          {t("common.startNewSession")}
         </Button>
       </div>
     </div>

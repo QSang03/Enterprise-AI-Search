@@ -28,6 +28,9 @@
     "documentSetPlural": "document sets",
     "exitAdminPanel": "Exit Admin Panel",
     "done": "Done",
+    "startChat": "Start Chat",
+    "startNewSession": "Start New Session",
+    "created": "Created: {time}",
     "back": "Back",
     "save": "Save",
     "update": "Update",
@@ -309,6 +312,7 @@
     "waitAgentComplete": "Wait for agent message to complete",
     "previous": "Previous",
     "next": "Next",
+    "pageNumber": "Page {number}",
     "repository": "Repository",
     "researchReport": "Research Report",
     "addedToMemories": "Added to memories",
@@ -608,6 +612,9 @@
     "shareAgent": "Share Agent",
     "unpinFromSidebar": "Unpin from Sidebar",
     "pinToSidebar": "Pin to Sidebar",
+    "noActions": "No Actions",
+    "actionsCount": "{count} Action",
+    "actionsCountPlural": "{count} Actions",
     "filter": {
       "everyone": "Everyone",
       "byCreator": "By {email}",
@@ -3799,7 +3806,9 @@
     "toastUpdatedCredential": "Updated credential",
     "toastUpdateError": "Issue updating credential",
     "toastCreatedNewCredential": "Created new credential!",
-    "toastSubmitError": "Error submitting credential"
+    "toastSubmitError": "Error submitting credential",
+    "ensureProperPermissions": "Ensure that you update to a credential with the proper permissions!",
+    "resetChanges": "Reset Changes"
   },
   "customActions": {
     "toastMcpConnected": "Successfully connected and fetched tools",
@@ -3894,7 +3903,9 @@
     "desc": "**Document Sets** allow you to group logically connected documents into a single bundle. These can then be used as a filter when performing searches to control the scope of information Onyx searches over.",
     "newDocSet": "New Document Set",
     "toastScheduledDelete": "Document set \"{name}\" scheduled for deletion",
-    "toastScheduledDeleteFailed": "Failed to schedule document set for deletion - {error}"
+    "toastScheduledDeleteFailed": "Failed to schedule document set for deletion - {error}",
+    "createDocSet": "Create Document Set",
+    "updateDocSet": "Update Document Set"
   },
   "rateLimits": {
     "noRateLimits": "No token rate limits set!",
@@ -3939,7 +3950,20 @@
     "fetchingParsingArtifacts": "Fetching parsing artifacts...",
     "noDetailData": "No detail data returned for this job.",
     "documentId": "Document ID:",
-    "confidence": "Confidence:"
+    "confidence": "Confidence:",
+    "ingestionJobRuns": "Ingestion Job Runs ({count})",
+    "failedToLoadJobs": "Failed to load document processing jobs.",
+    "noJobsFound": "No processing jobs found. Try adjusting filters or starting ingestion.",
+    "noLayoutBlocks": "No layout blocks extracted.",
+    "noOcrPages": "No OCR pages captured.",
+    "viewRawOcrText": "View raw OCR text",
+    "viewStackTrace": "View stack trace",
+    "layoutBlocks": "Layout Blocks ({count})",
+    "ocrPages": "OCR Pages ({count})",
+    "errors": "Errors ({count})",
+    "stage": "Stage: {stage}",
+    "accurateShort": "Accurate",
+    "fastShort": "Fast"
   },
   "wikiGraph": {
     "description": "Explore automatically extracted semantic entities, entity relations, and generated wiki-style knowledge articles.",
