@@ -91,7 +91,7 @@ from shared_configs.contextvars import CURRENT_TENANT_ID_CONTEXTVAR
 
 logger = get_task_logger(__name__)
 
-_GRAPH_EXTRACTION_TIMEOUT_S = 10 * 60
+_GRAPH_EXTRACTION_TIMEOUT_S = 15 * 60
 
 _REDIS_LOCK_TIMEOUT_S = 15 * 60
 _REDIS_LOCK_WAIT_S = 30
