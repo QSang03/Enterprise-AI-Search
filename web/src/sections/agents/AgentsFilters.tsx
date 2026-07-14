@@ -41,6 +41,11 @@ import {
   OPEN_URL_TOOL_ID,
   OPEN_URL_TOOL_NAME,
   SYSTEM_TOOL_ICONS,
+  SEARCH_TOOL_ID,
+  IMAGE_GENERATION_TOOL_ID,
+  WEB_SEARCH_TOOL_ID,
+  PYTHON_TOOL_ID,
+  CODING_AGENT_TOOL_ID,
 } from "@/app/app/components/tools/constants";
 import { useTranslation } from "@/providers/LanguageProvider";
 
@@ -177,9 +182,21 @@ export function useAgentsFilters<T extends MinimalAgent>(
       if (tool.mcp_server_id != null) {
         seenMcpServers.add(tool.mcp_server_id);
       } else {
+        const systemToolTranslations: Record<string, string> = {
+          [SEARCH_TOOL_ID]: t("admin.chatPreferences.internalSearch"),
+          [IMAGE_GENERATION_TOOL_ID]: t("admin.chatPreferences.imageGen"),
+          [WEB_SEARCH_TOOL_ID]: t("admin.chatPreferences.webSearch"),
+          [PYTHON_TOOL_ID]: t("admin.chatPreferences.codeInterpreter"),
+          [OPEN_URL_TOOL_ID]: t("admin.chatPreferences.openUrl"),
+          [CODING_AGENT_TOOL_ID]: t("admin.chatPreferences.codingAgent"),
+        };
+        const toolLabel =
+          (tool.in_code_tool_id && systemToolTranslations[tool.in_code_tool_id]) ||
+          tool.display_name;
+
         individualTools.set(tool.id, {
           id: tool.id,
-          name: tool.display_name,
+          name: toolLabel,
           systemIcon: SYSTEM_TOOL_ICONS[tool.name],
         });
       }
