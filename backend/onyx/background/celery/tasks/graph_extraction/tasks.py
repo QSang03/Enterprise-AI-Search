@@ -927,6 +927,7 @@ def graph_extraction_task(
             prepare_knowledge_event_vespa_doc,
         )
         from onyx.natural_language_processing.search_nlp_models import EmbeddingModel
+        from shared_configs.enums import EmbedTextType
         from shared_configs.configs import MODEL_SERVER_HOST
         from shared_configs.configs import MODEL_SERVER_PORT
 
@@ -1013,9 +1014,9 @@ def graph_extraction_task(
         if event_dtos:
             titles = [d.title for d in event_dtos]
             contents = [d.content for d in event_dtos]
-            title_embeds = embedding_model.encode(titles) if titles else []
+            title_embeds = embedding_model.encode(titles, EmbedTextType.PASSAGE) if titles else []
             content_embeds = (
-                embedding_model.encode(contents) if contents else []
+                embedding_model.encode(contents, EmbedTextType.PASSAGE) if contents else []
             )
 
             vespa_event_docs: list[dict[str, Any]] = []

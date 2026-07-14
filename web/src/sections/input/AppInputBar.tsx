@@ -40,6 +40,13 @@ import {
 } from "@/app/app/services/actionUtils";
 import { useTranslation } from "@/providers/LanguageProvider";
 import {
+  SEARCH_TOOL_ID,
+  IMAGE_GENERATION_TOOL_ID,
+  WEB_SEARCH_TOOL_ID,
+  PYTHON_TOOL_ID,
+  OPEN_URL_TOOL_ID,
+} from "@/app/app/components/tools/constants";
+import {
   SvgArrowUp,
   SvgGlobe,
   SvgHourglass,
@@ -657,6 +664,17 @@ const AppInputBar = React.memo(
                 if (!tool) {
                   return null;
                 }
+                const systemToolTranslations: Record<string, string> = {
+                  [SEARCH_TOOL_ID]: t("admin.chatPreferences.internalSearch"),
+                  [IMAGE_GENERATION_TOOL_ID]: t("admin.chatPreferences.imageGen"),
+                  [WEB_SEARCH_TOOL_ID]: t("admin.chatPreferences.webSearch"),
+                  [PYTHON_TOOL_ID]: t("admin.chatPreferences.codeInterpreter"),
+                  [OPEN_URL_TOOL_ID]: t("admin.chatPreferences.openUrl"),
+                };
+                const toolLabel =
+                  (tool.in_code_tool_id && systemToolTranslations[tool.in_code_tool_id]) ||
+                  tool.display_name ||
+                  tool.name;
                 return (
                   <Disabled disabled={disabled} key={toolId}>
                     <SelectButton
@@ -669,7 +687,7 @@ const AppInputBar = React.memo(
                       }}
                       state="selected"
                     >
-                      {tool.display_name}
+                      {toolLabel}
                     </SelectButton>
                   </Disabled>
                 );
