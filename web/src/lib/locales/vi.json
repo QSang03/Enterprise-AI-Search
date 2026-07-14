@@ -80,7 +80,12 @@
     "disableAllTools": "Tắt tất cả công cụ",
     "enableAllTools": "Bật tất cả công cụ",
     "searchMcpTools": "Tìm kiếm công cụ của {server}",
-    "appSlogan": "Nền tảng AI mã nguồn mở"
+    "appSlogan": "Nền tảng AI mã nguồn mở",
+    "uploadFiles": "Tải lên tệp",
+    "uploadFileFromDevice": "Tải lên tệp từ thiết bị của bạn",
+    "aiModelNotConfigured": "Mô hình AI chưa được cấu hình",
+    "recentFiles": "Tệp gần đây",
+    "allRecentFiles": "Tất cả tệp gần đây"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",

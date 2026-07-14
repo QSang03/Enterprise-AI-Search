@@ -414,6 +414,7 @@ interface BuildEmptyMessageParams {
   message?: string;
   files?: FileDescriptor[];
   nodeIdOffset?: number;
+  senderEmail?: string | null;
 }
 
 export const buildEmptyMessage = (params: BuildEmptyMessageParams): Message => {
@@ -427,6 +428,7 @@ export const buildEmptyMessage = (params: BuildEmptyMessageParams): Message => {
     toolCall: null,
     parentNodeId: params.parentNodeId,
     packets: [],
+    senderEmail: params.senderEmail || null,
   };
 };
 
@@ -434,7 +436,8 @@ export const buildImmediateMessages = (
   parentNodeId: number,
   userInput: string,
   files: FileDescriptor[],
-  messageToResend?: Message
+  messageToResend?: Message,
+  senderEmail?: string | null
 ): {
   initialUserNode: Message;
   initialAgentNode: Message;
@@ -447,6 +450,7 @@ export const buildImmediateMessages = (
     parentNodeId,
     message: userInput,
     files,
+    senderEmail,
   });
   const initialAgentNode = buildEmptyMessage({
     messageType: "assistant",

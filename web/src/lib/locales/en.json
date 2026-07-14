@@ -80,7 +80,12 @@
     "disableAllTools": "Disable All Tools",
     "enableAllTools": "Enable All Tools",
     "searchMcpTools": "Search {server} tools",
-    "appSlogan": "Open Source AI Platform"
+    "appSlogan": "Open Source AI Platform",
+    "uploadFiles": "Upload Files",
+    "uploadFileFromDevice": "Upload a file from your device",
+    "aiModelNotConfigured": "AI model not configured",
+    "recentFiles": "Recent Files",
+    "allRecentFiles": "All Recent Files"
   },
   "agentEditor": {
     "searchForAnAgent": "Search for an agent...",

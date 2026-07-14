@@ -135,11 +135,15 @@ function FilePickerPopoverContents({
         <LineItem
           key="upload-files"
           icon={SvgUploadSquare}
-          description={hasAnyLlm ? "Upload a file from your device" : "AI model not configured"}
+          description={
+            hasAnyLlm
+              ? t("common.uploadFileFromDevice")
+              : t("common.aiModelNotConfigured")
+          }
           onClick={hasAnyLlm ? triggerUploadPicker : undefined}
           disabled={!hasAnyLlm}
         >
-          Upload Files
+          {t("common.uploadFiles")}
         </LineItem>,
 
         // Separator
@@ -149,7 +153,7 @@ function FilePickerPopoverContents({
         hasFiles && (
           <div key="recent-files" className="pt-1">
             <Text as="p" text02 secondaryBody className="py-1 px-3">
-              Recent Files
+              {t("common.recentFiles")}
             </Text>
           </div>
         ),
@@ -172,7 +176,7 @@ function FilePickerPopoverContents({
             icon={SvgMoreHorizontal}
             onClick={openRecentFilesModal}
           >
-            All Recent Files
+            {t("common.allRecentFiles")}
           </LineItem>
         ),
       ]}

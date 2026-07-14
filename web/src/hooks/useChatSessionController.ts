@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useState } from "react";
 import { ReadonlyURLSearchParams } from "next/navigation";
+import { mutate as swrMutate } from "swr";
 import {
   nameChatSession,
   processRawChatHistory,
@@ -446,10 +447,24 @@ export default function useChatSessionController({
         if (!chatSession.description) {
           await nameChatSession(existingChatSessionId);
           refreshChatSessions();
+          // Refresh department-specific cache if applicable
+          const deptId = chatSession.department_id;
+          if (deptId) {
+            swrMutate(
+              `/api/chat/get-user-chat-sessions?department_id=${deptId}&only_non_department_chats=false&page_size=50`
+            );
+          }
         }
       } else if (newMessageHistory.length >= 2 && !chatSession.description) {
         await nameChatSession(existingChatSessionId);
         refreshChatSessions();
+        // Refresh department-specific cache if applicable
+        const deptId = chatSession.department_id;
+        if (deptId) {
+          swrMutate(
+            `/api/chat/get-user-chat-sessions?department_id=${deptId}&only_non_department_chats=false&page_size=50`
+          );
+        }
       }
     }
 

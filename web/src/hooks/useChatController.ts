@@ -20,6 +20,7 @@ import {
   buildImmediateMessages,
   buildEmptyMessage,
 } from "@/app/app/services/messageTree";
+import { mutate as swrMutate } from "swr";
 import { MinimalAgent } from "@/lib/agents/types";
 import { SEARCH_PARAM_NAMES } from "@/app/app/services/searchParams";
 import { SEARCH_TOOL_ID } from "@/app/app/components/tools/constants";
@@ -64,6 +65,7 @@ import { track, AnalyticsEvent } from "@/lib/analytics/utils";
 import { getExtensionContext } from "@/lib/extension/utils";
 import useChatSessions from "@/hooks/useChatSessions";
 import { usePinnedAgents } from "@/lib/agents/hooks";
+import { useUser } from "@/providers/UserProvider";
 import {
   useChatSessionStore,
   useCurrentMessageTree,
@@ -151,6 +153,8 @@ export default function useChatController({
   const params = useAppParams();
   const { refreshChatSessions, addPendingChatSession } = useChatSessions();
   const { pinnedAgents, togglePinnedAgent } = usePinnedAgents();
+  const { user } = useUser();
+  const userEmail = user?.email || null;
   const { agentPreferences } = useAgentPreferences();
   const { forcedToolIds } = useForcedTools();
   const { fetchProjects, setCurrentMessageFiles, beginUpload } =
@@ -301,6 +305,13 @@ export default function useChatController({
       // Refresh sidebar to show new name
       await refreshChatSessions();
       await fetchProjects();
+      // Also refresh department-specific chat list if in a department context
+      const deptIdStr = searchParams?.get("departmentId");
+      if (deptIdStr) {
+        swrMutate(
+          `/api/chat/get-user-chat-sessions?department_id=${deptIdStr}&only_non_department_chats=false&page_size=50`
+        );
+      }
     }
   };
 
@@ -635,12 +646,13 @@ export default function useChatController({
         const parentNodeIdForMessage = messageToResend
           ? messageToResend.parentNodeId || SYSTEM_NODE_ID
           : parentMessage?.nodeId || SYSTEM_NODE_ID;
-        const result = buildImmediateMessages(
-          parentNodeIdForMessage,
-          currMessage,
-          effectiveFileDescriptors,
-          messageToResend
-        );
+	        const result = buildImmediateMessages(
+	          parentNodeIdForMessage,
+	          currMessage,
+	          effectiveFileDescriptors,
+	          messageToResend,
+	          userEmail || undefined
+	        );
         initialUserNode = result.initialUserNode;
         initialAgentNode = result.initialAgentNode;
 
@@ -1256,6 +1268,7 @@ export default function useChatController({
           parentNodeId: parentMessage?.nodeId || SYSTEM_NODE_ID,
           packets: [],
           packetCount: 0,
+          senderEmail: userEmail,
         };
 
         // In multi-model mode, mark non-errored assistant nodes as errors.
