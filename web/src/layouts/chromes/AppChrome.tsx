@@ -25,6 +25,7 @@ import { handleMoveOperation } from "@/lib/sidebar/svc";
 import { LOCAL_STORAGE_KEYS } from "@/lib/sidebar/constants";
 import { deleteChatSession } from "@/app/app/services/lib";
 import { useRouter } from "next/navigation";
+import { mutate as swrMutate } from "swr";
 import MoveCustomAgentChatModal from "@/sections/modals/MoveCustomAgentChatModal";
 import ConfirmationModalLayout from "@/refresh-components/layouts/ConfirmationModalLayout";
 import FrostedDiv from "@/refresh-components/FrostedDiv";
@@ -165,28 +166,36 @@ function Header() {
     [currentChatSession, performMove]
   );
 
-  const handleDeleteChat = useCallback(async () => {
-    if (!currentChatSession) return;
-    try {
-      const response = await deleteChatSession(currentChatSession.id);
-      if (!response.ok) {
-        throw new Error(t("failedToDeleteChatSession"));
-      }
-      removeSession(currentChatSession.id);
-      await Promise.all([refreshChatSessions(), fetchProjects()]);
-      router.replace("/app");
-      setDeleteModalOpen(false);
-    } catch (error) {
-      console.error("Failed to delete chat:", error);
-      showErrorNotification("Failed to delete chat. Please try again.");
-    }
-  }, [
-    currentChatSession,
-    refreshChatSessions,
-    removeSession,
-    fetchProjects,
-    router,
-  ]);
+	  const handleDeleteChat = useCallback(async () => {
+	    if (!currentChatSession) return;
+	    try {
+	      const response = await deleteChatSession(currentChatSession.id);
+	      if (!response.ok) {
+	        throw new Error(t("failedToDeleteChatSession"));
+	      }
+	      removeSession(currentChatSession.id);
+
+	      // Invalidate department SWR cache if this was a department chat.
+	      if (currentChatSession.department_id) {
+	        swrMutate(
+	          `/api/chat/get-user-chat-sessions?department_id=${currentChatSession.department_id}&only_non_department_chats=false&page_size=50`
+	        );
+	      }
+
+	      await Promise.all([refreshChatSessions(), fetchProjects()]);
+	      router.replace("/app");
+	      setDeleteModalOpen(false);
+	    } catch (error) {
+	      console.error("Failed to delete chat:", error);
+	      showErrorNotification("Failed to delete chat. Please try again.");
+	    }
+	  }, [
+	    currentChatSession,
+	    refreshChatSessions,
+	    removeSession,
+	    fetchProjects,
+	    router,
+	  ]);
 
   const setDeleteConfirmationModalOpen = useCallback((open: boolean) => {
     setDeleteModalOpen(open);

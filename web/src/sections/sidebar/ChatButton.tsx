@@ -2,6 +2,7 @@
 
 import React, { useState, memo, useMemo, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { mutate as swrMutate } from "swr";
 import useChatSessions from "@/hooks/useChatSessions";
 import { deleteChatSession, renameChatSession } from "@/app/app/services/lib";
 import { ChatSession } from "@/app/app/interfaces";
@@ -312,6 +313,14 @@ const ChatButton = memo(
       try {
         await deleteChatSession(chatSession.id);
         removeSession(chatSession.id);
+
+        // Also invalidate the department-specific SWR cache so the
+        // deleted chat disappears from the department folder immediately.
+        if (chatSession.department_id) {
+          swrMutate(
+            `/api/chat/get-user-chat-sessions?department_id=${chatSession.department_id}&only_non_department_chats=false&page_size=50`
+          );
+        }
 
         if (project) {
           await fetchProjects();

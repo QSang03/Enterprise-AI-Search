@@ -639,11 +639,11 @@ const AppInputBar = React.memo(
                   foldable={!deepResearchEnabled}
                   tooltip={
                     isMultiModelActive
-                      ? t("chatPreferences.deepResearchDisabledInMultiModel")
+                      ? t("admin.chatPreferences.deepResearchDisabledInMultiModel")
                       : undefined
                   }
                 >
-                  {t("chatPreferences.deepResearch")}
+                  {t("admin.chatPreferences.deepResearch")}
                 </SelectButton>
               )
             )}

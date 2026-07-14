@@ -78,11 +78,11 @@ export default function ActionLineItem({
   let label = tool ? tool.display_name || tool.name : providedLabel!;
   if (tool?.in_code_tool_id) {
     const systemToolTranslations: Record<string, string> = {
-      [SEARCH_TOOL_ID]: t("chatPreferences.internalSearch"),
-      [IMAGE_GENERATION_TOOL_ID]: t("chatPreferences.imageGen"),
-      [WEB_SEARCH_TOOL_ID]: t("chatPreferences.webSearch"),
-      [PYTHON_TOOL_ID]: t("chatPreferences.codeInterpreter"),
-      [OPEN_URL_TOOL_ID]: t("chatPreferences.openUrl"),
+      [SEARCH_TOOL_ID]: t("admin.chatPreferences.internalSearch"),
+      [IMAGE_GENERATION_TOOL_ID]: t("admin.chatPreferences.imageGen"),
+      [WEB_SEARCH_TOOL_ID]: t("admin.chatPreferences.webSearch"),
+      [PYTHON_TOOL_ID]: t("admin.chatPreferences.codeInterpreter"),
+      [OPEN_URL_TOOL_ID]: t("admin.chatPreferences.openUrl"),
     };
     const translatedLabel = systemToolTranslations[tool.in_code_tool_id];
     if (translatedLabel) {
