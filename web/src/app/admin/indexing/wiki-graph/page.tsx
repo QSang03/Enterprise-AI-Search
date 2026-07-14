@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import useSWR from "swr";
 import { SettingsLayouts } from "@opal/layouts";
 import { ADMIN_ROUTES } from "@/lib/admin-routes";
 import { useTranslation } from "@/providers/LanguageProvider";
-import { Button } from "@opal/components";
 import {
   SvgGlobe,
   SvgBookOpen,
@@ -16,6 +15,8 @@ import {
   SvgXCircle,
   SvgFileText,
   SvgCheck,
+  SvgChevronLeft,
+  SvgChevronRight,
 } from "@opal/icons";
 
 const fetcher = (url: string) =>
@@ -28,31 +29,116 @@ const route = ADMIN_ROUTES.WIKI_GRAPH;
 
 type TabType = "wikis" | "entities" | "relations";
 
+/** Build a query string from a record, skipping undefined/null/empty values. */
+function qs(params: Record<string, string | number | undefined | null>): string {
+  const parts: string[] = [];
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== "") {
+      parts.push(`${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
+    }
+  }
+  return parts.length ? "?" + parts.join("&") : "";
+}
+
 export default function WikiAndGraphDashboard() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>("wikis");
-  
-  // Wikis SWR
+
+  // ── Lightweight counts (tab badges) ─────────────────────────────────
+  const { data: counts } = useSWR<any>(
+    "/api/wiki/graph/counts",
+    fetcher,
+    { refreshInterval: 30_000 }
+  );
+
+  // ── Pagination state ────────────────────────────────────────────────
+  const [wikiPage, setWikiPage] = useState(1);
+  const [entityPage, setEntityPage] = useState(1);
+  const [relationPage, setRelationPage] = useState(1);
+  const PAGE_SIZE = 20;
+
+  // ── Wikis ───────────────────────────────────────────────────────────
   const {
-    data: wikis,
+    data: wikisData,
     error: wikisError,
     isLoading: wikisLoading,
     mutate: mutateWikis,
-  } = useSWR<any[]>("/api/wiki", fetcher);
+  } = useSWR<any>(
+    `/api/wiki${qs({ page: wikiPage, page_size: PAGE_SIZE })}`,
+    fetcher
+  );
 
-  // Entities SWR
+  // Reset to page 1 when switching to wikis tab
+  useEffect(() => {
+    if (activeTab === "wikis") setWikiPage(1);
+  }, [activeTab]);
+
+  // ── Entities ────────────────────────────────────────────────────────
+  const [entitySearch, setEntitySearch] = useState("");
+  const [selectedEntityType, setSelectedEntityType] = useState("");
+
   const {
-    data: entities,
+    data: entitiesData,
     error: entitiesError,
     isLoading: entitiesLoading,
-  } = useSWR<any[]>("/api/wiki/graph/entities", fetcher);
+  } = useSWR<any>(
+    activeTab === "entities"
+      ? `/api/wiki/graph/entities${qs({
+          page: entityPage,
+          page_size: PAGE_SIZE,
+          search: entitySearch || undefined,
+          entity_type: selectedEntityType || undefined,
+        })}`
+      : null,
+    fetcher
+  );
 
-  // Relations SWR
+  // Entity types dropdown — use the first page's items to derive types,
+  // or fall back to a separate fetch if we need *all* types.
+  const entityTypes = useMemo(() => {
+    if (!entitiesData?.items) return [];
+    const types = new Set<string>();
+    entitiesData.items.forEach((e: any) => {
+      if (e.entity_type) types.add(e.entity_type);
+    });
+    return Array.from(types);
+  }, [entitiesData]);
+
+  // ── Relations ───────────────────────────────────────────────────────
+  const [relationSearch, setRelationSearch] = useState("");
+
   const {
-    data: relations,
+    data: relationsData,
     error: relationsError,
     isLoading: relationsLoading,
-  } = useSWR<any[]>("/api/wiki/graph/relations", fetcher);
+  } = useSWR<any>(
+    activeTab === "relations"
+      ? `/api/wiki/graph/relations${qs({
+          page: relationPage,
+          page_size: PAGE_SIZE,
+          search: relationSearch || undefined,
+        })}`
+      : null,
+    fetcher
+  );
+
+  // Build entity-id → name map for the current page of relations.
+  const entityIdToNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (entitiesData?.items) {
+      entitiesData.items.forEach((e: any) => {
+        map.set(e.entity_id, e.name);
+      });
+    }
+    return map;
+  }, [entitiesData]);
+
+  // ── Wiki detail / generation state ──────────────────────────────────
+  const [selectedWikiId, setSelectedWikiId] = useState<string | null>(null);
+  const [isGeneratingFlow, setIsGeneratingFlow] = useState(false);
+  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Ingestion Jobs (to get documents list for Auto-Wiki generator)
   const { data: jobsData } = useSWR(
@@ -60,118 +146,44 @@ export default function WikiAndGraphDashboard() {
     fetcher
   );
 
-  // UI state for Wiki details/preview
-  const [selectedWikiId, setSelectedWikiId] = useState<string | null>(null);
-
-  // UI state for Wiki generation modal/panel
-  const [isGeneratingFlow, setIsGeneratingFlow] = useState(false);
-  const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
-  const [generationError, setGenerationError] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  // Filter states for Entities
-  const [entitySearch, setEntitySearch] = useState("");
-  const [selectedEntityType, setSelectedEntityType] = useState<string>("");
-
-  // Filter states for Relations
-  const [relationSearch, setRelationSearch] = useState("");
-
-  // Map entity UUIDs to names for user-friendly relations visualization
-  const entityIdToNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    if (entities) {
-      entities.forEach((e) => {
-        map.set(e.entity_id, e.name);
-      });
-    }
-    return map;
-  }, [entities]);
-
-  // Derived Wiki details
   const selectedWiki = useMemo(() => {
-    if (!wikis || !selectedWikiId) return null;
-    return wikis.find((w) => w.wiki_id === selectedWikiId) || null;
-  }, [wikis, selectedWikiId]);
+    if (!wikisData?.items || !selectedWikiId) return null;
+    return wikisData.items.find((w: any) => w.wiki_id === selectedWikiId) || null;
+  }, [wikisData, selectedWikiId]);
 
-  // Derived lists of documents/jobs
   const availableDocs = useMemo(() => {
     if (!jobsData?.jobs) return [];
-    // Only show completed ingestion runs as potential wiki sources
-    return jobsData.jobs.filter((j: any) => j.status === "completed" && j.doc_id);
+    return jobsData.jobs.filter(
+      (j: any) => j.status === "completed" && j.doc_id
+    );
   }, [jobsData]);
 
-  // Entities filters
-  const filteredEntities = useMemo(() => {
-    if (!entities) return [];
-    return entities.filter((e) => {
-      const matchesSearch =
-        e.name.toLowerCase().includes(entitySearch.toLowerCase()) ||
-        (e.description || "").toLowerCase().includes(entitySearch.toLowerCase());
-      const matchesType =
-        !selectedEntityType || e.entity_type === selectedEntityType;
-      return matchesSearch && matchesType;
-    });
-  }, [entities, entitySearch, selectedEntityType]);
-
-  // Distinct entity types for the select dropdown
-  const entityTypes = useMemo(() => {
-    if (!entities) return [];
-    const types = new Set<string>();
-    entities.forEach((e) => {
-      if (e.entity_type) types.add(e.entity_type);
-    });
-    return Array.from(types);
-  }, [entities]);
-
-  // Relations filters
-  const filteredRelations = useMemo(() => {
-    if (!relations) return [];
-    return relations.filter((r) => {
-      const srcName = entityIdToNameMap.get(r.source_entity_id) || t("wikiGraph.unknownEntity");
-      const tgtName = entityIdToNameMap.get(r.target_entity_id) || t("wikiGraph.unknownEntity");
-      const term = relationSearch.toLowerCase();
-      return (
-        srcName.toLowerCase().includes(term) ||
-        tgtName.toLowerCase().includes(term) ||
-        r.relation_type.toLowerCase().includes(term) ||
-        (r.description || "").toLowerCase().includes(term)
-      );
-    });
-  }, [relations, relationSearch, entityIdToNameMap]);
-
-  // Handler to toggle document selection for wiki generation
+  // ── Handlers ────────────────────────────────────────────────────────
   const toggleDocSelection = (docId: string) => {
     setSelectedDocIds((prev) =>
       prev.includes(docId) ? prev.filter((id) => id !== docId) : [...prev, docId]
     );
   };
 
-  // Handler to request backend Auto-Wiki generation
   const handleGenerateWiki = async () => {
     if (selectedDocIds.length < 10) {
-      setGenerationError(t("wikiGraph.requiresMinDocs", { count: selectedDocIds.length }));
+      setGenerationError(
+        t("wikiGraph.requiresMinDocs", { count: selectedDocIds.length })
+      );
       return;
     }
-
     setGenerationError(null);
     setIsGenerating(true);
-
     try {
       const res = await fetch("/api/wiki/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          document_ids: selectedDocIds,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ document_ids: selectedDocIds }),
       });
-
       if (!res.ok) {
         const errData = await res.json();
         throw new Error(errData.detail || t("wikiGraph.failedGenerateWiki"));
       }
-
       await mutateWikis();
       setIsGeneratingFlow(false);
       setSelectedDocIds([]);
@@ -182,6 +194,47 @@ export default function WikiAndGraphDashboard() {
     }
   };
 
+  // ── Pagination helpers ──────────────────────────────────────────────
+  const PaginationBar = ({
+    page,
+    total,
+    onPageChange,
+  }: {
+    page: number;
+    total: number;
+    onPageChange: (p: number) => void;
+  }) => {
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
+        <span className="text-xs text-text-subtle">
+          {total} results
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+            className="p-1.5 rounded-lg border border-border hover:bg-background-strong disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <SvgChevronLeft className="w-4 h-4" />
+          </button>
+          <span className="text-xs font-semibold text-text min-w-[60px] text-center">
+            {page} / {totalPages}
+          </span>
+          <button
+            disabled={page >= totalPages}
+            onClick={() => onPageChange(page + 1)}
+            className="p-1.5 rounded-lg border border-border hover:bg-background-strong disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <SvgChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // ── Render ──────────────────────────────────────────────────────────
   return (
     <SettingsLayouts.Root width="full">
       <SettingsLayouts.Header
@@ -202,9 +255,9 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgBookOpen className="w-4 h-4" />
-            {t("wikiGraph.autoWikiPages", { count: wikis?.length ?? 0 })}
+            {t("wikiGraph.autoWikiPages", { count: counts?.wikis ?? 0 })}
           </button>
-          
+
           <button
             onClick={() => setActiveTab("entities")}
             className={`py-3 px-6 text-sm font-bold border-b-2 text-center transition-all flex items-center gap-2 ${
@@ -214,7 +267,7 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgUsers className="w-4 h-4" />
-            {t("wikiGraph.knowledgeGraphEntities", { count: entities?.length ?? 0 })}
+            {t("wikiGraph.knowledgeGraphEntities", { count: counts?.entities ?? 0 })}
           </button>
 
           <button
@@ -226,21 +279,20 @@ export default function WikiAndGraphDashboard() {
             }`}
           >
             <SvgGlobe className="w-4 h-4" />
-            {t("wikiGraph.entityRelationships", { count: relations?.length ?? 0 })}
+            {t("wikiGraph.entityRelationships", { count: counts?.relations ?? 0 })}
           </button>
         </div>
 
-        {/* Wikis Tab */}
+        {/* ──────────── Wikis Tab ──────────── */}
         {activeTab === "wikis" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left side: List of Wikis & Generate Trigger */}
+            {/* Left: List of Wikis & Generate Trigger */}
             <div className="col-span-1 lg:col-span-6 bg-background p-5 rounded-2xl border border-border flex flex-col gap-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-base font-bold text-text flex items-center gap-2">
                   <SvgBookOpen className="w-5 h-5 text-accent-blue" />
                   {t("wikiGraph.wikiArticles")}
                 </h3>
-
                 <button
                   onClick={() => {
                     setIsGeneratingFlow(true);
@@ -259,63 +311,78 @@ export default function WikiAndGraphDashboard() {
                 </div>
               )}
 
-              {wikisLoading && !wikis ? (
+              {wikisLoading && !wikisData ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-16 w-full bg-background-strong animate-pulse rounded-xl border border-border" />
+                    <div
+                      key={i}
+                      className="h-16 w-full bg-background-strong animate-pulse rounded-xl border border-border"
+                    />
                   ))}
                 </div>
-              ) : !wikis || wikis.length === 0 ? (
+              ) : !wikisData?.items || wikisData.items.length === 0 ? (
                 <div className="text-center py-12 text-text-subtle text-sm">
                   {t("wikiGraph.noWikisYet")}
                 </div>
               ) : (
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                  {wikis.map((wiki) => {
-                    const isSelected = selectedWikiId === wiki.wiki_id;
-                    return (
-                      <div
-                        key={wiki.wiki_id}
-                        onClick={() => setSelectedWikiId(wiki.wiki_id)}
-                        className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 hover:bg-background-strong ${
-                          isSelected
-                            ? "border-accent bg-accent-light/10 shadow-sm"
-                            : "border-border bg-background"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-text truncate max-w-[320px]">
-                            {wiki.title}
-                          </span>
-                          
-                          <div className="flex items-center gap-2">
-                            {wiki.is_stale && (
-                              <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-warning/10 text-warning border border-warning/20">
-                                {t("wikiGraph.stale")}
-                              </span>
-                            )}
-                            <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
-                              v{wiki.version}
+                <>
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                    {wikisData.items.map((wiki: any) => {
+                      const isSelected = selectedWikiId === wiki.wiki_id;
+                      return (
+                        <div
+                          key={wiki.wiki_id}
+                          onClick={() => setSelectedWikiId(wiki.wiki_id)}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col gap-2 hover:bg-background-strong ${
+                            isSelected
+                              ? "border-accent bg-accent-light/10 shadow-sm"
+                              : "border-border bg-background"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-bold text-text truncate max-w-[320px]">
+                              {wiki.title}
                             </span>
+                            <div className="flex items-center gap-2">
+                              {wiki.is_stale && (
+                                <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-warning/10 text-warning border border-warning/20">
+                                  {t("wikiGraph.stale")}
+                                </span>
+                              )}
+                              <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-accent-green/10 text-accent-green border border-accent-green/20">
+                                v{wiki.version}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-3xs text-text-subtle">
+                            {t("wikiGraph.createdAt")}{" "}
+                            {new Date(wiki.created_at).toLocaleString()}
                           </div>
                         </div>
-
-                        <div className="text-3xs text-text-subtle">
-                          {t("wikiGraph.createdAt")} {new Date(wiki.created_at).toLocaleString()}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                  <PaginationBar
+                    page={wikiPage}
+                    total={wikisData.total ?? 0}
+                    onPageChange={(p) => {
+                      setWikiPage(p);
+                      setSelectedWikiId(null);
+                    }}
+                  />
+                </>
               )}
             </div>
 
-            {/* Right side: Wiki Detail Preview / Generation wizard */}
+            {/* Right: Wiki Detail Preview / Generation wizard */}
             <div className="col-span-1 lg:col-span-6 bg-background p-5 rounded-2xl border border-border min-h-[500px] flex flex-col">
               {isGeneratingFlow ? (
+                /* Generate Wiki wizard */
                 <div className="flex-1 flex flex-col">
                   <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
-                    <h4 className="text-sm font-extrabold text-text">{t("wikiGraph.generateAutoWiki")}</h4>
+                    <h4 className="text-sm font-extrabold text-text">
+                      {t("wikiGraph.generateAutoWiki")}
+                    </h4>
                     <button
                       onClick={() => {
                         setIsGeneratingFlow(false);
@@ -326,18 +393,14 @@ export default function WikiAndGraphDashboard() {
                       <SvgXCircle className="w-5 h-5" />
                     </button>
                   </div>
-
                   <p className="text-xs text-text-subtle mb-4">
                     {t("wikiGraph.generateWikiDesc")}
                   </p>
-
                   {generationError && (
                     <div className="p-3 mb-4 bg-error-light text-error text-xs rounded-lg border border-error">
                       {generationError}
                     </div>
                   )}
-
-                  {/* Documents list picker */}
                   <div className="flex-1 max-h-[300px] overflow-y-auto border border-border rounded-xl p-3 bg-background-strong space-y-2 mb-4">
                     {availableDocs.length === 0 ? (
                       <div className="text-center py-10 text-xs text-text-subtle">
@@ -352,31 +415,42 @@ export default function WikiAndGraphDashboard() {
                             onClick={() => toggleDocSelection(doc.doc_id)}
                             className="flex items-center gap-3 p-2 bg-background rounded-lg border border-border cursor-pointer hover:border-accent transition-all"
                           >
-                            <div className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
-                              isChecked ? "bg-accent border-accent text-white" : "border-border bg-background"
-                            }`}>
+                            <div
+                              className={`w-4 h-4 rounded border flex items-center justify-center transition-all ${
+                                isChecked
+                                  ? "bg-accent border-accent text-white"
+                                  : "border-border bg-background"
+                              }`}
+                            >
                               {isChecked && <SvgCheck className="w-3 h-3 stroke-[3]" />}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-xs font-semibold text-text truncate">{doc.file_name || doc.doc_id}</div>
-                              <div className="text-3xs text-text-subtle">{t("wikiGraph.chunks", { count: doc.chunk_count })}</div>
+                              <div className="text-xs font-semibold text-text truncate">
+                                {doc.file_name || doc.doc_id}
+                              </div>
+                              <div className="text-3xs text-text-subtle">
+                                {t("wikiGraph.chunks", { count: doc.chunk_count })}
+                              </div>
                             </div>
                           </div>
                         );
                       })
                     )}
                   </div>
-
                   <div className="flex justify-between items-center pt-4 border-t border-border mt-auto">
                     <span className="text-xs text-text-subtle font-semibold">
-                      {t("wikiGraph.selectedDocs", { selected: selectedDocIds.length, total: availableDocs.length })}
+                      {t("wikiGraph.selectedDocs", {
+                        selected: selectedDocIds.length,
+                        total: availableDocs.length,
+                      })}
                     </span>
-
                     <button
                       disabled={isGenerating || selectedDocIds.length < 10}
                       onClick={handleGenerateWiki}
                       className={`text-xs py-2 px-4 flex items-center gap-1.5 bg-accent hover:bg-accent/95 text-white font-bold rounded-lg transition-all shadow-sm ${
-                        (isGenerating || selectedDocIds.length < 10) ? "opacity-50 cursor-not-allowed" : ""
+                        isGenerating || selectedDocIds.length < 10
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
                     >
                       {isGenerating ? (
@@ -391,8 +465,8 @@ export default function WikiAndGraphDashboard() {
                   </div>
                 </div>
               ) : selectedWiki ? (
+                /* Wiki detail */
                 <div className="flex-1 flex flex-col">
-                  {/* Article header */}
                   <div className="mb-4 pb-4 border-b border-border">
                     <div className="flex justify-between items-start gap-2 mb-2">
                       <h4 className="text-base font-extrabold text-text leading-tight">
@@ -402,23 +476,24 @@ export default function WikiAndGraphDashboard() {
                         {t("wikiGraph.version", { version: selectedWiki.version })}
                       </span>
                     </div>
-
                     <div className="text-3xs text-text-subtle">
-                      {t("wikiGraph.published")} {new Date(selectedWiki.created_at).toLocaleString()}
+                      {t("wikiGraph.published")}{" "}
+                      {new Date(selectedWiki.created_at).toLocaleString()}
                     </div>
                   </div>
-
-                  {/* Article content */}
                   <div className="flex-1 overflow-y-auto max-h-[480px] bg-background-strong border border-border p-4 rounded-xl">
-                    <div className="prose dark:prose-invert max-w-none text-xs text-text leading-relaxed whitespace-pre-wrap">
-                      {selectedWiki.content}
-                    </div>
+                    <div
+                      className="prose dark:prose-invert max-w-none text-xs text-text leading-relaxed whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: selectedWiki.content }}
+                    />
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center flex-1 text-center py-20">
                   <SvgFileText className="w-12 h-12 text-text-subtle mb-3" />
-                  <h4 className="text-sm font-bold text-text mb-1">{t("wikiGraph.noArticleSelected")}</h4>
+                  <h4 className="text-sm font-bold text-text mb-1">
+                    {t("wikiGraph.noArticleSelected")}
+                  </h4>
                   <p className="text-xs text-text-subtle max-w-[260px]">
                     {t("wikiGraph.selectWikiArticle")}
                   </p>
@@ -428,27 +503,36 @@ export default function WikiAndGraphDashboard() {
           </div>
         )}
 
-        {/* Entities Tab */}
+        {/* ──────────── Entities Tab ──────────── */}
         {activeTab === "entities" && (
           <div className="space-y-6">
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 bg-background-strong p-4 rounded-xl border border-border">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.searchEntities")}</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">
+                  {t("wikiGraph.searchEntities")}
+                </label>
                 <input
                   type="text"
                   placeholder={t("wikiGraph.filterEntityPlaceholder")}
                   value={entitySearch}
-                  onChange={(e) => setEntitySearch(e.target.value)}
+                  onChange={(e) => {
+                    setEntitySearch(e.target.value);
+                    setEntityPage(1);
+                  }}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
                 />
               </div>
-
               <div className="w-full md:w-56">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.entityType")}</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">
+                  {t("wikiGraph.entityType")}
+                </label>
                 <select
                   value={selectedEntityType}
-                  onChange={(e) => setSelectedEntityType(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedEntityType(e.target.value);
+                    setEntityPage(1);
+                  }}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
                 >
                   <option value="">{t("wikiGraph.allTypes")}</option>
@@ -467,54 +551,74 @@ export default function WikiAndGraphDashboard() {
               </div>
             )}
 
-            {entitiesLoading && !entities ? (
+            {entitiesLoading && !entitiesData ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-28 w-full bg-background-strong animate-pulse rounded-xl border border-border" />
+                  <div
+                    key={i}
+                    className="h-28 w-full bg-background-strong animate-pulse rounded-xl border border-border"
+                  />
                 ))}
               </div>
-            ) : filteredEntities.length === 0 ? (
+            ) : !entitiesData?.items || entitiesData.items.length === 0 ? (
               <div className="text-center py-16 text-text-subtle text-sm bg-background p-6 rounded-2xl border border-border">
                 {t("wikiGraph.noEntitiesFound")}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredEntities.map((entity) => (
-                  <div
-                    key={entity.entity_id}
-                    className="p-4 bg-background border border-border rounded-xl flex flex-col gap-2.5 shadow-2xs hover:border-accent/40 transition-all hover:shadow-xs"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-bold text-text truncate max-w-[200px]" title={entity.name}>
-                        {entity.name}
-                      </span>
-                      <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shrink-0">
-                        {entity.entity_type}
-                      </span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {entitiesData.items.map((entity: any) => (
+                    <div
+                      key={entity.entity_id}
+                      className="p-4 bg-background border border-border rounded-xl flex flex-col gap-2.5 shadow-2xs hover:border-accent/40 transition-all hover:shadow-xs"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span
+                          className="text-sm font-bold text-text truncate max-w-[200px]"
+                          title={entity.name}
+                        >
+                          {entity.name}
+                        </span>
+                        <span className="px-2 py-0.5 text-3xs font-extrabold uppercase rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shrink-0">
+                          {entity.entity_type}
+                        </span>
+                      </div>
+                      <p
+                        className="text-xs text-text-subtle line-clamp-3 leading-normal"
+                        title={entity.description}
+                      >
+                        {entity.description || t("wikiGraph.noDescriptionProvided")}
+                      </p>
                     </div>
-
-                    <p className="text-xs text-text-subtle line-clamp-3 leading-normal" title={entity.description}>
-                      {entity.description || t("wikiGraph.noDescriptionProvided")}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                <PaginationBar
+                  page={entityPage}
+                  total={entitiesData.total ?? 0}
+                  onPageChange={setEntityPage}
+                />
+              </>
             )}
           </div>
         )}
 
-        {/* Relations Tab */}
+        {/* ──────────── Relations Tab ──────────── */}
         {activeTab === "relations" && (
           <div className="space-y-6">
             {/* Filter and Search Bar */}
             <div className="flex flex-col md:flex-row gap-4 bg-background-strong p-4 rounded-xl border border-border">
               <div className="flex-1">
-                <label className="block text-xs font-semibold text-text-subtle mb-1">{t("wikiGraph.searchRelationships")}</label>
+                <label className="block text-xs font-semibold text-text-subtle mb-1">
+                  {t("wikiGraph.searchRelationships")}
+                </label>
                 <input
                   type="text"
                   placeholder={t("wikiGraph.filterRelationPlaceholder")}
                   value={relationSearch}
-                  onChange={(e) => setRelationSearch(e.target.value)}
+                  onChange={(e) => {
+                    setRelationSearch(e.target.value);
+                    setRelationPage(1);
+                  }}
                   className="w-full px-3 py-2 text-sm bg-background-input border border-border rounded-lg focus:outline-none focus:border-accent text-text"
                 />
               </div>
@@ -526,50 +630,66 @@ export default function WikiAndGraphDashboard() {
               </div>
             )}
 
-            {relationsLoading && !relations ? (
+            {relationsLoading && !relationsData ? (
               <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-20 w-full bg-background-strong animate-pulse rounded-xl border border-border" />
+                  <div
+                    key={i}
+                    className="h-20 w-full bg-background-strong animate-pulse rounded-xl border border-border"
+                  />
                 ))}
               </div>
-            ) : filteredRelations.length === 0 ? (
+            ) : !relationsData?.items || relationsData.items.length === 0 ? (
               <div className="text-center py-16 text-text-subtle text-sm bg-background p-6 rounded-2xl border border-border">
                 {t("wikiGraph.noRelationshipsFound")}
               </div>
             ) : (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                {filteredRelations.map((relation) => {
-                  const srcName = entityIdToNameMap.get(relation.source_entity_id) || t("wikiGraph.unknownEntity");
-                  const tgtName = entityIdToNameMap.get(relation.target_entity_id) || t("wikiGraph.unknownEntity");
-                  
-                  return (
-                    <div
-                      key={relation.relation_id}
-                      className="p-4 bg-background border border-border rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-accent/40 transition-all shadow-2xs"
-                    >
-                      <div className="flex-1 min-w-0 flex items-center flex-wrap gap-2 text-sm font-semibold">
-                        <span className="text-text font-bold bg-background-strong px-2.5 py-1 rounded-lg border border-border truncate max-w-[200px]" title={srcName}>
-                          {srcName}
-                        </span>
-
-                        <span className="px-2.5 py-0.5 text-2xs font-extrabold uppercase rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20">
-                          {relation.relation_type}
-                        </span>
-
-                        <span className="text-text font-bold bg-background-strong px-2.5 py-1 rounded-lg border border-border truncate max-w-[200px]" title={tgtName}>
-                          {tgtName}
-                        </span>
-                      </div>
-
-                      {relation.description && (
-                        <div className="text-xs text-text-subtle max-w-[360px] italic md:text-right border-l-2 md:border-l-0 md:border-r-2 border-accent-blue/40 pl-3 md:pl-0 md:pr-3">
-                          {relation.description}
+              <>
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                  {relationsData.items.map((relation: any) => {
+                    const srcName =
+                      entityIdToNameMap.get(relation.source_entity_id) ||
+                      t("wikiGraph.unknownEntity");
+                    const tgtName =
+                      entityIdToNameMap.get(relation.target_entity_id) ||
+                      t("wikiGraph.unknownEntity");
+                    return (
+                      <div
+                        key={relation.relation_id}
+                        className="p-4 bg-background border border-border rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-accent/40 transition-all shadow-2xs"
+                      >
+                        <div className="flex-1 min-w-0 flex items-center flex-wrap gap-2 text-sm font-semibold">
+                          <span
+                            className="text-text font-bold bg-background-strong px-2.5 py-1 rounded-lg border border-border truncate max-w-[200px]"
+                            title={srcName}
+                          >
+                            {srcName}
+                          </span>
+                          <span className="px-2.5 py-0.5 text-2xs font-extrabold uppercase rounded-full bg-accent-blue/10 text-accent-blue border border-accent-blue/20">
+                            {relation.relation_type}
+                          </span>
+                          <span
+                            className="text-text font-bold bg-background-strong px-2.5 py-1 rounded-lg border border-border truncate max-w-[200px]"
+                            title={tgtName}
+                          >
+                            {tgtName}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        {relation.description && (
+                          <div className="text-xs text-text-subtle max-w-[360px] italic md:text-right border-l-2 md:border-l-0 md:border-r-2 border-accent-blue/40 pl-3 md:pl-0 md:pr-3">
+                            {relation.description}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <PaginationBar
+                  page={relationPage}
+                  total={relationsData.total ?? 0}
+                  onPageChange={setRelationPage}
+                />
+              </>
             )}
           </div>
         )}

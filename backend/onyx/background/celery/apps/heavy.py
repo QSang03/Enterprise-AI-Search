@@ -135,6 +135,7 @@ celery_app.autodiscover_tasks(
             "onyx.background.celery.tasks.build",
             "onyx.background.celery.tasks.hierarchyfetching",
             "onyx.background.celery.tasks.graph_extraction",
+            "onyx.background.celery.tasks.wiki_auto_generation",
         ]
     )
 )

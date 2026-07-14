@@ -143,16 +143,51 @@ def _batch_list(items: list, size: int):
         yield items[i : i + size]
 
 
-def _delete_vespa_event_ids(event_ids: set[str]) -> set[str]:
-    """Delete specific events from Vespa by event_id (best-effort).
+def _delete_vespa_event_ids(
+    event_ids: set[str],
+    document_index: "DocumentIndex | None" = None,
+    doc_id: str | None = None,
+) -> set[str]:
+    """Delete specific events from the search index by event_id (best-effort).
+
+    When a ``document_index`` is provided, delegates to its
+    ``delete_knowledge_events_by_document`` method — this covers both
+    OpenSearch and Vespa deployments.  Falls back to direct Vespa HTTP API
+    calls for backward compatibility with older callers that do not pass a
+    document index.
 
     Returns the subset of IDs that **failed** to delete.
     """
     if not event_ids:
         return set()
 
-    from onyx.document_index.vespa.shared_utils.utils import get_vespa_http_client
-    from onyx.document_index.vespa_constants import VESPA_APPLICATION_ENDPOINT
+    # Prefer the DocumentIndex interface (works for OpenSearch & Vespa).
+    if document_index is not None and doc_id is not None:
+        try:
+            document_index.delete_knowledge_events_by_document(doc_id)
+            return set()
+        except Exception:
+            task_logger.exception(
+                "delete_knowledge_events_by_document failed for doc_id=%s",
+                doc_id,
+            )
+            return event_ids
+
+    # Fallback: direct Vespa HTTP API (legacy path).
+    try:
+        from onyx.document_index.vespa.shared_utils.utils import (
+            get_vespa_http_client,
+        )
+        from onyx.document_index.vespa_constants import (
+            VESPA_APPLICATION_ENDPOINT,
+        )
+    except ImportError:
+        task_logger.warning(
+            "Vespa client not available — cannot delete events by ID. "
+            "Returning all %d event IDs as failed.",
+            len(event_ids),
+        )
+        return event_ids
 
     failed: set[str] = set()
     try:
@@ -183,15 +218,19 @@ def _delete_with_retry(
     event_ids: set[str],
     ensure_lock_ttl: Callable[[], None],
     label: str = "",
+    document_index: "DocumentIndex | None" = None,
+    doc_id: str | None = None,
 ) -> set[str]:
-    """Delete events from Vespa with an internal retry loop.
+    """Delete events from the search index with an internal retry loop.
 
     Returns the IDs that still failed after all retries (empty = success).
     """
     if not event_ids:
         return set()
 
-    failed = _delete_vespa_event_ids(event_ids)
+    failed = _delete_vespa_event_ids(
+        event_ids, document_index=document_index, doc_id=doc_id,
+    )
     for attempt in range(_MAX_CLEANUP_RETRY_ATTEMPTS):
         if not failed:
             break
@@ -206,7 +245,9 @@ def _delete_with_retry(
         )
         time.sleep(delay)
         ensure_lock_ttl()
-        failed = _delete_vespa_event_ids(failed)
+        failed = _delete_vespa_event_ids(
+            failed, document_index=document_index, doc_id=doc_id,
+        )
 
     return failed
 
@@ -453,6 +494,7 @@ def graph_extraction_task(
         if our_ids:
             failed = _delete_with_retry(
                 our_ids, _ensure_lock_ttl, f"{reason}: Vespa cleanup",
+                document_index=document_index, doc_id=doc_id,
             )
             if failed:
                 _reenqueue_cleanup(
@@ -745,6 +787,8 @@ def graph_extraction_task(
                         old_ids - new_ids,
                         _ensure_lock_ttl,
                         "cleanup-only retry",
+                        document_index=document_index,
+                        doc_id=doc_id,
                     )
                     _cleanup_old_pg_events(
                         db_session, doc_id, job_uuid,
@@ -772,6 +816,8 @@ def graph_extraction_task(
                     partial_ids,
                     _ensure_lock_ttl,
                     "partial cleanup",
+                    document_index=document_index,
+                    doc_id=doc_id,
                 )
                 if failed_partial:
                     db_session.commit()
@@ -1091,6 +1137,8 @@ def graph_extraction_task(
         old_ids_to_rm = old_event_ids - new_event_ids
         failed_ids = _delete_with_retry(
             old_ids_to_rm, _ensure_lock_ttl, "generation cleanup",
+            document_index=document_index,
+            doc_id=doc_id,
         )
 
         # ── Phase 6: Generation swap — PG cleanup ────────────────────

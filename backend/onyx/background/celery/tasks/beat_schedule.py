@@ -199,6 +199,16 @@ beat_tasks: list[dict] = [
             "queue": OnyxCeleryQueues.GRAPH_EXTRACTION,
         },
     },
+    {
+        "name": "generate-wiki-for-cc-pairs",
+        "task": OnyxCeleryTask.GENERATE_WIKI_FOR_CC_PAIRS,
+        "schedule": timedelta(minutes=15),
+        "options": {
+            "priority": OnyxCeleryPriority.LOW,
+            "expires": BEAT_EXPIRES_DEFAULT,
+            "queue": OnyxCeleryQueues.GRAPH_EXTRACTION,
+        },
+    },
 ]
 
 # EE features — doc permissions sync and external group sync

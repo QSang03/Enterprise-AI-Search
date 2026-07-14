@@ -648,6 +648,7 @@ class OnyxCeleryTask:
     GRAPH_EXTRACTION_TENANT_CLEANUP_SWEEPER = (
         "graph_extraction_tenant_cleanup_sweeper"
     )
+    GENERATE_WIKI_FOR_CC_PAIRS = "generate_wiki_for_cc_pairs"
 
     # Sandbox cleanup
     CLEANUP_IDLE_SANDBOXES = "cleanup_idle_sandboxes"
