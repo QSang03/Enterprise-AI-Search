@@ -116,6 +116,7 @@ function arePropsEqual(
     prev.content === next.content &&
     prev.nodeId === next.nodeId &&
     prev.messageId === next.messageId &&
+    prev.senderEmail === next.senderEmail &&
     prev.files === next.files &&
     prev.disableSwitchingForStreaming === next.disableSwitchingForStreaming &&
     prev.otherMessagesCanSwitchTo === next.otherMessagesCanSwitchTo &&
