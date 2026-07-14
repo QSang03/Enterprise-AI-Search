@@ -72,7 +72,15 @@
     "reAuthenticate": "Xác thực lại",
     "previous": "Trước",
     "next": "Sau",
-    "pageNumber": "Trang {number}"
+    "pageNumber": "Trang {number}",
+    "moreActions": "Hành động khác",
+    "searchFilters": "Tìm kiếm bộ lọc",
+    "disableAllSources": "Tắt tất cả nguồn",
+    "enableAllSources": "Bật tất cả nguồn",
+    "disableAllTools": "Tắt tất cả công cụ",
+    "enableAllTools": "Bật tất cả công cụ",
+    "searchMcpTools": "Tìm kiếm công cụ của {server}",
+    "appSlogan": "Nền tảng AI mã nguồn mở"
   },
   "agentEditor": {
     "searchForAnAgent": "Tìm kiếm trợ lý...",
@@ -1026,6 +1034,7 @@
       "multiModelDesc": "Cho phép nhiều mô hình AI chạy song song để so sánh câu trả lời trong phiên chat.",
       "deepResearch": "Nghiên cứu chuyên sâu (Deep Research)",
       "deepResearchDesc": "Hệ thống nghiên cứu dạng agent tự động tìm kiếm trên web và các nguồn kết nối nội bộ. Tiêu thụ nhiều token hơn.",
+      "deepResearchDisabledInMultiModel": "Nghiên cứu chuyên sâu bị tắt ở chế độ nhiều mô hình",
       "autoScroll": "Tự động cuộn trang",
       "autoScrollDesc": "Tự động cuộn xuống dưới khi chat tạo phản hồi. Người dùng có thể ghi đè trong cài đặt cá nhân.",
       "temperature": "Điều chỉnh độ ngẫu nhiên",

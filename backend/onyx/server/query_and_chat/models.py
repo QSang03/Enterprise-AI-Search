@@ -236,6 +236,9 @@ class ChatMessageDetail(BaseModel):
     processing_duration_seconds: float | None = None
     preferred_response_id: int | None = None
     model_display_name: str | None = None
+    # Email of the user who sent this message.  Populated for USER-type
+    # messages so department-shared chats can show the author.
+    sender_email: str | None = None
 
     def model_dump(  # ty: ignore[invalid-method-override]
         self, *args: list, **kwargs: dict[str, Any]

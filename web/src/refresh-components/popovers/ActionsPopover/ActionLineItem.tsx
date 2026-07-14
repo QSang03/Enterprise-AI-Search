@@ -1,7 +1,13 @@
 "use client";
 
 import React from "react";
-import { SEARCH_TOOL_ID } from "@/app/app/components/tools/constants";
+import {
+  SEARCH_TOOL_ID,
+  IMAGE_GENERATION_TOOL_ID,
+  WEB_SEARCH_TOOL_ID,
+  PYTHON_TOOL_ID,
+  OPEN_URL_TOOL_ID,
+} from "@/app/app/components/tools/constants";
 import { ToolSnapshot } from "@/lib/tools/interfaces";
 import { getIconForAction } from "@/app/app/services/actionUtils";
 import { ToolAuthStatus } from "@/lib/hooks/useToolOAuthStatus";
@@ -70,6 +76,20 @@ export default function ActionLineItem({
   const toolName = tool?.name || providedLabel || "";
 
   let label = tool ? tool.display_name || tool.name : providedLabel!;
+  if (tool?.in_code_tool_id) {
+    const systemToolTranslations: Record<string, string> = {
+      [SEARCH_TOOL_ID]: t("chatPreferences.internalSearch"),
+      [IMAGE_GENERATION_TOOL_ID]: t("chatPreferences.imageGen"),
+      [WEB_SEARCH_TOOL_ID]: t("chatPreferences.webSearch"),
+      [PYTHON_TOOL_ID]: t("chatPreferences.codeInterpreter"),
+      [OPEN_URL_TOOL_ID]: t("chatPreferences.openUrl"),
+    };
+    const translatedLabel = systemToolTranslations[tool.in_code_tool_id];
+    if (translatedLabel) {
+      label = translatedLabel;
+    }
+  }
+
   if (!!currentProjectId && tool?.in_code_tool_id === SEARCH_TOOL_ID) {
     label = t("common.projectSearch");
   }

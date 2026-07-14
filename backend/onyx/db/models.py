@@ -2861,6 +2861,11 @@ class ChatMessage(Base):
         ForeignKey("chat_message.id", ondelete="SET NULL"), nullable=True
     )
 
+    # Author of this message.  Populated for USER-type messages so that
+    # department-shared chats can show who wrote what.  NULL for assistant /
+    # system messages.
+    sender_email: Mapped[str | None] = mapped_column(String, nullable=True)
+
     # The display name of the model that generated this assistant message
     model_display_name: Mapped[str | None] = mapped_column(String, nullable=True)
 

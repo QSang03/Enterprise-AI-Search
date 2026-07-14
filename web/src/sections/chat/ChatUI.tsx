@@ -243,6 +243,7 @@ const ChatUI = React.memo(
                       stopGenerating={stopGenerating}
                       content={message.message}
                       files={message.files}
+                      senderEmail={message.senderEmail}
                       messageId={message.messageId}
                       nodeId={message.nodeId}
                       onEdit={handleEditWithMessageId}

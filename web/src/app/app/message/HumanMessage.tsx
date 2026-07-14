@@ -91,6 +91,7 @@ interface HumanMessageProps {
   // Content and display
   content: string;
   files?: FileDescriptor[];
+  senderEmail?: string | null;
 
   // Message navigation - nodeId for tree position, messageId for editing
   nodeId: number;
@@ -126,6 +127,7 @@ function arePropsEqual(
 const HumanMessage = React.memo(function HumanMessage({
   content: initialContent,
   files,
+  senderEmail,
   nodeId,
   messageId,
   otherMessagesCanSwitchTo,
@@ -208,6 +210,11 @@ const HumanMessage = React.memo(function HumanMessage({
         id="onyx-human-message"
         className="flex flex-col justify-end w-full relative"
       >
+        {senderEmail && (
+          <div className="text-xs text-text-subtle text-right mr-2 mb-1">
+            {senderEmail}
+          </div>
+        )}
         <FileDisplay files={files || []} />
         {isEditing ? (
           <MessageEditing

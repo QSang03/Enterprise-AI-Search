@@ -112,6 +112,7 @@ export default function SharedChatDisplay({
                       key={message.messageId}
                       content={message.message}
                       files={message.files}
+                      senderEmail={message.senderEmail}
                       nodeId={message.nodeId}
                     />
                   );

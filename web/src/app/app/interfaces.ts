@@ -191,7 +191,10 @@ export interface Message {
   currentFeedback?: FeedbackType | null;
 
   // Duration in seconds for processing this message (agent messages only)
-  processingDurationSeconds?: number;
+	  processingDurationSeconds?: number;
+	
+	  // Email of the user who sent this message (department-shared chats)
+	  senderEmail?: string | null;
 }
 
 export interface BackendChatSession {
@@ -257,10 +260,12 @@ export interface BackendMessage {
   is_agentic: boolean | null;
   // Multi-model answer generation
   preferred_response_id: number | null;
-  model_display_name: string | null;
-  // Non-null when the model errored during generation
-  error: string | null;
-}
+	  model_display_name: string | null;
+	  // Non-null when the model errored during generation
+	  error: string | null;
+	  // Email of the user who sent this message (department-shared chats)
+	  sender_email: string | null;
+	}
 
 export interface MessageResponseIDInfo {
   type: "message_id_info";

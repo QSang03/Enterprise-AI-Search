@@ -67,6 +67,7 @@ from onyx.db.models import ChatSessionSharedStatus
 from onyx.db.models import Persona
 from onyx.db.models import User
 from onyx.db.persona import get_persona_by_id
+from onyx.db.persona_sharing import get_user_group_ids_for_user
 from onyx.db.usage import increment_usage
 from onyx.db.usage import UsageType
 from onyx.db.user_file import get_file_id_by_user_file_id
@@ -277,6 +278,9 @@ def get_chat_session(
     db_session: Session = Depends(get_session),
 ) -> ChatSessionDetailResponse:
     user_id = user.id
+    user_group_ids = (
+        get_user_group_ids_for_user(db_session, user_id) if user_id else None
+    )
     try:
         chat_session = get_chat_session_by_id(
             chat_session_id=session_id,
@@ -284,6 +288,7 @@ def get_chat_session(
             db_session=db_session,
             is_shared=is_shared,
             include_deleted=include_deleted,
+            user_group_ids=user_group_ids,
         )
     except ValueError:
         try:

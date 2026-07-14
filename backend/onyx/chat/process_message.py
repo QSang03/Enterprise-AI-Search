@@ -84,6 +84,7 @@ from onyx.db.models import ChatMessage
 from onyx.db.models import Persona
 from onyx.db.models import User
 from onyx.db.models import UserFile
+from onyx.db.persona_sharing import get_user_group_ids_for_user
 from onyx.db.projects import get_user_files_from_project
 from onyx.db.tools import get_tools
 from onyx.deep_research.dr_loop import run_deep_research_llm_loop
@@ -626,18 +627,26 @@ def build_chat_turn(
             db_session=db_session,
         )
         yield CreateChatSessionID(chat_session_id=chat_session.id)
+        user_group_ids = (
+            get_user_group_ids_for_user(db_session, user_id) if user_id else None
+        )
         chat_session = get_chat_session_by_id(
             chat_session_id=chat_session.id,
             user_id=user_id,
             db_session=db_session,
             eager_load_persona=True,
+            user_group_ids=user_group_ids,
         )
     else:
+        user_group_ids = (
+            get_user_group_ids_for_user(db_session, user_id) if user_id else None
+        )
         chat_session = get_chat_session_by_id(
             chat_session_id=new_msg_req.chat_session_id,
             user_id=user_id,
             db_session=db_session,
             eager_load_persona=True,
+            user_group_ids=user_group_ids,
         )
 
     persona = chat_session.persona
@@ -812,6 +821,7 @@ def build_chat_turn(
             files=new_msg_req.file_descriptors,
             db_session=db_session,
             commit=True,
+            sender_email=user.email if not user.is_anonymous else None,
         )
         chat_history.append(user_message)
 

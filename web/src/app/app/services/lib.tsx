@@ -179,10 +179,10 @@ export async function* sendMessage({
     llm_override:
       temperature || modelVersion
         ? {
-            temperature,
-            model_provider: modelProvider,
-            model_version: modelVersion,
-          }
+          temperature,
+          model_provider: modelProvider,
+          model_version: modelVersion,
+        }
         : null,
     // Multi-model: list of LLM overrides for parallel generation
     llm_overrides: llmOverrides ?? null,
@@ -415,13 +415,13 @@ export function processRawChatHistory(
       // this is identical to what is computed at streaming time
       ...(messageInfo.message_type === "assistant"
         ? {
-            retrievalType: retrievalType,
-            researchType: messageInfo.research_type as ResearchType | undefined,
-            query: messageInfo.rephrased_query,
-            documents: messageInfo?.context_docs || [],
-            citations: messageInfo?.citations || {},
-            processingDurationSeconds: messageInfo.processing_duration_seconds,
-          }
+          retrievalType: retrievalType,
+          researchType: messageInfo.research_type as ResearchType | undefined,
+          query: messageInfo.rephrased_query,
+          documents: messageInfo?.context_docs || [],
+          citations: messageInfo?.citations || {},
+          processingDurationSeconds: messageInfo.processing_duration_seconds,
+        }
         : {}),
       toolCall: messageInfo.tool_call,
       parentNodeId: messageInfo.parent_message,
@@ -433,6 +433,7 @@ export function processRawChatHistory(
       // Multi-model answer generation
       preferredResponseId: messageInfo.preferred_response_id ?? null,
       modelDisplayName: messageInfo.model_display_name ?? null,
+      senderEmail: messageInfo.sender_email ?? null,
     };
 
     messages.set(messageInfo.message_id, message);
@@ -489,8 +490,7 @@ export function buildChatUrl(
   const finalSearchParams: string[] = [];
   if (chatSessionId) {
     finalSearchParams.push(
-      `${
-        search ? SEARCH_PARAM_NAMES.SEARCH_ID : SEARCH_PARAM_NAMES.CHAT_ID
+      `${search ? SEARCH_PARAM_NAMES.SEARCH_ID : SEARCH_PARAM_NAMES.CHAT_ID
       }=${chatSessionId}`
     );
   }

@@ -63,6 +63,7 @@ from celery.utils.log import get_task_logger
 from redis.exceptions import RedisError
 from redis.lock import Lock as RedisLock
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload
 
 from onyx.background.celery.apps.app_base import task_logger
 from onyx.configs.constants import OnyxCeleryQueues
@@ -929,12 +930,13 @@ def graph_extraction_task(
         from shared_configs.configs import MODEL_SERVER_HOST
         from shared_configs.configs import MODEL_SERVER_PORT
 
-        # Reload search_settings in the current session context to avoid
-        # lazy-load failures on relationships (cloud_provider, etc.) when
-        # the original Phase-0 session has been closed.
+        # Reload search_settings with eagerly-loaded relationships so
+        # EmbeddingModel.from_db_model can access cloud_provider etc.
+        # without triggering a lazy-load failure on a detached instance.
         with get_session_with_current_tenant() as reload_session:
             search_settings = (
                 reload_session.query(SearchSettings)
+                .options(joinedload(SearchSettings.cloud_provider))
                 .filter(SearchSettings.id == search_settings.id)
                 .first()
             )

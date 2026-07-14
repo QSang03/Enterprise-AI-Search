@@ -937,7 +937,7 @@ export default function ActionsPopover({
 
         (isAdmin || isCurator) && (
           <LineItem href="/admin/actions" icon={SvgActions} key="more-actions">
-            More Actions
+            {t("common.moreActions")}
           </LineItem>
         ),
       ]}
@@ -947,12 +947,12 @@ export default function ActionsPopover({
   const toolsView = (
     <SwitchList
       items={sourceToggleItems}
-      searchPlaceholder="Search Filters"
+      searchPlaceholder={t("common.searchFilters")}
       allDisabled={allSourcesDisabled}
       onDisableAll={handleDisableAllSources}
       onEnableAll={handleEnableAllSources}
-      disableAllLabel="Disable All Sources"
-      enableAllLabel="Enable All Sources"
+      disableAllLabel={t("common.disableAllSources")}
+      enableAllLabel={t("common.enableAllSources")}
       onBack={() => setSecondaryView(null)}
     />
   );
@@ -960,12 +960,12 @@ export default function ActionsPopover({
   const mcpView = (
     <SwitchList
       items={mcpToggleItems}
-      searchPlaceholder={`Search ${selectedMcpServer?.name ?? "server"} tools`}
+      searchPlaceholder={t("common.searchMcpTools", { server: selectedMcpServer?.name ?? "server" })}
       allDisabled={mcpAllDisabled}
       onDisableAll={disableAllToolsForSelectedServer}
       onEnableAll={enableAllToolsForSelectedServer}
-      disableAllLabel="Disable All Tools"
-      enableAllLabel="Enable All Tools"
+      disableAllLabel={t("common.disableAllTools")}
+      enableAllLabel={t("common.enableAllTools")}
       onBack={() => setSecondaryView(null)}
       footer={mcpFooter}
     />

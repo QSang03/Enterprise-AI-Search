@@ -54,6 +54,7 @@ def get_chat_session_by_id(
     include_deleted: bool = False,
     is_shared: bool = False,
     eager_load_persona: bool = False,
+    user_group_ids: set[int] | None = None,
 ) -> ChatSession:
     stmt = select(ChatSession).where(ChatSession.id == chat_session_id)
 
@@ -75,9 +76,12 @@ def get_chat_session_by_id(
         # if user_id is None, assume this is an admin who should be able
         # to view all chat sessions
         if user_id is not None:
-            stmt = stmt.where(
-                or_(ChatSession.user_id == user_id, ChatSession.user_id.is_(None))
-            )
+            filters = [ChatSession.user_id == user_id, ChatSession.user_id.is_(None)]
+            # Also allow access if session belongs to a user group the caller
+            # is a member of (department-shared chats).
+            if user_group_ids:
+                filters.append(ChatSession.user_group_id.in_(user_group_ids))
+            stmt = stmt.where(or_(*filters))
 
     result = db_session.execute(stmt)
     chat_session = result.scalar_one_or_none()
@@ -119,7 +123,18 @@ def get_chat_sessions_by_user(
     only_non_department_chats: bool = False,
     include_failed_chats: bool = False,
 ) -> list[ChatSession]:
-    stmt = select(ChatSession).where(ChatSession.user_id == user_id)
+    # When a department_id is provided, show ALL sessions scoped to that
+    # department (not just the current user's), so team members can see
+    # each other's chats.
+    if department_id is not None:
+        stmt = select(ChatSession).where(
+            or_(
+                ChatSession.user_id == user_id,
+                ChatSession.user_group_id == department_id,
+            )
+        )
+    else:
+        stmt = select(ChatSession).where(ChatSession.user_id == user_id)
 
     if not include_onyxbot_flows:
         stmt = stmt.where(ChatSession.onyxbot_flow.is_(False))
@@ -753,6 +768,7 @@ def create_new_chat_message(
     commit: bool = True,
     reserved_message_id: int | None = None,
     reasoning_tokens: str | None = None,
+    sender_email: str | None = None,
 ) -> ChatMessage:
     if reserved_message_id is not None:
         # Edit existing message
@@ -965,6 +981,7 @@ def translate_db_message_to_chat_message_detail(
         processing_duration_seconds=chat_message.processing_duration_seconds,
         preferred_response_id=chat_message.preferred_response_id,
         model_display_name=chat_message.model_display_name,
+        sender_email=chat_message.sender_email,
     )
 
     return chat_msg_detail
