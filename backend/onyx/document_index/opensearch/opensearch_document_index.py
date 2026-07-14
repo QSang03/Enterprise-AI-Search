@@ -49,11 +49,14 @@ from onyx.document_index.opensearch.schema import DocumentChunk
 from onyx.document_index.opensearch.schema import DocumentChunkWithoutVectors
 from onyx.document_index.opensearch.schema import DocumentSchema
 from onyx.document_index.opensearch.schema import EVENT_ACCESS_CONTROL_LIST_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_CATEGORY_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_CHUNK_ID_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_CONFIDENCE_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_CONTENT_EMBEDDING_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_CONTENT_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_DOCUMENT_ID_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_DOC_UPDATED_AT_FIELD_NAME
+from onyx.document_index.opensearch.schema import EVENT_ENTITY_NAMES_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_ID_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_IS_PUBLIC_FIELD_NAME
 from onyx.document_index.opensearch.schema import EVENT_TENANT_ID_FIELD_NAME
