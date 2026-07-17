@@ -9,6 +9,7 @@ from onyx.configs.app_configs import INTEGRATION_TESTS_MODE
 from onyx.configs.app_configs import MANAGED_VESPA
 from onyx.configs.app_configs import ONYX_DISABLE_VESPA
 from onyx.configs.app_configs import VESPA_NUM_ATTEMPTS_ON_STARTUP
+from onyx.configs.chat_configs import SEARXNG_BASE_URL
 from onyx.configs.constants import KV_REINDEX_KEY
 from onyx.configs.embedding_configs import SUPPORTED_EMBEDDING_MODELS
 from onyx.configs.embedding_configs import SupportedEmbeddingModel
@@ -33,6 +34,8 @@ from onyx.db.search_settings import get_active_search_settings
 from onyx.db.search_settings import get_current_search_settings
 from onyx.db.search_settings import update_current_search_settings
 from onyx.db.swap_index import check_and_perform_index_swap
+from onyx.db.web_search import fetch_web_search_providers
+from onyx.db.web_search import upsert_web_search_provider
 from onyx.document_index.factory import get_all_document_indices
 from onyx.document_index.interfaces_new import DocumentIndex
 from onyx.document_index.opensearch.client import OpenSearchClient
@@ -59,6 +62,7 @@ from shared_configs.configs import ALT_INDEX_SUFFIX
 from shared_configs.configs import MODEL_SERVER_HOST
 from shared_configs.configs import MODEL_SERVER_PORT
 from shared_configs.configs import MULTI_TENANT
+from shared_configs.enums import WebSearchProviderType
 
 logger = setup_logger()
 
@@ -288,6 +292,32 @@ def setup_postgres(db_session: Session) -> None:
         update_default_provider(
             provider_id=new_llm_provider.id, model_name=llm_model, db_session=db_session
         )
+
+    # Seed default SearXNG web search provider if none exist
+    providers = fetch_web_search_providers(db_session)
+    if not providers:
+        logger.notice(
+            "No web search providers configured. "
+            "Setting up default SearXNG provider at %s",
+            SEARXNG_BASE_URL,
+        )
+        try:
+            upsert_web_search_provider(
+                provider_id=None,
+                name="SearXNG (Default)",
+                provider_type=WebSearchProviderType.SEARXNG,
+                api_key=None,
+                api_key_changed=False,
+                config={"searxng_base_url": SEARXNG_BASE_URL},
+                activate=True,
+                db_session=db_session,
+            )
+            db_session.commit()
+            logger.notice(
+                "Default SearXNG web search provider configured and activated."
+            )
+        except Exception as e:
+            logger.warning("Failed to seed default SearXNG provider: %s", e)
 
 
 def update_default_multipass_indexing(db_session: Session) -> None:
