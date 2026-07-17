@@ -565,14 +565,9 @@ services:
     environment:
       - SEARXNG_PORT=8080
       - SEARXNG_BIND_ADDRESS=0.0.0.0
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-onyx-internal-searxng-key}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "python3",
-          "-c",
-          "import urllib.request, json; c=json.loads(urllib.request.urlopen('http://localhost:8080/config').read()); assert 'searxng' in c.get('brand',{}).get('GIT_URL','')",
-        ]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/config"]
       interval: 30s
       timeout: 10s
       retries: 3

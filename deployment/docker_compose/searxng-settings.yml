@@ -1,16 +1,15 @@
 # SearXNG configuration for Onyx integration
-#
-# This file overrides specific defaults from the built-in settings.yml
-# so that SearXNG works inside the Onyx Docker compose stack:
-#   - Listen on port 8080 (instead of 8888)
-#   - Bind to 0.0.0.0 (instead of 127.0.0.1) for inter-container networking
-#   - Enable JSON format (required by Onyx's SearXNG client)
-#
-# Other settings (engines, UI, etc.) use SearXNG's built-in defaults.
+# use_default_settings: true tells SearXNG to deep-merge with the built-in
+# defaults — only the specific keys listed below override the base.
+use_default_settings: true
 
 server:
   port: 8080
   bind_address: "0.0.0.0"
+  secret_key: "onyx-internal-searxng-key"
+  limiter: false
+  image_proxy: false
+  method: POST
 
 search:
   formats:
