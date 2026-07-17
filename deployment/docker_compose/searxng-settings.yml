@@ -1,7 +1,11 @@
 # SearXNG configuration for Onyx integration
 # use_default_settings: true tells SearXNG to deep-merge with the built-in
 # defaults — only the specific keys listed below override the base.
-use_default_settings: true
+use_default_settings:
+  engines:
+    remove:
+      - ahmia       # requires Tor network, not needed
+      - torch       # requires Tor network, not needed
 
 server:
   port: 8080
