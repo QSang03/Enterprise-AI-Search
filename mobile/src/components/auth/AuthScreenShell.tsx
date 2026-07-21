@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { Image, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import SvgOnyxLogo from "@/icons/onyx-logo";
 
 interface AuthScreenShellProps {
   title: string;
@@ -31,10 +30,10 @@ export function AuthScreenShell({
           keyboardShouldPersistTaps="handled"
         >
           <View className="rounded-16 border border-border-01 bg-background-neutral-01 p-24 shadow-sm">
-            <Icon
-              as={SvgOnyxLogo}
-              size={44}
-              className="text-theme-primary-05"
+            <Image
+              source={require("../../../assets/images/icon.png")}
+              style={{ width: 80, height: 36 }}
+              resizeMode="contain"
             />
             <View className="mt-12">
               <Text font="heading-h2" color="text-05">

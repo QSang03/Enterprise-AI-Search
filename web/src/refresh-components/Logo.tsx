@@ -31,10 +31,14 @@ export default function Logo({
   const applicationName = enterprise?.application_name;
 
   if (onyxBranded) {
-    return folded ? (
-      <SvgOnyxLogo size={resolvedSize} className={cn("shrink-0", className)} />
-    ) : (
-      <SvgOnyxLogoTyped size={resolvedSize} className={className} />
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        alt="NKC Logo"
+        src="/logo.png"
+        className={cn("object-contain shrink-0", className)}
+        style={{ height: resolvedSize, width: "auto" }}
+      />
     );
   }
 
@@ -54,7 +58,13 @@ export default function Logo({
       />
     </div>
   ) : (
-    <SvgOnyxLogo size={resolvedSize} className={cn("shrink-0", className)} />
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      alt="NKC Logo"
+      src="/logo.png"
+      className={cn("object-contain shrink-0", className)}
+      style={{ height: resolvedSize, width: "auto" }}
+    />
   );
 
   const renderNameAndPoweredBy = (opts: {
@@ -100,9 +110,13 @@ export default function Logo({
   // Handle "logo_and_name" or default behavior
   return applicationName ? (
     renderNameAndPoweredBy({ includeLogo: true, includeName: true })
-  ) : folded ? (
-    <SvgOnyxLogo size={resolvedSize} className={cn("shrink-0", className)} />
   ) : (
-    <SvgOnyxLogoTyped size={resolvedSize} className={className} />
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      alt="NKC Logo"
+      src="/logo.png"
+      className={cn("object-contain shrink-0", className)}
+      style={{ height: resolvedSize, width: "auto" }}
+    />
   );
 }
