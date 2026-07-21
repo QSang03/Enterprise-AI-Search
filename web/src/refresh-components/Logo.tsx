@@ -78,7 +78,7 @@ export default function Logo({
                   className={"line-clamp-1 truncate"}
                   nowrap
                 >
-                  Powered by Onyx
+                  Powered by NKC
                 </Text>
               )}
           </div>

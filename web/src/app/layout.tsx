@@ -60,13 +60,13 @@ const dmMono = DM_Mono({
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  let title = "Onyx";
+  let title = "NKC";
   let iconSrc = "/onyx.ico";
 
   if (SERVER_SIDE_ONLY__PAID_ENTERPRISE_FEATURES_ENABLED) {
     const enterprise = await fetchEnterpriseSettingsSS();
     if (enterprise) {
-      title = enterprise.application_name?.trim() || "Onyx";
+      title = enterprise.application_name?.trim() || "NKC";
       if (enterprise.use_custom_logo) {
         iconSrc = "/api/enterprise-settings/logo";
       }

@@ -43,7 +43,7 @@ export default function Home() {
     <SafeAreaView className="flex-1 bg-background-neutral-00">
       <View className="flex-row items-center gap-2 px-4 py-3">
         <SidebarTrigger />
-        <Text font="main-ui-action">Onyx Mobile</Text>
+        <Text font="main-ui-action">NKC Mobile</Text>
       </View>
 
       <View className="flex-1 items-center justify-center px-24">
@@ -71,7 +71,7 @@ export default function Home() {
         <SidebarLayouts.Header
           logo={() => (
             <Text font="heading-h3" className="px-1">
-              Onyx
+              NKC
             </Text>
           )}
         />

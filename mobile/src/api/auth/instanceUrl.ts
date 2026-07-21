@@ -11,7 +11,7 @@ const PROBE_TIMEOUT_MS = 10_000;
 export function normalizeServerUrl(input: string): string {
   const trimmed = input.trim();
   if (trimmed.length === 0) {
-    throw new Error("Enter your Onyx instance URL.");
+    throw new Error("Enter your NKC instance URL.");
   }
   const withScheme = /^https?:\/\//i.test(trimmed)
     ? trimmed
@@ -50,13 +50,13 @@ export async function probeAuthType(
       signal: controller.signal,
     });
   } catch {
-    throw new Error("Couldn't reach an Onyx instance at that address.");
+    throw new Error("Couldn't reach an NKC instance at that address.");
   } finally {
     clearTimeout(timeout);
   }
 
   if (!res.ok) {
-    throw new Error("Couldn't reach an Onyx instance at that address.");
+    throw new Error("Couldn't reach an NKC instance at that address.");
   }
 
   let body: unknown;
@@ -66,7 +66,7 @@ export async function probeAuthType(
     body = undefined;
   }
   if (!isAuthTypeMetadata(body)) {
-    throw new Error("That address doesn't look like an Onyx instance.");
+    throw new Error("That address doesn't look like an NKC instance.");
   }
   return body;
 }

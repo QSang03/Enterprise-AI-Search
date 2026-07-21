@@ -3,7 +3,7 @@
   "app": {
     "windows": [
       {
-        "title": "Onyx",
+        "title": "NKC",
         "label": "main",
         "url": "index.html",
         "width": 1200,

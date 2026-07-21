@@ -84,7 +84,7 @@ export async function runBrowserSso(
 ): Promise<BrowserSsoResult> {
   const serverUrl = getStoredServerUrl();
   if (!serverUrl) {
-    throw new Error("Connect to an Onyx instance before signing in.");
+    throw new Error("Connect to an NKC instance before signing in.");
   }
   if (!descriptor.authorizePath) {
     throw new Error(`Provider ${descriptor.id} has no authorize endpoint.`);

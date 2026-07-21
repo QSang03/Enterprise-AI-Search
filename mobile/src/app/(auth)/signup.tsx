@@ -17,7 +17,7 @@ export default function SignupScreen() {
   return (
     <AuthScreenShell
       title="Create account"
-      subtitle="Get started with Onyx"
+      subtitle="Get started with NKC"
       footer={
         <AuthSwitchLink
           prompt="Already have an account?"

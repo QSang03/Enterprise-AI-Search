@@ -47,10 +47,10 @@ export default function ConnectScreen() {
   }
 
   return (
-    <AuthScreenShell title="Connect to Onyx">
+    <AuthScreenShell title="Connect to NKC">
       <InputLayouts.Vertical
         title="Root Domain"
-        description="The root URL for your Onyx instance"
+        description="The root URL for your NKC instance"
         error={error ?? undefined}
       >
         <TextInput

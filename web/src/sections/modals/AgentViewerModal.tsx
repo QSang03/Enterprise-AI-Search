@@ -261,7 +261,7 @@ export default function AgentViewerModal({ agent }: AgentViewerModalProps) {
             )}
             <Content
               icon={SvgUser}
-              title={agent.owner?.email ?? "Onyx"}
+              title={agent.owner?.email ?? "NKC"}
               sizePreset="main-ui"
               variant="body"
               color="muted"

@@ -682,11 +682,11 @@ export class OnyxChatWidget extends LitElement {
         <div class="powered-by">
           Powered by
           <a
-            href="https://onyx.app"
+            href="https://nkc.app"
             target="_blank"
             rel="noopener noreferrer"
             style="text-decoration: underline;"
-            >Onyx</a
+            >NKC</a
           >
         </div>
       </div>
