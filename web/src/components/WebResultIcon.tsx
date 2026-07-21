@@ -33,8 +33,9 @@ export function WebResultIcon({
 
   return (
     <>
-      {(hostname === "onyx.app" || hostname?.includes("onyx.app")) ? (
-        <SvgOnyxLogo size={size} className="dark:text-white text-black" />
+      {(hostname === "onyx.app" || hostname?.includes("onyx.app") || hostname === "nkc.app" || hostname?.includes("nkc.app")) ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img alt="NKC" src="/logo.png" className="object-contain" style={{ height: size, width: "auto" }} />
       ) : hostname === "github.com" || hostname?.endsWith(".github.com") ? (
         <SvgGithub size={size} />
       ) : !error ? (

@@ -129,7 +129,7 @@ function SettingsPopover({
           rounding="sm"
           icon={SvgHelpCircle}
           title={t("common.helpFaq")}
-          href="https://docs.onyx.app"
+          href="https://docs.nkc.app"
           target="_blank"
         />,
         enterpriseSettings?.custom_help_link_url && (
@@ -204,9 +204,9 @@ function SettingsPopover({
             orientation="reverse"
             icon={SvgOnyxLogo}
             title={markdown(
-              `[Onyx ${
+              `[NKC ${
                 settings.version ?? "dev"
-              }](https://docs.onyx.app/changelog)`
+              }](https://docs.nkc.app/changelog)`
             )}
           />
         </div>,

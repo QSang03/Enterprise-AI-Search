@@ -519,7 +519,8 @@ export default function WebSearchPage() {
                       ContentLogo ? (
                         <ContentLogo size={16} />
                       ) : provider.provider_type === "onyx_web_crawler" ? (
-                        <SvgOnyxLogo size={16} />
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img alt="NKC" src="/logo.png" className="h-4 w-auto object-contain" />
                       ) : (
                         <SvgGlobe size={16} />
                       )

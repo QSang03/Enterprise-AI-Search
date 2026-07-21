@@ -6,6 +6,6 @@ export function useCustomFooterContent(): string {
   const { t } = useTranslation();
   return (
     settings.enterprise?.custom_lower_disclaimer_content ||
-    `[Onyx ${settings.version ?? "dev"}](https://www.onyx.app/) - ${t("common.appSlogan")}`
+    `[NKC ${settings.version ?? "dev"}](https://nkc.app/) - ${t("common.appSlogan")}`
   );
 }
