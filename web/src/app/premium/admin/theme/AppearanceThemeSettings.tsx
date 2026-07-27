@@ -58,7 +58,7 @@ export const AppearanceThemeSettings = forwardRef<
 ) {
   const { t } = useTranslation();
   const { values, errors, setFieldValue } = useFormikContext<any>();
-  const enterpriseTier = useTierAtLeast(Tier.ENTERPRISE);
+  const enterpriseTier = true;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const applicationNameInputRef = useRef<HTMLInputElement>(null);
   const greetingMessageInputRef = useRef<HTMLInputElement>(null);

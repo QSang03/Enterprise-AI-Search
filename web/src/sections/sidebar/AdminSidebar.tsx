@@ -143,7 +143,7 @@ function buildItems(
 
   // 7. Organization (admin only)
   if (!isCurator) {
-    addGated(SECTIONS.ORGANIZATION, ADMIN_ROUTES.THEME, Tier.BUSINESS);
+    add(SECTIONS.ORGANIZATION, ADMIN_ROUTES.THEME);
     add(SECTIONS.ORGANIZATION, ADMIN_ROUTES.SECURITY_HARDENING);
   }
 
